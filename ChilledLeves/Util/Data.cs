@@ -423,5 +423,17 @@ public static unsafe class Data
         ];
     }
 
+    public class LeveDataDict
+    {
+        public required uint JobID { get; set; }
+        public required string LeveName { get; set; }
+        public required int Amount { get; set; }
+        public required uint QuestID { get; set; }
+        public required uint ItemID { get; set; }
+        public required int RepeatAmount { get; set; }
+        public required uint StartingCity { get; set; }
+        public required string ZoneName { get; set; }
+    }
 
+    public static Dictionary<uint, LeveDataDict> LeveDict = new();
 }

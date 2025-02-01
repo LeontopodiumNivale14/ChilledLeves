@@ -54,6 +54,8 @@ public sealed class ChilledLeves : IDalamudPlugin
         settingWindow = new();
         debugWindow = new();
 
+        // PopulateDictionary();
+
         taskManager = new(new(abortOnTimeout: true, timeLimitMS: 20000, showDebug: true));
         Svc.PluginInterface.UiBuilder.Draw += windowSystem.Draw;
         Svc.PluginInterface.UiBuilder.OpenMainUi += () =>

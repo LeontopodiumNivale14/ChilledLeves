@@ -19,6 +19,7 @@ internal class CraftingLeves
     private static float maxLocationWidth = 0.0f;
     private static uint CurrentClass = 0;
     private static string LocationSelected = "All";
+    private static int totalRow = 0;
 
     public static void Draw()
     {
@@ -103,6 +104,10 @@ internal class CraftingLeves
                 }
                 ImGui.EndCombo();
             }
+
+            var sheet = Svc.Data.GetExcelSheet<Leve>();
+
+            ImGui.Text($"Row total: {sheet.Count}");
 
             ImGui.TreePop();
         }
