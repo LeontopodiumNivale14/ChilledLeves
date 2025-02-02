@@ -7,7 +7,7 @@ namespace ChilledLeves.Ui.MainWindow;
 internal class MainWindow : Window
 {
     public MainWindow() :
-        base($"Chilled Leves {P.GetType().Assembly.GetName().Version} ###ChilledLevesMainWindow")
+        base($"Chilled LevesTableOld {P.GetType().Assembly.GetName().Version} ###ChilledLevesMainWindow")
     {
         Flags = ImGuiWindowFlags.None;
         SizeConstraints = new()
@@ -17,6 +17,8 @@ internal class MainWindow : Window
         };
         P.windowSystem.AddWindow(this);
         AllowPinning = false;
+
+        PopulateDictionary();
     }
 
     public void Dispose() { }
@@ -31,7 +33,8 @@ internal class MainWindow : Window
                             ("XPGrind/Item Gathering", CraftingLeves.Draw, null, true),
                             ("Help", HelpUi.Draw, null, true),
                             ("Version Notes", VersionNotesUi.Draw, null, true),
-                            ("About", About.Draw, null, true)
+                            ("About", About.Draw, null, true),
+                            ("Test", TestSheet.Draw, null, true)
                             );
         }
 

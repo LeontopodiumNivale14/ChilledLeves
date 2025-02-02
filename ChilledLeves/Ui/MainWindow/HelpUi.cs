@@ -39,19 +39,13 @@ internal static unsafe class HelpUi
                         // ImGui.Text($"Leve # {levenumber}");
 
                         // Check to see what the job type is
-                        uint leveJob = sheet.GetRow(leveNumber).LeveAssignmentType.Value.RowId;
+                        uint leveJob = row.LeveAssignmentType.Value.RowId;
 
                         // Name of the leve that you're grabbing
-                        string leveName = sheet.GetRow(leveNumber).Name.ToString();
+                        string leveName = row.Name.ToString();
 
                         // The questID of the leve. Need this for another sheet but also, might be useful to check progress of other quest...
-                        var questID = sheet.GetRow(leveNumber).DataId.RowId;
-
-                        // Item that is required for the leve to be turned in
-                        // Uses the questID to look into another sheet to find which item you need to have for turnin
-                        // THIS IS CURRENTLY BROKEN THOUGH. NOT SURE WHY
-                        uint itemID = Svc.Data.GetExcelSheet<CraftLeve>().GetRow(questID).Item[0].RowId;
-                        string itemName = Svc.Data.GetExcelSheet<Item>().GetRow(itemID).Name.ToString();
+                        var questID = row.DataId.RowId;
 
                         ImGui.TableNextRow();
 
@@ -64,8 +58,8 @@ internal static unsafe class HelpUi
                         ImGui.TableSetColumnIndex(2);
                         ImGui.Text(leveName);
 
-                        ImGui.TableSetColumnIndex(3);
-                        ImGui.Text($"{itemName}");
+                        // ImGui.TableSetColumnIndex(3);
+                        // ImGui.Text($"{itemName}");
 
                     }
                 }
@@ -77,6 +71,12 @@ internal static unsafe class HelpUi
             string leveName = Svc.Data.GetExcelSheet<Leve>().GetRow(i).Name.ToString();
             if (Svc.Data.GetExcelSheet<Leve>().GetRow(i).Town.Value.RowId != 0)
             ImGui.Text($"{leveName}");
+
+            // Item that is required for the leve to be turned in
+            // Uses the questID to look into another sheet to find which item you need to have for turnin
+            // THIS IS CURRENTLY BROKEN THOUGH. NOT SURE WHY
+            uint itemID = Svc.Data.GetExcelSheet<CraftLeve>().GetRow(questID).Item[0].RowId;
+            string itemName = Svc.Data.GetExcelSheet<Item>().GetRow(itemID).Name.ToString();
             */
         }
     }

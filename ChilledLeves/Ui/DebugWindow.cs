@@ -12,7 +12,7 @@ namespace ChilledLeves.Ui;
 internal class DebugWindow : Window
 {
     public DebugWindow() :
-        base($"Chilled Leves Debug {P.GetType().Assembly.GetName().Version} ###ChilledLevesDebug")
+        base($"Chilled LevesTableOld Debug {P.GetType().Assembly.GetName().Version} ###ChilledLevesDebug")
     {
         Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse;
         SizeConstraints = new WindowSizeConstraints

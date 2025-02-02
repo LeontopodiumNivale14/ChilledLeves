@@ -133,7 +133,7 @@ internal class CraftingLeves
 
             ImGui.TableHeadersRow();
 
-            foreach (var iLeves in Leves.CrafterLeves)
+            foreach (var iLeves in LevesTableOld.CrafterLeves)
             {
                 uint leve = iLeves.LeveID;
 

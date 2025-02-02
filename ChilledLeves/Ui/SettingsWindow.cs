@@ -3,7 +3,7 @@ namespace ChilledLeves.Ui;
 internal class SettingWindow : Window
 {
     public SettingWindow() :
-        base("Chilled Leves Settings ###ChilledLevesSettings")
+        base("Chilled LevesTableOld Settings ###ChilledLevesSettings")
     {
         SizeConstraints = new()
         {
