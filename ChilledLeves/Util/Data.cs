@@ -43,7 +43,7 @@ public static unsafe class Data
     // Baseline for the tables to be setup, this is moreso for organization of starting things (Can grab majority from the sheets but, need to have something to reference to begin with for Ui reasons I feel)
     // I can hear Croizat bitching at me for this already
 
-    public static HashSet<uint> allowedClassJobs = new() { 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+    public static HashSet<uint> CrafterJobs = new() { 5, 6, 7, 8, 9, 10, 11, 12};
 
     public static List<uint> CraftingClass = new List<uint>();
     public static List<bool> CraftingClassActive = new List<bool>();

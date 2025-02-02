@@ -272,6 +272,7 @@ public static unsafe class Utils
     public static void PopulateDictionary()
     {
         var sheet = Svc.Data.GetExcelSheet<Leve>();
+        var sheet2 = Svc.Data.GetExcelSheet<CraftLeve>();
 
         if (sheet != null)
         {
@@ -282,13 +283,10 @@ public static unsafe class Utils
                 // Can't wait for square to bite me in the ass for this later
                 uint leveNumber = row.RowId;
 
-                // Starting town
-                uint town = row.Town.RowId;
-
                 // Checking the Jobtype, this is a very small number 
                 uint leveJob = row.LeveAssignmentType.Value.RowId;
 
-                if (!allowedClassJobs.Contains(leveJob)) continue;
+                if (!CrafterJobs.Contains(leveJob)) continue;
 
                 // Name of the leve that you're grabbing
                 string leveName = row.Name.ToString();
@@ -299,6 +297,7 @@ public static unsafe class Utils
 
                 // The questID of the leve. Need this for another sheet but also, might be useful to check progress of other quest...
                 uint questID = row.DataId.RowId;
+                uint itemID = sheet2.GetRow(questID).Item[0].Value.RowId;
 
                 // Defaulting the necessary amount that you need to 0 here
                 // Moreso safety precaution than anything
@@ -322,27 +321,10 @@ public static unsafe class Utils
                         Amount = amount,
                         QuestID = questID,
                         StartingCity = startingCity,
-                        ZoneName = ZoneName
+                        ZoneName = ZoneName,
+                        ItemID = itemID
                     };
                 }
-
-                // Problematic children right here... I feel like I know what's causing the issue (trying to get the GetRow() here
-                // Need to look into just reading the direct location of this and reading row from there.
-
-                /*
-                // Item that is required for the leve to be turned in
-                // Uses the questID to look into another sheet to find which item you need to have for turnin
-                uint itemId = Svc.Data.GetExcelSheet<CraftLeve>().GetRow(questID).Item[0].RowId;
-
-                // Item name itself, that way people aren't just going "huh???"
-                string itemName = Svc.Data.GetExcelSheet<Item>().GetRow(itemId).Name.ToString();
-
-                // Amount of times that this quest can be turned in
-                // Not useful post Shadowbringers, but there's a lot of multi-turnin quest earlier on that's good for EXP
-                // Rip coffee biscuits, you'll be missed
-                int repeatAmount = Svc.Data.GetExcelSheet<CraftLeve>().GetRow(questID).Repeats.ToInt();
-                */
-
             }
         }
     }
