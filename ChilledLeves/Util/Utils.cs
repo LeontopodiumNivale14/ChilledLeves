@@ -1,6 +1,8 @@
+using ChilledLeves.Ui.MainWindow;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface.Colors;
+using Dalamud.Interface.Textures;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
@@ -272,7 +274,8 @@ public static unsafe class Utils
     public static void PopulateDictionary()
     {
         var sheet = Svc.Data.GetExcelSheet<Leve>();
-        var sheet2 = Svc.Data.GetExcelSheet<CraftLeve>();
+        var CraftLeveSheet = Svc.Data.GetExcelSheet<CraftLeve>();
+        var itemSheet = Svc.Data.GetExcelSheet<Item>();
 
         if (sheet != null)
         {
@@ -288,6 +291,16 @@ public static unsafe class Utils
 
                 if (!CrafterJobs.Contains(leveJob)) continue;
 
+                // grabbing the job Icon here and putting it into the dictionary.
+                // That way I can just pull it from the key itself
+                ISharedImmediateTexture? jobIcon = null;
+                if (GetRow<LeveAssignmentType>(leveJob).Value.Icon is { } leveJobIcon)
+                {
+                    int icon2 = leveJobIcon;
+                    if (Svc.Texture.TryGetFromGameIcon(icon2, out var texture2))
+                        jobIcon = texture2;
+                }
+
                 // Name of the leve that you're grabbing
                 string leveName = row.Name.ToString();
 
@@ -297,7 +310,35 @@ public static unsafe class Utils
 
                 // The questID of the leve. Need this for another sheet but also, might be useful to check progress of other quest...
                 uint questID = row.DataId.RowId;
-                uint itemID = sheet2.GetRow(questID).Item[0].Value.RowId;
+                // Item Id of the items being turned in. This is only really useful for crafters right now
+                uint itemID = CraftLeveSheet.GetRow(questID).Item[0].Value.RowId;
+                // Item Name itself for the turnin. Ideally this is going to be language based... fingers crossed
+                string itemName = itemSheet.GetRow(itemID).Name.ToString();
+
+                // Item Icon, storing this because don't wanna have to draw the sheet every frame and then pull it from the sheet
+                ISharedImmediateTexture? itemIcon = null;
+                if (GetRow<Item>(itemID).Value.Icon is { } icon)
+                {
+                    int icon2 = icon;
+                    if (Svc.Texture.TryGetFromGameIcon(icon2, out var texture2))
+                        itemIcon = texture2;
+                }
+
+                // Amount of times you can turn the leve in (aka repeat amount)
+                // if it's 0, then it doesn't repeat at all (making it one to show you only do it once
+                // 2 = 3 because haha binary numbers
+                // +5 is the largescale leves in HW, need to confirm this later if this number is correct (things to do after)
+                int leveRepeat = CraftLeveSheet.GetRow(questID).Repeats.ToInt();
+                leveRepeat = leveRepeat + 1;
+
+                // Amount of items necessary for turnin
+                // Getting this by first getting the amount of possible amount of loops/repeats you do
+                int turninAmount = 0;
+                for (int x = 0; x < 3; x++)
+                {
+                    turninAmount = turninAmount + CraftLeveSheet.GetRow(questID).ItemCount[x].ToInt();
+                }
+                turninAmount = turninAmount * leveRepeat;
 
                 // Defaulting the necessary amount that you need to 0 here
                 // Moreso safety precaution than anything
@@ -311,18 +352,27 @@ public static unsafe class Utils
                 // Zone name itself. That way people know exactly where this leve is coming from
                 string ZoneName = Svc.Data.GetExcelSheet<PlaceName>().GetRow(startingCity).Name.ToString();
 
+                // Testing this to see if I can grab upon loading the sheet up to save frames...
+                int currentlyHave = GetItemCount(itemID.ToInt());
+
                 // Ensure the leveJobType is valid before inserting
                 if (!LeveDict.ContainsKey(leveNumber))
                 {
                     LeveDict[leveNumber] = new LeveDataDict
                     {
                         JobID = leveJob,
+                        JobIcon = jobIcon,
                         LeveName = leveName,
                         Amount = amount,
                         QuestID = questID,
+                        RepeatAmount = leveRepeat,
                         StartingCity = startingCity,
                         ZoneName = ZoneName,
-                        ItemID = itemID
+                        ItemID = itemID,
+                        ItemName = itemName,
+                        ItemIcon = itemIcon,
+                        TurninAmount = turninAmount,
+                        CurrentItemAmount = currentlyHave,
                     };
                 }
             }

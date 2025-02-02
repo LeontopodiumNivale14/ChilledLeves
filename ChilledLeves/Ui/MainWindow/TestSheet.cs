@@ -14,18 +14,23 @@ internal class TestSheet
 
     private static bool isEnabled = true;
     private static bool testBEnabled = false;
+    private static float Column2Width = 0;
+    private static float Column3Width = 0;
+    private static float Column4Width = 0;
 
     internal static void Draw()
     {
 
         if (isEnabled)
         {
-            if (ImRaii.Table("Test Table", 4, ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+            if (ImRaii.Table("Test Table", 6, ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
             {
-                ImGui.TableSetupColumn("Key/RowID", ImGuiTableColumnFlags.WidthFixed, 75);
-                ImGui.TableSetupColumn("Leve Name", ImGuiTableColumnFlags.WidthFixed, 200);
-                ImGui.TableSetupColumn("Starting City", ImGuiTableColumnFlags.WidthFixed, 200);
-                ImGui.TableSetupColumn("ItemID", ImGuiTableColumnFlags.WidthFixed, 100);
+                ImGui.TableSetupColumn("Key/RowID", ImGuiTableColumnFlags.WidthFixed, 50);
+                ImGui.TableSetupColumn("Leve Name", ImGuiTableColumnFlags.WidthFixed, Column2Width);
+                ImGui.TableSetupColumn("Starting City", ImGuiTableColumnFlags.WidthFixed, Column3Width);
+                ImGui.TableSetupColumn("Item", ImGuiTableColumnFlags.WidthFixed, Column4Width);
+                ImGui.TableSetupColumn("Amount Needed", ImGuiTableColumnFlags.WidthFixed, 100);
+                ImGui.TableSetupColumn("Amount Have");
 
                 ImGui.TableHeadersRow();
 
@@ -37,13 +42,44 @@ internal class TestSheet
                     ImGui.Text($"{kdp.Key}");
 
                     ImGui.TableSetColumnIndex(1);
-                    ImGui.Text($"{kdp.Value.LeveName}");
+                    if (kdp.Value.JobIcon != null)
+                    {
+                        ImGui.Image(kdp.Value.JobIcon.GetWrapOrEmpty().ImGuiHandle, new(20, 20));
+                        ImGui.SameLine(25);
+                    }
+                    string LeveName = kdp.Value.LeveName;
+
+                    ImGui.Text($"{LeveName}");
+                    float LeveTextWidth = ImGui.CalcTextSize(LeveName).X + 30.0f; // Add padding
+                    Column2Width = Math.Max(Column2Width, LeveTextWidth);
 
                     ImGui.TableSetColumnIndex(2);
-                    ImGui.Text($"{kdp.Value.ZoneName}");
+                    string StartingCity = kdp.Value.ZoneName;
+
+                    ImGui.Text($"{StartingCity}");
+                    float CityTextWidth = ImGui.CalcTextSize(StartingCity).X + 15.0f; // Add padding
+                    Column3Width = Math.Max(Column3Width, CityTextWidth);
 
                     ImGui.TableSetColumnIndex(3);
-                    ImGui.Text($"{kdp.Value.ItemID}");
+                    if (kdp.Value.ItemIcon != null)
+                    {
+                        ImGui.Image(kdp.Value.ItemIcon.GetWrapOrEmpty().ImGuiHandle, new(20, 20));
+                        ImGui.SameLine(25);
+                    }
+
+                    string ItemName = kdp.Value.ItemName;
+                    ImGui.Text($"{ItemName}");
+
+                    float ItemTextWidth = ImGui.CalcTextSize(ItemName).X + 30.0f; // Add padding
+                    Column3Width = Math.Max(Column3Width, ItemTextWidth);
+
+                    ImGui.TableSetColumnIndex(4);
+                    int turninAmount = kdp.Value.TurninAmount;
+                    ImGui.Text(turninAmount.ToString());
+
+                    ImGui.TableSetColumnIndex(5);
+                    ImGui.Text($"{kdp.Value.CurrentItemAmount}");
+
                 }
 
                 ImGui.EndTable();

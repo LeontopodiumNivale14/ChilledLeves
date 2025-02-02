@@ -1,4 +1,5 @@
-﻿using Lumina.Excel.Sheets;
+﻿using Dalamud.Interface.Textures;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -428,11 +429,16 @@ public static unsafe class Data
     public class LeveDataDict
     {
         public uint JobID { get; set; }
+        public ISharedImmediateTexture? JobIcon { get; set; }
         public string LeveName { get; set; }
         public int Amount { get; set; }
         public uint QuestID { get; set; }
         public uint ItemID { get; set; }
+        public string ItemName { get; set; }
+        public ISharedImmediateTexture? ItemIcon { get; set; }
         public int RepeatAmount { get; set; }
+        public int TurninAmount { get; set; }
+        public int CurrentItemAmount { get; set; }
         public uint StartingCity { get; set; }
         public string ZoneName { get; set; }
     }
