@@ -14,6 +14,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lumina;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using static ChilledLeves.Util.Data;
@@ -300,6 +301,15 @@ public static unsafe class Utils
                     if (Svc.Texture.TryGetFromGameIcon(icon2, out var texture2))
                         jobIcon = texture2;
                 }
+                string leveType = Svc.Data.GetExcelSheet<LeveAssignmentType>().GetRow(leveJob).Name.ToString();
+                if (!LeveTypeDict.ContainsKey(leveJob))
+                {
+                    LeveTypeDict[leveJob] = new LeveType
+                    {
+                        AssignmentIcon = jobIcon,
+                        LeveClassType = leveType,
+                    };
+                }
 
                 // Name of the leve that you're grabbing
                 string leveName = row.Name.ToString();
@@ -361,7 +371,6 @@ public static unsafe class Utils
                     LeveDict[leveNumber] = new LeveDataDict
                     {
                         JobID = leveJob,
-                        JobIcon = jobIcon,
                         LeveName = leveName,
                         Amount = amount,
                         QuestID = questID,
@@ -376,6 +385,19 @@ public static unsafe class Utils
                     };
                 }
             }
+        }
+    }
+
+    public static void UpdateItemAmount()
+    {
+        if (EzThrottler.Throttle("Update Dictionary Amount", 1000))
+        {
+            foreach (var kdp in LeveDict)
+            {
+                int itemID = kdp.Value.ItemID.ToInt();
+                kdp.Value.CurrentItemAmount = GetItemCount(itemID);
+            }
+            PluginLog("Updated Inventory");
         }
     }
 }

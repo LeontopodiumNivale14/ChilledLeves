@@ -20,31 +20,45 @@ internal class TestSheet
 
     internal static void Draw()
     {
+        if (ImGui.InputInt("LeveKind", ref JobSelected))
+        {
+            if (JobSelected < 4)
+                JobSelected = 4;
+            else if (JobSelected > 12)
+                JobSelected = 12;
+        }
 
         if (isEnabled)
         {
-            if (ImRaii.Table("Test Table", 6, ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+            if (ImRaii.Table("Test Table", 7, ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
             {
                 ImGui.TableSetupColumn("Key/RowID", ImGuiTableColumnFlags.WidthFixed, 50);
                 ImGui.TableSetupColumn("Leve Name", ImGuiTableColumnFlags.WidthFixed, Column2Width);
                 ImGui.TableSetupColumn("Starting City", ImGuiTableColumnFlags.WidthFixed, Column3Width);
                 ImGui.TableSetupColumn("Item", ImGuiTableColumnFlags.WidthFixed, Column4Width);
                 ImGui.TableSetupColumn("Amount Needed", ImGuiTableColumnFlags.WidthFixed, 100);
-                ImGui.TableSetupColumn("Amount Have");
+                ImGui.TableSetupColumn("Amount Have", ImGuiTableColumnFlags.WidthFixed, 100);
+                ImGui.TableSetupColumn("Class");
 
                 ImGui.TableHeadersRow();
 
                 foreach (var kdp in LeveDict)
                 {
+
+
+                    if (JobSelected != kdp.Value.JobID && JobSelected != 4)
+                        continue;
+
                     ImGui.TableNextRow();
 
                     ImGui.TableSetColumnIndex(0);
                     ImGui.Text($"{kdp.Key}");
 
                     ImGui.TableSetColumnIndex(1);
-                    if (kdp.Value.JobIcon != null)
+                    uint JobId = kdp.Value.JobID;
+                    if (LeveTypeDict[JobId].AssignmentIcon != null)
                     {
-                        ImGui.Image(kdp.Value.JobIcon.GetWrapOrEmpty().ImGuiHandle, new(20, 20));
+                        ImGui.Image(LeveTypeDict[JobId].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new(20, 20));
                         ImGui.SameLine(25);
                     }
                     string LeveName = kdp.Value.LeveName;
@@ -79,6 +93,9 @@ internal class TestSheet
 
                     ImGui.TableSetColumnIndex(5);
                     ImGui.Text($"{kdp.Value.CurrentItemAmount}");
+
+                    ImGui.TableSetColumnIndex(6);
+                    ImGui.Text($"{LeveTypeDict[JobId].LeveClassType}");
 
                 }
 

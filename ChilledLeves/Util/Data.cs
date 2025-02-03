@@ -44,8 +44,10 @@ public static unsafe class Data
     // Baseline for the tables to be setup, this is moreso for organization of starting things (Can grab majority from the sheets but, need to have something to reference to begin with for Ui reasons I feel)
     // I can hear Croizat bitching at me for this already
 
+    // List of all of the Crafter Job ID's into a nice checklist for self
     public static HashSet<uint> CrafterJobs = new() { 5, 6, 7, 8, 9, 10, 11, 12};
 
+    // Old/Depreciated. Don't wanna delete yet thought because it ties to old sheets that need to be removed once I'm confident they can go
     public static List<uint> CraftingClass = new List<uint>();
     public static List<bool> CraftingClassActive = new List<bool>();
 
@@ -54,7 +56,9 @@ public static unsafe class Data
 
     public static List<uint> LeveNumber = new List<uint>();
     public static List<int> LeveAmount = new List<int>();
+    // End of that
 
+    public static int JobSelected = 0;
 
     public class LeveDataforTable
     {
@@ -428,20 +432,74 @@ public static unsafe class Data
 
     public class LeveDataDict
     {
-        public uint JobID { get; set; }
-        public ISharedImmediateTexture? JobIcon { get; set; }
+        // Universal information across the leves
+        /// <summary>
+        /// Job ID Attached to the leve
+        /// </summary>
+        public uint JobID { get; set; } 
+        /// <summary>
+        /// Name of the Leve
+        /// </summary>
         public string LeveName { get; set; }
+        /// <summary>
+        /// Amount of times you want to do the leve. Good place to keep (in the dictionary... hopefully)
+        /// </summary>
         public int Amount { get; set; }
+        /// <summary>
+        /// DataID (Row #17) aka QuestID of it. Leads to CraftLeves for crafters. Not sure about the rest though...
+        /// </summary>
         public uint QuestID { get; set; }
-        public uint ItemID { get; set; }
-        public string ItemName { get; set; }
-        public ISharedImmediateTexture? ItemIcon { get; set; }
-        public int RepeatAmount { get; set; }
-        public int TurninAmount { get; set; }
-        public int CurrentItemAmount { get; set; }
+        /// <summary>
+        /// Starting city that the leve is in (good for specifics)
+        /// </summary>
         public uint StartingCity { get; set; }
+        /// <summary>
+        /// Zone name that the leve starts in, (Gridania, Lower La Noscea... as examples
+        /// </summary>
         public string ZoneName { get; set; }
+
+        // Crafter Specific
+        /// <summary>
+        /// Crafter, ItemID for the turnin item
+        /// </summary>
+        public uint ItemID { get; set; }
+        /// <summary>
+        /// Crafter, Item Name itself for the Turnin
+        /// </summary>
+        public string ItemName { get; set; }
+        /// <summary>
+        /// Crafter, Item Icon itself, not really useful? Moreso visual flare for me
+        /// </summary>
+        public ISharedImmediateTexture? ItemIcon { get; set; }
+        /// <summary>
+        /// Crafter, amount of times you can do this turnin per leve. 
+        /// Moreso for backend, might be able to show it somehow though...
+        /// </summary>
+        public int RepeatAmount { get; set; }
+        /// <summary>
+        /// Crafter, amount of items overall that is necessary for this leve for the full potentional
+        /// </summary>
+        public int TurninAmount { get; set; }
+        /// <summary>
+        /// Crafter, current amount of items that you have in your inventory. 
+        /// Updates currently every second. 
+        /// </summary>
+        public int CurrentItemAmount { get; set; }
+    }
+
+    public class LeveType
+    {
+        /// <summary>
+        /// Job icon that is grabbed from the sheet, just an easier way to pull it.
+        /// </summary>
+        public ISharedImmediateTexture? AssignmentIcon { get; set; }
+        /// <summary>
+        /// Type of leve that is assigned to this. Quick and easy way to access this.
+        /// </summary>
+        public string LeveClassType { get; set; }
     }
 
     public static Dictionary<uint, LeveDataDict> LeveDict = new();
+
+    public static Dictionary<uint, LeveType> LeveTypeDict = new();
 }
