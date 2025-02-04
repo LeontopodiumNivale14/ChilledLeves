@@ -12,10 +12,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\Data\LSGold.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-    </Content>
+    <None Remove="Assests\FavDisabled.png" />
+    <None Remove="Assests\FavEnabled.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assests\FavDisabled.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Assests\FavEnabled.png" />
   </ItemGroup>
 
   <ItemGroup>

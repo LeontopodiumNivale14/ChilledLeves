@@ -1,5 +1,8 @@
 ﻿using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
+using Lumina.Data.Parsing;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace ChilledLeves.Ui.MainWindow;
 
@@ -22,49 +25,14 @@ internal class MainWindow : Window
 
     public void Dispose() { }
 
+    private static bool DefaultBool = false;
+
     public override void Draw()
     {
-        ImGui.Text("Hi");
-        var RDMGuage = Service.Texture.GetFromGame("ui/uld/JobHudRDM0_hr1.tex").GetWrapOrEmpty();
-        if (ImGui.ImageButton(RDMGuage.ImGuiHandle, new Vector2(50, 50), new Vector2(0.0000f, 0.0000f), new Vector2(0.4328f, 0.5474f)))
+        if (Svc.Texture.GetFromManifestResource(Assembly.GetExecutingAssembly(), SilverStarImage).TryGetWrap(out var texture, out var _))
         {
-            Svc.Toasts.ShowQuest("Is this working");
+            DrawButtonStar(texture, "Test", ref DefaultBool, false);
         }
-        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip("I'm being hovered");
-        ImGui.Text("Bye");
-        /*
-        ImGui.NewLine();
-
-        // Filter Section/Window
-        ImGui.BeginGroup();
-        DrawFilterPanel();
-        ImGui.EndGroup();
-
-        ImGui.SameLine();
-
-        ImGui.BeginGroup();
-        ImGui.Dummy(new Vector2(20));
-        ImGui.EndGroup();
-
-        ImGui.SameLine();
-
-        ImGui.BeginGroup();
-        ImGui.Dummy(new Vector2(0, 20));
-        ImGui.Text($"Allowances: {Allowances}/100");
-        ImGui.Text($"Next 3 in: {NextAllowances:hh':'mm':'ss}");
-        ImGui.Spacing();
-        if (ImGui.Button("Open Worklist"))
-        {
-            // Need to create this window
-            // P.ShowWorkList();
-        }
-        ImGui.EndGroup();
-
-        ImGui.Separator();
-
-        // TestSheet.Draw();
-        */
     }
 
     private void DrawFilterPanel()
@@ -83,6 +51,24 @@ internal class MainWindow : Window
         ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0));
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0));
         if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, new Vector2(24)))
+        {
+            state = !state;
+            C.Save();
+        }
+        ImGui.PopStyleColor();
+        ImGui.PopStyleVar();
+
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip(tooltip);
+        if (sameLine)
+            ImGui.SameLine();
+    }
+
+    private void DrawButtonStar(IDalamudTextureWrap? icon, string tooltip, ref bool state, bool sameLine)
+    {
+        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0));
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0));
+        if (ImGui.ImageButton(icon.ImGuiHandle, new Vector2(24)))
         {
             state = !state;
             C.Save();

@@ -3,7 +3,9 @@ using Dalamud.Interface.Textures.TextureWraps;
 using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,6 +48,11 @@ public static unsafe class Data
     // I can hear Croizat bitching at me for this already
 
     // List of all of the Crafter Job ID's into a nice checklist for self
+    public static string SilverStarImage = "ChilledLeves.Assests.FavDisabled.png";
+    public static string GoldStarImage = "ChilledLeves.Assests.FavEnabled.png";
+
+
+
     public static HashSet<uint> CrafterJobs = new() { 5, 6, 7, 8, 9, 10, 11, 12};
 
     // Old/Depreciated. Don't wanna delete yet thought because it ties to old sheets that need to be removed once I'm confident they can go

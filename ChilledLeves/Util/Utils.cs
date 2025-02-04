@@ -404,7 +404,7 @@ public static unsafe class Utils
 
     public static void EnableStar()
     {
-        var YellowStar = Service.Texture.GetFromGame("ui/uld/LinkShell_hr1.tex").GetWrapOrEmpty();
+        var YellowStar = Service.TextureDal.GetFromGame("ui/uld/LinkShell_hr1.tex").GetWrapOrEmpty();
         ImGui.Image(YellowStar.ImGuiHandle, new Vector2(24, 24), new Vector2(0.0000f, 0.0000f), new Vector2(0.3333f, 0.5000f));
     }
 }
