@@ -35,5 +35,8 @@ public class Config : IEzConfig
         public bool ShowMaelstrom = true;
         public bool ShowTwinAdder = true;
         public bool ShowImmortalFlames = true;
+
+        public int LevelFilter;
+        public string NameFilter = "";
     }
 }

@@ -1,12 +1,5 @@
-﻿using ChilledLeves.Scheduler;
-using ChilledLeves.Util;
-using Dalamud.Interface.Textures;
-using Dalamud.Interface.Utility.Raii;
-using Lumina.Excel.Sheets;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices.Marshalling;
-using static Lumina.Data.Parsing.Uld.UldRoot;
+﻿using Dalamud.Interface.Textures;
+using Dalamud.Interface.Textures.TextureWraps;
 
 namespace ChilledLeves.Ui.MainWindow;
 
@@ -29,14 +22,49 @@ internal class MainWindow : Window
 
     public void Dispose() { }
 
-    public static string currentlyDoing = SchedulerMain.CurrentProcess;
-
     public override void Draw()
     {
-        UpdateItemAmount();
+        ImGui.Text("Hi");
+        var RDMGuage = Service.Texture.GetFromGame("ui/uld/JobHudRDM0_hr1.tex").GetWrapOrEmpty();
+        if (ImGui.ImageButton(RDMGuage.ImGuiHandle, new Vector2(50, 50), new Vector2(0.0000f, 0.0000f), new Vector2(0.4328f, 0.5474f)))
+        {
+            Svc.Toasts.ShowQuest("Is this working");
+        }
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip("I'm being hovered");
+        ImGui.Text("Bye");
+        /*
+        ImGui.NewLine();
 
+        // Filter Section/Window
+        ImGui.BeginGroup();
         DrawFilterPanel();
-        TestSheet.Draw();
+        ImGui.EndGroup();
+
+        ImGui.SameLine();
+
+        ImGui.BeginGroup();
+        ImGui.Dummy(new Vector2(20));
+        ImGui.EndGroup();
+
+        ImGui.SameLine();
+
+        ImGui.BeginGroup();
+        ImGui.Dummy(new Vector2(0, 20));
+        ImGui.Text($"Allowances: {Allowances}/100");
+        ImGui.Text($"Next 3 in: {NextAllowances:hh':'mm':'ss}");
+        ImGui.Spacing();
+        if (ImGui.Button("Open Worklist"))
+        {
+            // Need to create this window
+            // P.ShowWorkList();
+        }
+        ImGui.EndGroup();
+
+        ImGui.Separator();
+
+        // TestSheet.Draw();
+        */
     }
 
     private void DrawFilterPanel()
@@ -48,7 +76,6 @@ internal class MainWindow : Window
         DrawButton(LeveTypeDict[9].AssignmentIcon, $"{LeveTypeDict[9].LeveClassType} Leves", ref C.LeveFilter.ShowLeatherworker, true);
         DrawButton(LeveTypeDict[10].AssignmentIcon, $"{LeveTypeDict[10].LeveClassType} Leves", ref C.LeveFilter.ShowWeaver, true);
         DrawButton(LeveTypeDict[11].AssignmentIcon, $"{LeveTypeDict[11].LeveClassType} Leves", ref C.LeveFilter.ShowAlchemist, true);
-        DrawButton(LeveTypeDict[12].AssignmentIcon, $"{LeveTypeDict[12].LeveClassType} Leves", ref C.LeveFilter.ShowCulinarian, false);
     }
 
     private void DrawButton(ISharedImmediateTexture? icon, string tooltip, ref bool state, bool sameLine)
@@ -67,5 +94,22 @@ internal class MainWindow : Window
             ImGui.SetTooltip(tooltip);
         if (sameLine)
             ImGui.SameLine();
+    }
+
+    private void DrawLeves()
+    {
+        /// var leves = 
+    }
+
+    private bool FilterLeve(uint row)
+    {
+        var showLeve = true;
+
+        if (C.LeveFilter.LevelFilter > 0)
+        {
+            // showLeve = LeveDict[row].
+        }
+
+        return showLeve;
     }
 }

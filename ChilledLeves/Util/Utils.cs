@@ -1,10 +1,8 @@
-using ChilledLeves.Ui.MainWindow;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
-using Dalamud.Interface.Colors;
 using Dalamud.Interface.Textures;
+using Dalamud.Interface.Internal;
 using ECommons.Automation.NeoTaskManager;
-using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.Reflection;
 using ECommons.Throttlers;
@@ -14,10 +12,10 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using Lumina;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
-using static ChilledLeves.Util.Data;
+using Dalamud.Interface.Textures.TextureWraps;
+using System.Threading;
 
 namespace ChilledLeves.Util;
 
@@ -184,6 +182,9 @@ public static unsafe class Utils
     }
 
     #endregion
+
+    public static unsafe int Allowances => QuestManager.Instance()->NumLeveAllowances;
+    public static unsafe TimeSpan NextAllowances => QuestManager.GetNextLeveAllowancesDateTime() - DateTime.Now;
 
     public static unsafe void LeveJobIcons(uint JobType, Vector2 size = default(Vector2))
     {
@@ -399,5 +400,11 @@ public static unsafe class Utils
             }
             PluginLog("Updated Inventory");
         }
+    }
+
+    public static void EnableStar()
+    {
+        var YellowStar = Service.Texture.GetFromGame("ui/uld/LinkShell_hr1.tex").GetWrapOrEmpty();
+        ImGui.Image(YellowStar.ImGuiHandle, new Vector2(24, 24), new Vector2(0.0000f, 0.0000f), new Vector2(0.3333f, 0.5000f));
     }
 }

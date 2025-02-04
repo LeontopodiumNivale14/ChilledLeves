@@ -1,4 +1,5 @@
 ﻿using Dalamud.Interface.Textures;
+using Dalamud.Interface.Textures.TextureWraps;
 using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
@@ -436,7 +437,11 @@ public static unsafe class Data
         /// <summary>
         /// Job ID Attached to the leve
         /// </summary>
-        public uint JobID { get; set; } 
+        public uint JobID { get; set; }
+        /// <summary>
+        /// Level of the leve that you're undertaking, this is the *-minimum-* level you can be to do this leve
+        /// </summary>
+        public int Level { get; set; }
         /// <summary>
         /// Name of the Leve
         /// </summary>
