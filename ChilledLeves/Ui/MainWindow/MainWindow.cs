@@ -1,5 +1,6 @@
 ﻿using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
+using ECommons.Configuration;
 using FFXIVClientStructs.FFXIV.Common.Lua;
 using Lumina.Data.Parsing;
 using Lumina.Excel.Sheets;
@@ -319,15 +320,20 @@ internal class MainWindow : Window
                     C.FavoriteLeves.Add(leve);
                 }
             }
-            if (ImGui.Button(C.workList.Any(e => e.LeveID == leve) ? "Remove from worklist" : "Add to worklist"))
+            if (C.workList.Any(e => e.LeveID == leve))
             {
-                if (C.workList.Any(e => e.LeveID == leve))
-                {
-                    C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 0 });
-                }
-                else
+                if (ImGui.Button("Remove from workshop"))
                 {
                     C.workList.RemoveAll(e => e.LeveID == leve);
+                    C.Save();
+                }
+            }
+            else if (!C.workList.Any(e => e.LeveID == leve))
+            {
+                if (ImGui.Button("Add to workshop"))
+                {
+                    C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 0 });
+                    C.Save();
                 }
             }
             ImGui.PopID();
