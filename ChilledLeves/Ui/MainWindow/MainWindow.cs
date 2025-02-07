@@ -1,13 +1,23 @@
 ﻿using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
+using FFXIVClientStructs.FFXIV.Common.Lua;
 using Lumina.Data.Parsing;
+using Lumina.Excel.Sheets;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.Arm;
+using static Dalamud.Interface.Utility.Raii.ImRaii;
 
 namespace ChilledLeves.Ui.MainWindow;
 
 internal class MainWindow : Window
 {
+    private static int selectedLeve;
+    private int LeveCount;
+    private static bool DefaultBool = false;
+
+
     public MainWindow() :
         base($"Chilled LevesTableOld {P.GetType().Assembly.GetName().Version} ###ChilledLevesMainWindow")
     {
@@ -25,29 +35,91 @@ internal class MainWindow : Window
 
     public void Dispose() { }
 
-    private static bool DefaultBool = false;
-
     public override void Draw()
     {
-        if (Svc.Texture.GetFromManifestResource(Assembly.GetExecutingAssembly(), SilverStarImage).TryGetWrap(out var texture, out var _))
+        ImGui.BeginGroup();
+        DrawFilterPanel();
+        ImGui.EndGroup();
+
+        ImGui.SameLine();
+
+        ImGui.BeginGroup();
+        ImGui.Dummy(new Vector2(20));
+        ImGui.EndGroup();
+
+        ImGui.SameLine();
+
+        ImGui.BeginGroup();
+        ImGui.Dummy(new Vector2(0, 20));
+        ImGui.Text($"Allowances: {Allowances}/100");
+        ImGui.Text($"Next 3 in: {NextAllowances:hh':'mm':'ss}");
+        ImGui.Spacing();
+        if (ImGui.Button("Open Worklist"))
         {
-            DrawButtonStar(texture, "Test", ref DefaultBool, false);
+            //
         }
+        ImGui.EndGroup();
+        ImGui.Separator();
+
+        DrawList();
     }
 
     private void DrawFilterPanel()
     {
-        DrawButton(LeveTypeDict[5].AssignmentIcon, $"{LeveTypeDict[5].LeveClassType} Leves", ref C.LeveFilter.ShowCarpenter, true);
-        DrawButton(LeveTypeDict[6].AssignmentIcon, $"{LeveTypeDict[6].LeveClassType} Leves", ref C.LeveFilter.ShowBlacksmith, true);
-        DrawButton(LeveTypeDict[7].AssignmentIcon, $"{LeveTypeDict[7].LeveClassType} Leves", ref C.LeveFilter.ShowArmorer, true);
-        DrawButton(LeveTypeDict[8].AssignmentIcon, $"{LeveTypeDict[8].LeveClassType} Leves", ref C.LeveFilter.ShowGoldsmith, true);
-        DrawButton(LeveTypeDict[9].AssignmentIcon, $"{LeveTypeDict[9].LeveClassType} Leves", ref C.LeveFilter.ShowLeatherworker, true);
-        DrawButton(LeveTypeDict[10].AssignmentIcon, $"{LeveTypeDict[10].LeveClassType} Leves", ref C.LeveFilter.ShowWeaver, true);
-        DrawButton(LeveTypeDict[11].AssignmentIcon, $"{LeveTypeDict[11].LeveClassType} Leves", ref C.LeveFilter.ShowAlchemist, true);
+        ImGui.Text("Filter Leves");
+
+        DrawButtonStar("Show only favorites", ref C.LeveFilter.OnlyFavorites, true);
+        DummyButton(8);
+        DrawButton(5, $"Leves", ref C.LeveFilter.ShowCarpenter, true);
+        DrawButton(6, $"Leves", ref C.LeveFilter.ShowBlacksmith, true);
+        DrawButton(7, $"Leves", ref C.LeveFilter.ShowArmorer, true);
+        DrawButton(8, $"Leves", ref C.LeveFilter.ShowGoldsmith, true);
+        DrawButton(9, $"Leves", ref C.LeveFilter.ShowLeatherworker, true);
+        DrawButton(10, $"Leves", ref C.LeveFilter.ShowWeaver, true);
+        DrawButton(11, $"Leves", ref C.LeveFilter.ShowAlchemist, true);
+        DrawButton(12, $"Leves", ref C.LeveFilter.ShowCulinarian, false);
+
+        ImGui.Text("Level:");
+        ImGui.AlignTextToFramePadding();
+        ImGui.SameLine();
+        var level = C.LeveFilter.LevelFilter > 0 ? C.LeveFilter.LevelFilter.ToString() : "";
+        ImGui.SetNextItemWidth(30);
+        if (ImGui.InputText("###Level", ref level, 3))
+        {
+            C.LeveFilter.LevelFilter = (int)(uint.TryParse(level, out var num) && num > 0 ? num : 0);
+            C.Save();
+        }
+        ImGui.SameLine();
+        ImGui.Text("Name:");
+        ImGui.AlignTextToFramePadding();
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(220);
+        if (ImGui.InputText("###Name", ref C.LeveFilter.NameFilter, 200))
+        {
+            C.LeveFilter.NameFilter = C.LeveFilter.NameFilter.Trim();
+            C.Save();
+        }
     }
 
-    private void DrawButton(ISharedImmediateTexture? icon, string tooltip, ref bool state, bool sameLine)
+    /// <summary>
+    /// Spacer for the buttons, that way I don't have to re-write the same thing 20x times
+    /// </summary>
+    /// <param name="repeatamount"></param>
+    private static void DummyButton(int repeatamount)
     {
+        for (int i = 0; i < repeatamount; i++)
+        {
+            ImGui.Dummy(new Vector2(24));
+            if (i < repeatamount - 1)
+            ImGui.SameLine();
+        }
+    }
+
+    private void DrawButton(uint row, string tooltip, ref bool state, bool sameLine)
+    {
+        ISharedImmediateTexture? icon = LeveTypeDict[row].AssignmentIcon;
+        string tooltipText = $"{LeveTypeDict[row].LeveClassType} {tooltip}";
+
         ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0));
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0));
         if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, new Vector2(24)))
@@ -59,19 +131,22 @@ internal class MainWindow : Window
         ImGui.PopStyleVar();
 
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip(tooltip);
+            ImGui.SetTooltip(tooltipText);
         if (sameLine)
             ImGui.SameLine();
     }
 
-    private void DrawButtonStar(IDalamudTextureWrap? icon, string tooltip, ref bool state, bool sameLine)
+    private void DrawButtonStar(string tooltip, ref bool state, bool sameLine)
     {
         ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0));
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0));
-        if (ImGui.ImageButton(icon.ImGuiHandle, new Vector2(24)))
+        if (Svc.Texture.GetFromManifestResource(Assembly.GetExecutingAssembly(), SilverStarImage).TryGetWrap(out var silverTexture, out var _b))
         {
-            state = !state;
-            C.Save();
+            if (ImGui.ImageButton(silverTexture.ImGuiHandle, new Vector2(24)))
+            {
+                state = !state;
+                C.Save();
+            }
         }
         ImGui.PopStyleColor();
         ImGui.PopStyleVar();
@@ -82,20 +157,184 @@ internal class MainWindow : Window
             ImGui.SameLine();
     }
 
-    private void DrawLeves()
+    private void DrawFavStar()
     {
-        /// var leves = 
+        if (Svc.Texture.GetFromManifestResource(Assembly.GetExecutingAssembly(), GoldStarImage).TryGetWrap(out var goldTexture, out var _b))
+        {
+            ImGui.Image(goldTexture.ImGuiHandle, new(20, 20));
+        }
     }
 
-    private bool FilterLeve(uint row)
+    private void DrawList()
+    {
+        /*
+         * Need to figure out how to filter out leves here in a good manner...
+         * Doing it jukka's way is slightly more complicated than what I'm doing (since we went different routes in filtering)
+         * Maybe can do a "if (!classEnabled && leve.jobID == job#) might be the best way to do it
+        */
+
+        var widthFactor = (ImGui.GetWindowWidth() - 10) / 10;
+        ImGui.BeginGroup();
+        if (C.LeveFilter.OnlyFavorites)
+        {
+            ImGui.Text($"Showing: {C.FavoriteLeves.Count} out of {LeveDict.Count}");
+        }
+        else
+        {
+            ImGui.Text($"Showing: {VisibleLeves.Count} out of {LeveDict.Count}");
+        }
+
+        var firstGroupWidth = Math.Max(350, widthFactor * 4f);
+        ImGui.SetNextWindowSizeConstraints(new Vector2(0, 300),
+                                           new Vector2(firstGroupWidth, 300));
+        ImGui.BeginChild("###LeveList", new Vector2(0), true, ImGuiWindowFlags.NavFlattened | ImGuiWindowFlags.AlwaysVerticalScrollbar);
+
+        foreach (var kdp in LeveDict)
+        {
+            if (FilterLeve(kdp.Key))
+            {
+                var id = (int) kdp.Key;
+
+                ImGui.PushID(id);
+                if (ImGui.Selectable($"###Leve{id}", selectedLeve == id, ImGuiSelectableFlags.SpanAllColumns))
+                    selectedLeve = id;
+                if (ImGui.IsItemHovered())
+                {
+                    if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                    {
+                        if (!C.workList.Any(e => e.LeveID == id))
+                        {
+                            C.workList.Add(new LeveEntry { LeveID = kdp.Key, InputValue = 0});
+                        }
+                    }
+
+                }
+
+                ImGui.SetItemAllowOverlap();
+                ImGui.SameLine();
+
+                if (C.FavoriteLeves.Contains(kdp.Key))
+                {
+                    DrawFavStar();
+                    ImGui.SameLine(0, 5);
+                }
+                if (LeveTypeDict[kdp.Value.JobID].AssignmentIcon != null)
+                {
+                    ImGui.Image(LeveTypeDict[kdp.Value.JobID].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new(20, 20));
+                    ImGui.SameLine(0, 5);
+                    ImGui.AlignTextToFramePadding();
+                }
+                ImGui.Text($"[{kdp.Value.Level}] {kdp.Value.LeveName}");
+                ImGui.PopID();
+            }
+        }
+
+        ImGui.EndChild();
+        ImGui.EndGroup();
+
+        ImGui.SameLine();
+
+        ImGui.BeginGroup();
+        ImGui.Text("Selected Leve Details");
+
+        var secondGroupWidth =
+            firstGroupWidth > 300 ? Math.Max(300, widthFactor * 6) - 25 : ImGui.GetWindowWidth() - 330;
+        ImGui.SetNextWindowSizeConstraints(new Vector2(200f, 300),
+                                           new Vector2(secondGroupWidth, 300));
+        ImGui.BeginChild("###LeveDetail", new Vector2(0), true, ImGuiWindowFlags.NavFlattened);
+
+        DrawLeveDetails();
+
+        ImGui.EndChild();
+        ImGui.EndGroup();
+    }
+
+    private bool FilterLeve(uint leveId)
     {
         var showLeve = true;
+        var jobID = LeveDict[leveId].JobID;
+
+        if (C.LeveFilter.OnlyFavorites)
+        {
+            return C.FavoriteLeves.Contains(leveId);
+        }
 
         if (C.LeveFilter.LevelFilter > 0)
         {
-            // showLeve = LeveDict[row].
+            showLeve &= LeveDict[leveId].Level == C.LeveFilter.LevelFilter;
+        }
+
+        if (!string.IsNullOrEmpty(C.LeveFilter.NameFilter))
+        {
+            showLeve &= LeveDict[leveId].LeveName.Contains(C.LeveFilter.NameFilter, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Option #1 (one I created becuase I might be dumb
+        // showLeve &= showLeve && JobFilter(LeveDict[leveId].JobID);
+
+        // Option #2 (One Jukka made, might work better...)
+        // post ice edit: yes it does XD
+        showLeve &= showLeve && !C.GetJobFilter().Contains(jobID);
+
+        if (VisibleLeves.Contains(leveId) && !showLeve)
+        {
+            VisibleLeves.Remove(leveId);
+        }
+        else if (!VisibleLeves.Contains(leveId) && showLeve)
+        {
+            VisibleLeves.Add(leveId);
         }
 
         return showLeve;
+    }
+
+    private void DrawLeveDetails()
+    {
+        var leve = (uint)selectedLeve;
+        if (LeveDict.ContainsKey(leve))
+        {
+            ImGui.Text($"[{LeveDict[leve].Level}] {LeveDict[leve].LeveName}");
+            ImGui.Separator();
+            ImGui.Text($"EXP Reward: {LeveDict[leve].ExpReward:N0}");
+            ImGui.Text($"Gil Reward: {LeveDict[leve].GilReward:N0} ± 5%%");
+            ImGui.Separator();
+            ImGui.Text($"Starting Zone: {LeveDict[leve].StartingZoneName}");
+            ImGui.Text($"NPC: ");
+            ImGui.Text($"Position: ");
+            ImGui.Separator();
+            ImGui.Text($"Required Items:");
+            ImGui.Text($"    {LeveDict[leve].TurninAmount}x {LeveDict[leve].ItemName}");
+            ImGui.SameLine(0, 10);
+            ImGui.Image(LeveDict[leve].ItemIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(20));
+            ImGui.Separator();
+            ImGui.PushID((int)leve);
+            if (ImGui.Button(C.FavoriteLeves.Contains(leve) ? $"Remove from Favorites" : "Add to favorites"))
+            {
+                if (C.FavoriteLeves.Contains(leve))
+                {
+                    C.FavoriteLeves.Remove(leve);
+                }
+                else
+                {
+                    C.FavoriteLeves.Add(leve);
+                }
+            }
+            if (ImGui.Button(C.workList.Any(e => e.LeveID == leve) ? "Remove from worklist" : "Add to worklist"))
+            {
+                if (C.workList.Any(e => e.LeveID == leve))
+                {
+                    C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 0 });
+                }
+                else
+                {
+                    C.workList.RemoveAll(e => e.LeveID == leve);
+                }
+            }
+            ImGui.PopID();
+        }
+        else
+        {
+            ImGui.Text("No Leve Selected");
+        }
     }
 }

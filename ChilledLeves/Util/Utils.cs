@@ -16,6 +16,8 @@ using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using Dalamud.Interface.Textures.TextureWraps;
 using System.Threading;
+using System.Reflection;
+using ECommons.DalamudServices.Legacy;
 
 namespace ChilledLeves.Util;
 
@@ -132,6 +134,35 @@ public static unsafe class Utils
         return Svc.ClientState.LocalPlayer!.Position.Z;
     }
 
+    #region Targets, Targeting, and finding oh my
+
+    /// <summary>
+    /// Target's the target by it's ID. Moreso for the sake of users/make sure that I have the right thing.
+    /// </summary>
+    /// <param name="gameObject"></param>
+    /// <returns></returns>
+    internal static bool? TargetByID(IGameObject? gameObject)
+    {
+        var x = gameObject;
+        if (Svc.Targets.Target != null && Svc.Targets.Target.DataId == x.DataId)
+            return true;
+
+        if (!IsOccupied())
+        {
+            if (x != null)
+            {
+                if (EzThrottler.Throttle($"Throttle Targeting {x.DataId}"))
+                {
+                    Svc.Targets.SetTarget(x);
+                    ECommons.Logging.PluginLog.Information($"Setting the target to {x.DataId}");
+                }
+            }
+        }
+        return false;
+    }
+
+    #endregion
+
     #region Node Visibility | Text
 
     // stuff to get the Node visibility. Moreso to test and see if they have an item unlocked.
@@ -182,6 +213,8 @@ public static unsafe class Utils
     }
 
     #endregion
+
+    #region Leve Utilities
 
     public static unsafe int Allowances => QuestManager.Instance()->NumLeveAllowances;
     public static unsafe TimeSpan NextAllowances => QuestManager.GetNextLeveAllowancesDateTime() - DateTime.Now;
@@ -278,6 +311,7 @@ public static unsafe class Utils
         var sheet = Svc.Data.GetExcelSheet<Leve>();
         var CraftLeveSheet = Svc.Data.GetExcelSheet<CraftLeve>();
         var itemSheet = Svc.Data.GetExcelSheet<Item>();
+        var assignmentSheet = Svc.Data.GetExcelSheet<LeveAssignmentType>();
 
         if (sheet != null)
         {
@@ -295,25 +329,30 @@ public static unsafe class Utils
 
                 // grabbing the job Icon here and putting it into the dictionary.
                 // That way I can just pull it from the key itself
-                ISharedImmediateTexture? jobIcon = null;
-                if (GetRow<LeveAssignmentType>(leveJob).Value.Icon is { } leveJobIcon)
-                {
-                    int icon2 = leveJobIcon;
-                    if (Svc.Texture.TryGetFromGameIcon(icon2, out var texture2))
-                        jobIcon = texture2;
-                }
                 string leveType = Svc.Data.GetExcelSheet<LeveAssignmentType>().GetRow(leveJob).Name.ToString();
-                if (!LeveTypeDict.ContainsKey(leveJob))
+                foreach (var row2 in assignmentSheet)
                 {
-                    LeveTypeDict[leveJob] = new LeveType
+                    if (row2.Name != "" && row2.Icon is { } leveJobIcon)
                     {
-                        AssignmentIcon = jobIcon,
-                        LeveClassType = leveType,
-                    };
+                        if (Svc.Texture.TryGetFromGameIcon(leveJobIcon, out var texture2))
+                        {
+                            if (!LeveTypeDict.ContainsKey(row2.RowId))
+                            {
+                                LeveTypeDict[row2.RowId] = new LeveType
+                                {
+                                    AssignmentIcon = texture2,
+                                    LeveClassType = row2.Name.ToString(),
+                                };
+                            }
+                        }
+                    }
                 }
-
                 // Name of the leve that you're grabbing
                 string leveName = row.Name.ToString();
+
+                uint leveLevel = row.ClassJobLevel;
+                int expReward = row.ExpReward.ToInt();
+                int gilReward = row.GilReward.ToInt();
 
                 // Amount to run, this is always 0 upon initializing
                 // Mainly there to be an input for users later
@@ -358,10 +397,13 @@ public static unsafe class Utils
                 // Starting location that the leve initially starts in 
                 // Location location location... always important
                 // These are the *-actual-* Zone ID's of the places so, great for teleporting
-                uint startingCity = sheet.GetRow(leveNumber).PlaceNameStartZone.Value.RowId;
+                // Unless you're limsa, then you're just a pain in the ass to deal with xD
+                uint startingCity = sheet.GetRow(leveNumber).PlaceNameStart.Value.RowId;
 
                 // Zone name itself. That way people know exactly where this leve is coming from
-                string ZoneName = Svc.Data.GetExcelSheet<PlaceName>().GetRow(startingCity).Name.ToString();
+                string startingZoneName = Svc.Data.GetExcelSheet<PlaceName>().GetRow(startingCity).Name.ToString();
+
+                // Location of where the leve starts when you pick it up, this is only one for crafters but, this might change for gatherers...
 
                 // Testing this to see if I can grab upon loading the sheet up to save frames...
                 int currentlyHave = GetItemCount(itemID.ToInt());
@@ -372,12 +414,15 @@ public static unsafe class Utils
                     LeveDict[leveNumber] = new LeveDataDict
                     {
                         JobID = leveJob,
+                        Level = leveLevel,
                         LeveName = leveName,
+                        ExpReward = expReward,
+                        GilReward = gilReward,
                         Amount = amount,
                         QuestID = questID,
                         RepeatAmount = leveRepeat,
                         StartingCity = startingCity,
-                        ZoneName = ZoneName,
+                        StartingZoneName = startingZoneName,
                         ItemID = itemID,
                         ItemName = itemName,
                         ItemIcon = itemIcon,
@@ -402,9 +447,5 @@ public static unsafe class Utils
         }
     }
 
-    public static void EnableStar()
-    {
-        var YellowStar = Service.TextureDal.GetFromGame("ui/uld/LinkShell_hr1.tex").GetWrapOrEmpty();
-        ImGui.Image(YellowStar.ImGuiHandle, new Vector2(24, 24), new Vector2(0.0000f, 0.0000f), new Vector2(0.3333f, 0.5000f));
-    }
+    #endregion
 }

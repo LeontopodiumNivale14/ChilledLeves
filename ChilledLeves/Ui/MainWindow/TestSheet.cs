@@ -68,7 +68,7 @@ internal class TestSheet
                     Column2Width = Math.Max(Column2Width, LeveTextWidth);
 
                     ImGui.TableSetColumnIndex(2);
-                    string StartingCity = kdp.Value.ZoneName;
+                    string StartingCity = kdp.Value.StartingZoneName;
 
                     ImGui.Text($"{StartingCity}");
                     float CityTextWidth = ImGui.CalcTextSize(StartingCity).X + 15.0f; // Add padding

@@ -54,6 +54,7 @@ public static unsafe class Data
 
 
     public static HashSet<uint> CrafterJobs = new() { 5, 6, 7, 8, 9, 10, 11, 12};
+    public static List<uint> VisibleLeves = new List<uint>();
 
     // Old/Depreciated. Don't wanna delete yet thought because it ties to old sheets that need to be removed once I'm confident they can go
     public static List<uint> CraftingClass = new List<uint>();
@@ -448,7 +449,7 @@ public static unsafe class Data
         /// <summary>
         /// Level of the leve that you're undertaking, this is the *-minimum-* level you can be to do this leve
         /// </summary>
-        public int Level { get; set; }
+        public uint Level { get; set; }
         /// <summary>
         /// Name of the Leve
         /// </summary>
@@ -466,9 +467,17 @@ public static unsafe class Data
         /// </summary>
         public uint StartingCity { get; set; }
         /// <summary>
-        /// Zone name that the leve starts in, (Gridania, Lower La Noscea... as examples
+        /// Zone name that the leve starts in, (New Gridania, Upper Limsa... as examples)
         /// </summary>
-        public string ZoneName { get; set; }
+        public string StartingZoneName { get; set; }
+        /// <summary>
+        /// EXP reward that you get while you're within that expansion's cap.
+        /// </summary>
+        public int ExpReward { get; set; }
+        /// <summary>
+        /// Gil Amount you can earn, this can be +- 5% of what is listed
+        /// </summary>
+        public int GilReward { get; set; }
 
         // Crafter Specific
         /// <summary>
@@ -505,10 +514,17 @@ public static unsafe class Data
         /// Job icon that is grabbed from the sheet, just an easier way to pull it.
         /// </summary>
         public ISharedImmediateTexture? AssignmentIcon { get; set; }
+        public IDalamudTextureWrap? FavoriteIcon { get; set; }
         /// <summary>
         /// Type of leve that is assigned to this. Quick and easy way to access this.
         /// </summary>
         public string LeveClassType { get; set; }
+    }
+
+    public class LeveEntry
+    {
+        public uint LeveID { get; set; }
+        public int InputValue { get; set; }
     }
 
     public static Dictionary<uint, LeveDataDict> LeveDict = new();

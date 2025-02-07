@@ -11,8 +11,8 @@ public sealed class ChilledLeves : IDalamudPlugin
 {
     public string Name => "ChilledLeves";
     internal static ChilledLeves P = null!;
-    public static Config C => P.config;
-    private Config config;
+    public static Configuration C => P.config;
+    private Configuration config;
 
     // Window's that I use, base window to the settings... need these to actually show shit 
     internal WindowSystem windowSystem;
@@ -35,12 +35,13 @@ public sealed class ChilledLeves : IDalamudPlugin
         P = this;
         ECommonsMain.Init(pi, P, ECommons.Module.DalamudReflector, ECommons.Module.ObjectFunctions);
         new ECommons.Schedulers.TickScheduler(Load);
+
+        P.config = Configuration.Load();
     }
 
     public void Load()
     {
-        EzConfig.Migrate<Config>();
-        config = EzConfig.Init<Config>();
+        P.config = Configuration.Load();
 
         //IPC's that are used
         taskManager = new();
