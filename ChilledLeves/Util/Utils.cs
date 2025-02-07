@@ -23,34 +23,44 @@ namespace ChilledLeves.Util;
 
 public static unsafe class Utils
 {
+    #region Ecoms stuff
+
+    internal static bool GenericThrottle => FrameThrottler.Throttle("AutoRetainerGenericThrottle", 10);
+    public static TaskManagerConfiguration DConfig => new(timeLimitMS: 10 * 60 * 3000, abortOnTimeout: false);
+
+    #endregion
+
+    #region Plugin Info
+
+    public static bool HasPlugin(string name) => DalamudReflector.TryGetDalamudPlugin(name, out _, false, true);
+    public static void PluginLog(string message) => ECommons.Logging.PluginLog.Information(message);
+
+    public static bool IsAddonActive(string AddonName) // Used to see if the addon is active/ready to be fired on
+    {
+        var addon = RaptureAtkUnitManager.Instance()->GetAddonByName(AddonName);
+        return addon != null && addon->IsVisible && addon->IsReady;
+    }
+
     public static bool PluginInstalled(string name)
     {
         return DalamudReflector.TryGetDalamudPlugin(name, out _, false, true);
     }
 
-    public static unsafe int GetItemCount(int itemID, bool includeHq = true)
-        => includeHq ? InventoryManager.Instance()->GetInventoryItemCount((uint)itemID, true) 
-        + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000)
-        : InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000);
+    #endregion
 
-    public static bool ExecuteTeleport(uint aetheryteId) => UIState.Instance()->Telepo.Teleport(aetheryteId, 0);
+    #region Player Info
+    public static unsafe int GetItemCount(int itemID, bool includeHq = true)
+    => includeHq ? InventoryManager.Instance()->GetInventoryItemCount((uint)itemID, true)
+    + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000)
+    : InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000);
+
+    public static uint CurrentTerritory() => GameMain.Instance()->CurrentTerritoryTypeId;
+    public static bool IsInZone(uint zoneID) => Svc.ClientState.TerritoryType == zoneID;
+    public static bool IsBetweenAreas => Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51];
+
+    internal static IGameObject? GetObjectByName(string name) => Svc.Objects.OrderBy(GetDistanceToPlayer).FirstOrDefault(o => o.Name.TextValue.Equals(name, StringComparison.CurrentCultureIgnoreCase));
     internal static unsafe float GetDistanceToPlayer(Vector3 v3) => Vector3.Distance(v3, Player.GameObject->Position);
     internal static unsafe float GetDistanceToPlayer(IGameObject gameObject) => GetDistanceToPlayer(gameObject.Position);
-    internal static IGameObject? GetObjectByName(string name) => Svc.Objects.OrderBy(GetDistanceToPlayer).FirstOrDefault(o => o.Name.TextValue.Equals(name, StringComparison.CurrentCultureIgnoreCase));
-    public static float GetDistanceToPoint(float x, float y, float z) => Vector3.Distance(Svc.ClientState.LocalPlayer?.Position ?? Vector3.Zero, new Vector3(x, y, z));
-    public static float GetDistanceToPointV(Vector3 targetPoint) => Vector3.Distance(Svc.ClientState.LocalPlayer?.Position ?? Vector3.Zero, targetPoint);
-    private static readonly unsafe nint PronounModule = (nint)Framework.Instance()->GetUIModule()->GetPronounModule();
-    #pragma warning disable IDE1006 // Naming Styles
-    private static readonly unsafe delegate* unmanaged<nint, uint, GameObject*> getGameObjectFromPronounID = (delegate* unmanaged<nint, uint, GameObject*>)Svc.SigScanner.ScanText("E8 ?? ?? ?? ?? 48 8B D8 48 85 C0 0F 85 ?? ?? ?? ?? 8D 4F DD");
-    #pragma warning restore IDE1006 // Naming Styles
-    public static unsafe GameObject* GetGameObjectFromPronounID(uint id) => getGameObjectFromPronounID(PronounModule, id);
-    public static bool IsBetweenAreas => (Svc.Condition[ConditionFlag.BetweenAreas] || Svc.Condition[ConditionFlag.BetweenAreas51]);
-    internal static bool GenericThrottle => FrameThrottler.Throttle("AutoRetainerGenericThrottle", 10);
-    public static TaskManagerConfiguration DConfig => new(timeLimitMS: 10 * 60 * 3000, abortOnTimeout: false);
-    public static bool HasPlugin(string name) => DalamudReflector.TryGetDalamudPlugin(name, out _, false, true);
-    public static bool IsInZone(uint zoneID) => Svc.ClientState.TerritoryType == zoneID;
-
-    public static void PluginLog(string message) => ECommons.Logging.PluginLog.Information(message);
 
     public static bool PlayerNotBusy()
     {
@@ -61,30 +71,22 @@ public static unsafe class Utils
                && Player.Object.IsTargetable;
     }
 
-    public static (ulong id, Vector3 pos) FindAetheryte(uint id)
-    {
-        foreach (var obj in GameObjectManager.Instance()->Objects.IndexSorted)
-            if (obj.Value != null && obj.Value->ObjectKind == ObjectKind.Aetheryte && obj.Value->BaseId == id)
-                return (obj.Value->GetGameObjectId(), *obj.Value->GetPosition());
-        return (0, default);
-    }
+    #endregion
 
+    #region Player Positioning
+
+    // All of this is neeced for the player positioning:
+    private static readonly unsafe delegate* unmanaged<nint, uint, GameObject*> getGameObjectFromPronounID = (delegate* unmanaged<nint, uint, GameObject*>)Svc.SigScanner.ScanText("E8 ?? ?? ?? ?? 48 8B D8 48 85 C0 0F 85 ?? ?? ?? ?? 8D 4F DD");
+    private static readonly unsafe nint PronounModule = (nint)Framework.Instance()->GetUIModule()->GetPronounModule();
+    public static unsafe GameObject* GetGameObjectFromPronounID(uint id) => getGameObjectFromPronounID(PronounModule, id);
     public static GameObject* LPlayer() => GameObjectManager.Instance()->Objects.IndexSorted[0].Value;
 
+    // End necessities
     public static Vector3 PlayerPosition()
     {
         var player = LPlayer();
         return player != null ? player->Position : default;
     }
-
-    public static uint CurrentTerritory() => GameMain.Instance()->CurrentTerritoryTypeId;
-
-    public static bool IsAddonActive(string AddonName) // Used to see if the addon is active/ready to be fired on
-    {
-        var addon = RaptureAtkUnitManager.Instance()->GetAddonByName(AddonName);
-        return addon != null && addon->IsVisible && addon->IsReady;
-    }
-
     public static float GetPlayerRawXPos(string character = "")
     {
         if (!character.IsNullOrEmpty())
@@ -93,7 +95,7 @@ public static unsafe class Utils
             {
                 if (int.TryParse(character, out var p))
                 {
-                    var go = Utils.GetGameObjectFromPronounID((uint)(p + 42));
+                    var go = GetGameObjectFromPronounID((uint)(p + 42));
                     return go != null ? go->Position.X : -1;
                 }
                 else return Svc.Objects.Where(x => x.IsTargetable).FirstOrDefault(x => x.Name.ToString().Equals(character))?.Position.X ?? -1;
@@ -109,7 +111,7 @@ public static unsafe class Utils
             {
                 if (int.TryParse(character, out var p))
                 {
-                    var go = Utils.GetGameObjectFromPronounID((uint)(p + 42));
+                    var go = GetGameObjectFromPronounID((uint)(p + 42));
                     return go != null ? go->Position.Y : -1;
                 }
                 else return Svc.Objects.Where(x => x.IsTargetable).FirstOrDefault(x => x.Name.ToString().Equals(character))?.Position.Y ?? -1;
@@ -125,7 +127,7 @@ public static unsafe class Utils
             {
                 if (int.TryParse(character, out var p))
                 {
-                    var go = Utils.GetGameObjectFromPronounID((uint)(p + 42));
+                    var go = GetGameObjectFromPronounID((uint)(p + 42));
                     return go != null ? go->Position.Z : -1;
                 }
                 else return Svc.Objects.Where(x => x.IsTargetable).FirstOrDefault(x => x.Name.ToString().Equals(character))?.Position.Z ?? -1;
@@ -133,6 +135,8 @@ public static unsafe class Utils
         }
         return Svc.ClientState.LocalPlayer!.Position.Z;
     }
+
+    #endregion
 
     #region Targets, Targeting, and finding oh my
 
@@ -160,6 +164,7 @@ public static unsafe class Utils
         }
         return false;
     }
+    internal static bool TryGetObjectByDataId(ulong dataId, out IGameObject? gameObject) => (gameObject = Svc.Objects.OrderBy(GetDistanceToPlayer).FirstOrDefault(x => x.DataId == dataId)) != null;
 
     #endregion
 
@@ -219,9 +224,9 @@ public static unsafe class Utils
     public static unsafe int Allowances => QuestManager.Instance()->NumLeveAllowances;
     public static unsafe TimeSpan NextAllowances => QuestManager.GetNextLeveAllowancesDateTime() - DateTime.Now;
 
-    public static unsafe void LeveJobIcons(uint JobType, Vector2 size = default(Vector2))
+    public static unsafe void LeveJobIcons(uint JobType, Vector2 size = default)
     {
-        if (size == default(Vector2))
+        if (size == default)
         {
             size = new Vector2(20, 20);
         }
@@ -247,9 +252,9 @@ public static unsafe class Utils
         }
     }
 
-    public static unsafe void AllLeves(Vector2 size = default(Vector2))
+    public static unsafe void AllLeves(Vector2 size = default)
     {
-        if (size == default(Vector2))
+        if (size == default)
         {
             size = new Vector2(20, 20);
         }
@@ -261,48 +266,6 @@ public static unsafe class Utils
                 ImGui.Image(texture2.GetWrapOrEmpty().ImGuiHandle, size);
             else
                 ImGui.Dummy(size);
-        }
-    }
-
-    public static bool IsRowEnabled(uint classId, bool AllEnabled)
-    {
-        if (AllEnabled)
-            return true;
-        else
-        {
-            int spot = 0;
-
-            for (int i = 0; i < CraftingClass.Count; i++)
-            {
-                if (CraftingClass[i] == classId)
-                {
-                    spot = i;
-                    break;
-                }
-            }
-
-            return CraftingClassActive[spot];
-        }
-    }
-
-    public static bool IsLocationEnabled(string location, bool allEnabled)
-    {
-        if (allEnabled)
-            return true;
-        else
-        {
-            int boolLoc = 0;
-
-            for (int i = 0; i < AllLocations.Count; i++)
-            {
-                if (AllLocations[i] == location)
-                {
-                    boolLoc = i;
-                    break;
-                }
-            }
-
-            return LocationsActive[boolLoc];
         }
     }
 

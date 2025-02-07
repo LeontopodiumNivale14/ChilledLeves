@@ -1,3 +1,5 @@
+using ChilledLeves.Scheduler.Tasks;
+
 namespace ChilledLeves.Scheduler
 {
     internal static unsafe class SchedulerMain
@@ -24,11 +26,12 @@ namespace ChilledLeves.Scheduler
 
         internal static string CurrentProcess = "";
 
+
         // dummy values so I can get the logic in 
         private static uint RunAmount = 0;
         private static uint ClassLevel = 0;
         private static uint TurninZone = 0;
-        private static uint CurrentZone = 0;
+        private static uint Dummy = 0;
 
         internal static void Tick()
         {
@@ -55,10 +58,10 @@ namespace ChilledLeves.Scheduler
                         {
                             if (LeveDict[leve].Level >= ClassLevel)
                             {
-                                // Task to Teleport to Zone
+                                uint startCity = LeveDict[leve].StartingCity;
                                 // Task to use aetherytes
                                 // Task to path to leve vendor
-                                if (TurninZone != CurrentZone)
+                                if (TurninZone != Dummy)
                                 {
                                     // Tp to 2nd zone
                                     // If mounting is allowed (which should be) mount 

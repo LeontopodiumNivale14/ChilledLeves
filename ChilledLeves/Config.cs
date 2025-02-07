@@ -5,7 +5,6 @@ using ECommons.Configuration;
 
 namespace ChilledLeves;
 
-[Serializable]
 public class Config : IEzConfig
 {
     public int Version { get; set; } = 1;    
@@ -69,6 +68,7 @@ public class Config : IEzConfig
 
     public void Save()
     {
+        RefreshJobFilter();
         EzConfig.Save();
     }
 }

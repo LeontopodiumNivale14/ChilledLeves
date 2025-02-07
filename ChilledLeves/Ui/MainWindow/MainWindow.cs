@@ -15,9 +15,6 @@ namespace ChilledLeves.Ui.MainWindow;
 internal class MainWindow : Window
 {
     private static int selectedLeve;
-    private int LeveCount;
-    private static bool DefaultBool = false;
-
 
     public MainWindow() :
         base($"Chilled LevesTableOld {P.GetType().Assembly.GetName().Version} ###ChilledLevesMainWindow")
@@ -57,7 +54,7 @@ internal class MainWindow : Window
         ImGui.Spacing();
         if (ImGui.Button("Open Worklist"))
         {
-            //
+            P.settingWindow.IsOpen = !P.settingWindow.IsOpen;
         }
         ImGui.EndGroup();
         ImGui.Separator();
