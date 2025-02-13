@@ -56,9 +56,9 @@ namespace ChilledLeves.Scheduler
                         }
                         if (C.workList.Count > 0 && !noLeves)
                         {
-                            if (LeveDict[leve].Level >= ClassLevel)
+                            if (CrafterLeves[leve].Level >= ClassLevel)
                             {
-                                uint startCity = LeveDict[leve].StartingCity;
+                                uint startCity = Dummy;
                                 // Task to use aetherytes
                                 // Task to path to leve vendor
                                 if (TurninZone != Dummy)

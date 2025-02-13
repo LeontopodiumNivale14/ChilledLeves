@@ -18,6 +18,7 @@ using Dalamud.Interface.Textures.TextureWraps;
 using System.Threading;
 using System.Reflection;
 using ECommons.DalamudServices.Legacy;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace ChilledLeves.Util;
 
@@ -134,6 +135,20 @@ public static unsafe class Utils
             }
         }
         return Svc.ClientState.LocalPlayer!.Position.Z;
+    }
+
+    public static unsafe void SetFlagForNPC(uint teri, uint zoneID, float x, float y)
+    {
+        var agent = AgentMap.Instance();
+
+        agent->SetFlagMapMarker(zoneID, teri, x, y);
+        agent->OpenMapByMapId(teri);
+    }
+
+    public static unsafe uint CurrentMap()
+    {
+        var agent = AgentMap.Instance();
+        return agent->CurrentMapId;
     }
 
     #endregion
@@ -288,7 +303,10 @@ public static unsafe class Utils
                 // Checking the Jobtype, this is a very small number 
                 uint leveJob = row.LeveAssignmentType.Value.RowId;
 
-                if (!CrafterJobs.Contains(leveJob)) continue;
+                if (!CrafterJobs.Contains(leveJob))
+                {
+                    continue;
+                }
 
                 // grabbing the job Icon here and putting it into the dictionary.
                 // That way I can just pull it from the key itself
@@ -357,35 +375,28 @@ public static unsafe class Utils
                 // Moreso safety precaution than anything
                 int necessaryAmount = 0;
 
-                // Starting location that the leve initially starts in 
-                // Location location location... always important
-                // These are the *-actual-* Zone ID's of the places so, great for teleporting
-                // Unless you're limsa, then you're just a pain in the ass to deal with xD
-                uint startingCity = sheet.GetRow(leveNumber).PlaceNameStart.Value.RowId;
-
-                // Zone name itself. That way people know exactly where this leve is coming from
-                string startingZoneName = Svc.Data.GetExcelSheet<PlaceName>().GetRow(startingCity).Name.ToString();
-
-                // Location of where the leve starts when you pick it up, this is only one for crafters but, this might change for gatherers...
-
                 // Testing this to see if I can grab upon loading the sheet up to save frames...
                 int currentlyHave = GetItemCount(itemID.ToInt());
 
+                uint leveVendor = LeveVendor.FirstOrDefault(pair => pair.Value.Contains(leveNumber)).Key;
+
                 // Ensure the leveJobType is valid before inserting
-                if (!LeveDict.ContainsKey(leveNumber))
+                if (!CrafterLeves.ContainsKey(leveNumber))
                 {
-                    LeveDict[leveNumber] = new LeveDataDict
+                    CrafterLeves[leveNumber] = new CrafterDataDict
                     {
-                        JobID = leveJob,
-                        Level = leveLevel,
+                        Amount = amount,
                         LeveName = leveName,
+                        JobAssignmentType = leveJob,
+                        Level = leveLevel,
+                        QuestID = questID,
                         ExpReward = expReward,
                         GilReward = gilReward,
-                        Amount = amount,
-                        QuestID = questID,
+                        LeveVendorID = leveVendor,
+                        LeveTurninVendorID = 0,
+
+                        // Crafting Specific
                         RepeatAmount = leveRepeat,
-                        StartingCity = startingCity,
-                        StartingZoneName = startingZoneName,
                         ItemID = itemID,
                         ItemName = itemName,
                         ItemIcon = itemIcon,
@@ -401,7 +412,7 @@ public static unsafe class Utils
     {
         if (EzThrottler.Throttle("Update Dictionary Amount", 1000))
         {
-            foreach (var kdp in LeveDict)
+            foreach (var kdp in CrafterLeves)
             {
                 int itemID = kdp.Value.ItemID.ToInt();
                 kdp.Value.CurrentItemAmount = GetItemCount(itemID);
@@ -410,5 +421,10 @@ public static unsafe class Utils
         }
     }
 
+    public static string NPCName(uint NpcID)
+    {
+        var NPCSheet = Svc.Data.GetExcelSheet<ENpcResident>();
+        return NPCSheet.GetRow(NpcID).Singular.ToString();
+    }
     #endregion
 }

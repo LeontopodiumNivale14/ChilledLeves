@@ -41,11 +41,11 @@ internal class SettingWindow : Window
             foreach (var kdp in C.workList)
             {
                 uint leveID = kdp.LeveID;
-                uint level = LeveDict[leveID].Level;
-                uint jobID = LeveDict[leveID].JobID;
+                uint level = CrafterLeves[leveID].Level;
+                uint jobID = CrafterLeves[leveID].JobAssignmentType;
                 var jobIcon = LeveTypeDict[jobID].AssignmentIcon;
-                string LeveName = LeveDict[leveID].LeveName;
-                string ItemName = LeveDict[leveID].ItemName;
+                string LeveName = CrafterLeves[leveID].LeveName;
+                string ItemName = CrafterLeves[leveID].ItemName;
                 ImGui.TableNextRow();
 
                 ImGui.PushID((int)leveID);
@@ -71,7 +71,7 @@ internal class SettingWindow : Window
                 ImGui.Text(ItemName);
 
                 ImGui.TableNextColumn();
-                int amountNeeded = kdp.InputValue * LeveDict[leveID].TurninAmount;
+                int amountNeeded = kdp.InputValue * CrafterLeves[leveID].TurninAmount;
                 ImGui.Text(amountNeeded.ToString());
 
                 ImGui.PopID();
