@@ -242,6 +242,7 @@ public static unsafe class Data
 
     public static Dictionary<uint, LeveInfoVendor> LeveNPCDict = new Dictionary<uint, LeveInfoVendor>()
     {
+        // ARR
         { 1000970, new LeveInfoVendor { Name = NPCName(1000970), ZoneID = 128, Aetheryte = 8, NPCLocation = new Vector3 (-10.42f, 40.02f, -10.17f)     } },
         { 1000101, new LeveInfoVendor { Name = NPCName(1000101), ZoneID = 132, Aetheryte = 2, NPCLocation = new Vector3 (27.59f, -8.00f, 108.01f)      } },
         { 1001794, new LeveInfoVendor { Name = NPCName(1001794), ZoneID = 130, Aetheryte = 9, NPCLocation = new Vector3 (40.17f, 8.01f, -106.55f)      } },
@@ -273,7 +274,34 @@ public static unsafe class Data
         { 1002398, new LeveInfoVendor { Name = NPCName(1002398), ZoneID = 147, Aetheryte = 21, NPCLocation = new Vector3 (33.48f, 4.53f, 400.60f)      } },
         { 1004348, new LeveInfoVendor { Name = NPCName(1004348), ZoneID = 156, Aetheryte = 24, NPCLocation = new Vector3 (418.62f, -5.81f, -447.56f)   } },
         { 1007070, new LeveInfoVendor { Name = NPCName(1007070), ZoneID = 156, Aetheryte = 24, NPCLocation = new Vector3 (462.87f, -4.39f, -470.22f)   } },
+        // ARR Turnin NPC's
+        { 1001218, new LeveInfoVendor { Name = NPCName(1001218), ZoneID = 148, Aetheryte = 3, NPCLocation = new Vector3 (46.55f, -5.97f, 3.54f)        } },
+        { 1001220, new LeveInfoVendor { Name = NPCName(1001220), ZoneID = 153, Aetheryte = 5, NPCLocation = new Vector3 (167.13f, 8.70f, -48.60f)      } },
+        { 1001868, new LeveInfoVendor { Name = NPCName(1001868), ZoneID = 148, Aetheryte = 3, NPCLocation = new Vector3 (139.88f, -7.00f, -85.38f)     } },
+        { 1001219, new LeveInfoVendor { Name = NPCName(1001219), ZoneID = 152, Aetheryte = 4, NPCLocation = new Vector3 (-202.95f, 2.77f, 308.60f)     } },
+        { 1001276, new LeveInfoVendor { Name = NPCName(1001276), ZoneID = 132, Aetheryte = 2, NPCLocation = new Vector3 (10.81f, 0.12f, 2.32f)         } },
+        { 1004345, new LeveInfoVendor { Name = NPCName(1004345), ZoneID = 137, Aetheryte = 11, NPCLocation = new Vector3 (454.24f, 17.40f, 464.79f)    } },
+        { 1001787, new LeveInfoVendor { Name = NPCName(1001787), ZoneID = 129, Aetheryte = 8, NPCLocation = new Vector3 (-64.87f, 18.00f, 8.23f)       } },
+        { 1004343, new LeveInfoVendor { Name = NPCName(1004343), ZoneID = 135, Aetheryte = 10, NPCLocation = new Vector3 (544.81f, 87.74f, -47.56f)    } },
+        { 1001790, new LeveInfoVendor { Name = NPCName(1001790), ZoneID = 138, Aetheryte = 13, NPCLocation = new Vector3 (652.15f, 9.54f, 503.27f)     } },
+        { 1001793, new LeveInfoVendor { Name = NPCName(1001793), ZoneID = 138, Aetheryte = 14, NPCLocation = new Vector3 (292.18f, -24.99f, 238.09f)   } },
+        { 1004417, new LeveInfoVendor { Name = NPCName(1004417), ZoneID = 130, Aetheryte = 9, NPCLocation = new Vector3 (-30.76f, 9.00f, -85.04f)      } },
+        { 1003889, new LeveInfoVendor { Name = NPCName(1003889), ZoneID = 140, Aetheryte = 17, NPCLocation = new Vector3 (213.17f, 52.04f, 153.74f)    } },
+        { 1001798, new LeveInfoVendor { Name = NPCName(1001798), ZoneID = 140, Aetheryte = 17, NPCLocation = new Vector3 (69.39f, 46.00f, -248.66f)    } },
+        { 1001801, new LeveInfoVendor { Name = NPCName(1001801), ZoneID = 145, Aetheryte = 18, NPCLocation = new Vector3 (-396.09f, -57.08f, 125.65f)  } },
+        { 1002385, new LeveInfoVendor { Name = NPCName(1002385), ZoneID = 155, Aetheryte = 23, NPCLocation = new Vector3 (237.87f, 221.80f, 330.08f)   } },
+        { 1002402, new LeveInfoVendor { Name = NPCName(1002402), ZoneID = 155, Aetheryte = 23, NPCLocation = new Vector3 (-410.40f, 211.00f, -266.98f) } },
+        { 1004349, new LeveInfoVendor { Name = NPCName(1004349), ZoneID = 156, Aetheryte = 24, NPCLocation = new Vector3 (443.09f, -4.79f, -455.26f)   } },
+
+        // Heavensword
         { 1011208, new LeveInfoVendor { Name = NPCName(1011208), ZoneID = 418, Aetheryte = 70, NPCLocation = new Vector3 (-56.18f, 15.14f, -41.45f)    } },
+        // Stormblood
+
+        // Shadowbringer
+
+        // Endwalker
+
+        // Dawntrail
     };
 
     public static readonly Dictionary<uint, uint[]> LeveVendor = new()

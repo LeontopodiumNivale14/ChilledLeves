@@ -182,8 +182,8 @@ internal class DebugWindow : Window
             var jobID = row.LeveAssignmentType.Value.RowId;
             var client = row.LeveClient.Value.RowId;
             var levelreq = row.ClassJobLevel.ToInt();
-            var minlv = 90;
-            var maxlv = 98;
+            var minlv = 1;
+            var maxlv = 48;
             if (CrafterJobs.Contains(jobID) && !leveClient.Contains(client) && (levelreq >= minlv && levelreq <= maxlv))
                 leveClient.Add(client);
         }

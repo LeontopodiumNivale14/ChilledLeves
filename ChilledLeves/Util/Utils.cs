@@ -426,5 +426,98 @@ public static unsafe class Utils
         var NPCSheet = Svc.Data.GetExcelSheet<ENpcResident>();
         return NPCSheet.GetRow(NpcID).Singular.ToString();
     }
+
+    public static uint NpcId(uint leveClient)
+    {
+        uint NPCID = 0;
+        // 5, 7, 9, 13, 19, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
+        if (leveClient == 5)
+        {
+            // Central Shroud, Audrie
+            NPCID = 1001218;
+        }
+        else if (leveClient == 7)
+        {
+            // East Shroud, Ayled
+            NPCID = 1001219;
+        }
+        else if (leveClient == 9)
+        {
+            // New Gridania, Maisenta
+            NPCID = 1001276;
+        }
+        else if (leveClient == 13)
+        {
+            // South Shroud, Juliembert
+            NPCID = 1001220;
+        }
+        else if (leveClient == 19)
+        {
+            // Central Shroud, Lanverlais
+            NPCID = 1001868;
+        }
+        else if (leveClient == 113)
+        {
+            // Eastern La Noscea, Ririphon
+            NPCID = 1004345;
+        }
+        else if (leveClient == 114)
+        {
+            // Limsa Lominsa Lower Decks, Bango Zango
+            NPCID = 1001787;
+        }
+        else if (leveClient == 115)
+        {
+            // Lower La Noscea, Zwynwyda
+            NPCID = 1004343;
+        }
+        else if (leveClient == 116)
+        {
+            // Western La Noscea, Fewon Bulion
+            NPCID = 1001790;
+        }
+        else if (leveClient == 117)
+        {
+            // Western la Noscea, H'rhanbolo
+            NPCID = 1001793;
+        }
+        else if (leveClient == 118)
+        {
+            // Ul'dah - Steps of Nald, Roarich
+            NPCID = 1004417;
+        }
+        else if (leveClient == 119)
+        {
+            // Western Thanalan, Gigiyon
+            NPCID = 1003889;
+        }
+        else if (leveClient == 120)
+        {
+            // Western Thanalan, Mimina
+            NPCID = 1001798;
+        }
+        else if (leveClient == 121)
+        {
+            // Easter Thanalan, Frediswitha
+            NPCID = 1001801;
+        }
+        else if (leveClient == 122)
+        {
+            // Coethras Central Highlands, Vivenne
+            NPCID = 1002385;
+        }
+        else if (leveClient == 123)
+        {
+            // Coethras Central Highlands, Lanquairt
+            NPCID = 1002402;
+        }
+        else if (leveClient == 124)
+        {
+            // Mor Dhona, Syele
+            NPCID = 1004349;
+        }
+
+        return NPCID;
+    }
     #endregion
 }
