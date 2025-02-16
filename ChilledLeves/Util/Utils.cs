@@ -19,6 +19,10 @@ using System.Threading;
 using System.Reflection;
 using ECommons.DalamudServices.Legacy;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
+using FFXIVClientStructs.Interop;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using System.Runtime.CompilerServices;
 
 namespace ChilledLeves.Util;
 
@@ -180,10 +184,27 @@ public static unsafe class Utils
         return false;
     }
     internal static bool TryGetObjectByDataId(ulong dataId, out IGameObject? gameObject) => (gameObject = Svc.Objects.OrderBy(GetDistanceToPlayer).FirstOrDefault(x => x.DataId == dataId)) != null;
+    internal static unsafe void InteractWithObject(IGameObject? gameObject)
+    {
+        try
+        {
+            if (gameObject == null || !gameObject.IsTargetable)
+                return;
+            var gameObjectPointer = (GameObject*)gameObject.Address;
+            TargetSystem.Instance()->InteractWithObject(gameObjectPointer, false);
+        }
+        catch (Exception ex)
+        {
+            Svc.Log.Info($"InteractWithObject: Exception: {ex}");
+        }
+    }
 
     #endregion
 
     #region Node Visibility | Text
+
+    // stuff to get the Node visibility. Moreso to test and see if they have an item unlocked.
+    // Thank you Croizat for dealing with me asking dumb questions. I do appreciate it. / having a way this worked in lua
 
     // stuff to get the Node visibility. Moreso to test and see if they have an item unlocked.
     // Thank you Croizat for dealing with me asking dumb questions. I do appreciate it. / having a way this worked in lua
@@ -197,6 +218,47 @@ public static unsafe class Utils
         var addon = (AtkUnitBase*)ptr;
         var node = GetNodeByIDChain(addon->GetRootNode(), ids);
         return node != null && node->IsVisible();
+    }
+
+    /// <summary>
+    /// AddonName is the name of the Window itself
+    /// nodeNumbers are IN the Node List section, and they're the first [#] in the brackets
+    /// Need to go down through each Nodelist Tree...
+    /// </summary>
+    /// <param name="addonName"></param>
+    /// <param name="nodeNumbers"></param>
+    /// <returns></returns>
+    public static unsafe string GetNodeText(string addonName, params int[] nodeNumbers)
+    {
+
+        var ptr = Svc.GameGui.GetAddonByName(addonName, 1);
+
+        var addon = (AtkUnitBase*)ptr;
+        var uld = addon->UldManager;
+
+        AtkResNode* node = null;
+        var debugString = string.Empty;
+        for (var i = 0; i < nodeNumbers.Length; i++)
+        {
+            var nodeNumber = nodeNumbers[i];
+
+            var count = uld.NodeListCount;
+
+            node = uld.NodeList[nodeNumber];
+            debugString += $"[{nodeNumber}]";
+
+            // More nodes to traverse
+            if (i < nodeNumbers.Length - 1)
+            {
+                uld = ((AtkComponentNode*)node)->Component->UldManager;
+            }
+        }
+
+        if (node->Type == NodeType.Counter)
+            return ((AtkCounterNode*)node)->NodeText.ToString();
+
+        var textNode = (AtkTextNode*)node;
+        return textNode->NodeText.GetText();
     }
     private static unsafe AtkResNode* GetNodeByIDChain(AtkResNode* node, params int[] ids)
     {
@@ -230,6 +292,24 @@ public static unsafe class Utils
         //check siblings
         var sibNode = node->PrevSiblingNode;
         return sibNode != null ? GetNodeByIDChain(sibNode, ids) : null;
+    }
+
+    public static int GetCallback(string questName)
+    {
+        int callback = 0;
+
+        for (int i = 1; i < 18; i++)
+        {
+            string CurrentText = GetNodeText("SelectIconString", 2, i, 4);
+            if (CurrentText == questName)
+            {
+                callback = i - 1;
+                PluginLog($"Callback number is: {callback}");
+                break;
+            }
+        }
+
+        return callback;
     }
 
     #endregion
@@ -379,6 +459,7 @@ public static unsafe class Utils
                 int currentlyHave = GetItemCount(itemID.ToInt());
 
                 uint leveVendor = LeveVendor.FirstOrDefault(pair => pair.Value.Contains(leveNumber)).Key;
+                string vendorName = LeveNPCDict[leveVendor].Name;
 
                 // Ensure the leveJobType is valid before inserting
                 if (!CrafterLeves.ContainsKey(leveNumber))
@@ -393,6 +474,7 @@ public static unsafe class Utils
                         ExpReward = expReward,
                         GilReward = gilReward,
                         LeveVendorID = leveVendor,
+                        LeveVendorName = vendorName,
                         LeveTurninVendorID = 0,
 
                         // Crafting Specific
@@ -516,8 +598,88 @@ public static unsafe class Utils
             // Mor Dhona, Syele
             NPCID = 1004349;
         }
+        else if (IshgardTurnin.Contains(leveClient))
+        {
+            NPCID = 1011209;
+        }
+        else if (KuganeTurnin.Contains(leveClient))
+        {
+            NPCID = 1018998;
+        }
+        else if (CrystariumTurnin.Contains(leveClient))
+        {
+            NPCID = 1027848;
+        }
+        else if (SharlayanTurnin.Contains(leveClient))
+        {
+            NPCID = 1037264;
+        }
+        else if (TuliyoliTurnin.Contains(leveClient))
+        {
+            NPCID = 1048391;
+        }
 
         return NPCID;
     }
+
+    #endregion
+
+    #region Leve Info
+
+    // Credit goes to Haselnussbomber for a lot of the following leve stuff here, a lot of this I wouldn't of even known
+    // to look for in the code. Just had to modify it slightly to fit the way that I had coded it but.
+    public static unsafe LeveWork* GetLeveWork(Leve leve)
+    {
+        var leveQuests = QuestManager.Instance()->LeveQuests;
+
+        for (var i = 0; i < leveQuests.Length; i++)
+        {
+            if (leveQuests[i].LeveId == leve.RowId)
+                return leveQuests.GetPointer(i);
+        }
+
+        return null;
+    }
+
+
+    public static unsafe bool IsComplete(uint leveID)
+        => QuestManager.Instance()->IsLevequestComplete((ushort)leveID);
+
+    public static bool IsAccepted(uint leveID)
+        => GetActiveLeveIds().Any(id => id == (ushort)leveID);
+
+    public static unsafe bool IsReadyForTurnIn(Leve leve)
+    {
+        var leveWork = GetLeveWork(leve);
+        if (leveWork == null)
+            return false;
+
+        return leveWork->Sequence == 255;
+    }
+
+    public static unsafe bool IsStarted(Leve leve)
+    {
+        var leveWork = GetLeveWork(leve);
+        if (leveWork == null)
+            return false;
+
+        return leveWork->Sequence == 1 && leveWork->ClearClass != 0;
+    }
+
+    public static unsafe IEnumerable<ushort> GetActiveLeveIds()
+    {
+        var leveIds = new HashSet<ushort>();
+
+        foreach (ref var entry in QuestManager.Instance()->LeveQuests)
+        {
+            if (entry.LeveId != 0)
+                leveIds.Add(entry.LeveId);
+        }
+
+        return leveIds;
+    }
+
+    public static int GetNumAcceptedLeveQuests() => GetActiveLeveIds().Count();
+
     #endregion
 }

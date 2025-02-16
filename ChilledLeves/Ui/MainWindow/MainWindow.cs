@@ -1,4 +1,5 @@
-﻿using Dalamud.Interface.Textures;
+﻿using ChilledLeves.Scheduler;
+using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using ECommons.Configuration;
 using FFXIVClientStructs.FFXIV.Common.Lua;
@@ -35,6 +36,18 @@ internal class MainWindow : Window
 
     public override void Draw()
     {
+        ImGui.SetNextItemWidth(100);
+        ImGui.InputInt("Temp for synth", ref SchedulerMain.SynthRunAmount);
+        ImGui.SameLine();
+        if (ImGui.Button("Start"))
+        {
+            SchedulerMain.EnablePlugin();
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Stop"))
+        {
+            SchedulerMain.DisablePlugin();
+        }
         ImGui.BeginGroup();
         DrawFilterPanel();
         ImGui.EndGroup();
@@ -299,8 +312,9 @@ internal class MainWindow : Window
             ImGui.Text($"Gil Reward: {CrafterLeves[leve].GilReward:N0} ± 5%%");
             ImGui.Separator();
             ImGui.Text($"Starting Zone: ");
-            ImGui.Text($"NPC: ");
-            ImGui.Text($"Position: ");
+            ImGui.Text($"NPC: {CrafterLeves[leve].LeveVendorName}");
+            ImGui.Text($"Is Complete: {IsComplete(leve)}");
+            ImGui.Text($"Is Accepted: {IsAccepted(leve)}");
             ImGui.Separator();
             ImGui.Text($"Required Items:");
             ImGui.Text($"    {CrafterLeves[leve].TurninAmount}x {CrafterLeves[leve].ItemName}");

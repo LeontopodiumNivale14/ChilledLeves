@@ -39,13 +39,22 @@ internal class DebugWindow : Window
                 ("Main Debug###LeaveItAloneMainDebug", MainDebug, null, true),
                 ("Targeting Debug ###LeveItAloneTargeting", TargetingDebug, null, true),
                 ("Temp ###Temp Debug", ListGrabber, null, true),
-                ("Place Name Difference", PlaceName, null, true)
+                ("Place Name Difference", PlaceName, null, true),
+                ("NPC Vendor's", TeleportTest, null, true),
+                ("Node Visible?", NodeVisible, null, true)
         );
 
     }
 
+    private int LeveID = 0;
+
     private void MainDebug()
     {
+        ImGui.SetNextItemWidth(100);
+        ImGui.InputInt("###LeveID", ref LeveID);
+        ImGui.Text($"Leve Started: {IsStarted(Svc.Data.Excel.GetSheet<Leve>().GetRow((uint)LeveID))}");
+        ImGui.Text($"Leve Ready: {Svc.Data.Excel.GetSheet<Leve>().GetRow((uint)LeveID)}");
+
         ImGui.Text($"Miner: {C.LeveFilter.ShowMiner}");
         ImGui.Text($"Botanist: {C.LeveFilter.ShowBotanist}");
         ImGui.Text($"Fisher: {C.LeveFilter.ShowFisher}");
@@ -136,6 +145,7 @@ internal class DebugWindow : Window
                                        $"{TargetYPos.ToString("0.00", CultureInfo.InvariantCulture)}f, " +
                                        $"{TargetZPos.ToString("0.00", CultureInfo.InvariantCulture)}f");
             }
+            ImGui.Text($"{GetDistanceToPlayer(Svc.Targets.Target)}");
         }
         else
         {
@@ -163,7 +173,7 @@ internal class DebugWindow : Window
         }
         foreach (var kdp in placeNameIssuedDict)
         {
-            string clipboardText = $"{{ {kdp.Key}, new ZoneInfo {{ IssuedLocation = \"{kdp.Value}\", }} }},";
+            string clipboardText = $"{{ {kdp.Key}, new AethernetSystem {{ IssuedLocation = \"{kdp.Value}\", }} }},";
             if (ImGui.Button($"Copy Info ###{kdp.Value}"))
             {
                 ImGui.SetClipboardText(clipboardText);
@@ -197,6 +207,7 @@ internal class DebugWindow : Window
             ImGui.Text($"{item}");
         }
     }
+
     public void ExportDict()
     {
         string exportPath = @"D:\LeveTypeDictHardcoded.cs"; // Exporting to D: root
@@ -227,5 +238,44 @@ internal class DebugWindow : Window
 
         writer.WriteLine("};");
         Console.WriteLine($"C# dictionary exported to {exportPath}");
+    }
+
+    public void TeleportTest()
+    {
+        foreach (var entry in LeveNPCDict)
+        {
+            ImGui.PushID((int)entry.Key);
+            if (ImGui.Button($"{entry.Value.Name}"))
+            {
+                var aetheryte = entry.Value.Aetheryte;
+                var zoneID = entry.Value.ZoneID;
+                TaskTeleport.Enqueue(aetheryte, zoneID);
+            }
+        }
+    }
+
+    private static int node1 = 0;
+    private static int node2 = 0;
+    private static int node3 = 0;
+    private static int node4 = 0;
+    public void NodeVisible()
+    {
+        if (ImGui.Button("Test turnin"))
+        {
+            TaskTurnin.Enqueue("The Mountain Steeped");
+        }
+
+        ImGui.InputInt("Node###DebugNodeValue1", ref node1);
+        ImGui.InputInt("Node###DebugNodeValue2", ref node2);
+        ImGui.InputInt("Node###DebugNodeValue3", ref node3);
+        ImGui.InputInt("Node###DebugNodeValue4", ref node4);
+        if (IsNodeVisible("SelectIconString", node1, node2, node3, node4))
+        {
+            ImGui.Text($"Node Text: {GetNodeText("SelectIconString", node1, node2, node3, node4)}");
+        }
+        else
+        {
+            ImGui.Text("Node not visible");
+        }
     }
 }

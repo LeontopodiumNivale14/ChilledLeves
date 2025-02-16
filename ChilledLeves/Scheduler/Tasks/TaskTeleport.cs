@@ -11,21 +11,20 @@ namespace ChilledLeves.Scheduler.Tasks
 {
     internal static class TaskTeleport
     {
-        internal static unsafe void Enqueue(uint aetherytID, uint targetTerritoryId, uint secondZoneID = 0, bool useSecondID = false)
+        internal static unsafe void Enqueue(uint aetherytID, uint targetTerritoryId)
         {
-            P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId, secondZoneID, useSecondID), "Teleporting to Destination", DConfig);
+            P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId), "Teleporting to Destination", DConfig);
+            P.taskManager.Enqueue(() => IsScreenReady());
         }
 
-        internal static unsafe bool? TeleporttoAethery(uint aetherytID, uint targetTerritoryId, uint secondZoneID = 0, bool useSecondID = false)
+        internal static unsafe bool? TeleporttoAethery(uint aetherytID, uint targetTerritoryId)
         {
             if (IsInZone(targetTerritoryId) && PlayerNotBusy())
-                return true;
-            else if (useSecondID && IsInZone(secondZoneID) && PlayerNotBusy())
                 return true;
 
             if (!Svc.Condition[ConditionFlag.Casting] && PlayerNotBusy() && !IsBetweenAreas && !IsInZone(targetTerritoryId))
             {
-                if (EzThrottler.Throttle("Teleport Throttle", 1100))
+                if (EzThrottler.Throttle("Teleport Throttle", 7000))
                 {
                     PluginLog($"Teleporting to {aetherytID} at {targetTerritoryId}");
                     Telepo.Instance()->Teleport(aetherytID, 0);

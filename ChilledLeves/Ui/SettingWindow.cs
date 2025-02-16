@@ -26,6 +26,8 @@ internal class SettingWindow : Window
 
     public override void Draw()
     {
+        ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");
+
         if (ImGui.BeginTable($"Crafting Workshop List", 5, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
         {
             // Columns for the crafters

@@ -109,6 +109,11 @@ public static unsafe class Data
         /// #22 [Gil Reward] Gil Amount you can earn, this can be +- 5% of what is listed
         /// </summary>
         public int GilReward { get; set; }
+        /// <summary>
+        /// Name of the leve person
+        /// </summary>
+        public string LeveVendorName {  get; set; }
+
 
         // Crafter Specific
         /// <summary>
@@ -162,73 +167,25 @@ public static unsafe class Data
         public int InputValue { get; set; }
     }
 
-    public class ZoneInfo
+    public class AethernetSystem
     {
-        public required string IssuedLocation { get; set; }
-        public required uint MainZone { get; set; }
-        public required uint Aetheryte { get; set; }
-        public required Vector3 LeveNPCLocation { get; set; }
-        public required uint LeveNPCId { get; set; }
-        public uint TurninNPCId { get; set; }
-        public Vector3 TurninNPCLocation { get; set; }
+        public required uint AetheryteID { get; set; }
+        public required uint Aethernet {  get; set; }
+        public required Vector3 CrystalLoc { get; set; }
+        public required Vector3 TPLocation { get; set; }
+        public required uint TeleportZone { get; set; }
+        public required float Range { get; set; }
     }
 
-    public static Dictionary<uint, ZoneInfo> ZoneDict = new Dictionary<uint, ZoneInfo>()
+    public static Dictionary<uint, AethernetSystem> AethernetDict = new Dictionary<uint, AethernetSystem>()
     {
-        // Gridania... yes gridania
-        { 39, new ZoneInfo { IssuedLocation = "Gridania", MainZone = 132, Aetheryte = 2, LeveNPCLocation = new Vector3 (26.12f, -8.00f, 116.03f), LeveNPCId = 1000100, } },
-        // Central Shroud
-        { 90, new ZoneInfo { IssuedLocation = "The Bannock", MainZone = 148, Aetheryte = 3, LeveNPCLocation = new Vector3 (119.94f, -7.00f, -94.44f), LeveNPCId = 1001866} },
-        // Also Central Shroud *-groans-*
-        { 94, new ZoneInfo { IssuedLocation = "Bentbranch Meadows", MainZone = 148, Aetheryte = 3, LeveNPCLocation = new Vector3 (51.26f, -6.00f, 40.82f), LeveNPCId = 1000105} },
-        // East Shroudsssss
-        { 107, new ZoneInfo { IssuedLocation = "The Hawthorne Hut", MainZone = 152, Aetheryte = 4, LeveNPCLocation = new Vector3 (-211.13f, 1.10f, 287.49f), LeveNPCId = 1000821} },
-        // South Shroud
-        { 129, new ZoneInfo { IssuedLocation = "Quarrymill", MainZone = 153, Aetheryte = 5, LeveNPCLocation = new Vector3 (197.94f, 8.43f, -62.78f), LeveNPCId = 1000823} },
-        // Eastern Limsa 
-        { 206, new ZoneInfo { IssuedLocation = "Costa del Sol", MainZone = 137, Aetheryte = 11, LeveNPCLocation = new Vector3 (454.10f, 17.62f, 470.42f), LeveNPCId = 1004344} },
-        // Coerthas Central Highlands 
-        { 385, new ZoneInfo { IssuedLocation = "First Dicasterial Observatorium of Aetherial and Astrological Phenomena", MainZone = 155, Aetheryte = 23, LeveNPCLocation = new Vector3 (228.72f, 222.00f, 339.77f), LeveNPCId = 1002384} },
-        // Also Coerthas Central... this is #2 of 4 included here. Don't need the rest right now
-        { 402, new ZoneInfo { IssuedLocation = "Whitebrim Front", MainZone = 155, Aetheryte = 23, LeveNPCLocation = new Vector3 (-442.67f, 211.00f, -233.85f), LeveNPCId = 1002401} },
-        // More Donuts? More Dhonut? Mor Donah
-        { 416, new ZoneInfo { IssuedLocation = "Saint Coinach's Find", MainZone = 156, Aetheryte = 0, LeveNPCLocation = new Vector3 (417.98f, -5.85f, -446.79f), LeveNPCId = 1004348} },
-        // Limsa Upper
-        { 27, new ZoneInfo { IssuedLocation = "Limsa Lominsa", MainZone = 128, Aetheryte = 8, LeveNPCLocation = new Vector3 (-10.83f, 40.02f, -10.55f), LeveNPCId = 1000970, TurninNPCId = 1001787, TurninNPCLocation = new Vector3 (-64.48f, 18.00f, 8.49f)} },
-        // Lower La Noscea
-        { 200, new ZoneInfo { IssuedLocation = "Red Rooster Stead", MainZone = 135, Aetheryte = 10, LeveNPCLocation = new Vector3 (499.21f, 79.41f, -72.10f), LeveNPCId = 1004342} },
-        // Western La Noscea, #1 of 2 probably. . . . 
-        { 218, new ZoneInfo { IssuedLocation = "Swiftperch", MainZone = 138, Aetheryte = 13, LeveNPCLocation = new Vector3 (666.21f, 9.22f, 513.08f), LeveNPCId = 1001788} },
-        // Western La Noscea, #2 of 2 - oh hey it does exist
-        { 223, new ZoneInfo { IssuedLocation = "Aleport", MainZone = 138, Aetheryte = 14, LeveNPCLocation = new Vector3 (310.17f, -31.90f, 283.92f), LeveNPCId = 1001791} },
-        // Ul'dah? More like Ul'dumb - okay that was dumb. 
-        { 51, new ZoneInfo { IssuedLocation = "Ul'dah", MainZone = 130, Aetheryte = 9, LeveNPCLocation = new Vector3 (40.29f, 8.01f, -106.62f), LeveNPCId = 1001794} },
-        // Western Thanalan
-        { 263, new ZoneInfo { IssuedLocation = "Scorpion Crossing", MainZone = 140, Aetheryte = 17, LeveNPCLocation = new Vector3 (227.25f, 52.04f, 153.70f), LeveNPCId = 1003888} },
-        // Western Thanalan #2, OH LOOK -.-
-        { 271, new ZoneInfo { IssuedLocation = "Horizon", MainZone = 140, Aetheryte = 17, LeveNPCLocation = new Vector3 (82.99f, 46.00f, -243.85f), LeveNPCId = 1001796} },
-        // Eastern Thanalan, watch out for bowser here...
-        { 300, new ZoneInfo { IssuedLocation = "Camp Drybone", MainZone = 145, Aetheryte = 18, LeveNPCLocation = new Vector3 (-377.41f, -57.08f, 126.65f), LeveNPCId = 1001799} },
-        // Lower La Noscea... AGAIN
-        { 337, new ZoneInfo { IssuedLocation = "Moraby Drydocks", MainZone = 135, Aetheryte = 10, LeveNPCLocation = new Vector3 (122.65f, 23.00f, 581.23f), LeveNPCId = 1004347} },
-        // Southern Thanalan (holy cuthulu it's the only one)
-        { 313, new ZoneInfo { IssuedLocation = "Little Ala Mhigo", MainZone = 146, Aetheryte = 19, LeveNPCLocation = new Vector3 (-165.63f, 27.15f, -397.90f), LeveNPCId = 1002365} },
-        // South shroud, the most south of the shrouds...
-        { 123, new ZoneInfo { IssuedLocation = "Camp Tranquil", MainZone = 153, Aetheryte = 6, LeveNPCLocation = new Vector3 (-236.68f, 21.62f, 345.71f), LeveNPCId = 1002397} },
-        // Eastern La Noscea, I can't wait for someone to tell me these are spelt wrong - oh HEY WE CAME BACK
-        { 216, new ZoneInfo { IssuedLocation = "Wineport", MainZone = 137, Aetheryte = 12, LeveNPCLocation = new Vector3 (6.19f, 71.19f, -1.75f), LeveNPCId = 1002367} },
-        // Northern Thanalan
-        { 325, new ZoneInfo { IssuedLocation = "Camp Bluefog", MainZone = 147, Aetheryte = 21, LeveNPCLocation = new Vector3 (35.39f, 4.91f, 398.99f), LeveNPCId = 1002398} },
-        // Ishguard, where a smile better suits a hero...
-        { 2300, new ZoneInfo { IssuedLocation = "Foundation", MainZone = 418, Aetheryte = 70, LeveNPCLocation = new Vector3 (-56.31f, 15.14f, -41.61f), LeveNPCId = 1011208} },
-        // Kugane, it's kinda getting self explanitory here now lol
-        { 2404, new ZoneInfo { IssuedLocation = "Kugane", MainZone = 628, Aetheryte = 111, LeveNPCLocation = new Vector3 (20.62f, 0.00f, -78.02f), LeveNPCId = 1018997} },
-        // Crystarium - GRAHAAAAA
-        { 2951, new ZoneInfo { IssuedLocation = "The Crystarium", MainZone = 819, Aetheryte = 133, LeveNPCLocation = new Vector3 (-73.64f, 20.00f, -110.84f), LeveNPCId = 1027847} },
-        // Old Sharlayan, best chill music
-        { 3706, new ZoneInfo { IssuedLocation = "Old Sharlayan", MainZone = 962, Aetheryte = 182, LeveNPCLocation = new Vector3 (49.92f, -15.65f, 112.42f), LeveNPCId = 1037263} },
-        // Tuliyollal aka Tuliyaoi
-        { 4504, new ZoneInfo { IssuedLocation = "Tuliyollal", MainZone = 1185, Aetheryte = 216, LeveNPCLocation = new Vector3 (21.74f, -14.00f, 85.51f), LeveNPCId = 1048390} },
+        // Limsa Lower to Upper
+        { 129, new AethernetSystem { AetheryteID = 8, Aethernet = 1, CrystalLoc = new Vector3(-84.03f, 20.77f, 0.02f), TPLocation = new Vector3 (15.95f, 40.00f, 71.38f), TeleportZone = 128, Range = 7} },
+        // Limsa Upper to Lower
+        { 128, new AethernetSystem { AetheryteID = 41, Aethernet = 0, CrystalLoc = new Vector3(16.48f, 40.00f, 71.23f), TPLocation = new Vector3(-84.03f, 20.77f, 0.02f), TeleportZone = 129, Range = 15} },
+        // Ul'dah Main -> Adventurer's Guild
+        { 130, new AethernetSystem { AetheryteID = 9, Aethernet = 1, CrystalLoc = new Vector3(-144.52f, -1.36f, -169.67f), TPLocation = new Vector3 (65.32f, 4.00f, -117.29f), TeleportZone = 130, Range = 5} },
+        { 819, new AethernetSystem { AetheryteID = 133, Aethernet = 6, CrystalLoc = new Vector3(-65.02f, 4.53f, 0.02f), TPLocation = new Vector3 (-50.71f, 20.00f, -170.41f), TeleportZone = 819, Range = 5} }
     };
 
     public class LeveInfoVendor
@@ -295,13 +252,19 @@ public static unsafe class Data
 
         // Heavensword
         { 1011208, new LeveInfoVendor { Name = NPCName(1011208), ZoneID = 418, Aetheryte = 70, NPCLocation = new Vector3 (-56.18f, 15.14f, -41.45f)    } },
+        { 1011209, new LeveInfoVendor { Name = NPCName(1011209), ZoneID = 418, Aetheryte = 70, NPCLocation = new Vector3 (-56.18f, 15.14f, -41.45f)    } },
         // Stormblood
-
+        { 1018997, new LeveInfoVendor { Name = NPCName(1018997), ZoneID = 628, Aetheryte = 111, NPCLocation = new Vector3 (20.61f, 0.00f, -77.82f)     } },
+        { 1018998, new LeveInfoVendor { Name = NPCName(1018998), ZoneID = 628, Aetheryte = 111, NPCLocation = new Vector3 (20.61f, 0.00f, -77.82f)     } },
         // Shadowbringer
-
+        { 1027847, new LeveInfoVendor { Name = NPCName(1027847), ZoneID = 819, Aetheryte = 133, NPCLocation = new Vector3 (-73.40f, 20.00f, -110.90f)  } },
+        { 1027848, new LeveInfoVendor { Name = NPCName(1027848), ZoneID = 819, Aetheryte = 133, NPCLocation = new Vector3 (-73.40f, 20.00f, -110.90f)  } },
         // Endwalker
-
+        { 1037263, new LeveInfoVendor { Name = NPCName(1037263), ZoneID = 962, Aetheryte = 182, NPCLocation = new Vector3 (49.96f, -15.65f, 111.81f)   } },
+        { 1037264, new LeveInfoVendor { Name = NPCName(1037264), ZoneID = 962, Aetheryte = 182, NPCLocation = new Vector3 (49.96f, -15.65f, 111.81f)   } },
         // Dawntrail
+        { 1048390, new LeveInfoVendor { Name = NPCName(1048390), ZoneID = 1185, Aetheryte = 216, NPCLocation = new Vector3 (21.08f, -14.00f, 84.91f)   } },
+        { 1048391, new LeveInfoVendor { Name = NPCName(1048391), ZoneID = 1185, Aetheryte = 216, NPCLocation = new Vector3 (21.08f, -14.00f, 84.91f)   } },
     };
 
     public static readonly Dictionary<uint, uint[]> LeveVendor = new()
