@@ -250,14 +250,7 @@ internal class DebugWindow : Window
                 var aetheryte = entry.Value.Aetheryte;
                 var zoneID = entry.Value.ZoneID;
 
-                if (AethernetDict.ContainsKey(zoneID))
-                {
-                    if (!IsInZone(AethernetDict[zoneID].TeleportZone))
-                    {
-                        TaskUseAethernet.Enqueue(zoneID);
-                    }
-                }
-                else if (!IsInZone(zoneID))
+                if (!IsInZone(zoneID))
                 {
                     TaskTeleport.Enqueue(aetheryte, zoneID);
                 }

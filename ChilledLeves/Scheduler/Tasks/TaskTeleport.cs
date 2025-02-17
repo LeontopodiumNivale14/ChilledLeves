@@ -14,7 +14,16 @@ namespace ChilledLeves.Scheduler.Tasks
         internal static unsafe void Enqueue(uint aetherytID, uint targetTerritoryId)
         {
             if (targetTerritoryId == 128)
+            {
                 P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, 129));
+                TaskUseAethernet.Enqueue(129);
+            }
+            else if (targetTerritoryId == 129)
+            {
+                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, 129));
+                if (IsInZone(128))
+                    TaskUseAethernet.Enqueue(128);
+            }
             else
                 P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId));
         }

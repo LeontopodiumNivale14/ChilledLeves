@@ -67,7 +67,7 @@ namespace ChilledLeves.Scheduler
                                     var zoneID = LeveNPCDict[npc].ZoneID;
                                     var aetheryte = LeveNPCDict[npc].Aetheryte;
 
-                                    if (AethernetDict.ContainsKey(zoneID))
+                                    if (AethernetDict.ContainsKey(zoneID) && IsInZone(zoneID))
                                     {
                                         if (!IsInZone(AethernetDict[zoneID].TeleportZone))
                                         {
