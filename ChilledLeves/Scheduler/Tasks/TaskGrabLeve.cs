@@ -12,70 +12,81 @@ namespace ChilledLeves.Scheduler.Tasks
 {
     internal static class TaskGrabLeve
     {
-        internal static void Enqueue(ushort leveID)
+        internal static void Enqueue(uint leveID)
         {
             TaskInteract.Enqueue(1037263);
-            P.taskManager.Enqueue(() => GrabLeve(leveID), DConfig);
-            P.taskManager.EnqueueDelay(1000);
+            P.taskManager.Enqueue(() => GrabLeve((ushort)leveID), DConfig);
+            P.taskManager.Enqueue(() => LeaveLeveVendor(), DConfig);
+            P.taskManager.Enqueue(() => PlayerNotBusy(), DConfig);
         }
 
         internal static unsafe bool? GrabLeve(ushort leveID)
         {
-            if (IsStarted(Svc.Data.Excel.GetSheet<Leve>().GetRow((uint)leveID)) || IsReadyForTurnIn((Svc.Data.Excel.GetSheet<Leve>().GetRow((uint)leveID))))
+            if (IsAccepted(leveID))
             {
-                if (TryGetAddonByName<AtkUnitBase>("SelectString", out var LeveWindow) && IsAddonReady(LeveWindow))
+                return true;
+            }
+            else if (TryGetAddonByName<AtkUnitBase>("Talk", out var TalkAddon) && IsAddonActive("Talk"))
+            {
+                if (EzThrottler.Throttle("Talk Box", 100))
                 {
-                    if (EzThrottler.Throttle("Leaving Leve Person", 1000))
-                    {
-                        GenericHandlers.FireCallback("SelectString", true, 3);
-                    }
-                }
-                else if (TryGetAddonByName<AtkUnitBase>("GuildLeve", out var GuildLeve) && IsAddonReady(GuildLeve))
-                {
-                    if (EzThrottler.Throttle("Leaving Journal Window", 1000))
-                    {
-                        GenericHandlers.FireCallback("GuildLeve", true, -1);
-                    }
-                }
-                else if (PlayerNotBusy())
-                {
-                    return true;
+                    GenericHandlers.FireCallback("Talk", true, 0);
                 }
             }
-            else
+            else if (TryGetAddonByName<AtkUnitBase>("SelectString", out var LeveWindow) && IsAddonReady(LeveWindow))
             {
-                if (TryGetAddonByName<AtkUnitBase>("Talk", out var TalkAddon) && IsAddonReady(TalkAddon))
+                if (EzThrottler.Throttle("Opening the Levequests Window", 100))
                 {
-                    if (EzThrottler.Throttle("Talk Box", 100))
+                    GenericHandlers.FireCallback("SelectString", true, 1);
+                }
+            }
+            else if (TryGetAddonByName<AtkUnitBase>("JournalDetail", out var JournalDetail) && IsAddonReady(JournalDetail))
+            {
+                if (GetNodeText("JournalDetail", 19) != "The Mountain Steeped")
+                {
+                    if (EzThrottler.Throttle("Clicking to the correct leve", 2000))
                     {
-                        GenericHandlers.FireCallback("Talk", true);
+                        GenericHandlers.FireCallback("GuildLeve", true, 13, 14, 1647);
                     }
                 }
-                else if (TryGetAddonByName<AtkUnitBase>("SelectString", out var LeveWindow) && IsAddonReady(LeveWindow))
+                else if (GetNodeText("JournalDetail", 19) == "The Mountain Steeped")
                 {
-                    if (EzThrottler.Throttle("Opening the Levequests Window", 100))
+                    if (EzThrottler.Throttle("Accepting the correct leve", 2000))
                     {
-                        GenericHandlers.FireCallback("SelectString", true, 1);
+                        GenericHandlers.FireCallback("JournalDetail", true, 3, 1647);
                     }
                 }
-                else if (TryGetAddonByName<AtkUnitBase>("JournalDetail", out var JournalDetail) && IsAddonReady(JournalDetail))
-                {
-                    if (GetNodeText("JournalDetail", 19) != "The Mountain Steeped")
-                    {
-                        if (EzThrottler.Throttle("Clicking to the correct leve", 3000))
-                        {
-                            GenericHandlers.FireCallback("GuildLeve", true, 13, 14, 1647);
-                        }
-                    }
-                    else if (GetNodeText("JournalDetail", 19) == "The Mountain Steeped")
-                    {
-                        if (EzThrottler.Throttle("Accepting the correct leve", 3000))
-                        {
-                            GenericHandlers.FireCallback("JournalDetail", true, 3, 1647);
-                        }
-                    }
+            }
 
+            return false;
+        }
+
+        internal static unsafe bool? LeaveLeveVendor()
+        {
+            if (TryGetAddonByName<AtkUnitBase>("SelectString", out var LeveWindow) && IsAddonReady(LeveWindow))
+            {
+                if (EzThrottler.Throttle("Leaving Leve Person", 500))
+                {
+                    GenericHandlers.FireCallback("SelectString", true, 3);
                 }
+            }
+            else if (TryGetAddonByName<AtkUnitBase>("GuildLeve", out var GuildLeve) && IsAddonReady(GuildLeve))
+            {
+                if (EzThrottler.Throttle("Leaving Journal Window", 500))
+                {
+                    GenericHandlers.FireCallback("GuildLeve", true, -1);
+                }
+            }
+            else if (TryGetAddonByName<AtkUnitBase>("Talk", out var TalkAddon) && IsAddonActive("Talk"))
+            {
+                if (EzThrottler.Throttle("Talk Box", 100))
+                {
+                    GenericHandlers.FireCallback("Talk", true, 0);
+                }
+            }
+            else if (PlayerNotBusy())
+            {
+                return true;
             }
 
             return false;

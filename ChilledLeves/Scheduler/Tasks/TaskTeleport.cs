@@ -13,18 +13,22 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         internal static unsafe void Enqueue(uint aetherytID, uint targetTerritoryId)
         {
-            P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId), "Teleporting to Destination", DConfig);
-            P.taskManager.Enqueue(() => IsScreenReady());
+            if (targetTerritoryId == 128)
+                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, 129));
+            else
+                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId));
         }
 
         internal static unsafe bool? TeleporttoAethery(uint aetherytID, uint targetTerritoryId)
         {
             if (IsInZone(targetTerritoryId) && PlayerNotBusy())
                 return true;
+            else if (targetTerritoryId == 129 && IsInZone(128))
+                return true;
 
             if (!Svc.Condition[ConditionFlag.Casting] && PlayerNotBusy() && !IsBetweenAreas && !IsInZone(targetTerritoryId))
             {
-                if (EzThrottler.Throttle("Teleport Throttle", 7000))
+                if (EzThrottler.Throttle("Teleport Throttle", 1000))
                 {
                     PluginLog($"Teleporting to {aetherytID} at {targetTerritoryId}");
                     Telepo.Instance()->Teleport(aetherytID, 0);

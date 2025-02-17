@@ -628,14 +628,16 @@ public static unsafe class Utils
 
     // Credit goes to Haselnussbomber for a lot of the following leve stuff here, a lot of this I wouldn't of even known
     // to look for in the code. Just had to modify it slightly to fit the way that I had coded it but.
-    public static unsafe LeveWork* GetLeveWork(Leve leve)
+    public static unsafe LeveWork* GetLeveWork(uint leveId)
     {
         var leveQuests = QuestManager.Instance()->LeveQuests;
 
         for (var i = 0; i < leveQuests.Length; i++)
         {
-            if (leveQuests[i].LeveId == leve.RowId)
+            if (leveQuests[i].LeveId == (ushort)leveId)
+            {
                 return leveQuests.GetPointer(i);
+            }
         }
 
         return null;
@@ -648,23 +650,25 @@ public static unsafe class Utils
     public static bool IsAccepted(uint leveID)
         => GetActiveLeveIds().Any(id => id == (ushort)leveID);
 
-    public static unsafe bool IsReadyForTurnIn(Leve leve)
+    // These... don't work. And i'm not sure why. But reguardless I can work around it with other checks for now until I can return back to these
+    public static unsafe bool IsReadyForTurnIn(uint leveId)
     {
-        var leveWork = GetLeveWork(leve);
+        var leveWork = GetLeveWork((ushort)leveId);
         if (leveWork == null)
             return false;
 
         return leveWork->Sequence == 255;
     }
 
-    public static unsafe bool IsStarted(Leve leve)
+    public static unsafe bool IsStarted(uint leveId)
     {
-        var leveWork = GetLeveWork(leve);
+        var leveWork = GetLeveWork((ushort)leveId);
         if (leveWork == null)
             return false;
 
         return leveWork->Sequence == 1 && leveWork->ClearClass != 0;
     }
+    // end of not working section
 
     public static unsafe IEnumerable<ushort> GetActiveLeveIds()
     {

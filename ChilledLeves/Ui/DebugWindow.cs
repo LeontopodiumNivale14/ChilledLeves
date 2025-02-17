@@ -50,10 +50,10 @@ internal class DebugWindow : Window
 
     private void MainDebug()
     {
-        ImGui.SetNextItemWidth(100);
-        ImGui.InputInt("###LeveID", ref LeveID);
-        ImGui.Text($"Leve Started: {IsStarted(Svc.Data.Excel.GetSheet<Leve>().GetRow((uint)LeveID))}");
-        ImGui.Text($"Leve Ready: {Svc.Data.Excel.GetSheet<Leve>().GetRow((uint)LeveID)}");
+        if (ImGui.Button("Task Grab Leve"))
+        {
+            TaskGrabLeve.Enqueue(1647);
+        }
 
         ImGui.Text($"Miner: {C.LeveFilter.ShowMiner}");
         ImGui.Text($"Botanist: {C.LeveFilter.ShowBotanist}");
@@ -249,8 +249,23 @@ internal class DebugWindow : Window
             {
                 var aetheryte = entry.Value.Aetheryte;
                 var zoneID = entry.Value.ZoneID;
-                TaskTeleport.Enqueue(aetheryte, zoneID);
+
+                if (AethernetDict.ContainsKey(zoneID))
+                {
+                    if (!IsInZone(AethernetDict[zoneID].TeleportZone))
+                    {
+                        TaskUseAethernet.Enqueue(zoneID);
+                    }
+                }
+                else if (!IsInZone(zoneID))
+                {
+                    TaskTeleport.Enqueue(aetheryte, zoneID);
+                }
             }
+            ImGui.SameLine();
+            ImGui.Text($"Zone: {entry.Value.ZoneID}");
+
+            ImGui.PopID();
         }
     }
 

@@ -180,11 +180,12 @@ public static unsafe class Data
     public static Dictionary<uint, AethernetSystem> AethernetDict = new Dictionary<uint, AethernetSystem>()
     {
         // Limsa Lower to Upper
-        { 129, new AethernetSystem { AetheryteID = 8, Aethernet = 1, CrystalLoc = new Vector3(-84.03f, 20.77f, 0.02f), TPLocation = new Vector3 (15.95f, 40.00f, 71.38f), TeleportZone = 128, Range = 7} },
+        { 128, new AethernetSystem { AetheryteID = 8, Aethernet = 1, CrystalLoc = new Vector3(-84.03f, 20.77f, 0.02f), TPLocation = new Vector3 (15.95f, 40.00f, 71.38f), TeleportZone = 128, Range = 7} },
         // Limsa Upper to Lower
-        { 128, new AethernetSystem { AetheryteID = 41, Aethernet = 0, CrystalLoc = new Vector3(16.48f, 40.00f, 71.23f), TPLocation = new Vector3(-84.03f, 20.77f, 0.02f), TeleportZone = 129, Range = 15} },
+        { 129, new AethernetSystem { AetheryteID = 41, Aethernet = 0, CrystalLoc = new Vector3(16.48f, 40.00f, 71.23f), TPLocation = new Vector3(-84.03f, 20.77f, 0.02f), TeleportZone = 129aw, Range = 15} },
         // Ul'dah Main -> Adventurer's Guild
         { 130, new AethernetSystem { AetheryteID = 9, Aethernet = 1, CrystalLoc = new Vector3(-144.52f, -1.36f, -169.67f), TPLocation = new Vector3 (65.32f, 4.00f, -117.29f), TeleportZone = 130, Range = 5} },
+        // Crystarium -> Upper floor
         { 819, new AethernetSystem { AetheryteID = 133, Aethernet = 6, CrystalLoc = new Vector3(-65.02f, 4.53f, 0.02f), TPLocation = new Vector3 (-50.71f, 20.00f, -170.41f), TeleportZone = 819, Range = 5} }
     };
 

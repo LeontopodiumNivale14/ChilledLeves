@@ -315,6 +315,18 @@ internal class MainWindow : Window
             ImGui.Text($"NPC: {CrafterLeves[leve].LeveVendorName}");
             ImGui.Text($"Is Complete: {IsComplete(leve)}");
             ImGui.Text($"Is Accepted: {IsAccepted(leve)}");
+            if (IsStarted(leve))
+            {
+                ImGui.Text("Quest is Accepted and Started");
+            }
+            else if (IsReadyForTurnIn(leve))
+            {
+                ImGui.Text("Quest is ready for turnin");
+            }
+            else
+            {
+                ImGui.Text("No condition is met??");
+            }
             ImGui.Separator();
             ImGui.Text($"Required Items:");
             ImGui.Text($"    {CrafterLeves[leve].TurninAmount}x {CrafterLeves[leve].ItemName}");
