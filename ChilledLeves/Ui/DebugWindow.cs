@@ -244,11 +244,12 @@ internal class DebugWindow : Window
     {
         foreach (var entry in LeveNPCDict)
         {
+            var aetheryte = entry.Value.Aetheryte;
+            var zoneID = entry.Value.ZoneID;
+
             ImGui.PushID((int)entry.Key);
             if (ImGui.Button($"{entry.Value.Name}"))
             {
-                var aetheryte = entry.Value.Aetheryte;
-                var zoneID = entry.Value.ZoneID;
 
                 if (!IsInZone(zoneID))
                 {
@@ -257,6 +258,15 @@ internal class DebugWindow : Window
             }
             ImGui.SameLine();
             ImGui.Text($"Zone: {entry.Value.ZoneID}");
+
+            if (AethernetDict.ContainsKey(zoneID))
+            {
+                ImGui.SameLine(0, 5);
+                if (ImGui.Button("Use Aethernet"))
+                {
+                     TaskUseAethernet.Enqueue(zoneID);
+                }
+            }
 
             ImGui.PopID();
         }

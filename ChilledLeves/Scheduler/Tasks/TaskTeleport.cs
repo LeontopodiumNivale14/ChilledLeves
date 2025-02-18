@@ -15,25 +15,38 @@ namespace ChilledLeves.Scheduler.Tasks
         {
             if (targetTerritoryId == 128)
             {
-                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, 129));
-                TaskUseAethernet.Enqueue(129);
+                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, 129), "Teleporting to Limsa Lower");
+                TaskUseAethernet.Enqueue(128);
             }
             else if (targetTerritoryId == 129)
             {
-                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, 129));
+                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, 129), "Teleporting to Limsa Lower");
                 if (IsInZone(128))
-                    TaskUseAethernet.Enqueue(128);
+                    TaskUseAethernet.Enqueue(129);
+            }
+            else if (targetTerritoryId == 819 || targetTerritoryId == 130)
+            {
+                P.taskManager.Enqueue(() => PluginLog($"Target Territory is: {targetTerritoryId}"));
+                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId));
+                P.taskManager.Enqueue(() => PluginLog($"Using the Aethernet"));
+                TaskUseAethernet.Enqueue(targetTerritoryId);
             }
             else
+            {
+                P.taskManager.Enqueue(() => PluginLog($"No special aethernet necessary, just teleporting to: {targetTerritoryId}"));
                 P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId));
+            }
         }
 
         internal static unsafe bool? TeleporttoAethery(uint aetherytID, uint targetTerritoryId)
         {
-            if (IsInZone(targetTerritoryId) && PlayerNotBusy())
-                return true;
-            else if (targetTerritoryId == 129 && IsInZone(128))
-                return true;
+            if (IsScreenReady())
+            {
+                if (IsInZone(targetTerritoryId))
+                    return true;
+                else if (targetTerritoryId == 129 && IsInZone(128))
+                    return true;
+            }
 
             if (!Svc.Condition[ConditionFlag.Casting] && PlayerNotBusy() && !IsBetweenAreas && !IsInZone(targetTerritoryId))
             {

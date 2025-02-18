@@ -73,7 +73,8 @@ public static unsafe class Utils
                && Player.Object.CastActionId == 0
                && !IsOccupied()
                && !Svc.Condition[ConditionFlag.Jumping]
-               && Player.Object.IsTargetable;
+               && Player.Object.IsTargetable
+               && !Player.IsAnimationLocked;
     }
 
     #endregion
