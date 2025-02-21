@@ -23,6 +23,8 @@ using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
 using FFXIVClientStructs.Interop;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using System.Runtime.CompilerServices;
+using ECommons.ExcelServices;
+using Dalamud.Interface.Colors;
 
 namespace ChilledLeves.Util;
 
@@ -55,9 +57,9 @@ public static unsafe class Utils
 
     #region Player Info
     public static unsafe int GetItemCount(int itemID, bool includeHq = true)
-    => includeHq ? InventoryManager.Instance()->GetInventoryItemCount((uint)itemID, true)
-    + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000)
-    : InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000);
+        => includeHq ? InventoryManager.Instance()->GetInventoryItemCount((uint)itemID, true)
+        + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000)
+        : InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000);
 
     public static uint CurrentTerritory() => GameMain.Instance()->CurrentTerritoryTypeId;
     public static bool IsInZone(uint zoneID) => Svc.ClientState.TerritoryType == zoneID;
@@ -66,6 +68,14 @@ public static unsafe class Utils
     internal static IGameObject? GetObjectByName(string name) => Svc.Objects.OrderBy(GetDistanceToPlayer).FirstOrDefault(o => o.Name.TextValue.Equals(name, StringComparison.CurrentCultureIgnoreCase));
     internal static unsafe float GetDistanceToPlayer(Vector3 v3) => Vector3.Distance(v3, Player.GameObject->Position);
     internal static unsafe float GetDistanceToPlayer(IGameObject gameObject) => GetDistanceToPlayer(gameObject.Position);
+
+    public static uint GetClassJobId() => Svc.ClientState.LocalPlayer!.ClassJob.RowId;
+    public static unsafe int GetLevel(int expArrayIndex = -1)
+    {
+        if (expArrayIndex == -1) expArrayIndex = Svc.ClientState.LocalPlayer?.ClassJob.Value.ExpArrayIndex ?? 0;
+        return UIState.Instance()->PlayerState.ClassJobLevels[expArrayIndex];
+    }
+    public static unsafe float GetJobExp(uint classjob) => PlayerState.Instance()->ClassJobExperience[GetRow<ClassJob>(classjob)?.ExpArrayIndex ?? 0];
 
     public static bool PlayerNotBusy()
     {
@@ -383,6 +393,30 @@ public static unsafe class Utils
 
                 // Checking the Jobtype, this is a very small number 
                 uint leveJob = row.LeveAssignmentType.Value.RowId;
+                Job ecomJob = 0;
+
+                if (leveJob == 2) // Miner
+                    ecomJob = (Job)16;
+                else if (leveJob == 3) // BTN
+                    ecomJob = (Job)17;
+                else if (leveJob == 4) // FSH
+                    ecomJob = (Job)18;
+                else if (leveJob == 5) // CRP
+                    ecomJob = (Job)8;
+                else if (leveJob == 6) // BSM
+                    ecomJob = (Job)9;
+                else if (leveJob == 7) // ARM
+                    ecomJob = (Job)10;
+                else if (leveJob == 8) // GSM
+                    ecomJob = (Job)11;
+                else if (leveJob == 9) // LTW
+                    ecomJob = (Job)12;
+                else if (leveJob == 10) // WVR
+                    ecomJob = (Job)13;
+                else if (leveJob == 11) // ALC
+                    ecomJob = (Job)14;
+                else if (leveJob == 12) // CUL
+                    ecomJob = (Job)15;
 
                 if (!CrafterJobs.Contains(leveJob))
                 {
@@ -462,6 +496,10 @@ public static unsafe class Utils
                 uint leveVendor = LeveVendor.FirstOrDefault(pair => pair.Value.Contains(leveNumber)).Key;
                 string vendorName = LeveNPCDict[leveVendor].Name;
 
+                // Leve Turnin Vendor, I actually forgot to include this upon loading :catlay:
+                uint leveClientId = row.LeveClient.Value.RowId;
+                uint turninNpcId = TurninNpcId(leveClientId);
+
                 // Ensure the leveJobType is valid before inserting
                 if (!CrafterLeves.ContainsKey(leveNumber))
                 {
@@ -470,13 +508,14 @@ public static unsafe class Utils
                         Amount = amount,
                         LeveName = leveName,
                         JobAssignmentType = leveJob,
+                        EcomJob = ecomJob,
                         Level = leveLevel,
                         QuestID = questID,
                         ExpReward = expReward,
                         GilReward = gilReward,
                         LeveVendorID = leveVendor,
                         LeveVendorName = vendorName,
-                        LeveTurninVendorID = 0,
+                        LeveTurninVendorID = turninNpcId,
 
                         // Crafting Specific
                         RepeatAmount = leveRepeat,
@@ -510,7 +549,13 @@ public static unsafe class Utils
         return NPCSheet.GetRow(NpcID).Singular.ToString();
     }
 
-    public static uint NpcId(uint leveClient)
+    public static string ZoneName(uint ZoneID)
+    {
+        var TerritorySheet = Svc.Data.GetExcelSheet<TerritoryType>();
+        return TerritorySheet.GetRow(ZoneID)!.PlaceName.Value.Name.ToString() ?? "n/a";
+    }
+
+    public static uint TurninNpcId(uint leveClient)
     {
         uint NPCID = 0;
         // 5, 7, 9, 13, 19, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
@@ -648,6 +693,9 @@ public static unsafe class Utils
     public static unsafe bool IsComplete(uint leveID)
         => QuestManager.Instance()->IsLevequestComplete((ushort)leveID);
 
+    public static unsafe bool IsMSQComplete(uint questID)
+        => QuestManager.IsQuestComplete((ushort)questID);
+
     public static bool IsAccepted(uint leveID)
         => GetActiveLeveIds().Any(id => id == (ushort)leveID);
 
@@ -685,6 +733,30 @@ public static unsafe class Utils
     }
 
     public static int GetNumAcceptedLeveQuests() => GetActiveLeveIds().Count();
+
+    public static int CallbackSelect(int level)
+    {
+        if (level < 60)
+            return 2;
+        else
+            return 1;
+    }
+
+    public static bool BothQuest()
+    {
+        bool LimsaLeveNPC = IsMSQComplete(66005); // Just Deserts
+        bool UlDahLeveNPC = IsMSQComplete(65856); // Way down in the hole
+        bool GridaniaNPC = IsMSQComplete(65665); // Spirithold Broken
+
+        if (LimsaLeveNPC)
+            return LevesofSwiftperch;
+        else if (UlDahLeveNPC)
+            return LevesofHorizon;
+        else if (GridaniaNPC)
+            return LevesofBentbranch;
+        else
+            return false;
+    }
 
     #endregion
 }

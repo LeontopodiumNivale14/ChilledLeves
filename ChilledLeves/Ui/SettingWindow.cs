@@ -1,4 +1,5 @@
-﻿using Lumina.Excel.Sheets;
+﻿using Dalamud.Interface.Colors;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ internal class SettingWindow : Window
     {
         ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");
 
-        if (ImGui.BeginTable($"Crafting Workshop List", 5, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
+        if (ImGui.BeginTable($"Crafting Workshop List", 6, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
         {
             // Columns for the crafters
             ImGui.TableSetupColumn("Level###CrafterLevels", ImGuiTableColumnFlags.WidthFixed, 50);
@@ -36,6 +37,7 @@ internal class SettingWindow : Window
             ImGui.TableSetupColumn("Run Amount###CrafterRunAmounts", ImGuiTableColumnFlags.WidthFixed, 100);
             ImGui.TableSetupColumn("Item Turnin###CrafterTurninItems", ImGuiTableColumnFlags.WidthFixed, 100);
             ImGui.TableSetupColumn("Need###CrafterAmountNecessary", ImGuiTableColumnFlags.WidthFixed, 50);
+            ImGui.TableSetupColumn("Have?###CrafterCompleteCheck", ImGuiTableColumnFlags.WidthFixed, 100);
 
             // Custom header row
             ImGui.TableHeadersRow();
@@ -48,33 +50,46 @@ internal class SettingWindow : Window
                 var jobIcon = LeveTypeDict[jobID].AssignmentIcon;
                 string LeveName = CrafterLeves[leveID].LeveName;
                 string ItemName = CrafterLeves[leveID].ItemName;
+                uint itemId = CrafterLeves[leveID].ItemID;
                 ImGui.TableNextRow();
 
                 ImGui.PushID((int)leveID);
                 ImGui.TableSetColumnIndex(0);
-                ImGui.Text($"{level}");
+                CenterText($"{level}");
 
                 ImGui.TableNextColumn();
                 ImGui.Image(jobIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(25, 25));
                 ImGui.SameLine(0, 5);
                 ImGui.AlignTextToFramePadding();
-                ImGui.Text($"{LeveName}");
+                CenterTextInHeight($"{LeveName}");
 
                 ImGui.TableNextColumn();
                 var input = kdp.InputValue > 0 ? kdp.InputValue.ToString() : "0";
-                ImGui.SetNextItemWidth(75);
-                if (ImGui.InputText("###Level", ref input, 3))
+                CenterInputTextInHeight("###Level", ref input, 3);
+                if (uint.TryParse(input, out var num) && num > 0 && num <= 100)
                 {
-                    kdp.InputValue = (int)(uint.TryParse(input, out var num) && num > 0 && num <= 100 ? num : 0);
+                    kdp.InputValue = (int)num;
                     C.Save();
                 }
 
                 ImGui.TableNextColumn();
-                ImGui.Text(ItemName);
+                CenterTextInHeight(ItemName);
 
                 ImGui.TableNextColumn();
                 int amountNeeded = kdp.InputValue * CrafterLeves[leveID].TurninAmount;
-                ImGui.Text(amountNeeded.ToString());
+                CenterText(amountNeeded.ToString());
+
+                ImGui.TableNextColumn();
+                int currentAmount = GetItemCount((int)itemId);
+                bool hasEnough = (currentAmount >= amountNeeded);
+                FancyCheckmark(hasEnough);
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Text($"Have: {currentAmount}");
+                    ImGui.EndTooltip();
+                }
+                
 
                 ImGui.PopID();
 
@@ -97,4 +112,84 @@ internal class SettingWindow : Window
         ImGui.PopStyleVar();
         ImGui.PopID();
     }
+
+    private static void CenterText(string text)
+    {
+        float columnWidth = ImGui.GetColumnWidth();  // Get the width of the current column
+        float textWidth = ImGui.CalcTextSize(text).X;
+
+        float rowHeight = ImGui.GetTextLineHeightWithSpacing(); // Approximate row height
+        float textHeight = ImGui.CalcTextSize(text).Y;
+
+        float cursorX = ImGui.GetCursorPosX() + (columnWidth - textWidth) * 0.5f;
+        float cursorY = ImGui.GetCursorPosY() + (rowHeight - textHeight) * 0.5f;
+
+        cursorX = Math.Max(cursorX, ImGui.GetCursorPosX()); // Prevent negative padding
+        cursorY = Math.Max(cursorY, ImGui.GetCursorPosY());
+
+        ImGui.SetCursorPos(new Vector2(cursorX, cursorY));
+        ImGui.Text(text);
+    }
+
+    private static void CenterTextInHeight(string text)
+    {
+        float rowHeight = ImGui.GetTextLineHeightWithSpacing(); // Approximate row height
+        float textHeight = ImGui.CalcTextSize(text).Y;
+
+        float cursorY = ImGui.GetCursorPosY() + (rowHeight - textHeight) * 0.5f;
+        cursorY = Math.Max(cursorY, ImGui.GetCursorPosY()); // Prevent negative padding
+
+        ImGui.SetCursorPosY(cursorY);
+        ImGui.Text(text);
+    }
+
+    private static void CenterInputTextInHeight(string label, ref string input, uint maxLength)
+    {
+        float rowHeight = ImGui.GetTextLineHeightWithSpacing(); // Approximate row height
+        float inputHeight = ImGui.GetFrameHeight(); // Input field height
+
+        float cursorY = ImGui.GetCursorPosY() + (rowHeight - inputHeight) * 0.5f;
+        cursorY = Math.Max(cursorY, ImGui.GetCursorPosY()); // Prevent negative padding
+
+        ImGui.SetCursorPosY(cursorY);
+        ImGui.SetNextItemWidth(75);
+        ImGui.InputText(label, ref input, maxLength);
+    }
+
+    public static void FancyCheckmark(bool enabled)
+    {
+        /*
+        float rowHeight = ImGui.GetTextLineHeightWithSpacing();  // Get the row height
+        float iconHeight = ImGui.CalcTextSize($"{FontAwesome.Cross}").Y;      // Get the icon's text height
+        float padding = (rowHeight - iconHeight) * 0.5f;
+
+        padding = Math.Max(padding, 0); // Prevent negative padding
+        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + padding);
+        */
+
+        float columnWidth = ImGui.GetColumnWidth();  // Get column width
+        float rowHeight = ImGui.GetTextLineHeightWithSpacing();  // Get row height
+
+        Vector2 iconSize = ImGui.CalcTextSize($"{FontAwesome.Cross}"); // Get icon size
+        float iconWidth = iconSize.X;
+        float iconHeight = iconSize.Y;
+
+        float cursorX = ImGui.GetCursorPosX() + (columnWidth - iconWidth) * 0.5f;
+        float cursorY = ImGui.GetCursorPosY() + (rowHeight - iconHeight) * 0.5f;
+
+        cursorX = Math.Max(cursorX, ImGui.GetCursorPosX()); // Prevent negative padding
+        cursorY = Math.Max(cursorY, ImGui.GetCursorPosY());
+
+        ImGui.SetCursorPos(new Vector2(cursorX, cursorY));
+
+        if (!enabled)
+        {
+            FontAwesome.Print(ImGuiColors.DalamudRed, FontAwesome.Cross);
+        }
+        else if (enabled)
+        {
+            FontAwesome.Print(ImGuiColors.HealerGreen, FontAwesome.Check);
+        }
+    }
+
 }

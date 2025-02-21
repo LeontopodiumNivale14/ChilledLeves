@@ -1,0 +1,14 @@
+So. There's a lot of leve quest that are tied to other NPC's that need to have them completed. The best way to really manage this is by:
+-> If a leve leads to another NPC in a different zone (for instance ARR) I need to check the quest that is in that zone
+-> So for instance, BSM has a leve in Limsa called: "I'd Rather Be Digging"
+  -> This starts in Limsa, but ends in Mor Donut
+  -> This requires the quest: "Leves of Saint Coinach's Find" to also be completed by a battle class
+-> This also means that *-any-* leve picked up at "K'leytai" can't also be completed till that quest is completed.
+
+So the short end of it all is. I'm going to need to add a check for leve giver npcs and turnin npcs
+-> If a leve giver, make sure that if it has a pre-requiset quest of that place being done to begin with
+-> Same applies to the turnin NPC that is within the vicinity.
+
+This is... VERY fucking tedious XD
+
+A lot of them are under "Leves of ..."

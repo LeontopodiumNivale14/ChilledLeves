@@ -11,9 +11,11 @@ namespace ChilledLeves.Scheduler.Tasks
 {
     internal static class TaskTurnin
     {
-        internal static unsafe void Enqueue(string QuestName)
+        internal static unsafe void Enqueue(string QuestName, uint leveID)
         {
             P.taskManager.Enqueue(() => Turnin(QuestName));
+            P.taskManager.Enqueue(() => !IsAccepted(leveID));
+            P.taskManager.Enqueue(() => PlayerNotBusy());
         }
 
         internal static unsafe bool? Turnin(string QuestName)

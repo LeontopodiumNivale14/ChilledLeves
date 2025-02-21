@@ -1,6 +1,9 @@
-﻿using Dalamud.Interface.Textures;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using ECommons;
+using ECommons.ExcelServices;
+using FFXIVClientStructs.FFXIV.Client.LayoutEngine;
 using FFXIVClientStructs.FFXIV.Common.Lua;
 using Lumina.Excel.Sheets;
 using System;
@@ -65,6 +68,57 @@ public static unsafe class Data
     public static HashSet<uint> SharlayanTurnin = new() { 246, 236, 239, 241, 235, 240, 243, 238, 232, 230, 247, 231, 245, 242, 244, 233, 234, 248, 237, 229 };
     public static HashSet<uint> TuliyoliTurnin = new() { 274, 270, 271, 259, 264, 272, 273, 257, 275, 276, 277, 278, 261, 265, 258, 279, 280, 281, 282, 268, 262 };
 
+    public static readonly uint LevesofWineport = 65550;
+    public static readonly uint LevesofCampBluefog = 65551;
+    public static readonly uint LevesoftheObservatorium = 65552;
+    public static readonly uint LevesofWhitbrim = 65553;
+    public static readonly uint LevesofSaintCoinachsFind = 65554;
+    public static readonly uint LevesofHawthorne = 65757;
+    public static readonly uint LevesofQuarrymill = 65979;
+    public static readonly uint LevesofCampTranquil = 65980;
+    public static readonly uint LevesofCampDrybone = 66224;
+    public static readonly uint LevesofLittleAlaMhigo = 66228;
+    public static readonly uint LevesofAleport = 66230;
+    public static readonly uint LevesofMoraby = 66231;
+    public static readonly uint LevesofCostadelSol = 66232;
+
+    public static readonly uint SimplyTheHestLimsa = 65595;
+    public static readonly uint SimplyTheHestGridania = 65596;
+    public static readonly uint SimplyTheHestUldah = 65594;
+
+    // The 3 possible starting leves:
+    public static bool LevesofBentbranch = IsMSQComplete(65756); // Gridania startpoint
+    public static bool LevesofHorizon = IsMSQComplete(66223); // Ul'Dah startpoint
+    public static bool LevesofSwiftperch = IsMSQComplete(66229); // Limsa startpoint
+
+    public static bool StartMSQCheck()
+    {
+        bool LimsaLeveNPC = IsMSQComplete(66005); // Just Deserts
+        bool UlDahLeveNPC = IsMSQComplete(65856); // Way down in the hole
+        bool GridaniaNPC = IsMSQComplete(65665); // Spirithold Broken
+
+        if (LimsaLeveNPC)
+            return LevesofSwiftperch;
+        else if (UlDahLeveNPC)
+            return LevesofHorizon;
+        else if (GridaniaNPC)
+            return LevesofBentbranch;
+        else
+            return false;
+    }
+
+    public static bool GuildHestCheck()
+    {
+        if (LevesofSwiftperch)
+            return IsMSQComplete(SimplyTheHestLimsa);
+        else if (LevesofHorizon)
+            return IsMSQComplete(SimplyTheHestUldah);
+        else if (LevesofBentbranch)
+            return IsMSQComplete(SimplyTheHestGridania);
+        else
+            return false;
+    }
+
     public static int JobSelected = 0;
 
     public class CrafterDataDict
@@ -82,6 +136,10 @@ public static unsafe class Data
         /// #4 [Job Assignment Type]Job ID Attached to the leve
         /// </summary>
         public uint JobAssignmentType { get; set; }
+        /// <summary>
+        /// The value that the Ecom job is assigned to. Used for gear switching/class switching.
+        /// </summary>
+        public Job EcomJob { get; set; }
         /// <summary>
         /// #6 [Class Job Level] Level of the leve that you're undertaking, this is the *-minimum-* level you can be to do this leve
         /// </summary>
@@ -113,6 +171,10 @@ public static unsafe class Data
         /// Name of the leve person
         /// </summary>
         public string LeveVendorName {  get; set; }
+        /// <summary>
+        /// The spot that tradecraft leves it on. Becuase this changes depending on which vendor/the type of leve...
+        /// </summary>
+        public int TradeCraftButton {  get; set; }
 
 
         // Crafter Specific
@@ -196,76 +258,574 @@ public static unsafe class Data
         public required uint ZoneID { get; set; }
         public required uint Aetheryte { get; set; }
         public required Vector3 NPCLocation { get; set; }
+        public int BattlecraftButton {  get; set; }
+        public int GatheringButton { get; set; }
+        public int CrafterButton { get; set; }
+        public int LeaveButton { get; set; }
+        public int LSGatherButton { get; set; }
+        public int LSCrafterButton { get; set; }
+        public bool Mount { get; set; }
+        public bool? Fly { get; set; }
+        public uint RequiredQuestId {  get; set; }
     }
 
     public static Dictionary<uint, LeveInfoVendor> LeveNPCDict = new Dictionary<uint, LeveInfoVendor>()
     {
         // ARR
-        { 1000970, new LeveInfoVendor { Name = NPCName(1000970), ZoneID = 128, Aetheryte = 8, NPCLocation = new Vector3 (-10.42f, 40.02f, -10.17f)     } },
-        { 1000101, new LeveInfoVendor { Name = NPCName(1000101), ZoneID = 132, Aetheryte = 2, NPCLocation = new Vector3 (27.59f, -8.00f, 108.01f)      } },
-        { 1001794, new LeveInfoVendor { Name = NPCName(1001794), ZoneID = 130, Aetheryte = 9, NPCLocation = new Vector3 (40.17f, 8.01f, -106.55f)      } },
-        { 1004342, new LeveInfoVendor { Name = NPCName(1004342), ZoneID = 135, Aetheryte = 10, NPCLocation = new Vector3 (500.70f, 79.31f, -72.31f)    } },
-        { 1004735, new LeveInfoVendor { Name = NPCName(1004735), ZoneID = 135, Aetheryte = 10, NPCLocation = new Vector3 (117.30f, 22.88f, 674.81f)    } },
-        { 1004347, new LeveInfoVendor { Name = NPCName(1004347), ZoneID = 135, Aetheryte = 10, NPCLocation = new Vector3 (121.90f, 23.00f, 581.59f)    } },
-        { 1000105, new LeveInfoVendor { Name = NPCName(1000105), ZoneID = 148, Aetheryte = 3, NPCLocation = new Vector3 (52.00f, -6.00f, 40.91f)       } },
-        { 1001866, new LeveInfoVendor { Name = NPCName(1001866), ZoneID = 148, Aetheryte = 3, NPCLocation = new Vector3 (120.64f, -6.99f, -94.16f)     } },
-        { 1003888, new LeveInfoVendor { Name = NPCName(1003888), ZoneID = 140, Aetheryte = 17, NPCLocation = new Vector3 (226.83f, 52.04f, 153.97f)    } },
-        { 1001796, new LeveInfoVendor { Name = NPCName(1001796), ZoneID = 140, Aetheryte = 17, NPCLocation = new Vector3 (83.07f, 46.00f, -243.82f)    } },
-        { 1001788, new LeveInfoVendor { Name = NPCName(1001788), ZoneID = 138, Aetheryte = 13, NPCLocation = new Vector3 (666.72f, 9.18f, 513.39f)     } },
-        { 1001791, new LeveInfoVendor { Name = NPCName(1001791), ZoneID = 138, Aetheryte = 14, NPCLocation = new Vector3 (309.51f, -31.90f, 283.59f)   } },
-        { 1000821, new LeveInfoVendor { Name = NPCName(1000821), ZoneID = 152, Aetheryte = 4, NPCLocation = new Vector3 (-211.93f, 1.09f, 287.70f)     } },
-        { 1004737, new LeveInfoVendor { Name = NPCName(1004737), ZoneID = 152, Aetheryte = 4, NPCLocation = new Vector3 (-258.74f, 1.57f, 303.50f)     } },
-        { 1001799, new LeveInfoVendor { Name = NPCName(1001799), ZoneID = 145, Aetheryte = 18, NPCLocation = new Vector3 (-376.29f, -57.08f, 127.11f)  } },
-        { 1004739, new LeveInfoVendor { Name = NPCName(1004739), ZoneID = 145, Aetheryte = 18, NPCLocation = new Vector3 (-365.65f, -56.24f, 118.72f)  } },
-        { 1000823, new LeveInfoVendor { Name = NPCName(1000823), ZoneID = 153, Aetheryte = 5, NPCLocation = new Vector3 (198.88f, 8.82f, -62.75f)      } },
-        { 1002397, new LeveInfoVendor { Name = NPCName(1002397), ZoneID = 153, Aetheryte = 6, NPCLocation = new Vector3 (-236.37f, 21.58f, 346.52f)    } },
-        { 1004738, new LeveInfoVendor { Name = NPCName(1004738), ZoneID = 153, Aetheryte = 6, NPCLocation = new Vector3 (-196.36f, 14.96f, 445.59f)    } },
-        { 1002365, new LeveInfoVendor { Name = NPCName(1002365), ZoneID = 146, Aetheryte = 19, NPCLocation = new Vector3 (-166.31f, 27.25f, -396.98f)  } },
-        { 1004740, new LeveInfoVendor { Name = NPCName(1004740), ZoneID = 146, Aetheryte = 19, NPCLocation = new Vector3 (-140.74f, 27.16f, -416.86f)  } },
-        { 1004344, new LeveInfoVendor { Name = NPCName(1004344), ZoneID = 137, Aetheryte = 11, NPCLocation = new Vector3 (453.88f, 17.67f, 470.52f)    } },
-        { 1004736, new LeveInfoVendor { Name = NPCName(1004736), ZoneID = 137, Aetheryte = 11, NPCLocation = new Vector3 (602.63f, 23.94f, 459.58f)    } },
-        { 1002367, new LeveInfoVendor { Name = NPCName(1002367), ZoneID = 137, Aetheryte = 12, NPCLocation = new Vector3 (5.55f, 71.19f, -2.65f)       } },
-        { 1002384, new LeveInfoVendor { Name = NPCName(1002384), ZoneID = 155, Aetheryte = 23, NPCLocation = new Vector3 (228.83f, 222.00f, 339.32f)   } },
-        { 1007068, new LeveInfoVendor { Name = NPCName(1007068), ZoneID = 155, Aetheryte = 23, NPCLocation = new Vector3 (183.58f, 222.83f, 355.89f)   } },
-        { 1002401, new LeveInfoVendor { Name = NPCName(1002401), ZoneID = 155, Aetheryte = 23, NPCLocation = new Vector3 (-443.83f, 211.00f, -234.07f) } },
-        { 1007069, new LeveInfoVendor { Name = NPCName(1007069), ZoneID = 155, Aetheryte = 23, NPCLocation = new Vector3 (-472.71f, 211.00f, -233.49f) } },
-        { 1002398, new LeveInfoVendor { Name = NPCName(1002398), ZoneID = 147, Aetheryte = 21, NPCLocation = new Vector3 (33.48f, 4.53f, 400.60f)      } },
-        { 1004348, new LeveInfoVendor { Name = NPCName(1004348), ZoneID = 156, Aetheryte = 24, NPCLocation = new Vector3 (418.62f, -5.81f, -447.56f)   } },
-        { 1007070, new LeveInfoVendor { Name = NPCName(1007070), ZoneID = 156, Aetheryte = 24, NPCLocation = new Vector3 (462.87f, -4.39f, -470.22f)   } },
+        { 1000970, new LeveInfoVendor { // T'mokkri
+            Name = NPCName(1000970),
+            ZoneID = 128, // Upper Limsa
+            Aetheryte = 8,
+            NPCLocation = new Vector3 (-10.42f, 40.02f, -10.17f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false,
+            RequiredQuestId = 0
+        } },
+        { 1000101, new LeveInfoVendor { // Gontrant
+            Name = NPCName(1000101),
+            ZoneID = 132, // Gridania
+            Aetheryte = 2,
+            NPCLocation = new Vector3 (27.59f, -8.00f, 108.01f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false,
+            RequiredQuestId = 0
+        } },
+        { 1001794, new LeveInfoVendor { // Gontrant
+            Name = NPCName(1001794),
+            ZoneID = 130, // Ul'dah
+            Aetheryte = 9,
+            NPCLocation = new Vector3 (40.17f, 8.01f, -106.55f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false,
+            RequiredQuestId = 0
+        } },
+        { 1004342, new LeveInfoVendor { // Wyrkholsk
+            Name = NPCName(1004342),
+            ZoneID = 135, // Lower La Noscea, Red Rooster Stead
+            Aetheryte = 10,
+            NPCLocation = new Vector3 (500.70f, 79.31f, -72.31f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = true,
+            RequiredQuestId = 0
+        } },
+        { 1004735, new LeveInfoVendor { // Eugene, GC leve person
+            Name = NPCName(1004735), 
+            ZoneID = 135, // Lower La Noscea
+            Aetheryte = 10,
+            NPCLocation = new Vector3 (117.30f, 22.88f, 674.81f),
+            Mount = true,
+            Fly = true,
+            RequiredQuestId = 0
+        } },
+        { 1004347, new LeveInfoVendor { // Ourawann
+            Name = NPCName(1004347),
+            ZoneID = 135, // Lower La Noscea
+            Aetheryte = 10,
+            NPCLocation = new Vector3 (121.90f, 23.00f, 581.59f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = true,
+            RequiredQuestId = LevesofMoraby
+        } },
+        { 1000105, new LeveInfoVendor { // Tierney // 
+            Name = NPCName(1000105),
+            ZoneID = 148, // Central Shroud
+            Aetheryte = 3,
+            NPCLocation = new Vector3 (52.00f, -6.00f, 40.91f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = true,
+            RequiredQuestId = 1
+        } },
+        { 1001866, new LeveInfoVendor { // Muriaule
+            Name = NPCName(1001866),
+            ZoneID = 148, // Central Shroud
+            Aetheryte = 3,
+            NPCLocation = new Vector3 (120.64f, -6.99f, -94.16f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = true,
+            RequiredQuestId = 0
+        } },
+        { 1003888, new LeveInfoVendor { // Graceful Song
+            Name = NPCName(1003888),
+            ZoneID = 140, // Western Thanalan
+            Aetheryte = 17,
+            NPCLocation = new Vector3 (226.83f, 52.04f, 153.97f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = true,
+            RequiredQuestId = 0
+        } },
+        { 1001796, new LeveInfoVendor { // Totonowa
+            Name = NPCName(1001796),
+            ZoneID = 140, // Western Thanalan
+            Aetheryte = 17,
+            NPCLocation = new Vector3 (83.07f, 46.00f, -243.82f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false,
+            RequiredQuestId = 1
+        } },
+        { 1001788, new LeveInfoVendor { // Swygskyf // MIGHT REQUIRE: "Simply the Hest" (yes it does)
+            Name = NPCName(1001788),
+            ZoneID = 138,
+            Aetheryte = 13,
+            NPCLocation = new Vector3 (666.72f, 9.18f, 513.39f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false,
+            RequiredQuestId = 1
+        } },
+        { 1001791, new LeveInfoVendor { // Orwen, Locks leves behind quest
+            Name = NPCName(1001791),
+            ZoneID = 138,
+            Aetheryte = 14,
+            NPCLocation = new Vector3 (309.51f, -31.90f, 283.59f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = true
+        } },
+        { 1000821, new LeveInfoVendor {
+            Name = NPCName(1000821),
+            ZoneID = 152,
+            Aetheryte = 4,
+            NPCLocation = new Vector3 (-211.93f, 1.09f, 287.70f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false
+        } },
+        { 1004737, new LeveInfoVendor { // Cedrepierre, GC Leve NPC
+            Name = NPCName(1004737),
+            ZoneID = 152,
+            Aetheryte = 4,
+            NPCLocation = new Vector3 (-258.74f, 1.57f, 303.50f),
+            Mount = true,
+            Fly = true
+        } },
+        { 1001799, new LeveInfoVendor { // Poponagu 
+            Name = NPCName(1001799),
+            ZoneID = 145,
+            Aetheryte = 18,
+            NPCLocation = new Vector3 (-376.29f, -57.08f, 127.11f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false,
+        } },
+        { 1004739, new LeveInfoVendor { // Kikiri, GC Leve NPC
+            Name = NPCName(1004739),
+            ZoneID = 145,
+            Aetheryte = 18,
+            NPCLocation = new Vector3 (-365.65f, -56.24f, 118.72f),
+            Mount = false,
+        } },
+        { 1000823, new LeveInfoVendor { // Nyell
+            Name = NPCName(1000823),
+            ZoneID = 153,
+            Aetheryte = 5,
+            NPCLocation = new Vector3 (198.88f, 8.82f, -62.75f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false,
+        } },
+        { 1002397, new LeveInfoVendor { // Merthelin
+            Name = NPCName(1002397),
+            ZoneID = 153,
+            Aetheryte = 6,
+            NPCLocation = new Vector3 (-236.37f, 21.58f, 346.52f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false,
+        } },
+        { 1004738, new LeveInfoVendor { // H'amneko, GC Leve NPC
+            Name = NPCName(1004738),
+            ZoneID = 153,
+            Aetheryte = 6,
+            NPCLocation = new Vector3 (-196.36f, 14.96f, 445.59f),
+            Mount = true,
+            Fly = true
+        } },
+        { 1002365, new LeveInfoVendor { // Esmond
+            Name = NPCName(1002365),
+            ZoneID = 146,
+            Aetheryte = 19,
+            NPCLocation = new Vector3 (-166.31f, 27.25f, -396.98f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false
+        } },
+        { 1004740, new LeveInfoVendor { // Blue Herring, GC Leve NPC
+            Name = NPCName(1004740),
+            ZoneID = 146,
+            Aetheryte = 19,
+            NPCLocation = new Vector3 (-140.74f, 27.16f, -416.86f),
+            Mount = false,
+        } },
+        { 1004344, new LeveInfoVendor { // Nahctahr (No, I can't make these up...)
+            Name = NPCName(1004344),
+            ZoneID = 137,
+            Aetheryte = 11,
+            NPCLocation = new Vector3 (453.88f, 17.67f, 470.52f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = false,
+        } },
+        { 1004736, new LeveInfoVendor { // C'lafumyn, GC Leve NPC
+            Name = NPCName(1004736),
+            ZoneID = 137,
+            Aetheryte = 11,
+            NPCLocation = new Vector3 (602.63f, 23.94f, 459.58f),
+            Mount = true,
+            Fly = true
+        } },
+        { 1002367, new LeveInfoVendor { // Aileen (I bet she works at Ihop)
+            Name = NPCName(1002367),
+            ZoneID = 137,
+            Aetheryte = 12,
+            NPCLocation = new Vector3 (5.55f, 71.19f, -2.65f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = false
+        } },
+        { 1002384, new LeveInfoVendor { // Cimeautrant (man that's almost gibberish)
+            Name = NPCName(1002384),
+            ZoneID = 155,
+            Aetheryte = 23,
+            NPCLocation = new Vector3 (228.83f, 222.00f, 339.32f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = true
+        } },
+        { 1007068, new LeveInfoVendor { // Haisie, GC Leve NPC
+            Name = NPCName(1007068),
+            ZoneID = 155,
+            Aetheryte = 23,
+            NPCLocation = new Vector3 (183.58f, 222.83f, 355.89f),
+            Mount = true,
+            Fly = true,
+        } },
+        { 1002401, new LeveInfoVendor { // Voilnaut (Almost astronaut..)
+            Name = NPCName(1002401),
+            ZoneID = 155,
+            Aetheryte = 23,
+            NPCLocation = new Vector3 (-443.83f, 211.00f, -234.07f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = true
+        } },
+        { 1007069, new LeveInfoVendor { // Lodille, GC Leve Npc
+            Name = NPCName(1007069),
+            ZoneID = 155,
+            Aetheryte = 23,
+            NPCLocation = new Vector3 (-472.71f, 211.00f, -233.49f),
+            Mount = true,
+            Fly = true,
+        } },
+        { 1002398, new LeveInfoVendor { // Rurubana
+            Name = NPCName(1002398),
+            ZoneID = 147,
+            Aetheryte = 21,
+            NPCLocation = new Vector3 (33.48f, 4.53f, 400.60f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = false
+        } },
+        { 1004348, new LeveInfoVendor { // K'leytai
+            Name = NPCName(1004348),
+            ZoneID = 156,
+            Aetheryte = 24,
+            NPCLocation = new Vector3 (418.62f, -5.81f, -447.56f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LeaveButton = 4,
+            Mount = true,
+            Fly = true
+        } },
+        { 1007070, new LeveInfoVendor { // Eidhart, GC Leve NPC
+            Name = NPCName(1007070),
+            ZoneID = 156,
+            Aetheryte = 24,
+            NPCLocation = new Vector3 (462.87f, -4.39f, -470.22f),
+            Mount = true,
+            Fly = true
+        } },
         // ARR Turnin NPC's
-        { 1001218, new LeveInfoVendor { Name = NPCName(1001218), ZoneID = 148, Aetheryte = 3, NPCLocation = new Vector3 (46.55f, -5.97f, 3.54f)        } },
-        { 1001220, new LeveInfoVendor { Name = NPCName(1001220), ZoneID = 153, Aetheryte = 5, NPCLocation = new Vector3 (167.13f, 8.70f, -48.60f)      } },
-        { 1001868, new LeveInfoVendor { Name = NPCName(1001868), ZoneID = 148, Aetheryte = 3, NPCLocation = new Vector3 (139.88f, -7.00f, -85.38f)     } },
-        { 1001219, new LeveInfoVendor { Name = NPCName(1001219), ZoneID = 152, Aetheryte = 4, NPCLocation = new Vector3 (-202.95f, 2.77f, 308.60f)     } },
-        { 1001276, new LeveInfoVendor { Name = NPCName(1001276), ZoneID = 132, Aetheryte = 2, NPCLocation = new Vector3 (10.81f, 0.12f, 2.32f)         } },
-        { 1004345, new LeveInfoVendor { Name = NPCName(1004345), ZoneID = 137, Aetheryte = 11, NPCLocation = new Vector3 (454.24f, 17.40f, 464.79f)    } },
-        { 1001787, new LeveInfoVendor { Name = NPCName(1001787), ZoneID = 129, Aetheryte = 8, NPCLocation = new Vector3 (-64.87f, 18.00f, 8.23f)       } },
-        { 1004343, new LeveInfoVendor { Name = NPCName(1004343), ZoneID = 135, Aetheryte = 10, NPCLocation = new Vector3 (544.81f, 87.74f, -47.56f)    } },
-        { 1001790, new LeveInfoVendor { Name = NPCName(1001790), ZoneID = 138, Aetheryte = 13, NPCLocation = new Vector3 (652.15f, 9.54f, 503.27f)     } },
-        { 1001793, new LeveInfoVendor { Name = NPCName(1001793), ZoneID = 138, Aetheryte = 14, NPCLocation = new Vector3 (292.18f, -24.99f, 238.09f)   } },
-        { 1004417, new LeveInfoVendor { Name = NPCName(1004417), ZoneID = 130, Aetheryte = 9, NPCLocation = new Vector3 (-30.76f, 9.00f, -85.04f)      } },
-        { 1003889, new LeveInfoVendor { Name = NPCName(1003889), ZoneID = 140, Aetheryte = 17, NPCLocation = new Vector3 (213.17f, 52.04f, 153.74f)    } },
-        { 1001798, new LeveInfoVendor { Name = NPCName(1001798), ZoneID = 140, Aetheryte = 17, NPCLocation = new Vector3 (69.39f, 46.00f, -248.66f)    } },
-        { 1001801, new LeveInfoVendor { Name = NPCName(1001801), ZoneID = 145, Aetheryte = 18, NPCLocation = new Vector3 (-396.09f, -57.08f, 125.65f)  } },
-        { 1002385, new LeveInfoVendor { Name = NPCName(1002385), ZoneID = 155, Aetheryte = 23, NPCLocation = new Vector3 (237.87f, 221.80f, 330.08f)   } },
-        { 1002402, new LeveInfoVendor { Name = NPCName(1002402), ZoneID = 155, Aetheryte = 23, NPCLocation = new Vector3 (-410.40f, 211.00f, -266.98f) } },
-        { 1004349, new LeveInfoVendor { Name = NPCName(1004349), ZoneID = 156, Aetheryte = 24, NPCLocation = new Vector3 (443.09f, -4.79f, -455.26f)   } },
+        { 1001218, new LeveInfoVendor { // Audrie
+            Name = NPCName(1001218),
+            ZoneID = 148,
+            Aetheryte = 3,
+            NPCLocation = new Vector3 (46.55f, -5.97f, 3.54f),
+            Mount = true,
+            Fly = true
+        } },
+        { 1001220, new LeveInfoVendor { // Juliembert
+            Name = NPCName(1001220),
+            ZoneID = 153,
+            Aetheryte = 5,
+            NPCLocation = new Vector3 (167.13f, 8.70f, -48.60f),
+            Mount = true,
+            Fly = false
+        } },
+        { 1001868, new LeveInfoVendor { // Lanverlais
+            Name = NPCName(1001868),
+            ZoneID = 148, Aetheryte = 3,
+            NPCLocation = new Vector3 (139.88f, -7.00f, -85.38f),
+            Mount = true,
+            Fly = true
+        } },
+        { 1001219, new LeveInfoVendor { // Ayled
+            Name = NPCName(1001219),
+            ZoneID = 152,
+            Aetheryte = 4,
+            NPCLocation = new Vector3 (-202.95f, 2.77f, 308.60f),
+            Mount = true,
+            Fly = false
+        } },
+        { 1001276, new LeveInfoVendor { // Maisenta
+            Name = NPCName(1001276),
+            ZoneID = 132,
+            Aetheryte = 2,
+            NPCLocation = new Vector3 (10.81f, 0.12f, 2.32f),
+            Mount = false,
+        } },
+        { 1004345, new LeveInfoVendor { // Ririphon
+            Name = NPCName(1004345),
+            ZoneID = 137,
+            Aetheryte = 11,
+            NPCLocation = new Vector3 (454.24f, 17.40f, 464.79f),
+            Mount = true,
+            Fly = false
+        } },
+        { 1001787, new LeveInfoVendor { // Bango Zango (need to check this one...)
+            Name = NPCName(1001787),
+            ZoneID = 129,
+            Aetheryte = 8,
+            NPCLocation = new Vector3 (-64.87f, 18.00f, 8.23f),
+            Mount = false,
+        } },
+        { 1004343, new LeveInfoVendor { // Zwynwyda (What. The fuck. Is this name???)
+            Name = NPCName(1004343),
+            ZoneID = 135,
+            Aetheryte = 10,
+            NPCLocation = new Vector3 (544.81f, 87.74f, -47.56f),
+            Mount = true,
+            Fly = true,
+        } },
+        { 1001790, new LeveInfoVendor { // Fewon Bulion
+            Name = NPCName(1001790),
+            ZoneID = 138,
+            Aetheryte = 13,
+            NPCLocation = new Vector3 (652.15f, 9.54f, 503.27f),
+            Mount = false
+        } },
+        { 1001793, new LeveInfoVendor { // H'rhanbolo
+            Name = NPCName(1001793),
+            ZoneID = 138,
+            Aetheryte = 14,
+            NPCLocation = new Vector3 (292.18f, -24.99f, 238.09f),
+            Mount = false
+        } },
+        { 1004417, new LeveInfoVendor { // Roarich (Also need to double check this one)
+            Name = NPCName(1004417),
+            ZoneID = 130,
+            Aetheryte = 9,
+            NPCLocation = new Vector3 (-30.76f, 9.00f, -85.04f),
+            Mount = false
+        } },
+        { 1003889, new LeveInfoVendor { // Gigiyon
+            Name = NPCName(1003889),
+            ZoneID = 140,
+            Aetheryte = 17,
+            NPCLocation = new Vector3 (213.17f, 52.04f, 153.74f),
+            Mount = true,
+            Fly = true,
+        } },
+        { 1001798, new LeveInfoVendor { // Mimina
+            Name = NPCName(1001798),
+            ZoneID = 140,
+            Aetheryte = 17,
+            NPCLocation = new Vector3 (69.39f, 46.00f, -248.66f),
+            Mount = false
+        } },
+        { 1001801, new LeveInfoVendor { // Frediswitha (Fred Fredburger)
+            Name = NPCName(1001801),
+            ZoneID = 145,
+            Aetheryte = 18,
+            NPCLocation = new Vector3 (-396.09f, -57.08f, 125.65f),
+            Mount = false,
+        } },
+        { 1002385, new LeveInfoVendor { // Vivenne
+            Name = NPCName(1002385),
+            ZoneID = 155,
+            Aetheryte = 23,
+            NPCLocation = new Vector3 (240.60f, 221.73f, 331.01f),
+            Mount = true,
+            Fly = true,
+        } },
+        { 1002402, new LeveInfoVendor { // Lanquairt
+            Name = NPCName(1002402),
+            ZoneID = 155,
+            Aetheryte = 23,
+            NPCLocation = new Vector3 (-410.40f, 211.00f, -266.98f),
+            Mount = true,
+            Fly = true,
+        } },
+        { 1004349, new LeveInfoVendor { // Syele
+            Name = NPCName(1004349),
+            ZoneID = 156,
+            Aetheryte = 24,
+            NPCLocation = new Vector3 (443.09f, -4.79f, -455.26f),
+            Mount = true,
+            Fly = true,
+        } },
 
         // Heavensword
-        { 1011208, new LeveInfoVendor { Name = NPCName(1011208), ZoneID = 418, Aetheryte = 70, NPCLocation = new Vector3 (-56.18f, 15.14f, -41.45f)    } },
-        { 1011209, new LeveInfoVendor { Name = NPCName(1011209), ZoneID = 418, Aetheryte = 70, NPCLocation = new Vector3 (-56.18f, 15.14f, -41.45f)    } },
+        { 1011208, new LeveInfoVendor { // Eloin
+            Name = NPCName(1011208),
+            ZoneID = 418,
+            Aetheryte = 70,
+            NPCLocation = new Vector3 (-56.18f, 15.14f, -41.45f),
+            BattlecraftButton = 0,
+            GatheringButton = 1,
+            CrafterButton = 2,
+            LSGatherButton = 4,
+            LSCrafterButton = 5,
+            LeaveButton = 7,
+            Mount = false,
+        } },
+        { 1011209, new LeveInfoVendor { // Fionnuala
+            Name = NPCName(1011209),
+            ZoneID = 418,
+            Aetheryte = 70,
+            NPCLocation = new Vector3 (-56.18f, 15.14f, -41.45f),
+            Mount = false,
+        } },
         // Stormblood
-        { 1018997, new LeveInfoVendor { Name = NPCName(1018997), ZoneID = 628, Aetheryte = 111, NPCLocation = new Vector3 (20.61f, 0.00f, -77.82f)     } },
-        { 1018998, new LeveInfoVendor { Name = NPCName(1018998), ZoneID = 628, Aetheryte = 111, NPCLocation = new Vector3 (20.61f, 0.00f, -77.82f)     } },
+        { 1018997, new LeveInfoVendor { // Keltraeng
+            Name = NPCName(1018997),
+            ZoneID = 628,
+            Aetheryte = 111,
+            NPCLocation = new Vector3 (20.61f, 0.00f, -77.82f),
+            GatheringButton = 0,
+            CrafterButton = 1,
+            LeaveButton = 3,
+            Mount = false,
+        } },
+        { 1018998, new LeveInfoVendor { // Chantine
+            Name = NPCName(1018998),
+            ZoneID = 628,
+            Aetheryte = 111,
+            NPCLocation = new Vector3 (20.61f, 0.00f, -77.82f),
+            Mount = false,
+        } },
         // Shadowbringer
-        { 1027847, new LeveInfoVendor { Name = NPCName(1027847), ZoneID = 819, Aetheryte = 133, NPCLocation = new Vector3 (-73.40f, 20.00f, -110.90f)  } },
-        { 1027848, new LeveInfoVendor { Name = NPCName(1027848), ZoneID = 819, Aetheryte = 133, NPCLocation = new Vector3 (-73.40f, 20.00f, -110.90f)  } },
+        { 1027847, new LeveInfoVendor { // Eirikur
+            Name = NPCName(1027847),
+            ZoneID = 819,
+            Aetheryte = 133,
+            NPCLocation = new Vector3 (-73.40f, 20.00f, -110.90f),
+            GatheringButton = 0,
+            CrafterButton = 1,
+            LeaveButton = 3,
+            Mount = false,
+        } },
+        { 1027848, new LeveInfoVendor { // Moyce
+            Name = NPCName(1027848),
+            ZoneID = 819,
+            Aetheryte = 133,
+            NPCLocation = new Vector3 (-73.40f, 20.00f, -110.90f),
+            Mount = false,
+        } },
         // Endwalker
-        { 1037263, new LeveInfoVendor { Name = NPCName(1037263), ZoneID = 962, Aetheryte = 182, NPCLocation = new Vector3 (49.96f, -15.65f, 111.81f)   } },
-        { 1037264, new LeveInfoVendor { Name = NPCName(1037264), ZoneID = 962, Aetheryte = 182, NPCLocation = new Vector3 (49.96f, -15.65f, 111.81f)   } },
+        { 1037263, new LeveInfoVendor { // Grigge
+            Name = NPCName(1037263),
+            ZoneID = 962,
+            Aetheryte = 182,
+            NPCLocation = new Vector3 (49.96f, -15.65f, 111.81f),
+            GatheringButton = 0,
+            CrafterButton = 1,
+            LeaveButton = 3,
+            Mount = false,
+        } },
+        { 1037264, new LeveInfoVendor { // Ahldiyrn
+            Name = NPCName(1037264),
+            ZoneID = 962,
+            Aetheryte = 182,
+            NPCLocation = new Vector3 (49.96f, -15.65f, 111.81f),
+            Mount = false,
+        } },
         // Dawntrail
-        { 1048390, new LeveInfoVendor { Name = NPCName(1048390), ZoneID = 1185, Aetheryte = 216, NPCLocation = new Vector3 (21.08f, -14.00f, 84.91f)   } },
-        { 1048391, new LeveInfoVendor { Name = NPCName(1048391), ZoneID = 1185, Aetheryte = 216, NPCLocation = new Vector3 (21.08f, -14.00f, 84.91f)   } },
+        { 1048390, new LeveInfoVendor { // Malihali
+            Name = NPCName(1048390),
+            ZoneID = 1185,
+            Aetheryte = 216,
+            NPCLocation = new Vector3 (21.08f, -14.00f, 84.91f),
+            Mount = false,
+        } },
+        { 1048391, new LeveInfoVendor { // Ponawme
+            Name = NPCName(1048391),
+            ZoneID = 1185,
+            Aetheryte = 216,
+            NPCLocation = new Vector3 (21.08f, -14.00f, 84.91f),
+            Mount = false,
+        } },
     };
 
     public static readonly Dictionary<uint, uint[]> LeveVendor = new()

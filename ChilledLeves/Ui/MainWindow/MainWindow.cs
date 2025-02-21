@@ -1,6 +1,7 @@
 ﻿using ChilledLeves.Scheduler;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
+using Dalamud.Interface.Utility.Raii;
 using ECommons.Configuration;
 using FFXIVClientStructs.FFXIV.Common.Lua;
 using Lumina.Data.Parsing;
@@ -36,17 +37,20 @@ internal class MainWindow : Window
 
     public override void Draw()
     {
-        ImGui.SetNextItemWidth(100);
-        ImGui.InputInt("Temp for synth", ref SchedulerMain.SynthRunAmount);
-        ImGui.SameLine();
-        if (ImGui.Button("Start"))
+        using (ImRaii.Disabled(P.taskManager.IsBusy))
         {
-            SchedulerMain.EnablePlugin();
+            if (ImGui.Button("Start"))
+            {
+                SchedulerMain.EnablePlugin();
+            }
         }
-        ImGui.SameLine();
-        if (ImGui.Button("Stop"))
+        using (ImRaii.Disabled(!P.taskManager.IsBusy))
         {
-            SchedulerMain.DisablePlugin();
+            ImGui.SameLine();
+            if (ImGui.Button("Stop"))
+            {
+                SchedulerMain.DisablePlugin();
+            }
         }
         ImGui.BeginGroup();
         DrawFilterPanel();
@@ -142,7 +146,12 @@ internal class MainWindow : Window
         ImGui.PopStyleVar();
 
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip(tooltipText);
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text(tooltipText);
+            ImGui.Text($"Showing Leves: {state}");
+            ImGui.EndTooltip();
+        }
         if (sameLine)
             ImGui.SameLine();
     }
@@ -302,7 +311,6 @@ internal class MainWindow : Window
     private void DrawLeveDetails()
     {
         var leve = (uint)selectedLeve;
-        var NPCResidentsheet = Svc.Data.GetExcelSheet<ENpcResident>();
         if (CrafterLeves.ContainsKey(leve))
         {
             // string NPCName = NPCResidentsheet.GetRow(NPC).Singular.ToString();
@@ -311,10 +319,11 @@ internal class MainWindow : Window
             ImGui.Text($"EXP Reward: {CrafterLeves[leve].ExpReward:N0}");
             ImGui.Text($"Gil Reward: {CrafterLeves[leve].GilReward:N0} ± 5%%");
             ImGui.Separator();
-            ImGui.Text($"Starting Zone: ");
+            var vendorId = CrafterLeves[leve].LeveVendorID;
+            var startZoneId = LeveNPCDict[vendorId].ZoneID;
+            ImGui.Text($"Starting Zone: {ZoneName(startZoneId)}");
             ImGui.Text($"NPC: {CrafterLeves[leve].LeveVendorName}");
             ImGui.Text($"Is Complete: {IsComplete(leve)}");
-            ImGui.Text($"Is Accepted: {IsAccepted(leve)}");
             if (IsStarted(leve))
             {
                 ImGui.Text("Quest is Accepted and Started");
@@ -339,10 +348,12 @@ internal class MainWindow : Window
                 if (C.FavoriteLeves.Contains(leve))
                 {
                     C.FavoriteLeves.Remove(leve);
+                    C.Save();
                 }
                 else
                 {
                     C.FavoriteLeves.Add(leve);
+                    C.Save();
                 }
             }
             if (C.workList.Any(e => e.LeveID == leve))

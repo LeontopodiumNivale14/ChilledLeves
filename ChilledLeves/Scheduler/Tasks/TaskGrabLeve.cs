@@ -12,16 +12,19 @@ namespace ChilledLeves.Scheduler.Tasks
 {
     internal static class TaskGrabLeve
     {
-        internal static void Enqueue(uint leveID)
+        internal static void Enqueue(uint leveID, uint npcID)
         {
-            TaskInteract.Enqueue(1037263);
-            P.taskManager.Enqueue(() => GrabLeve((ushort)leveID), DConfig);
-            P.taskManager.Enqueue(() => LeaveLeveVendor(), DConfig);
+            TaskInteract.Enqueue(npcID);
+            P.taskManager.Enqueue(() => GrabLeve((ushort)leveID, npcID), DConfig);
+            P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), DConfig);
             P.taskManager.Enqueue(() => PlayerNotBusy(), DConfig);
         }
 
-        internal static unsafe bool? GrabLeve(ushort leveID)
+        internal static unsafe bool? GrabLeve(ushort leveID, uint npcID)
         {
+            var LeveName = CrafterLeves[leveID].LeveName;
+            var craftButton = LeveNPCDict[npcID].CrafterButton;
+
             if (IsAccepted(leveID))
             {
                 return true;
@@ -37,23 +40,23 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 if (EzThrottler.Throttle("Opening the Levequests Window", 100))
                 {
-                    GenericHandlers.FireCallback("SelectString", true, 1);
+                    GenericHandlers.FireCallback("SelectString", true, craftButton);
                 }
             }
             else if (TryGetAddonByName<AtkUnitBase>("JournalDetail", out var JournalDetail) && IsAddonReady(JournalDetail))
             {
-                if (GetNodeText("JournalDetail", 19) != "The Mountain Steeped")
+                if (GetNodeText("JournalDetail", 19) != LeveName)
                 {
                     if (EzThrottler.Throttle("Clicking to the correct leve", 2000))
                     {
-                        GenericHandlers.FireCallback("GuildLeve", true, 13, 14, 1647);
+                        GenericHandlers.FireCallback("GuildLeve", true, 13, 14, leveID);
                     }
                 }
-                else if (GetNodeText("JournalDetail", 19) == "The Mountain Steeped")
+                else if (GetNodeText("JournalDetail", 19) == LeveName)
                 {
                     if (EzThrottler.Throttle("Accepting the correct leve", 2000))
                     {
-                        GenericHandlers.FireCallback("JournalDetail", true, 3, 1647);
+                        GenericHandlers.FireCallback("JournalDetail", true, 3, leveID);
                     }
                 }
             }
@@ -61,13 +64,15 @@ namespace ChilledLeves.Scheduler.Tasks
             return false;
         }
 
-        internal static unsafe bool? LeaveLeveVendor()
+        internal static unsafe bool? LeaveLeveVendor(uint npcID)
         {
+            var leaveButton = LeveNPCDict[npcID].LeaveButton;
+
             if (TryGetAddonByName<AtkUnitBase>("SelectString", out var LeveWindow) && IsAddonReady(LeveWindow))
             {
                 if (EzThrottler.Throttle("Leaving Leve Person", 500))
                 {
-                    GenericHandlers.FireCallback("SelectString", true, 3);
+                    GenericHandlers.FireCallback("SelectString", true, leaveButton);
                 }
             }
             else if (TryGetAddonByName<AtkUnitBase>("GuildLeve", out var GuildLeve) && IsAddonReady(GuildLeve))
