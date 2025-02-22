@@ -431,7 +431,7 @@ public static unsafe class Data
             Mount = true,
             Fly = true,
             RequiredQuestId = LevesofAleport,
-            flagX = 669.18f, flagZ = 512.99f
+            flagX = 312.58f, flagZ = 283.96f
         } },
         { 1000821, new LeveInfoVendor { // Qina Lyehga
             Name = NPCName(1000821),
@@ -837,6 +837,8 @@ public static unsafe class Data
             LSCrafterButton = 5,
             LeaveButton = 7,
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = -53.54f, flagZ = -42.68f
         } },
         { 1011209, new LeveInfoVendor { // Fionnuala
             Name = NPCName(1011209),
@@ -844,6 +846,8 @@ public static unsafe class Data
             Aetheryte = 70,
             NPCLocation = new Vector3 (-56.18f, 15.14f, -41.45f),
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = -54.31f, flagZ = -44.51f
         } },
         // Stormblood
         { 1018997, new LeveInfoVendor { // Keltraeng
@@ -855,6 +859,8 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = 20.49f, flagZ = -80.95f
         } },
         { 1018998, new LeveInfoVendor { // Chantine
             Name = NPCName(1018998),
@@ -862,6 +868,8 @@ public static unsafe class Data
             Aetheryte = 111,
             NPCLocation = new Vector3 (20.61f, 0.00f, -77.82f),
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = 17.26f, flagZ = -81.32f
         } },
         // Shadowbringer
         { 1027847, new LeveInfoVendor { // Eirikur

@@ -199,11 +199,12 @@ internal class DebugWindow : Window
 
         if (ImGui.BeginChild("Debug Leve Peeps V2"))
         {
-            if (ImGui.BeginTable("Debug Leve Table V2", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
+            if (ImGui.BeginTable("Debug Leve Table V2", 4, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
             {
                 ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, 200);
                 ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, 200);
                 ImGui.TableSetupColumn("Teleport", ImGuiTableColumnFlags.WidthFixed, 200);
+                ImGui.TableSetupColumn("Flag", ImGuiTableColumnFlags.WidthFixed, 75);
 
                 ImGui.TableHeadersRow();
 
@@ -286,6 +287,16 @@ internal class DebugWindow : Window
                             PluginLog("Not valid for movement");
                         }
                     }
+
+                    ImGui.TableNextColumn();
+                    if (ImGuiEx.IconButton(FontAwesomeIcon.Flag, "Flag Button"))
+                    {
+                        var flagX = entry.Value.flagX;
+                        var flagZ = entry.Value.flagZ;
+                        SetFlagForNPC(entry.Value.ZoneID, flagX, flagZ);
+                    }
+
+                    ImGui.PopID();
                 }
             }
             ImGui.EndTable();
