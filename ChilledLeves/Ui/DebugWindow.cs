@@ -97,11 +97,6 @@ internal class DebugWindow : Window
         }
 
         ImGui.Text($"{CurrentMap().ToString()}");
-
-        if (ImGui.Button("Open map to Red Rooster"))
-        {
-            SetFlagForNPC(16, 135, 32, 19.2f);
-        }
     }
 
     private static float TargetXPos = 0;
@@ -163,6 +158,8 @@ internal class DebugWindow : Window
         }
     }
 
+    string ZoneSearch = "";
+
     public void TeleportTest()
     {
         if (ImGui.Button("Mounting Test"))
@@ -177,79 +174,123 @@ internal class DebugWindow : Window
             TaskDisMount.Enqueue();
         }
 
-        if (ImGui.BeginChild("Debug Leve Teleport Child"))
+        if (Svc.Targets?.Target != null)
         {
-            foreach (var entry in LeveNPCDict)
+            TargetXPos = (float)Math.Round(Svc.Targets.Target.Position.X, 2);
+            TargetZPos = (float)Math.Round(Svc.Targets.Target.Position.Z, 2);
+
+            ImGui.SameLine();
+            if (ImGui.Button("Copy Target's X & Z"))
+                ImGui.SetClipboardText($"flagX = {TargetXPos.ToString("0.00", CultureInfo.InvariantCulture)}f, " +
+                                       $"flagZ = {TargetZPos.ToString("0.00", CultureInfo.InvariantCulture)}f");
+        }
+
+        ImGui.SetNextItemWidth(150);
+        ImGui.InputText("###Search for Zone", ref ZoneSearch, 200);
+
+        if (string.IsNullOrEmpty(ZoneSearch))
+        {
+            var cursorPos = ImGui.GetCursorPos();
+            ImGui.SetCursorPos(new System.Numerics.Vector2(cursorPos.X + 5, cursorPos.Y - ImGui.GetTextLineHeightWithSpacing()));
+            ImGui.TextDisabled("Zone Searching");
+            ImGui.SetCursorPos(cursorPos); // Reset cursor to avoid overlap issues
+        }
+        ZoneSearch = ZoneSearch.Trim();
+
+        if (ImGui.BeginChild("Debug Leve Peeps V2"))
+        {
+            if (ImGui.BeginTable("Debug Leve Table V2", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
             {
+                ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, 200);
+                ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, 200);
+                ImGui.TableSetupColumn("Teleport", ImGuiTableColumnFlags.WidthFixed, 200);
 
-                var aetheryte = entry.Value.Aetheryte;
-                var zoneID = entry.Value.ZoneID;
+                ImGui.TableHeadersRow();
 
-                ImGui.PushID((int)entry.Key);
-                if (ImGui.Button($"{entry.Value.Name}"))
+                foreach (var entry in LeveNPCDict)
                 {
-                    if (!IsInZone(zoneID))
+                    string zoneName = ZoneName(entry.Value.ZoneID);
+
+                    if (!string.IsNullOrEmpty(zoneName))
                     {
-                        TaskTeleport.Enqueue(aetheryte, zoneID);
+                        if (!zoneName.Contains(ZoneSearch, StringComparison.OrdinalIgnoreCase))
+                            continue;
                     }
-                }
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.BeginTooltip();
-                    ImGui.Text($"NPC ID: {entry.Key}");
-                    ImGui.EndTooltip();
-                }
 
-                ImGui.SameLine();
-                ImGui.Text($"Zone: {entry.Value.ZoneID}");
+                    ImGui.TableNextRow();
 
-                if (AethernetDict.ContainsKey(zoneID))
-                {
-                    ImGui.SameLine();
-                    if (ImGui.Button("Use Aethernet"))
+                    var aetheryte = entry.Value.Aetheryte;
+                    var zoneID = entry.Value.ZoneID;
+
+                    ImGui.TableSetColumnIndex(0);
+
+                    ImGui.PushID((int)entry.Key);
+                    if (ImGui.Button($"{entry.Value.Name}"))
                     {
-                        TaskUseAethernet.Enqueue(zoneID);
-                    }
-                }
-
-                ImGui.SameLine();
-                if (ImGui.Button("Move to NPC"))
-                {
-                    var NPCLocation = entry.Value.NPCLocation;
-
-                    if (IsInZone(zoneID) && GetDistanceToPlayer(NPCLocation) > 0.5f)
-                    {
-                        bool fly = false;
-
-                        if (C.MountZone.ContainsKey(zoneID))
+                        if (!IsInZone(zoneID))
                         {
-                            if (C.MountZone[zoneID])
+                            TaskTeleport.Enqueue(aetheryte, zoneID);
+                        }
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Text($"NPC ID: {entry.Key}");
+                        ImGui.EndTooltip();
+                    }
+
+                    ImGui.TableNextColumn();
+                    ImGui.Text(zoneName);
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Text($"Zone ID: {entry.Value.ZoneID}");
+                        ImGui.EndTooltip();
+                    }
+
+                    ImGui.TableNextColumn();
+                    if (ImGui.Button("Move to NPC"))
+                    {
+                        var NPCLocation = entry.Value.NPCLocation;
+                        bool mount = false;
+                        bool fly = false;
+                        if (entry.Value.Mount)
+                        {
+                            mount = entry.Value.Mount;
+                        }
+                        if (entry.Value.Fly.HasValue)
+                        {
+                            fly = entry.Value.Fly.Value;
+                        }
+
+                        if (IsInZone(zoneID) && GetDistanceToPlayer(NPCLocation) > 0.5f)
+                        {
+                            if (mount)
                             {
                                 P.taskManager.Enqueue(() => PluginLog($"{zoneID} is on the mounting list of enabled"));
                                 TaskMountUp.Enqueue();
                             }
-                        }
-                        if (C.FlyZone.ContainsKey(zoneID))
-                        {
-                            if (C.FlyZone[zoneID])
+                            if (fly)
                             {
                                 P.taskManager.Enqueue(() => PluginLog($"{zoneID} is on the fly zone. GO GO GO."));
                                 fly = true;
                             }
+
+                            P.taskManager.Enqueue(() => PluginLog($"Flying: {fly}, moving to: {NPCLocation}"));
+                            TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 0.5f);
+                            TaskDisMount.Enqueue();
+
                         }
-
-                        P.taskManager.Enqueue(() => PluginLog($"Flying: {fly}, moving to: {NPCLocation}"));
-                        TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 0.5f);
-                        TaskDisMount.Enqueue();
-
-                    }
-                    else
-                    {
-                        PluginLog("Not valid for movement");
+                        else
+                        {
+                            PluginLog("Not valid for movement");
+                        }
                     }
                 }
             }
+            ImGui.EndTable();
         }
+        ImGui.EndChild();
     }
 
     #pragma warning disable CS8602 // Dereference of a possibly null reference.

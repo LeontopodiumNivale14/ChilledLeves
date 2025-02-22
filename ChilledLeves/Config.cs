@@ -64,38 +64,6 @@ public class Config : IEzConfig
         return jobFilter;
     }
 
-    public Dictionary<uint, bool> MountZone = new Dictionary<uint, bool>()
-    {
-        {135, true }, // Keep for now
-        {137, true },
-        {138, true }, 
-        {140, true },
-        {145, true },
-        {146, true },
-        {147, true },
-        {148, true }, // Keep for now
-        {152, true },
-        {153, true },
-        {155, true },
-        {156, true }
-    };
-
-    public Dictionary<uint, bool> FlyZone = new Dictionary<uint, bool>()
-    {
-        {135, true },
-        {137, true },
-        {138, true },
-        {140, true },
-        {145, true },
-        {146, true },
-        {147, true },
-        {148, true },
-        {152, true },
-        {153, true },
-        {155, true },
-        {156, true }
-    };
-
     public void Save()
     {
         RefreshJobFilter();

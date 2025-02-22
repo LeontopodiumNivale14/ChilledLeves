@@ -152,12 +152,16 @@ public static unsafe class Utils
         return Svc.ClientState.LocalPlayer!.Position.Z;
     }
 
-    public static unsafe void SetFlagForNPC(uint teri, uint zoneID, float x, float y)
+    public static unsafe void SetFlagForNPC(uint teri, float x, float y)
     {
+        var terSheet = Svc.Data.GetExcelSheet<TerritoryType>();
+        var mapId = terSheet.GetRow(teri).Map.Value.RowId;
+
         var agent = AgentMap.Instance();
 
-        agent->SetFlagMapMarker(zoneID, teri, x, y);
-        agent->OpenMapByMapId(teri);
+        agent->IsFlagMarkerSet = 0;
+        agent->SetFlagMapMarker(teri, mapId, x, y);
+        agent->OpenMapByMapId(mapId, territoryId: teri);
     }
 
     public static unsafe uint CurrentMap()

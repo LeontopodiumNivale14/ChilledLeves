@@ -322,19 +322,18 @@ internal class MainWindow : Window
             var vendorId = CrafterLeves[leve].LeveVendorID;
             var startZoneId = LeveNPCDict[vendorId].ZoneID;
             ImGui.Text($"Starting Zone: {ZoneName(startZoneId)}");
+            ImGui.SameLine(0, 5);
+            if (ImGuiEx.IconButton(FontAwesomeIcon.Flag, "Flag Button"))
+            {
+                var flagX = LeveNPCDict[vendorId].flagX;
+                var flagZ = LeveNPCDict[vendorId].flagZ;
+                SetFlagForNPC(startZoneId, flagX, flagZ);
+            }
             ImGui.Text($"NPC: {CrafterLeves[leve].LeveVendorName}");
             ImGui.Text($"Is Complete: {IsComplete(leve)}");
             if (IsStarted(leve))
             {
                 ImGui.Text("Quest is Accepted and Started");
-            }
-            else if (IsReadyForTurnIn(leve))
-            {
-                ImGui.Text("Quest is ready for turnin");
-            }
-            else
-            {
-                ImGui.Text("No condition is met??");
             }
             ImGui.Separator();
             ImGui.Text($"Required Items:");

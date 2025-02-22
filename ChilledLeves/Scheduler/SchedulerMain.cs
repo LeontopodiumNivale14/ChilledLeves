@@ -129,10 +129,16 @@ namespace ChilledLeves.Scheduler
                                         {
                                             bool fly = false;
 
-                                            if (C.MountZone.ContainsKey(zoneID) && C.MountZone[zoneID])
+                                            if (LeveNPCDict[npc].Mount)
+                                            {
                                                 TaskMountUp.Enqueue();
-                                            if (C.FlyZone.ContainsKey(zoneID) && C.FlyZone[zoneID])
-                                                fly = true;
+                                                if (LeveNPCDict[npc].Fly.HasValue)
+                                                {
+                                                    #pragma warning disable CS8629 // Nullable value type may be null.
+                                                    fly = (bool)LeveNPCDict[npc].Fly;
+                                                    #pragma warning restore CS8629 // Nullable value type may be null.
+                                                }
+                                            }
 
                                             TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 0.5f);
                                         }

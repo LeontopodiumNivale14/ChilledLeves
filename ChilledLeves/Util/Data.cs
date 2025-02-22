@@ -267,6 +267,8 @@ public static unsafe class Data
         public bool Mount { get; set; }
         public bool? Fly { get; set; }
         public uint RequiredQuestId {  get; set; }
+        public float flagX { get; set; } = 0f;
+        public float flagZ { get; set; } = 0f;
     }
 
     public static Dictionary<uint, LeveInfoVendor> LeveNPCDict = new Dictionary<uint, LeveInfoVendor>()
@@ -282,7 +284,8 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = false,
-            RequiredQuestId = 0
+            RequiredQuestId = 0,
+            flagX = -12.38f, flagZ = -12.16f,
         } },
         { 1000101, new LeveInfoVendor { // Gontrant
             Name = NPCName(1000101),
@@ -294,7 +297,8 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = false,
-            RequiredQuestId = 0
+            RequiredQuestId = 0,
+            flagX = 25.04f, flagZ = 108.08f
         } },
         { 1001794, new LeveInfoVendor { // Gontrant
             Name = NPCName(1001794),
@@ -306,7 +310,8 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = false,
-            RequiredQuestId = 0
+            RequiredQuestId = 0,
+            flagX = 42.01f, flagZ = -107.59f
         } },
         { 1004342, new LeveInfoVendor { // Wyrkholsk
             Name = NPCName(1004342),
@@ -319,7 +324,8 @@ public static unsafe class Data
             LeaveButton = 4,
             Mount = true,
             Fly = true,
-            RequiredQuestId = 0
+            RequiredQuestId = 0,
+            flagX = 499.60f, flagZ = -74.57f
         } },
         { 1004735, new LeveInfoVendor { // Eugene, GC leve person
             Name = NPCName(1004735), 
@@ -328,7 +334,8 @@ public static unsafe class Data
             NPCLocation = new Vector3 (117.30f, 22.88f, 674.81f),
             Mount = true,
             Fly = true,
-            RequiredQuestId = 0
+            RequiredQuestId = 0,
+            flagX = 114.49f, flagZ = 674.95f
         } },
         { 1004347, new LeveInfoVendor { // Ourawann
             Name = NPCName(1004347),
@@ -341,7 +348,8 @@ public static unsafe class Data
             LeaveButton = 4,
             Mount = true,
             Fly = true,
-            RequiredQuestId = LevesofMoraby
+            RequiredQuestId = LevesofMoraby,
+            flagX = 122.33f, flagZ = 578.27f
         } },
         { 1000105, new LeveInfoVendor { // Tierney // 
             Name = NPCName(1000105),
@@ -354,7 +362,8 @@ public static unsafe class Data
             LeaveButton = 4,
             Mount = true,
             Fly = true,
-            RequiredQuestId = 1
+            RequiredQuestId = 1,
+            flagX = 54.98f, flagZ = 40.79f
         } },
         { 1001866, new LeveInfoVendor { // Muriaule
             Name = NPCName(1001866),
@@ -367,7 +376,8 @@ public static unsafe class Data
             LeaveButton = 4,
             Mount = true,
             Fly = true,
-            RequiredQuestId = 0
+            RequiredQuestId = 1,
+            flagX = 120.13f, flagZ = -97.18f,
         } },
         { 1003888, new LeveInfoVendor { // Graceful Song
             Name = NPCName(1003888),
@@ -380,7 +390,8 @@ public static unsafe class Data
             LeaveButton = 4,
             Mount = true,
             Fly = true,
-            RequiredQuestId = 0
+            RequiredQuestId = 1,
+            flagX = 229.88f, flagZ = 153.98f
         } },
         { 1001796, new LeveInfoVendor { // Totonowa
             Name = NPCName(1001796),
@@ -392,7 +403,8 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = false,
-            RequiredQuestId = 1
+            RequiredQuestId = 1,
+            flagX = 85.16f, flagZ = -245.84f
         } },
         { 1001788, new LeveInfoVendor { // Swygskyf // MIGHT REQUIRE: "Simply the Hest" (yes it does)
             Name = NPCName(1001788),
@@ -404,7 +416,8 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = false,
-            RequiredQuestId = 1
+            RequiredQuestId = 1,
+            flagX = 669.18f, flagZ = 512.99f
         } },
         { 1001791, new LeveInfoVendor { // Orwen, Locks leves behind quest
             Name = NPCName(1001791),
@@ -416,9 +429,11 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = true,
-            Fly = true
+            Fly = true,
+            RequiredQuestId = LevesofAleport,
+            flagX = 669.18f, flagZ = 512.99f
         } },
-        { 1000821, new LeveInfoVendor {
+        { 1000821, new LeveInfoVendor { // Qina Lyehga
             Name = NPCName(1000821),
             ZoneID = 152,
             Aetheryte = 4,
@@ -427,7 +442,9 @@ public static unsafe class Data
             GatheringButton = 1,
             CrafterButton = 2,
             LeaveButton = 4,
-            Mount = false
+            Mount = false,
+            RequiredQuestId = LevesofHawthorne,
+            flagX = -212.70f, flagZ = 285.60f
         } },
         { 1004737, new LeveInfoVendor { // Cedrepierre, GC Leve NPC
             Name = NPCName(1004737),
@@ -435,7 +452,9 @@ public static unsafe class Data
             Aetheryte = 4,
             NPCLocation = new Vector3 (-258.74f, 1.57f, 303.50f),
             Mount = true,
-            Fly = true
+            Fly = true,
+            RequiredQuestId = 0,
+            flagX = -257.68f, flagZ = 305.81f,
         } },
         { 1001799, new LeveInfoVendor { // Poponagu 
             Name = NPCName(1001799),
@@ -447,6 +466,8 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = false,
+            RequiredQuestId = LevesofCampDrybone,
+            flagX = -378.19f, flagZ = 129.26f,
         } },
         { 1004739, new LeveInfoVendor { // Kikiri, GC Leve NPC
             Name = NPCName(1004739),
@@ -454,6 +475,8 @@ public static unsafe class Data
             Aetheryte = 18,
             NPCLocation = new Vector3 (-365.65f, -56.24f, 118.72f),
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = -364.13f, flagZ = 120.68f,
         } },
         { 1000823, new LeveInfoVendor { // Nyell
             Name = NPCName(1000823),
@@ -465,6 +488,8 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = false,
+            RequiredQuestId = LevesofQuarrymill,
+            flagX = 201.53f, flagZ = -61.45f
         } },
         { 1002397, new LeveInfoVendor { // Merthelin
             Name = NPCName(1002397),
@@ -476,6 +501,8 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = false,
+            RequiredQuestId = LevesofCampTranquil,
+            flagX = -238.97f, flagZ = 344.38f
         } },
         { 1004738, new LeveInfoVendor { // H'amneko, GC Leve NPC
             Name = NPCName(1004738),
@@ -483,7 +510,9 @@ public static unsafe class Data
             Aetheryte = 6,
             NPCLocation = new Vector3 (-196.36f, 14.96f, 445.59f),
             Mount = true,
-            Fly = true
+            Fly = true,
+            RequiredQuestId = 0,
+            flagX = -198.05f, flagZ = 444.60f
         } },
         { 1002365, new LeveInfoVendor { // Esmond
             Name = NPCName(1002365),
@@ -494,7 +523,9 @@ public static unsafe class Data
             GatheringButton = 1,
             CrafterButton = 2,
             LeaveButton = 4,
-            Mount = false
+            Mount = false,
+            RequiredQuestId = LevesofLittleAlaMhigo,
+            flagX = -167.28f, flagZ = -395.44f
         } },
         { 1004740, new LeveInfoVendor { // Blue Herring, GC Leve NPC
             Name = NPCName(1004740),
@@ -502,6 +533,8 @@ public static unsafe class Data
             Aetheryte = 19,
             NPCLocation = new Vector3 (-140.74f, 27.16f, -416.86f),
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = -137.90f, flagZ = -417.93f
         } },
         { 1004344, new LeveInfoVendor { // Nahctahr (No, I can't make these up...)
             Name = NPCName(1004344),
@@ -514,6 +547,8 @@ public static unsafe class Data
             LeaveButton = 4,
             Mount = true,
             Fly = false,
+            RequiredQuestId = LevesofCostadelSol,
+            flagX = 450.22f, flagZ = 470.30f
         } },
         { 1004736, new LeveInfoVendor { // C'lafumyn, GC Leve NPC
             Name = NPCName(1004736),
@@ -521,7 +556,9 @@ public static unsafe class Data
             Aetheryte = 11,
             NPCLocation = new Vector3 (602.63f, 23.94f, 459.58f),
             Mount = true,
-            Fly = true
+            Fly = true,
+            RequiredQuestId = 0,
+            flagX = 605.58f, flagZ = 458.21f
         } },
         { 1002367, new LeveInfoVendor { // Aileen (I bet she works at Ihop)
             Name = NPCName(1002367),
@@ -532,7 +569,9 @@ public static unsafe class Data
             GatheringButton = 1,
             CrafterButton = 2,
             LeaveButton = 4,
-            Mount = false
+            Mount = false,
+            RequiredQuestId = LevesofWineport,
+            flagX = 5.75f, flagZ = 0.69f,
         } },
         { 1002384, new LeveInfoVendor { // Cimeautrant (man that's almost gibberish)
             Name = NPCName(1002384),
@@ -544,7 +583,9 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = true,
-            Fly = true
+            Fly = true,
+            RequiredQuestId = LevesoftheObservatorium,
+            flagX = 227.59f, flagZ = 341.66f
         } },
         { 1007068, new LeveInfoVendor { // Haisie, GC Leve NPC
             Name = NPCName(1007068),
@@ -553,6 +594,8 @@ public static unsafe class Data
             NPCLocation = new Vector3 (183.58f, 222.83f, 355.89f),
             Mount = true,
             Fly = true,
+            RequiredQuestId = 0,
+            flagX = 179.80f, flagZ = 359.00f,
         } },
         { 1002401, new LeveInfoVendor { // Voilnaut (Almost astronaut..)
             Name = NPCName(1002401),
@@ -564,7 +607,9 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = true,
-            Fly = true
+            Fly = true,
+            RequiredQuestId = LevesofWhitbrim,
+            flagX = -441.12f, flagZ = -235.52f
         } },
         { 1007069, new LeveInfoVendor { // Lodille, GC Leve Npc
             Name = NPCName(1007069),
@@ -573,6 +618,8 @@ public static unsafe class Data
             NPCLocation = new Vector3 (-472.71f, 211.00f, -233.49f),
             Mount = true,
             Fly = true,
+            RequiredQuestId = 0,
+            flagX = -476.22f, flagZ = -233.42f,
         } },
         { 1002398, new LeveInfoVendor { // Rurubana
             Name = NPCName(1002398),
@@ -584,7 +631,9 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = true,
-            Fly = false
+            Fly = false,
+            RequiredQuestId = LevesofCampBluefog,
+            flagX = 34.90f, flagZ = 396.72f
         } },
         { 1004348, new LeveInfoVendor { // K'leytai
             Name = NPCName(1004348),
@@ -596,7 +645,9 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = true,
-            Fly = true
+            Fly = true, 
+            RequiredQuestId = LevesofSaintCoinachsFind,
+            flagX = 415.98f, flagZ = -444.42f
         } },
         { 1007070, new LeveInfoVendor { // Eidhart, GC Leve NPC
             Name = NPCName(1007070),
@@ -604,7 +655,9 @@ public static unsafe class Data
             Aetheryte = 24,
             NPCLocation = new Vector3 (462.87f, -4.39f, -470.22f),
             Mount = true,
-            Fly = true
+            Fly = true,
+            RequiredQuestId = 0,
+            flagX = 464.59f, flagZ = -467.43f
         } },
         // ARR Turnin NPC's
         { 1001218, new LeveInfoVendor { // Audrie
@@ -613,7 +666,9 @@ public static unsafe class Data
             Aetheryte = 3,
             NPCLocation = new Vector3 (46.55f, -5.97f, 3.54f),
             Mount = true,
-            Fly = true
+            Fly = true,
+            RequiredQuestId = 1,
+            flagX = 49.24f, flagZ = 1.14f
         } },
         { 1001220, new LeveInfoVendor { // Juliembert
             Name = NPCName(1001220),
@@ -621,14 +676,18 @@ public static unsafe class Data
             Aetheryte = 5,
             NPCLocation = new Vector3 (167.13f, 8.70f, -48.60f),
             Mount = true,
-            Fly = false
+            Fly = false, 
+            RequiredQuestId = LevesofQuarrymill,
+            flagX = 167.71f, flagZ = -45.94f
         } },
         { 1001868, new LeveInfoVendor { // Lanverlais
             Name = NPCName(1001868),
             ZoneID = 148, Aetheryte = 3,
             NPCLocation = new Vector3 (139.88f, -7.00f, -85.38f),
             Mount = true,
-            Fly = true
+            Fly = true,
+            RequiredQuestId = 1,
+            flagX = 142.41f, flagZ = -86.23f,
         } },
         { 1001219, new LeveInfoVendor { // Ayled
             Name = NPCName(1001219),
@@ -636,7 +695,9 @@ public static unsafe class Data
             Aetheryte = 4,
             NPCLocation = new Vector3 (-202.95f, 2.77f, 308.60f),
             Mount = true,
-            Fly = false
+            Fly = false,
+            RequiredQuestId = LevesofHawthorne,
+            flagX = -206.44f, flagZ = 307.79f
         } },
         { 1001276, new LeveInfoVendor { // Maisenta
             Name = NPCName(1001276),
@@ -644,6 +705,8 @@ public static unsafe class Data
             Aetheryte = 2,
             NPCLocation = new Vector3 (10.81f, 0.12f, 2.32f),
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = 13.96f, flagZ = 2.09f
         } },
         { 1004345, new LeveInfoVendor { // Ririphon
             Name = NPCName(1004345),
@@ -651,7 +714,9 @@ public static unsafe class Data
             Aetheryte = 11,
             NPCLocation = new Vector3 (454.24f, 17.40f, 464.79f),
             Mount = true,
-            Fly = false
+            Fly = false,
+            RequiredQuestId = LevesofCostadelSol,
+            flagX = 452.41f, flagZ = 464.84f
         } },
         { 1001787, new LeveInfoVendor { // Bango Zango (need to check this one...)
             Name = NPCName(1001787),
@@ -659,6 +724,8 @@ public static unsafe class Data
             Aetheryte = 8,
             NPCLocation = new Vector3 (-64.87f, 18.00f, 8.23f),
             Mount = false,
+            RequiredQuestId = 1,
+            flagX = -62.12f, flagZ = 9.41f
         } },
         { 1004343, new LeveInfoVendor { // Zwynwyda (What. The fuck. Is this name???)
             Name = NPCName(1004343),
@@ -667,27 +734,36 @@ public static unsafe class Data
             NPCLocation = new Vector3 (544.81f, 87.74f, -47.56f),
             Mount = true,
             Fly = true,
+            RequiredQuestId = 0,
+            flagX = 547.63f, flagZ = -50.61f,
+
         } },
         { 1001790, new LeveInfoVendor { // Fewon Bulion
             Name = NPCName(1001790),
             ZoneID = 138,
             Aetheryte = 13,
             NPCLocation = new Vector3 (652.15f, 9.54f, 503.27f),
-            Mount = false
+            Mount = false,
+            RequiredQuestId = 1,
+            flagX = 649.50f, flagZ = 503.62f
         } },
         { 1001793, new LeveInfoVendor { // H'rhanbolo
             Name = NPCName(1001793),
             ZoneID = 138,
             Aetheryte = 14,
             NPCLocation = new Vector3 (292.18f, -24.99f, 238.09f),
-            Mount = false
+            Mount = false,
+            RequiredQuestId = LevesofAleport,
+            flagX = 292.10f, flagZ = 235.34f
         } },
         { 1004417, new LeveInfoVendor { // Roarich (Also need to double check this one)
             Name = NPCName(1004417),
             ZoneID = 130,
             Aetheryte = 9,
             NPCLocation = new Vector3 (-30.76f, 9.00f, -85.04f),
-            Mount = false
+            Mount = false,
+            RequiredQuestId = 0,
+            flagX = -33.62f, flagZ = -84.28f
         } },
         { 1003889, new LeveInfoVendor { // Gigiyon
             Name = NPCName(1003889),
@@ -696,13 +772,17 @@ public static unsafe class Data
             NPCLocation = new Vector3 (213.17f, 52.04f, 153.74f),
             Mount = true,
             Fly = true,
+            RequiredQuestId = 1,
+            flagX = 213.46f, flagZ = 151.45f
         } },
         { 1001798, new LeveInfoVendor { // Mimina
             Name = NPCName(1001798),
             ZoneID = 140,
             Aetheryte = 17,
             NPCLocation = new Vector3 (69.39f, 46.00f, -248.66f),
-            Mount = false
+            Mount = false,
+            RequiredQuestId = 1,
+            flagX = 69.35f, flagZ = -251.94f,
         } },
         { 1001801, new LeveInfoVendor { // Frediswitha (Fred Fredburger)
             Name = NPCName(1001801),
@@ -710,6 +790,8 @@ public static unsafe class Data
             Aetheryte = 18,
             NPCLocation = new Vector3 (-396.09f, -57.08f, 125.65f),
             Mount = false,
+            RequiredQuestId = LevesofCampDrybone,
+            flagX = -394.28f, flagZ = 128.92f
         } },
         { 1002385, new LeveInfoVendor { // Vivenne
             Name = NPCName(1002385),
@@ -718,6 +800,8 @@ public static unsafe class Data
             NPCLocation = new Vector3 (240.60f, 221.73f, 331.01f),
             Mount = true,
             Fly = true,
+            RequiredQuestId = LevesoftheObservatorium,
+            flagX = 239.06f, flagZ = 327.87f
         } },
         { 1002402, new LeveInfoVendor { // Lanquairt
             Name = NPCName(1002402),
@@ -726,6 +810,8 @@ public static unsafe class Data
             NPCLocation = new Vector3 (-410.40f, 211.00f, -266.98f),
             Mount = true,
             Fly = true,
+            RequiredQuestId = LevesofWhitbrim,
+            flagX = -405.75f, flagZ = -267.75f
         } },
         { 1004349, new LeveInfoVendor { // Syele
             Name = NPCName(1004349),
@@ -734,6 +820,8 @@ public static unsafe class Data
             NPCLocation = new Vector3 (443.09f, -4.79f, -455.26f),
             Mount = true,
             Fly = true,
+            RequiredQuestId = LevesofSaintCoinachsFind,
+            flagX = 415.98f, flagZ = -444.42f
         } },
 
         // Heavensword
