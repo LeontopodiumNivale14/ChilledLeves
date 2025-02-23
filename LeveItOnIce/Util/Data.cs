@@ -881,6 +881,8 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = -76.34f, flagZ = -110.98f
         } },
         { 1027848, new LeveInfoVendor { // Moyce
             Name = NPCName(1027848),
@@ -888,6 +890,8 @@ public static unsafe class Data
             Aetheryte = 133,
             NPCLocation = new Vector3 (-73.40f, 20.00f, -110.90f),
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = -76.49f, flagZ = -107.96f
         } },
         // Endwalker
         { 1037263, new LeveInfoVendor { // Grigge
@@ -899,6 +903,8 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = 46.83f, flagZ = 107.87f,
         } },
         { 1037264, new LeveInfoVendor { // Ahldiyrn
             Name = NPCName(1037264),
@@ -906,6 +912,8 @@ public static unsafe class Data
             Aetheryte = 182,
             NPCLocation = new Vector3 (49.96f, -15.65f, 111.81f),
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = 53.48f, flagZ = 109.73f,
         } },
         // Dawntrail
         { 1048390, new LeveInfoVendor { // Malihali
@@ -914,6 +922,8 @@ public static unsafe class Data
             Aetheryte = 216,
             NPCLocation = new Vector3 (21.08f, -14.00f, 84.91f),
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = 15.24f, flagZ = 85.83f
         } },
         { 1048391, new LeveInfoVendor { // Ponawme
             Name = NPCName(1048391),
@@ -921,6 +931,8 @@ public static unsafe class Data
             Aetheryte = 216,
             NPCLocation = new Vector3 (21.08f, -14.00f, 84.91f),
             Mount = false,
+            RequiredQuestId = 0,
+            flagX = 21.23f, flagZ = 80.22f,
         } },
     };
 

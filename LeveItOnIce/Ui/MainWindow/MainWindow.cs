@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Scheduler;
+using Dalamud.Interface.Colors;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Utility.Raii;
@@ -311,6 +312,7 @@ internal class MainWindow : Window
     private void DrawLeveDetails()
     {
         var leve = (uint)selectedLeve;
+        var questSheet = Svc.Data.GetExcelSheet<Quest>();
         if (CrafterLeves.ContainsKey(leve))
         {
             // string NPCName = NPCResidentsheet.GetRow(NPC).Singular.ToString();
@@ -355,20 +357,39 @@ internal class MainWindow : Window
                     C.Save();
                 }
             }
-            if (C.workList.Any(e => e.LeveID == leve))
+            var requiredQuestId = LeveNPCDict[vendorId].RequiredQuestId;
+            bool levesQuestUnlocked = QuestChecker(requiredQuestId);
+
+            using (ImRaii.Disabled(!levesQuestUnlocked))
             {
-                if (ImGui.Button("Remove from workshop"))
+                if (C.workList.Any(e => e.LeveID == leve))
                 {
-                    C.workList.RemoveAll(e => e.LeveID == leve);
-                    C.Save();
+                    if (ImGui.Button("Remove from WorkList"))
+                    {
+                        C.workList.RemoveAll(e => e.LeveID == leve);
+                        C.Save();
+                    }
+                }
+                else if (!C.workList.Any(e => e.LeveID == leve))
+                {
+                    if (ImGui.Button("Add to WorkList"))
+                    {
+                        C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 0 });
+                        C.Save();
+                    }
                 }
             }
-            else if (!C.workList.Any(e => e.LeveID == leve))
+            if (!levesQuestUnlocked)
             {
-                if (ImGui.Button("Add to workshop"))
+                ImGui.SameLine();
+                FontAwesome.Print(ImGuiColors.DalamudRed, FontAwesome.Cross);
+                if (ImGui.IsItemHovered())
                 {
-                    C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 0 });
-                    C.Save();
+                    ImGui.BeginTooltip();
+                    ImGui.Text($"You need to complete the following quest(s) to be able to do this leve");
+                    var questName = questSheet.GetRow(requiredQuestId).Name.ToString();
+                    ImGui.Text(questName);
+                    ImGui.EndTooltip();
                 }
             }
             ImGui.PopID();
@@ -377,5 +398,6 @@ internal class MainWindow : Window
         {
             ImGui.Text("No Leve Selected");
         }
+
     }
 }

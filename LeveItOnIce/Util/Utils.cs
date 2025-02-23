@@ -221,9 +221,6 @@ public static unsafe class Utils
     // stuff to get the Node visibility. Moreso to test and see if they have an item unlocked.
     // Thank you Croizat for dealing with me asking dumb questions. I do appreciate it. / having a way this worked in lua
 
-    // stuff to get the Node visibility. Moreso to test and see if they have an item unlocked.
-    // Thank you Croizat for dealing with me asking dumb questions. I do appreciate it. / having a way this worked in lua
-
     public static unsafe bool IsNodeVisible(string addonName, params int[] ids)
     {
         var ptr = Svc.GameGui.GetAddonByName(addonName, 1);
@@ -760,6 +757,36 @@ public static unsafe class Utils
             return LevesofBentbranch;
         else
             return false;
+    }
+
+    public static bool HeistLevesUnlocked()
+    {
+        return BothQuest() && (IsMSQComplete(SimplyTheHestGridania) || IsMSQComplete(SimplyTheHestLimsa) || IsMSQComplete(SimplyTheHestUldah));
+    }
+
+    public static bool CanDoLeves(uint QuestRequired)
+    {
+        return (BothQuest() && IsMSQComplete(QuestRequired));
+    }
+
+    public static bool QuestChecker(uint QuestRequired)
+    {
+        bool quest = false;
+
+        if (QuestRequired == 0)
+        {
+            quest = BothQuest();
+        }
+        else if (QuestRequired == 1)
+        {
+            quest = HeistLevesUnlocked();
+        }
+        else
+        {
+            quest = CanDoLeves(QuestRequired);
+        }
+
+        return quest;
     }
 
     #endregion

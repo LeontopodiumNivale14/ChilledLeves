@@ -5,7 +5,7 @@ VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommons", "ECommons\ECommons\ECommons.csproj", "{A5900D42-B8C9-4A1B-B87B-C8DFC92EF8FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChilledLeves", "ChilledLeves\ChilledLeves.csproj", "{149F1CCB-C66F-48E7-9CEC-3057DF24FF50}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChilledLeves", "LeveItOnIce\ChilledLeves.csproj", "{D9F0F8AC-3F7E-451D-ADAD-DB1BAE079E74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{A5900D42-B8C9-4A1B-B87B-C8DFC92EF8FB}.Debug|x64.Build.0 = Debug|x64
 		{A5900D42-B8C9-4A1B-B87B-C8DFC92EF8FB}.Release|x64.ActiveCfg = Release|x64
 		{A5900D42-B8C9-4A1B-B87B-C8DFC92EF8FB}.Release|x64.Build.0 = Release|x64
-		{149F1CCB-C66F-48E7-9CEC-3057DF24FF50}.Debug|x64.ActiveCfg = Debug|x64
-		{149F1CCB-C66F-48E7-9CEC-3057DF24FF50}.Debug|x64.Build.0 = Debug|x64
-		{149F1CCB-C66F-48E7-9CEC-3057DF24FF50}.Release|x64.ActiveCfg = Release|x64
-		{149F1CCB-C66F-48E7-9CEC-3057DF24FF50}.Release|x64.Build.0 = Release|x64
+		{D9F0F8AC-3F7E-451D-ADAD-DB1BAE079E74}.Debug|x64.ActiveCfg = Debug|x64
+		{D9F0F8AC-3F7E-451D-ADAD-DB1BAE079E74}.Debug|x64.Build.0 = Debug|x64
+		{D9F0F8AC-3F7E-451D-ADAD-DB1BAE079E74}.Release|x64.ActiveCfg = Release|x64
+		{D9F0F8AC-3F7E-451D-ADAD-DB1BAE079E74}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

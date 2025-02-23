@@ -67,10 +67,12 @@ public sealed class ChilledLeves : IDalamudPlugin
         {
             settingWindow.IsOpen = true;
         };
-        EzCmd.Add("/chilledleves", OnCommand, """
+        EzCmd.Add("/chilledLeves", OnCommand, """
             Open plugin interface
             /chilledLeves s|settings - Opens the workshop menu
+            /leaveitalone - alias
             """);
+        EzCmd.Add("/leveitalone", OnCommand);
         Svc.Framework.Update += Tick;
     }
 

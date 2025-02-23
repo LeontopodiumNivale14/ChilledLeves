@@ -8,7 +8,7 @@
     <PackageProjectUrl>https://github.com/goatcorp/ChilledLeves</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>true</IsPackable>
-    <RootNamespace>ChilledLeves</RootNamespace>
+    <RootNamespace>LeveItOnIce</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
