@@ -5,6 +5,8 @@ using ChilledLeves.Scheduler;
 using ChilledLeves.Ui;
 using ChilledLeves.Ui.MainWindow;
 using ChilledLeves.Scheduler.Handers;
+using Lumina.Excel.Sheets;
+using LeveItOnIce.Scheduler.Handers;
 
 namespace ChilledLeves;
 
@@ -67,10 +69,13 @@ public sealed class ChilledLeves : IDalamudPlugin
         {
             settingWindow.IsOpen = true;
         };
-        EzCmd.Add("/chilledLeves", OnCommand, """
+        EzCmd.Add("/chilledleves", OnCommand, """
             Open plugin interface
-            /chilledLeves s|settings - Opens the workshop menu
-            /leaveitalone - alias
+            /chilledleves add [leveID] [amount] - adds the leveID/amount to worklist
+            /chilledleves clear - clears the worklist 
+            /chilledleves start | stop - starts/stops the turnin process
+            /chilledleves s|settings - Opens the workshop menu
+            /leveitalone - alias
             """);
         EzCmd.Add("/leveitalone", OnCommand);
         Svc.Framework.Update += Tick;
@@ -83,6 +88,8 @@ public sealed class ChilledLeves : IDalamudPlugin
             SchedulerMain.Tick();
         }
         GenericManager.Tick();
+        TextAdvancedManager.Tick();
+        YesAlreadyManager.Tick();
     }
 
     public void Dispose()
@@ -90,21 +97,87 @@ public sealed class ChilledLeves : IDalamudPlugin
         Safe(() => Svc.Framework.Update -= Tick);
         Safe(() => Svc.PluginInterface.UiBuilder.Draw -= windowSystem.Draw);
         ECommonsMain.Dispose();
+        Safe(TextAdvancedManager.UnlockTA);
+        Safe(YesAlreadyManager.Unlock);
     }
 
     private void OnCommand(string command, string args)
     {
-        if (args.EqualsIgnoreCaseAny("d", "debug"))
+        var subcommands = args.Split(' ');
+
+        if (subcommands.Length == 0 || args == "")
         {
-            debugWindow.IsOpen = !debugWindow.IsOpen;
+            mainWindow.IsOpen = !mainWindow.IsOpen;
+            return;
         }
-        else if (args.EqualsIgnoreCaseAny("s", "settings"))
+
+        var firstArg = subcommands[0];
+
+        if (firstArg.ToLower() == "d" || firstArg.ToLower() == "debug")
         {
-            settingWindow.IsOpen = !settingWindow.IsOpen;
+            debugWindow.IsOpen = true;
+            return;
+        }
+        else if (firstArg.ToLower() == "s" || firstArg.ToLower() == "settings")
+        {
+            settingWindow.IsOpen = true;
+            return;
+        }
+        else if (firstArg.ToLower() == "add")
+        {
+            string secondCommand = subcommands[1];
+            string thirdCommand = subcommands[2];
+            uint leveId = 0;
+            int repeatAmount = 0;
+            if (int.TryParse(secondCommand, out int value) && CrafterLeves.ContainsKey((uint)value))
+            {
+                leveId = (uint)value;
+                if (int.TryParse(thirdCommand, out int repeat) && (repeat > 0 && repeat <= 100))
+                {
+                    repeatAmount = repeat;
+                    if (!C.workList.Any(e => e.LeveID == leveId))
+                    {
+                        C.workList.Add(new LeveEntry { LeveID = leveId, InputValue = repeatAmount });
+                        C.Save();
+                        return;
+                    }
+                }
+                else
+                {
+                    PluginLog($"{repeat} is not a valud input for the amount that you would like to do. Please input between 1-100");
+                    return;
+                }
+            }
+            else
+            {
+                PluginLog($"The leve you tried adding isn't a valid leveID: {subcommands[1]}");
+                return;
+            }
+        }
+        else if (firstArg.ToLower() == "clear")
+        {
+            C.workList.Clear();
+            C.Save();
+            PluginLog("Cleared the worklist of all leves");
+            return;
+        }
+        else if (firstArg.ToLower() == "start")
+        {
+            SchedulerMain.EnablePlugin();
+            PluginLog("Starting the turnin process");
+            return;
+        }
+        else if (firstArg.ToLower() == "stop")
+        {
+            SchedulerMain.DisablePlugin();
+            PluginLog("Sopping the turnin process");
+            return;
         }
         else
         {
-            mainWindow.IsOpen = !mainWindow.IsOpen;
+            PluginLog($"Length of array is: {subcommands.Length} & no matching description. Can't do command");
+            PluginLog($"Command: -{command}- args?:-{args}-");
+            return;
         }
     }
 }

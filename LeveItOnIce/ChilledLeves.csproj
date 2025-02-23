@@ -3,7 +3,7 @@
   <Import Project="Dalamud.Plugin.Bootstrap.targets" />
 
   <PropertyGroup>
-    <Version>0.0.0.1</Version>
+    <Version>0.0.0.2</Version>
     <Description>Bringing in automating the leve process, one leve at a time.</Description>
     <PackageProjectUrl>https://github.com/goatcorp/ChilledLeves</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
@@ -18,9 +18,11 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assests\FavDisabled.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Assests\FavEnabled.png" />
+    <EmbeddedResource Include="Assests\FavEnabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

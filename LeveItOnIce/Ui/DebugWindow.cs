@@ -20,7 +20,7 @@ namespace ChilledLeves.Ui;
 internal class DebugWindow : Window
 {
     public DebugWindow() :
-        base($"Chilled LevesTableOld Debug {P.GetType().Assembly.GetName().Version} ###ChilledLevesDebug")
+        base($"Chilled Leves Debug {P.GetType().Assembly.GetName().Version} ###ChilledLevesDebug")
     {
         Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse;
         SizeConstraints = new WindowSizeConstraints
@@ -42,7 +42,8 @@ internal class DebugWindow : Window
                 ("Targeting Debug ###LeveItAloneTargeting", TargetingDebug, null, true),
                 ("Leve Table Debug ###LeveItAloneTable", LeveItAloneTable, null, true),
                 ("NPC Vendor's", TeleportTest, null, true),
-                ("Quest Checker", QuestChecker, null, true)
+                ("Quest Checker", QuestChecker, null, true),
+                ("Star Test", StarTester, null, true)
         );
 
     }
@@ -522,5 +523,15 @@ internal class DebugWindow : Window
         }
 
     }
+
+    public void StarTester()
+    {
+        var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
+        if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(20), new Vector2(0.0000f, 0.0000f), new Vector2(0.3333f, 0.5000f)))
+        {
+            PluginLog("Success");
+        }
+    }
+
     #pragma warning restore CS8602 // Dereference of a possibly null reference.
 }

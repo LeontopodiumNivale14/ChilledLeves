@@ -11,7 +11,7 @@ namespace ChilledLeves.Ui;
 internal class SettingWindow : Window
 {
     public SettingWindow() :
-        base($"Workshop Window {P.GetType().Assembly.GetName().Version} ###ChilledLevesWorkshopWindow")
+        base($"Worklist Window {P.GetType().Assembly.GetName().Version} ###ChilledLevesWorkshopWindow")
     {
         Flags = ImGuiWindowFlags.None;
         SizeConstraints = new()

@@ -20,7 +20,7 @@ internal class MainWindow : Window
     private static int selectedLeve;
 
     public MainWindow() :
-        base($"Chilled LevesTableOld {P.GetType().Assembly.GetName().Version} ###ChilledLevesMainWindow")
+        base($"Chilled Leves {P.GetType().Assembly.GetName().Version} ###ChilledLevesMainWindow")
     {
         Flags = ImGuiWindowFlags.None;
         SizeConstraints = new()
@@ -133,12 +133,31 @@ internal class MainWindow : Window
 
     private void DrawButton(uint row, string tooltip, ref bool state, bool sameLine)
     {
-        ISharedImmediateTexture? icon = LeveTypeDict[row].AssignmentIcon;
+        ISharedImmediateTexture? icon = null;
+
+        if (state)
+        {
+            icon = LeveTypeDict[row].AssignmentIcon;
+        }
+        else if (!state)
+        {
+            icon = GreyTexture[row];
+        }
+
         string tooltipText = $"{LeveTypeDict[row].LeveClassType} {tooltip}";
 
         ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0));
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0));
-        if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, new Vector2(24)))
+        float scaleFactor = 1.0f;
+        if (!state)
+        {
+            scaleFactor = 1.4f;
+        }
+        Vector2 baseSize = new Vector2(24, 24);
+        Vector2 buttonSize = baseSize; // Keep button size fixed
+        Vector2 uv0 = new Vector2(0.5f - 0.5f / scaleFactor, 0.5f - 0.5f / scaleFactor);
+        Vector2 uv1 = new Vector2(0.5f + 0.5f / scaleFactor, 0.5f + 0.5f / scaleFactor);
+        if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, buttonSize, uv0, uv1))
         {
             state = !state;
             C.Save();
@@ -159,11 +178,30 @@ internal class MainWindow : Window
 
     private void DrawButtonStar(string tooltip, ref bool state, bool sameLine)
     {
+        var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
+
+        // gold/enabled position
+        Vector2 uvMin = new Vector2(0.027825013f, 0.04166667f);
+        Vector2 uvMax = new Vector2(0.305575f, 0.4583333f);
+
+        // silver/disabled position
+        Vector2 uvMin2 = new Vector2(0.3611f, 0.0417f);
+        Vector2 uvMax2 = new Vector2(0.6389f, 0.4583f);
+
         ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0));
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0));
-        if (Svc.Texture.GetFromManifestResource(Assembly.GetExecutingAssembly(), SilverStarImage).TryGetWrap(out var silverTexture, out var _b))
+
+        if (state)
         {
-            if (ImGui.ImageButton(silverTexture.ImGuiHandle, new Vector2(24)))
+            if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(20, 20), uvMin, uvMax))
+            {
+                state = !state;
+                C.Save();
+            }
+        }
+        else if (!state)
+        {
+            if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(20, 20), uvMin2, uvMax2))
             {
                 state = !state;
                 C.Save();
@@ -180,10 +218,11 @@ internal class MainWindow : Window
 
     private void DrawFavStar()
     {
-        if (Svc.Texture.GetFromManifestResource(Assembly.GetExecutingAssembly(), GoldStarImage).TryGetWrap(out var goldTexture, out var _b))
-        {
-            ImGui.Image(goldTexture.ImGuiHandle, new(20, 20));
-        }
+        var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
+        Vector2 uvMin = new Vector2(0.027825013f, 0.04166667f);
+        Vector2 uvMax = new Vector2(0.305575f, 0.4583333f);
+
+        ImGui.Image(starTex.ImGuiHandle, new(20, 20), uvMin, uvMax);
     }
 
     private void DrawList()
@@ -385,10 +424,64 @@ internal class MainWindow : Window
                 FontAwesome.Print(ImGuiColors.DalamudRed, FontAwesome.Cross);
                 if (ImGui.IsItemHovered())
                 {
+                    bool LimsaLeveNPC = IsMSQComplete(66005); // Just Deserts
+                    bool UlDahLeveNPC = IsMSQComplete(65856); // Way down in the hole
+                    bool GridaniaNPC = IsMSQComplete(65665); // Spirithold Broken
+
                     ImGui.BeginTooltip();
                     ImGui.Text($"You need to complete the following quest(s) to be able to do this leve");
-                    var questName = questSheet.GetRow(requiredQuestId).Name.ToString();
-                    ImGui.Text(questName);
+                    if (requiredQuestId == 0)
+                    {
+                        uint questId = 0;
+
+                        if (LimsaLeveNPC)
+                            questId = 66229;
+                        else if (UlDahLeveNPC)
+                            questId = 66223;
+                        else if (GridaniaNPC)
+                            questId = 65756;
+
+                        var questName = questSheet.GetRow(questId).Name.ToString();
+                        ImGui.Text(questName);
+                    }
+                    else if (requiredQuestId == 1)
+                    {
+                        uint questId1 = 0;
+                        uint questId2 = 0;
+
+                        if (LimsaLeveNPC)
+                        {
+                            questId1 = 66229;
+                            questId2 = 65595;
+                        }
+                        else if (UlDahLeveNPC)
+                        {
+                            questId1 = 66223;
+                            questId2 = 65594;
+                        }
+                        else if (GridaniaNPC)
+                        {
+                            questId1 = 65756;
+                            questId2 = 65596;
+                        }
+
+                        var quest1Name = questSheet.GetRow(questId1).Name.ToString();
+                        var quest2Name = questSheet.GetRow(questId2).Name.ToString();
+
+                        if (!IsMSQComplete(questId1))
+                        {
+                            ImGui.Text($"  -> {quest1Name}");
+                        }
+                        if (!IsMSQComplete(questId2))
+                        {
+                            ImGui.Text($"  -> {quest2Name}");
+                        }
+                    }
+                    else
+                    {
+                        var questName = questSheet.GetRow(requiredQuestId).Name.ToString();
+                        ImGui.Text(questName);
+                    }
                     ImGui.EndTooltip();
                 }
             }

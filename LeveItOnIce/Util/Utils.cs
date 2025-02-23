@@ -41,6 +41,7 @@ public static unsafe class Utils
 
     public static bool HasPlugin(string name) => DalamudReflector.TryGetDalamudPlugin(name, out _, false, true);
     public static void PluginLog(string message) => ECommons.Logging.PluginLog.Information(message);
+    public static void PluginDebug(string message) => ECommons.Logging.PluginLog.Debug(message);
 
     public static bool IsAddonActive(string AddonName) // Used to see if the addon is active/ready to be fired on
     {
@@ -526,6 +527,20 @@ public static unsafe class Utils
                         TurninAmount = turninAmount,
                         CurrentItemAmount = currentlyHave,
                     };
+                }
+            }
+        }
+
+        for (int i = 0; i < GreyIconList.Count; i++)
+        {
+            int slot = i + 2;
+            int iconId = GreyIconList[i];
+
+            if (Svc.Texture.TryGetFromGameIcon(iconId, out var texture))
+            {
+                if (!GreyTexture.ContainsKey((uint)slot))
+                {
+                    GreyTexture.Add((uint)slot, texture);
                 }
             }
         }

@@ -58,8 +58,6 @@ public static unsafe class Data
     public static string SilverStarImage = "ChilledLeves.Assests.FavDisabled.png";
     public static string GoldStarImage = "ChilledLeves.Assests.FavEnabled.png";
 
-
-
     public static HashSet<uint> CrafterJobs = new() { 5, 6, 7, 8, 9, 10, 11, 12 };
     public static List<uint> VisibleLeves = new List<uint>();
     public static HashSet<uint> IshgardTurnin = new() { 153, 151, 154, 156, 155, 152, 157 };
@@ -67,6 +65,7 @@ public static unsafe class Data
     public static HashSet<uint> CrystariumTurnin = new() { 212, 213, 214, 215, 196, 216, 199, 217, 218, 219, 200, 220, 221, 222, 223, 195, 224, 225, 226, 227, 228 };
     public static HashSet<uint> SharlayanTurnin = new() { 246, 236, 239, 241, 235, 240, 243, 238, 232, 230, 247, 231, 245, 242, 244, 233, 234, 248, 237, 229 };
     public static HashSet<uint> TuliyoliTurnin = new() { 274, 270, 271, 259, 264, 272, 273, 257, 275, 276, 277, 278, 261, 265, 258, 279, 280, 281, 282, 268, 262 };
+    public static List<int> GreyIconList = new List<int>() { 91039, 91040, 91041, 91031, 91032, 91033, 91034, 91035, 91036, 91037, 91038 };
 
     public static readonly uint LevesofWineport = 65550;
     public static readonly uint LevesofCampBluefog = 65551;
@@ -724,7 +723,7 @@ public static unsafe class Data
             Aetheryte = 8,
             NPCLocation = new Vector3 (-64.87f, 18.00f, 8.23f),
             Mount = false,
-            RequiredQuestId = 1,
+            RequiredQuestId = 0,
             flagX = -62.12f, flagZ = 9.41f
         } },
         { 1004343, new LeveInfoVendor { // Zwynwyda (What. The fuck. Is this name???)
@@ -2821,4 +2820,6 @@ public static unsafe class Data
             1807, // Hungry Hungry Whalaqee
         ],
     };
+
+    public static Dictionary<uint, ISharedImmediateTexture> GreyTexture = new Dictionary<uint, ISharedImmediateTexture>();
 }
