@@ -154,10 +154,9 @@ internal class MainWindow : Window
             scaleFactor = 1.4f;
         }
         Vector2 baseSize = new Vector2(24, 24);
-        Vector2 buttonSize = baseSize; // Keep button size fixed
         Vector2 uv0 = new Vector2(0.5f - 0.5f / scaleFactor, 0.5f - 0.5f / scaleFactor);
         Vector2 uv1 = new Vector2(0.5f + 0.5f / scaleFactor, 0.5f + 0.5f / scaleFactor);
-        if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, buttonSize, uv0, uv1))
+        if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, baseSize, uv0, uv1))
         {
             state = !state;
             C.Save();
