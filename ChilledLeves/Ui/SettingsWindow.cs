@@ -24,6 +24,7 @@ internal class SettingsWindow : Window
 
     public void Dispose() { }
 
+    #nullable disable
     public override void Draw()
     {
         ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");

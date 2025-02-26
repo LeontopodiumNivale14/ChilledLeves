@@ -127,6 +127,7 @@ internal class MainWindow : Window
         }
     }
 
+#nullable disable
     private void DrawButton(uint row, string tooltip, ref bool state, bool sameLine)
     {
         ISharedImmediateTexture? icon = null;

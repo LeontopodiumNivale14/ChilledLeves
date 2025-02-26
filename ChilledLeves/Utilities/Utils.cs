@@ -2,21 +2,22 @@
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface.Textures;
 using ECommons.Automation.NeoTaskManager;
+using ECommons.DalamudServices.Legacy;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.Reflection;
 using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using FFXIVClientStructs.Interop;
 using Lumina.Excel.Sheets;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChilledLeves.Utilities;
 
@@ -62,12 +63,30 @@ public static unsafe class Utils
         + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000)
         : InventoryManager.Instance()->GetInventoryItemCount((uint)itemID) + InventoryManager.Instance()->GetInventoryItemCount((uint)itemID + 500_000);
 
+    public static unsafe void SetFlagForNPC(uint teri, float x, float y)
+    {
+        var terSheet = Svc.Data.GetExcelSheet<TerritoryType>();
+        var mapId = terSheet.GetRow(teri).Map.Value.RowId;
+
+        var agent = AgentMap.Instance();
+
+        agent->IsFlagMarkerSet = 0;
+        agent->SetFlagMapMarker(teri, mapId, x, y);
+        agent->OpenMapByMapId(mapId, territoryId: teri);
+    }
+
+    public static unsafe uint CurrentMap()
+    {
+        var agent = AgentMap.Instance();
+        return agent->CurrentMapId;
+    }
+
 
     #endregion
 
     #region Target Information
 
-    internal static bool? TargetByID(IGameObject? gameObject)
+    internal static bool? TargetgameObject(IGameObject? gameObject)
     {
         var x = gameObject;
         if (Svc.Targets.Target != null && Svc.Targets.Target.DataId == x.DataId)
@@ -190,6 +209,12 @@ public static unsafe class Utils
         var sibNode = node->PrevSiblingNode;
         return sibNode != null ? GetNodeByIDChain(sibNode, ids) : null;
     }
+    public static bool IsAddonActive(string AddonName) // Used to see if the addon is active/ready to be fired on
+    {
+        var addon = RaptureAtkUnitManager.Instance()->GetAddonByName(AddonName);
+        return addon != null && addon->IsVisible && addon->IsReady;
+    }
+
 
     public static int GetCallback(string questName)
     {
@@ -513,6 +538,30 @@ public static unsafe class Utils
 
     public static unsafe int Allowances => QuestManager.Instance()->NumLeveAllowances;
     public static unsafe TimeSpan NextAllowances => QuestManager.GetNextLeveAllowancesDateTime() - DateTime.Now;
+
+    public static unsafe LeveWork* GetLeveWork(uint leveId)
+    {
+        var leveQuests = QuestManager.Instance()->LeveQuests;
+
+        for (var i = 0; i < leveQuests.Length; i++)
+        {
+            if (leveQuests[i].LeveId == (ushort)leveId)
+            {
+                return leveQuests.GetPointer(i);
+            }
+        }
+
+        return null;
+    }
+
+    public static unsafe bool IsStarted(uint leveId)
+    {
+        var leveWork = GetLeveWork((ushort)leveId);
+        if (leveWork == null)
+            return false;
+
+        return leveWork->Sequence == 1 && leveWork->ClearClass != 0;
+    }
 
     public static unsafe bool IsComplete(uint leveID)
         => QuestManager.Instance()->IsLevequestComplete((ushort)leveID);

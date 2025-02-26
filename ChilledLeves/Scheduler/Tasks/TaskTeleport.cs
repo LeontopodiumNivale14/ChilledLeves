@@ -1,11 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Conditions;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChilledLeves.Scheduler.Tasks
 {

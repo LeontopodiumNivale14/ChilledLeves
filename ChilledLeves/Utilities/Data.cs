@@ -221,7 +221,9 @@ public static unsafe class Data
         /// <summary>
         /// Type of leve that is assigned to this. Quick and easy way to access this.
         /// </summary>
+        #nullable disable
         public string LeveClassType { get; set; }
+        #nullable enable
     }
 
     public static Dictionary<uint, LeveType> LeveTypeDict = new();

@@ -2,6 +2,8 @@ using ECommons.Automation.NeoTaskManager;
 using ECommons.Configuration;
 using ChilledLeves.Scheduler;
 using ChilledLeves.Ui;
+using ChilledLeves.IPC;
+using ChilledLeves.Scheduler.Handlers;
 
 namespace ChilledLeves;
 
@@ -24,7 +26,6 @@ public sealed class ChilledLeves : IDalamudPlugin
     // Internal IPC's that I use for... well plugins. 
     internal LifestreamIPC lifestream;
     internal NavmeshIPC navmesh;
-    internal VislandIPC visland;
     internal PandoraIPC pandora;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -45,7 +46,6 @@ public sealed class ChilledLeves : IDalamudPlugin
         taskManager = new();
         lifestream = new();
         navmesh = new();
-        visland = new();
         pandora = new();
 
         // all the windows
