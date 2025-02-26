@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="Dalamud.Plugin.Bootstrap.targets" />
+
+  <PropertyGroup>
+    <Version>0.0.0.2</Version>
+    <Description>Bringing in automating the leve process, one leve at a time.</Description>
+    <PackageProjectUrl>https://github.com/goatcorp/ChilledLeves</PackageProjectUrl>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
+    <RootNamespace>ChilledLeves</RootNamespace>
+  </PropertyGroup>
+	
+  <ItemGroup>
+      <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
+  </ItemGroup>
+</Project>
