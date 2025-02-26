@@ -53,7 +53,9 @@ public static unsafe class Data
 
     #region Leve Mist Information
 
-    public static HashSet<uint> CrafterJobs = new() { 5, 6, 7, 8, 9, 10, 11, 12 };
+    public static HashSet<uint> CraftFisherJobs = new() {4, 5, 6, 7, 8, 9, 10, 11, 12 };
+    public static HashSet<int> CrafterJobList = new() { 8, 9, 10, 11, 12, 13, 14, 15};
+    public static HashSet<int> GatheringJobList = new() { 16, 17, 18};
     public static List<uint> VisibleLeves = new List<uint>();
     public static HashSet<uint> IshgardTurnin = new() { 153, 151, 154, 156, 155, 152, 157 };
     public static HashSet<uint> KuganeTurnin = new() { 174, 172, 162, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 161, 191, 192 };

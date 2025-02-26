@@ -109,13 +109,22 @@ namespace ChilledLeves.Scheduler
                                 var NPCLocation = LeveNPCDict[npc].NPCLocation;
                                 var requiredLevel = CrafterLeves[leve].Level;
                                 var jobID = CrafterLeves[leve].EcomJob;
+                                var buttonSelected = 0;
+                                if (GatheringJobList.Contains((int)jobID))
+                                {
+                                    buttonSelected = LeveNPCDict[npc].GatheringButton;
+                                }
+                                else if (CrafterJobList.Contains((int)jobID))
+                                {
+                                    buttonSelected = LeveNPCDict[npc].CrafterButton;
+                                }
 
                                 if (IsInZone(zoneID))
                                 {
                                     if (GetDistanceToPlayer(NPCLocation) < 1)
                                     {
                                         TaskTarget.Enqueue(npc);
-                                        TaskGrabLeve.Enqueue(leve, npc);
+                                        TaskGrabLeve.Enqueue(leve, npc, buttonSelected);
                                     }
                                     else if (GetDistanceToPlayer(NPCLocation) > 1)
                                     {

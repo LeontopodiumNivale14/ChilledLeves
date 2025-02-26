@@ -6,15 +6,15 @@ namespace ChilledLeves.Scheduler.Tasks
 {
     internal static class TaskGrabLeve
     {
-        internal static void Enqueue(uint leveID, uint npcID)
+        internal static void Enqueue(uint leveID, uint npcID, int classButton)
         {
             TaskInteract.Enqueue(npcID);
-            P.taskManager.Enqueue(() => GrabLeve((ushort)leveID, npcID), DConfig);
+            P.taskManager.Enqueue(() => GrabLeve((ushort)leveID, npcID, classButton), DConfig);
             P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), DConfig);
             P.taskManager.Enqueue(() => PlayerNotBusy(), DConfig);
         }
 
-        internal static unsafe bool? GrabLeve(ushort leveID, uint npcID)
+        internal static unsafe bool? GrabLeve(ushort leveID, uint npcID, int classButton)
         {
             var LeveName = CrafterLeves[leveID].LeveName;
             var craftButton = LeveNPCDict[npcID].CrafterButton;
@@ -34,7 +34,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 if (EzThrottler.Throttle("Opening the Levequests Window", 100))
                 {
-                    GenericHandlers.FireCallback("SelectString", true, craftButton);
+                    GenericHandlers.FireCallback("SelectString", true, classButton);
                 }
             }
             else if (TryGetAddonByName<AtkUnitBase>("JournalDetail", out var JournalDetail) && IsAddonReady(JournalDetail))

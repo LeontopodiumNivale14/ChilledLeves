@@ -281,7 +281,7 @@ public static unsafe class Utils
                 else if (leveJob == 12) // CUL
                     ecomJob = (Job)15;
 
-                if (!CrafterJobs.Contains(leveJob))
+                if (!CraftFisherJobs.Contains(leveJob))
                 {
                     continue;
                 }

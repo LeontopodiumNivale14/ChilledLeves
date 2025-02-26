@@ -89,7 +89,10 @@ internal class MainWindow : Window
         DrawButton(9, $"Leves", ref C.LeveFilter.ShowLeatherworker, true);
         DrawButton(10, $"Leves", ref C.LeveFilter.ShowWeaver, true);
         DrawButton(11, $"Leves", ref C.LeveFilter.ShowAlchemist, true);
-        DrawButton(12, $"Leves", ref C.LeveFilter.ShowCulinarian, false);
+        DrawButton(12, $"Leves", ref C.LeveFilter.ShowCulinarian, true);
+        DummyButton(1);
+        ImGui.SameLine();
+        DrawButton(4, $"Leves", ref C.LeveFilter.ShowFisher, false);
 
         ImGui.Text("Level:");
         ImGui.AlignTextToFramePadding();
