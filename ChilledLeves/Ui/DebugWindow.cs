@@ -1,6 +1,12 @@
 ﻿using ChilledLeves.Scheduler.Tasks;
+using ChilledLeves.Utilities;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
+using ECommons.UIHelpers.AddonMasterImplementations;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lumina.Excel.Sheets;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace ChilledLeves.Ui;
@@ -31,7 +37,9 @@ internal class DebugWindow : Window
                 ("Leve Table Debug ###LeveItAloneTable", LeveItAloneTable, null, true),
                 ("NPC Vendor's", TeleportTest, null, true),
                 ("Quest Checker", QuestChecker, null, true),
-                ("Star Test", StarTester, null, true)
+                ("Star Test", StarTester, null, true),
+                ("Fish Peeps", FisherTurnin, null, true),
+                ("Leve Vendor Info", LeveVendor, null, true)
         );
     }
 
@@ -495,6 +503,61 @@ internal class DebugWindow : Window
         if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(20), new Vector2(0.0000f, 0.0000f), new Vector2(0.3333f, 0.5000f)))
         {
             PluginLog("Success");
+        }
+    }
+
+    public List<uint> FishPeeps = new List<uint>();
+
+    public void FisherTurnin()
+    {
+        var sheet = Svc.Data.GetExcelSheet<Leve>();
+        foreach (var leveID in sheet)
+        {
+            if (leveID.LeveAssignmentType.Value.RowId != 4)
+            {
+                continue;
+            }
+
+            var leveCliendID = leveID.LeveClient.Value.RowId;
+
+            if (!FishPeeps.Contains(leveCliendID))
+            {
+                FishPeeps.Add(leveCliendID);
+            }
+        }
+
+        foreach (var clientId in FishPeeps)
+        {
+            ImGui.Text($"ClientID: {clientId}");
+        }
+    }
+
+    public unsafe void LeveVendor()
+    {
+        if (ImGui.CollapsingHeader("Debug"))
+        {
+            if (TryGetAddonMaster<GuildLeve>("GuildLeve", out var m) && m.IsAddonReady)
+            {
+                foreach (var l in m.Levequests)
+                {
+                    ImGuiEx.Text($"{l.Name} ({l.Level})");
+                    ImGui.SameLine();
+                    if (ImGui.SmallButton("Select##" + l.Name)) l.Select();
+                }
+                ref var r = ref Ref<int>.Get("Leve");
+                ImGui.InputInt("id", ref r);
+                if (ImGui.Button("Callback"))
+                {
+                    ECommons.Automation.Callback.Fire(m.Base, true, 13, 1, r);
+                }
+                if (TryGetAddonMaster<AddonMaster.JournalDetail>("JournalDetail", out var det) && det.IsAddonReady)
+                {
+                    if (det.CanInitiate)
+                    {
+                        if (ImGui.Button("Initiate")) det.Initiate();
+                    }
+                }
+            }
         }
     }
 }

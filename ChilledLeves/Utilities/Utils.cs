@@ -411,6 +411,7 @@ public static unsafe class Utils
     {
         uint NPCID = 0;
         // 5, 7, 9, 13, 19, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
+        // 141, 142, 143, 144, 145, 146, 147, 148, 
         if (leveClient == 5)
         {
             // Central Shroud, Audrie
@@ -495,6 +496,41 @@ public static unsafe class Utils
         {
             // Mor Dhona, Syele
             NPCID = 1004349;
+        }
+        else if (leveClient == 141)
+        {
+            // Unsynwilf, Upper Limsa
+            NPCID = 1007060;
+        }
+        else if (leveClient == 142)
+        {
+            // Q'molosi, Western La Noscea, Swiftperch
+            NPCID = 1007061;
+        }
+        else if (leveClient == 143)
+        {
+            // Fupepe, Western La Noscea, Aleport
+            NPCID = 1007062;
+        }
+        else if (leveClient == 144)
+        {
+
+        }
+        else if (leveClient == 145)
+        {
+
+        }
+        else if (leveClient == 146)
+        {
+
+        }
+        else if (leveClient == 147)
+        {
+
+        }
+        else if (leveClient == 148)
+        {
+
         }
         else if (IshgardTurnin.Contains(leveClient))
         {

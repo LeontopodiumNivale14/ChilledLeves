@@ -1,5 +1,6 @@
 ﻿using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
+using ECommons;
 using ECommons.ExcelServices;
 using System;
 using System.Collections.Generic;
@@ -831,6 +832,36 @@ public static unsafe class Data
             Fly = true,
             RequiredQuestId = LevesofSaintCoinachsFind,
             flagX = 415.98f, flagZ = -444.42f
+        } },
+        { 1007060, new LeveInfoVendor // Unsynwilf
+        {
+            Name = NPCName(1007060),
+            ZoneID = 128,
+            Aetheryte = 8,
+            NPCLocation = new Vector3 (-62.886135f, 42.023273f, -132.9867f),
+            Mount = false,
+            RequiredQuestId = 0,
+            flagX = -61.54f, flagZ = -134.94f
+        } },
+        { 1007061, new LeveInfoVendor // Q'molosi
+        {
+            Name = NPCName(1007061),
+            ZoneID = 138,
+            Aetheryte = 13,
+            NPCLocation = new Vector3 (653.0555f, 9.460755f, 505.43054f),
+            Mount = false,
+            RequiredQuestId = 1,
+            flagX = 649.80f, flagZ = 505f,
+        } },
+        { 1007062, new LeveInfoVendor // Fupepe
+        {
+            Name = NPCName(1007062),
+            ZoneID = 138, 
+            Aetheryte = 14,
+            NPCLocation = new Vector3 (291.06613f, -24.990849f, 237.48279f),
+            Mount = false,
+            RequiredQuestId = LevesofAleport,
+            flagX = 291.06f, flagZ = 237.48f,
         } },
 
         // Heavensword
