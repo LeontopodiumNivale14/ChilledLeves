@@ -59,11 +59,16 @@ public static unsafe class Data
     public static HashSet<int> GatheringJobList = new() { 16, 17, 18};
     public static List<uint> VisibleLeves = new List<uint>();
     public static HashSet<uint> IshgardTurnin = new() { 153, 151, 154, 156, 155, 152, 157 };
-    public static HashSet<uint> KuganeTurnin = new() { 174, 172, 162, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 161, 191, 192 };
-    public static HashSet<uint> CrystariumTurnin = new() { 212, 213, 214, 215, 196, 216, 199, 217, 218, 219, 200, 220, 221, 222, 223, 195, 224, 225, 226, 227, 228 };
-    public static HashSet<uint> SharlayanTurnin = new() { 246, 236, 239, 241, 235, 240, 243, 238, 232, 230, 247, 231, 245, 242, 244, 233, 234, 248, 237, 229 };
-    public static HashSet<uint> TuliyoliTurnin = new() { 274, 270, 271, 259, 264, 272, 273, 257, 275, 276, 277, 278, 261, 265, 258, 279, 280, 281, 282, 268, 262 };
+    public static HashSet<uint> KuganeTurnin = new() { 159, 161, 162, 171, 172, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194 };
+    public static HashSet<uint> CrystariumTurnin = new() { 195, 196, 199, 200, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228 };
+    public static HashSet<uint> SharlayanTurnin = new() { 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 254, 255, 256};
+    public static HashSet<uint> TuliyoliTurnin = new() {  257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, };
     public static List<int> GreyIconList = new List<int>() { 91039, 91040, 91041, 91031, 91032, 91033, 91034, 91035, 91036, 91037, 91038 };
+
+    public static HashSet<uint> SelectedLeves = new HashSet<uint>();
+    public static uint IconSlot = 4;
+
+    public static List<LeveEntry> ListCycled = new List<LeveEntry>();
 
     // MSQ Quest ID's
     public static readonly uint LevesofWineport = 65550;
@@ -85,9 +90,9 @@ public static unsafe class Data
     public static readonly uint SimplyTheHestUldah = 65594;
 
     // The 3 possible starting leves:
-    public static bool LevesofBentbranch = IsMSQComplete(65756); // Gridania startpoint
-    public static bool LevesofHorizon = IsMSQComplete(66223); // Ul'Dah startpoint
-    public static bool LevesofSwiftperch = IsMSQComplete(66229); // Limsa startpoint
+    public static bool LevesofBentbranch => IsMSQComplete(65756); // Gridania startpoint
+    public static bool LevesofHorizon => IsMSQComplete(66223); // Ul'Dah startpoint
+    public static bool LevesofSwiftperch => IsMSQComplete(66229); // Limsa startpoint
 
     public static bool StartMSQCheck()
     {
@@ -179,7 +184,7 @@ public static unsafe class Data
         public int TradeCraftButton { get; set; }
 
 
-        // Crafter Specific
+        // Crafter/Fisher Specific
         /// <summary>
         /// Crafter, ItemID for the turnin item
         /// </summary>
@@ -206,6 +211,9 @@ public static unsafe class Data
         /// Updates currently every second. 
         /// </summary>
         public int CurrentItemAmount { get; set; }
+
+        // Gathering Specific
+        public int Priority { get; set; }
     }
 
     public static Dictionary<uint, CrafterDataDict> CrafterLeves = new();
@@ -862,6 +870,55 @@ public static unsafe class Data
             Mount = false,
             RequiredQuestId = LevesofAleport,
             flagX = 291.06f, flagZ = 237.48f,
+        } },
+        { 1007063, new LeveInfoVendor // Daca Jinjahl
+        {
+            Name = NPCName(1007063),
+            ZoneID = 153, 
+            Aetheryte = 5,
+            NPCLocation = new Vector3 (168.63585f, 8.649968f, -48.859486f),
+            Mount = false,
+            RequiredQuestId = LevesofQuarrymill,
+            flagX = 168.99365f, flagZ = -46.00598f,
+        } },
+        { 1007064, new LeveInfoVendor 
+        {
+            Name = NPCName(1007064),
+            ZoneID = 137,
+            Aetheryte = 11,
+            NPCLocation = new Vector3 (457.40387f, 17.34439f, 478.99683f),
+            Mount = false,
+            flagX = 489.15845f, flagZ = 468.80298f, 
+        } },
+        { 1007065, new LeveInfoVendor // F'abobji
+        {
+            Name = NPCName(1007065),
+            ZoneID = 155, 
+            Aetheryte = 23,
+            NPCLocation = new Vector3(241.34195f, 222.04169f, 329.3354f),
+            Mount = true,
+            Fly = true,
+            flagX = 239.97852f, flagZ = 327.47388f,
+        } },
+        { 1007066, new LeveInfoVendor // Drividot
+        {
+            Name = NPCName(1007066),
+            ZoneID = 155, 
+            Aetheryte = 23,
+            NPCLocation = new Vector3(-408.24942f, 210.78818f, -268.77814f),
+            Mount = true,
+            Fly = true,
+            flagX = -405.50854f, flagZ = -269.00134f,
+        } },
+        { 1007067, new LeveInfoVendor // Clifton
+        {
+            Name = NPCName(1007067),
+            ZoneID = 156,
+            Aetheryte = 24,
+            NPCLocation = new Vector3(442.1942f, -4.776814f, -447.35138f),
+            Mount = true,
+            Fly = true,
+            flagX = 444.99866f, flagZ = -446.00598f,
         } },
 
         // Heavensword

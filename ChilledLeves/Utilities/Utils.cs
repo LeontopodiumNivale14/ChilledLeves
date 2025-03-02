@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Conditions;
+﻿using ChilledLeves.Scheduler.Handlers;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface.Textures;
 using ECommons.Automation.NeoTaskManager;
@@ -43,6 +44,12 @@ public static unsafe class Utils
         if (expArrayIndex == -1) expArrayIndex = Svc.ClientState.LocalPlayer?.ClassJob.Value.ExpArrayIndex ?? 0;
         return UIState.Instance()->PlayerState.ClassJobLevels[expArrayIndex];
     }
+    internal static unsafe short GetCurrentLevelFromSheet(Job? job = null)
+    {
+        PlayerState* playerState = PlayerState.Instance();
+        return playerState->ClassJobLevels[Svc.Data.GetExcelSheet<ClassJob>().GetRowOrDefault((uint)(job ?? (Player.Available ? Player.Object.GetJob() : 0)))?.ExpArrayIndex ?? 0];
+    }
+
     public static unsafe float GetJobExp(uint classjob) => PlayerState.Instance()->ClassJobExperience[GetRow<ClassJob>(classjob)?.ExpArrayIndex ?? 0];
     public static bool IsInZone(uint zoneID) => Svc.ClientState.TerritoryType == zoneID;
     public static uint CurrentTerritory() => GameMain.Instance()->CurrentTerritoryTypeId;
@@ -258,28 +265,7 @@ public static unsafe class Utils
                 uint leveJob = row.LeveAssignmentType.Value.RowId;
                 Job ecomJob = 0;
 
-                if (leveJob == 2) // Miner
-                    ecomJob = (Job)16;
-                else if (leveJob == 3) // BTN
-                    ecomJob = (Job)17;
-                else if (leveJob == 4) // FSH
-                    ecomJob = (Job)18;
-                else if (leveJob == 5) // CRP
-                    ecomJob = (Job)8;
-                else if (leveJob == 6) // BSM
-                    ecomJob = (Job)9;
-                else if (leveJob == 7) // ARM
-                    ecomJob = (Job)10;
-                else if (leveJob == 8) // GSM
-                    ecomJob = (Job)11;
-                else if (leveJob == 9) // LTW
-                    ecomJob = (Job)12;
-                else if (leveJob == 10) // WVR
-                    ecomJob = (Job)13;
-                else if (leveJob == 11) // ALC
-                    ecomJob = (Job)14;
-                else if (leveJob == 12) // CUL
-                    ecomJob = (Job)15;
+                ecomJob = EcomJobFinder(leveJob);
 
                 if (!CraftFisherJobs.Contains(leveJob))
                 {
@@ -363,6 +349,8 @@ public static unsafe class Utils
                 uint leveClientId = row.LeveClient.Value.RowId;
                 uint turninNpcId = TurninNpcId(leveClientId);
 
+                int priority = 0;
+
                 // Ensure the leveJobType is valid before inserting
                 if (!CrafterLeves.ContainsKey(leveNumber))
                 {
@@ -387,6 +375,9 @@ public static unsafe class Utils
                         ItemIcon = itemIcon,
                         TurninAmount = turninAmount,
                         CurrentItemAmount = currentlyHave,
+
+                        // Gathering Specific, but can be applied to all
+                        Priority = priority,
                     };
                 }
             }
@@ -405,6 +396,36 @@ public static unsafe class Utils
                 }
             }
         }
+    }
+
+    public static Job EcomJobFinder(uint leveJob)
+    {
+        Job ecomJob = 0;
+
+        if (leveJob == 2) // Miner
+            ecomJob = (Job)16;
+        else if (leveJob == 3) // BTN
+            ecomJob = (Job)17;
+        else if (leveJob == 4) // FSH
+            ecomJob = (Job)18;
+        else if (leveJob == 5) // CRP
+            ecomJob = (Job)8;
+        else if (leveJob == 6) // BSM
+            ecomJob = (Job)9;
+        else if (leveJob == 7) // ARM
+            ecomJob = (Job)10;
+        else if (leveJob == 8) // GSM
+            ecomJob = (Job)11;
+        else if (leveJob == 9) // LTW
+            ecomJob = (Job)12;
+        else if (leveJob == 10) // WVR
+            ecomJob = (Job)13;
+        else if (leveJob == 11) // ALC
+            ecomJob = (Job)14;
+        else if (leveJob == 12) // CUL
+            ecomJob = (Job)15;
+
+        return ecomJob;
     }
 
     public static uint TurninNpcId(uint leveClient)
@@ -514,23 +535,27 @@ public static unsafe class Utils
         }
         else if (leveClient == 144)
         {
-
+            // Daca jinjahl
+            NPCID = 1007063;
         }
         else if (leveClient == 145)
         {
-
+            // F'abodji, Eastern La Noscea
+            NPCID = 1007064;
         }
         else if (leveClient == 146)
         {
-
+            // Coerthas Central Highlands, SE corner
+            NPCID = 1007065;
         }
         else if (leveClient == 147)
         {
-
+            // Louviaune, Coerthas Central Highlands, NW corner
+            NPCID = 1007066;
         }
         else if (leveClient == 148)
         {
-
+            NPCID = 1007067;
         }
         else if (IshgardTurnin.Contains(leveClient))
         {

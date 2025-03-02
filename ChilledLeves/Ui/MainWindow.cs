@@ -1,5 +1,6 @@
 ﻿using ChilledLeves.Scheduler;
 using Dalamud.Interface.Colors;
+using Dalamud.Interface.Style;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility.Raii;
 using Lumina.Excel.Sheets;
@@ -34,14 +35,15 @@ internal class MainWindow : Window
 
     public override void Draw()
     {
-        using (ImRaii.Disabled(P.taskManager.IsBusy))
+        using (ImRaii.Disabled(SchedulerMain.AreWeTicking))
         {
             if (ImGui.Button("Start"))
             {
+                SchedulerMain.WorkListMode = true;
                 SchedulerMain.EnablePlugin();
             }
         }
-        using (ImRaii.Disabled(!P.taskManager.IsBusy))
+        using (ImRaii.Disabled(!SchedulerMain.AreWeTicking))
         {
             ImGui.SameLine();
             if (ImGui.Button("Stop"))
@@ -354,6 +356,7 @@ internal class MainWindow : Window
         if (CrafterLeves.ContainsKey(leve))
         {
             // string NPCName = NPCResidentsheet.GetRow(NPC).Singular.ToString();
+            ImGui.Text($"LeveID: {leve}");
             ImGui.Text($"[{CrafterLeves[leve].Level}] {CrafterLeves[leve].LeveName}");
             ImGui.Separator();
             ImGui.Text($"EXP Reward: {CrafterLeves[leve].ExpReward:N0}");
@@ -369,7 +372,26 @@ internal class MainWindow : Window
                 var flagZ = LeveNPCDict[vendorId].flagZ;
                 SetFlagForNPC(startZoneId, flagX, flagZ);
             }
-            ImGui.Text($"NPC: {CrafterLeves[leve].LeveVendorName}");
+            if (ImGui.Selectable($"NPC: {CrafterLeves[leve].LeveVendorName}"))
+            {
+                var flagX = LeveNPCDict[vendorId].flagX;
+                var flagZ = LeveNPCDict[vendorId].flagZ;
+                SetFlagForNPC(startZoneId, flagX, flagZ);
+            }
+            ImGui.SameLine();
+            FontAwesome.Print(ImGuiColors.DalamudWhite, FontAwesomeIcon.Flag);
+            
+            uint turninNPCId = CrafterLeves[leve].LeveTurninVendorID;
+            string turninName = string.Empty;
+            if (turninNPCId != 0)
+            {
+                turninName = NPCName(turninNPCId);
+            }
+            else
+            {
+                turninName = "not valid";
+            }
+            ImGui.Text($"Turnin NPC: {turninName}");
             ImGui.Text($"Is Complete: {IsComplete(leve)}");
             if (IsStarted(leve))
             {
@@ -377,7 +399,15 @@ internal class MainWindow : Window
             }
             ImGui.Separator();
             ImGui.Text($"Required Items:");
-            ImGui.Text($"    {CrafterLeves[leve].TurninAmount}x {CrafterLeves[leve].ItemName}");
+            if (CrafterLeves[leve].RepeatAmount > 1)
+            {
+                var totalTurnin = CrafterLeves[leve].TurninAmount * CrafterLeves[leve].RepeatAmount;
+                ImGui.Text($"    {CrafterLeves[leve].TurninAmount}({totalTurnin})x {CrafterLeves[leve].ItemName}");
+            }
+            else
+            {
+                ImGui.Text($"    {CrafterLeves[leve].TurninAmount}x {CrafterLeves[leve].ItemName}");
+            }
             ImGui.SameLine(0, 10);
             ImGui.Image(CrafterLeves[leve].ItemIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(20));
             ImGui.Separator();
@@ -412,7 +442,7 @@ internal class MainWindow : Window
                 {
                     if (ImGui.Button("Add to WorkList"))
                     {
-                        C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 0 });
+                        C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 1 });
                         C.Save();
                     }
                 }

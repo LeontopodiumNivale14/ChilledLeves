@@ -8,6 +8,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace ChilledLeves.Ui;
 
@@ -286,6 +287,8 @@ internal class DebugWindow : Window
     private static string turninNPCResult = "";
     private static string LeveNPCResult = "";
 
+    private static int gilAmount = 0;
+
     #nullable disable
     public void LeveItAloneTable()
     {
@@ -312,6 +315,8 @@ internal class DebugWindow : Window
         }
         LeveNPCResult = LeveNPCResult.Trim();
 
+        ImGui.SetNextItemWidth(125);
+        ImGui.InputInt("Gil Input", ref gilAmount);
 
         if (ImGui.BeginTable("NPC Info Table", 12, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
         {
@@ -342,6 +347,7 @@ internal class DebugWindow : Window
                 uint turninVendorId = entry.Value.LeveTurninVendorID;
                 string leveEndZoneName = ZoneName(LeveNPCDict[turninVendorId].ZoneID);
                 string turninVendorName = "";
+                int gilReward = entry.Value.GilReward;
                 if (turninVendorId != 0)
                 {
                     turninVendorName = LeveNPCDict[turninVendorId].Name;
@@ -361,6 +367,10 @@ internal class DebugWindow : Window
                 {
                     if (!leveVendorName.Contains(LeveNPCResult, StringComparison.OrdinalIgnoreCase))
                         continue;
+                }
+                if (gilAmount > gilReward)
+                {
+                    continue;
                 }
 
                 ImGui.TableNextRow();
@@ -393,7 +403,12 @@ internal class DebugWindow : Window
 
                 // Leve Vendor Name/ID (Row 3)
                 ImGui.TableNextColumn();
-                ImGui.Text($"{leveVendorName}");
+                if (ImGui.Selectable($"{leveVendorName}"))
+                {
+                    var flagX = LeveNPCDict[entry.Value.LeveVendorID].flagX;
+                    var flagZ = LeveNPCDict[entry.Value.LeveVendorID].flagZ;
+                    SetFlagForNPC(LeveNPCDict[entry.Value.LeveVendorID].ZoneID, flagX, flagZ);
+                }
                 if (ImGui.IsItemHovered())
                 {
                     ImGui.BeginTooltip();
@@ -403,7 +418,12 @@ internal class DebugWindow : Window
 
                 // Leve Vendor Name/ID (Row 4)
                 ImGui.TableNextColumn();
-                ImGui.Text($"{turninVendorName}");
+                if (ImGui.Selectable($"{turninVendorName}"))
+                {
+                    var flagX = LeveNPCDict[turninVendorId].flagX;
+                    var flagZ = LeveNPCDict[turninVendorId].flagZ;
+                    SetFlagForNPC(LeveNPCDict[turninVendorId].ZoneID, flagX, flagZ);
+                }
                 if (ImGui.IsItemHovered())
                 {
                     ImGui.BeginTooltip();
@@ -418,6 +438,16 @@ internal class DebugWindow : Window
                 // Leve End Zone (Row 6)
                 ImGui.TableNextColumn();
                 ImGui.Text(leveEndZoneName);
+
+                // Leve QuestID (Row 7)
+                ImGui.TableNextColumn();
+
+                // Leve XP Reward (Row 8)
+                ImGui.TableNextColumn();
+
+                // Gil Reward Amount
+                ImGui.TableNextColumn();
+                ImGui.Text($"{gilReward}");
 
                 ImGui.PopID();
             }

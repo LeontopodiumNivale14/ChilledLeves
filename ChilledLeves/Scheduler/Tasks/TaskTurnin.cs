@@ -14,7 +14,11 @@ namespace ChilledLeves.Scheduler.Tasks
 
         internal static unsafe bool? Turnin(string QuestName)
         {
-            if (TryGetAddonByName<AtkUnitBase>("SelectIconString", out var QuestAddon) && IsAddonReady(QuestAddon))
+            if (PlayerNotBusy())
+            {
+                return true;
+            }
+            else if (TryGetAddonByName<AtkUnitBase>("SelectIconString", out var QuestAddon) && IsAddonReady(QuestAddon))
             {
                 int callback = GetCallback(QuestName);
                 if (EzThrottler.Throttle("Selecting Correct Quest Turnin", 2000))
@@ -41,7 +45,6 @@ namespace ChilledLeves.Scheduler.Tasks
                 if (EzThrottler.Throttle("Accepting the journal", 100))
                 {
                     GenericHandlers.FireCallback("JournalResult", true, 0, 0);
-                    return true;
                 }
             }
 
