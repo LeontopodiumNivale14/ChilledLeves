@@ -37,6 +37,8 @@ public class Config : IEzConfig
     public LeveFilterSettings LeveFilter { get; private set; } = new();
     public List<uint> FavoriteLeves = [];
 
+    public bool IncreaseDelay = false;
+
     public void RefreshJobFilter()
     {
         jobFilter.Clear();

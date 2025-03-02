@@ -31,8 +31,8 @@ internal class SettingsWindow : Window
     public override void Draw()
     {
         ImGuiEx.EzTabBar("ChilledLeves Settings Window",
-            ("Worklist Planner", MainPlanner, null, true),
-            ("Gathering Planner", GatheringMode, null, true)
+            ("Worklist Planner", MainPlanner, null, true)//,
+            //("Gathering Planner", GatheringMode, null, true)
             );
     }
 
@@ -42,9 +42,13 @@ internal class SettingsWindow : Window
     {
         ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");
 
-        ImGui.Text("Keep list after finishing list?");
+        ImGui.Text("Keep list after completion?");
         ImGui.SameLine(0, 10);
         ImGui.Checkbox("###ChilledLevesKeepList", ref SchedulerMain.KeepLeves);
+        ImGui.SameLine(0, 20);
+        ImGui.Text("Increase delay between leves");
+        ImGui.SameLine();
+        ImGui.Checkbox("###Delay grabbing leves", ref C.IncreaseDelay);
 
         if (ImGui.BeginTable($"Crafting Workshop List", 6, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
         {

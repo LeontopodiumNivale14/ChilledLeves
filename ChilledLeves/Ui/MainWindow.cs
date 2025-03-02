@@ -365,18 +365,17 @@ internal class MainWindow : Window
             var vendorId = CrafterLeves[leve].LeveVendorID;
             var startZoneId = LeveNPCDict[vendorId].ZoneID;
             ImGui.Text($"Starting Zone: {ZoneName(startZoneId)}");
-            ImGui.SameLine(0, 5);
-            if (ImGuiEx.IconButton(FontAwesomeIcon.Flag, "Flag Button"))
-            {
-                var flagX = LeveNPCDict[vendorId].flagX;
-                var flagZ = LeveNPCDict[vendorId].flagZ;
-                SetFlagForNPC(startZoneId, flagX, flagZ);
-            }
             if (ImGui.Selectable($"NPC: {CrafterLeves[leve].LeveVendorName}"))
             {
                 var flagX = LeveNPCDict[vendorId].flagX;
                 var flagZ = LeveNPCDict[vendorId].flagZ;
                 SetFlagForNPC(startZoneId, flagX, flagZ);
+            }
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text("Click to flag map Location");
+                ImGui.EndTooltip();
             }
             ImGui.SameLine();
             FontAwesome.Print(ImGuiColors.DalamudWhite, FontAwesomeIcon.Flag);
@@ -392,7 +391,17 @@ internal class MainWindow : Window
                 turninName = "not valid";
             }
             ImGui.Text($"Turnin NPC: {turninName}");
-            ImGui.Text($"Is Complete: {IsComplete(leve)}");
+            ImGui.Text($"Is Complete:");
+            ImGui.SameLine();
+            ImGui.AlignTextToFramePadding();
+            if (IsComplete(leve))
+            {
+                FontAwesome.Print(ImGuiColors.HealerGreen, FontAwesome.Check);
+            }
+            else
+            {
+                FontAwesome.Print(ImGuiColors.DalamudRed, FontAwesome.Cross);
+            }
             if (IsStarted(leve))
             {
                 ImGui.Text("Quest is Accepted and Started");
@@ -401,7 +410,7 @@ internal class MainWindow : Window
             ImGui.Text($"Required Items:");
             if (CrafterLeves[leve].RepeatAmount > 1)
             {
-                var totalTurnin = CrafterLeves[leve].TurninAmount * CrafterLeves[leve].RepeatAmount;
+                var totalTurnin = CrafterLeves[leve].RepeatAmount;
                 ImGui.Text($"    {CrafterLeves[leve].TurninAmount}({totalTurnin})x {CrafterLeves[leve].ItemName}");
             }
             else

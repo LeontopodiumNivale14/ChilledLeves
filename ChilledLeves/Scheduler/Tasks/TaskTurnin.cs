@@ -7,14 +7,14 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         internal static unsafe void Enqueue(string QuestName, uint leveID)
         {
-            P.taskManager.Enqueue(() => Turnin(QuestName));
+            P.taskManager.Enqueue(() => Turnin(QuestName, leveID));
             P.taskManager.Enqueue(() => !IsAccepted(leveID));
             P.taskManager.Enqueue(() => PlayerNotBusy());
         }
 
-        internal static unsafe bool? Turnin(string QuestName)
+        internal static unsafe bool? Turnin(string QuestName, uint leveID)
         {
-            if (PlayerNotBusy())
+            if (!IsAccepted(leveID))
             {
                 return true;
             }
@@ -45,6 +45,13 @@ namespace ChilledLeves.Scheduler.Tasks
                 if (EzThrottler.Throttle("Accepting the journal", 100))
                 {
                     GenericHandlers.FireCallback("JournalResult", true, 0, 0);
+                }
+            }
+            else if (TryGetAddonByName<AtkUnitBase>("SelectString", out var SelectString) && IsAddonReady(SelectString))
+            {
+                if (EzThrottler.Throttle("Accepting Multi-Turnin", 200))
+                {
+                    GenericHandlers.FireCallback("SelectString", true, 0);
                 }
             }
 
