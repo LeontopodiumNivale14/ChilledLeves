@@ -2,9 +2,9 @@
 Another leve turnin plugin that might never get finished
 
 ### Currently supports
-- [x] Turnins for Crafters
-- [x] Support for a list to be able to grab and turnin from each NPC
-- [x] Turnins for Fisher (Through ARR, HW+ is known to be bugged at the second) 
+✔️ Turnins for Crafters
+✔️ Support for a list to be able to grab and turnin from each NPC
+✔️ Turnins for Fisher (Through ARR, HW+ is known to be bugged at the second) 
 
 ### Current Plans
 - [ ] Improve the Turnin NPC to see if there are multiple leves to be turned in
