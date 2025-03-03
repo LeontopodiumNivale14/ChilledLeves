@@ -1,6 +1,9 @@
 # Chilled Leves (Leves are better cold)
 Another leve turnin plugin that might never get finished
 
+**Please Note** this is currently actively under development. There might be things that break, but I'm trying my darndest to get it up and running how it should be.   
+Repo: `https://puni.sh/api/repository/ice`
+
 ### Currently supports
 ✔️ Turnins for Crafters  
 ✔️ Support for a list to be able to grab and turnin from each NPC  
