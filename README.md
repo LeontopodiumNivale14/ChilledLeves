@@ -1,4 +1,4 @@
-# LeveItAlone
+# Chilled Leves (Leves are better cold)
 Another leve turnin plugin that might never get finished
 
 ### Currently supports
