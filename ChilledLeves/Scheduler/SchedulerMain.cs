@@ -171,7 +171,7 @@ namespace ChilledLeves.Scheduler
                                         if (GetDistanceToPlayer(NPCLocation) < 1)
                                         {
                                             TaskTarget.Enqueue(npc);
-                                            TaskGrabLeve.Enqueue(leve, npc, buttonSelected);
+                                            TaskGrabMultiLeves.Enqueue(npc, buttonSelected);
                                             if (C.IncreaseDelay)
                                                 P.taskManager.EnqueueDelay(1000);
                                         }

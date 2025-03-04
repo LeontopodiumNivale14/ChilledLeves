@@ -285,8 +285,8 @@ public static unsafe class Data
         public bool Mount { get; set; }
         public bool? Fly { get; set; }
         public uint RequiredQuestId { get; set; }
-        public float flagX { get; set; } = 0f;
-        public float flagZ { get; set; } = 0f;
+        public required float flagX { get; set; } = 0f;
+        public required float flagZ { get; set; } = 0f;
     }
 
     public static Dictionary<uint, LeveInfoVendor> LeveNPCDict = new Dictionary<uint, LeveInfoVendor>()
@@ -946,6 +946,7 @@ public static unsafe class Data
             RequiredQuestId = 0,
             flagX = -54.31f, flagZ = -44.51f
         } },
+
         // Stormblood
         { 1018997, new LeveInfoVendor { // Keltraeng
             Name = NPCName(1018997),

@@ -562,12 +562,45 @@ internal class DebugWindow : Window
         }
     }
 
+    private static SortedDictionary<uint, string> ViableLeves = new SortedDictionary<uint, string>();
+
     public unsafe void LeveVendor()
     {
+        if (ImGui.Button("Clear Dictionary"))
+        {
+            ViableLeves.Clear();
+        }
+
+        foreach (var leve in C.workList)
+        {
+            if (!ViableLeves.ContainsKey(leve.LeveID))
+            {
+                string leveName = CrafterLeves[leve.LeveID].LeveName;
+                ViableLeves.Add(leve.LeveID, leveName);
+            }
+        }
+        foreach (var leve in ViableLeves)
+        {
+            ImGui.Text($"Leves in Dictionary: {leve.Value}");
+        }
+
+
         if (ImGui.CollapsingHeader("Debug"))
         {
             if (TryGetAddonMaster<GuildLeve>("GuildLeve", out var m) && m.IsAddonReady)
             {
+                ImGui.Text("All Available Leves:");
+                foreach (var l in m.Levequests)
+                {
+                    var leveMatch = ViableLeves.FirstOrDefault(v => v.Value == l.Name);
+
+                    if (!leveMatch.Equals(default(KeyValuePair<uint, string>)))
+                    {
+                        ImGui.Text($"{leveMatch.Value} [{leveMatch.Key}]");
+                    }
+                }
+                ImGui.Text("- - - - - ");
+
                 foreach (var l in m.Levequests)
                 {
                     ImGuiEx.Text($"{l.Name} ({l.Level})");
