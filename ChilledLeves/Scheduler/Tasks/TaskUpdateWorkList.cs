@@ -16,6 +16,14 @@
             {
                 foundEntry.InputValue = foundEntry.InputValue - 1;
                 PluginLog($"Updated {leveID} to now have {foundEntry.InputValue}");
+                if (foundEntry.InputValue == 0)
+                {
+                    if (foundEntry.InputValue == 0)
+                        foundEntry.InputValue = 1;
+                    ListCycled.Add(new LeveEntry { LeveID = foundEntry.LeveID, InputValue = 0, ItemAmount = 0 });
+                    PluginDebug($"List Cycled entry added {foundEntry.LeveID}");
+                    C.workList.Remove(foundEntry);
+                }
             }
 
             return true;

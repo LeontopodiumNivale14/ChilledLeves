@@ -1,6 +1,7 @@
 ﻿using ChilledLeves.Scheduler.Handlers;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Interface.Colors;
 using Dalamud.Interface.Textures;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.DalamudServices.Legacy;
@@ -700,6 +701,33 @@ public static unsafe class Utils
         }
 
         return quest;
+    }
+
+    public static void FancyCheckmark(bool enabled)
+    {
+        float columnWidth = ImGui.GetColumnWidth();  // Get column width
+        float rowHeight = ImGui.GetTextLineHeightWithSpacing();  // Get row height
+
+        Vector2 iconSize = ImGui.CalcTextSize($"{FontAwesome.Cross}"); // Get icon size
+        float iconWidth = iconSize.X;
+        float iconHeight = iconSize.Y;
+
+        float cursorX = ImGui.GetCursorPosX() + (columnWidth - iconWidth) * 0.5f;
+        float cursorY = ImGui.GetCursorPosY() + (rowHeight - iconHeight) * 0.5f;
+
+        cursorX = Math.Max(cursorX, ImGui.GetCursorPosX()); // Prevent negative padding
+        cursorY = Math.Max(cursorY, ImGui.GetCursorPosY());
+
+        ImGui.SetCursorPos(new Vector2(cursorX, cursorY));
+
+        if (!enabled)
+        {
+            FontAwesome.Print(ImGuiColors.DalamudRed, FontAwesome.Cross);
+        }
+        else if (enabled)
+        {
+            FontAwesome.Print(ImGuiColors.HealerGreen, FontAwesome.Check);
+        }
     }
 
     #endregion

@@ -8,16 +8,26 @@ namespace ChilledLeves.Scheduler.Tasks
 {
     internal static class TaskTurninMulti
     {
-        internal static unsafe void Enqueue(string QuestName, uint leveID)
+        internal static unsafe void Enqueue(uint zoneId)
         {
-            P.taskManager.Enqueue(() => TurninMulti());
-            P.taskManager.Enqueue(() => !IsAccepted(leveID));
-            P.taskManager.Enqueue(() => PlayerNotBusy());
-        }
+            foreach (var leve in C.workList)
+            {
+                var leveId = leve.LeveID;
+                var turninNPC = CrafterLeves[leveId].LeveTurninVendorID;
+                var leveName = CrafterLeves[leveId].LeveName;
+                var npcZone = LeveNPCDict[turninNPC].ZoneID;
 
-        internal static unsafe bool? TurninMulti()
-        {
-            return true;
+
+                if (npcZone == zoneId)
+                {
+                    TaskTarget.Enqueue(turninNPC);
+                    TaskInteract.Enqueue(turninNPC);
+                    TaskTurnin.Enqueue(leveName, leveId);
+                    TaskUpdateWorkList.Enqueue(leveId);
+                    if (C.IncreaseDelay)
+                        P.taskManager.EnqueueDelay(1000);
+                }
+            }
         }
     }
 }

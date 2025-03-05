@@ -265,7 +265,7 @@ internal class MainWindow : Window
                     {
                         if (!C.workList.Any(e => e.LeveID == id))
                         {
-                            C.workList.Add(new LeveEntry { LeveID = kdp.Key, InputValue = 0 });
+                            C.workList.Add(new LeveEntry { LeveID = kdp.Key, InputValue = 1, ItemAmount = 0 });
                         }
                     }
 
@@ -451,7 +451,7 @@ internal class MainWindow : Window
                 {
                     if (ImGui.Button("Add to WorkList"))
                     {
-                        C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 1 });
+                        C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 1, ItemAmount = 0 });
                         C.Save();
                     }
                 }

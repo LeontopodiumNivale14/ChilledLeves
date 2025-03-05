@@ -76,7 +76,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
                         if (GenericThrottle)
                             PluginLog($"Leve {leveMatch.Value}: Accepted? {IsAccepted(leveId)}");
-                        
+                        // if 3 <= 2
                         if (itemAmountRequired <= itemAmountHave && !IsAccepted(leveId) && Allowances > 0)
                         {
                             if (GenericThrottle)
