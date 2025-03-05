@@ -126,7 +126,12 @@ internal class DebugWindow : Window
             ImGui.Text($"Target Pos: {Svc.Targets.Target.Position}");
             if (ImGui.Button("Copy Target XYZ"))
             {
-                ImGui.SetClipboardText($"{Svc.Targets.Target.Position.X}f, {Svc.Targets.Target.Position.Y}f, {Svc.Targets.Target.Position.Z}f, ");
+                Vector3 roundedVector = new Vector3(
+                    MathF.Round(Svc.Targets.Target.Position.X, 2),
+                    MathF.Round(Svc.Targets.Target.Position.Y, 2),
+                    MathF.Round(Svc.Targets.Target.Position.Z, 2)
+                    );
+                ImGui.SetClipboardText($"{roundedVector.X}f, {roundedVector.Y}f, {roundedVector.Z}f, ");
             }
             ImGui.Text($"{GetDistanceToPlayer(Svc.Targets.Target)}");
         }
@@ -228,7 +233,7 @@ internal class DebugWindow : Window
                     ImGui.TableNextColumn();
                     if (ImGui.Button("Move to NPC"))
                     {
-                        var NPCLocation = entry.Value.NPCLocation;
+                        var NPCLocation = entry.Value.NPCInteractZone;
                         bool mount = false;
                         bool fly = false;
                         if (entry.Value.Mount)

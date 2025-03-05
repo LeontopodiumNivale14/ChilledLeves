@@ -348,7 +348,7 @@ public static unsafe class Utils
 
                 // Leve Turnin Vendor, I actually forgot to include this upon loading :catlay:
                 uint leveClientId = row.LeveClient.Value.RowId;
-                uint turninNpcId = TurninNpcId(leveClientId);
+                uint turninNpcId = TurninNpcId(leveClientId, JobType: leveJob);
 
                 int priority = 0;
 
@@ -429,7 +429,7 @@ public static unsafe class Utils
         return ecomJob;
     }
 
-    public static uint TurninNpcId(uint leveClient)
+    public static uint TurninNpcId(uint leveClient, uint JobType = 0)
     {
         uint NPCID = 0;
         // 5, 7, 9, 13, 19, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
@@ -560,23 +560,38 @@ public static unsafe class Utils
         }
         else if (IshgardTurnin.Contains(leveClient))
         {
-            NPCID = 1011209;
+            if (JobType == 4)
+                NPCID = 1011210; // Cesteline
+            else
+                NPCID = 1011209; // Fionnuala
         }
         else if (KuganeTurnin.Contains(leveClient))
         {
-            NPCID = 1018998;
+            if (JobType == 4)
+                NPCID = 1018999; // Geimrael
+            else
+                NPCID = 1018998; // Chantine
         }
         else if (CrystariumTurnin.Contains(leveClient))
         {
-            NPCID = 1027848;
+            if (JobType == 4)
+                NPCID = 1027849; // Shue-Hann
+            else
+                NPCID = 1027848; // Moyce
         }
         else if (SharlayanTurnin.Contains(leveClient))
         {
-            NPCID = 1037264;
+            if (JobType == 4)
+                NPCID = 1037265; // Wurtwyb
+            else
+                NPCID = 1037264; // Ahldiyrn
         }
         else if (TuliyoliTurnin.Contains(leveClient))
         {
-            NPCID = 1048391;
+            if (JobType == 4)
+                NPCID = 1048392;
+            else 
+                NPCID = 1048391;
         }
 
         return NPCID;

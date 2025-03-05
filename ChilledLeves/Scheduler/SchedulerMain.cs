@@ -113,7 +113,7 @@ namespace ChilledLeves.Scheduler
                                         var LeveName = CrafterLeves[leve].LeveName;
                                         var zoneID = LeveNPCDict[Turninnpc].ZoneID;
                                         var aetheryte = LeveNPCDict[Turninnpc].Aetheryte;
-                                        var NPCLocation = LeveNPCDict[Turninnpc].NPCLocation;
+                                        var NPCLocation = LeveNPCDict[Turninnpc].NPCInteractZone;
 
                                         if (IsInZone(zoneID))
                                         {
@@ -148,7 +148,7 @@ namespace ChilledLeves.Scheduler
                                         var npc = CrafterLeves[leve].LeveVendorID;
                                         var zoneID = LeveNPCDict[npc].ZoneID;
                                         var aetheryte = LeveNPCDict[npc].Aetheryte;
-                                        var NPCLocation = LeveNPCDict[npc].NPCLocation;
+                                        var NPCLocation = LeveNPCDict[npc].NPCInteractZone;
                                         var requiredLevel = CrafterLeves[leve].Level;
                                         var jobID = CrafterLeves[leve].EcomJob;
                                         var buttonSelected = 0;
@@ -249,7 +249,7 @@ namespace ChilledLeves.Scheduler
                                 var LeveName = CrafterLeves[leveId].LeveName;
                                 var zoneID = LeveNPCDict[Turninnpc].ZoneID;
                                 var aetheryte = LeveNPCDict[Turninnpc].Aetheryte;
-                                var NPCLocation = LeveNPCDict[Turninnpc].NPCLocation;
+                                var NPCLocation = LeveNPCDict[Turninnpc].NPCInteractZone;
 
                                 if (IsInZone(zoneID))
                                 {
@@ -286,7 +286,7 @@ namespace ChilledLeves.Scheduler
                                 var npc = CrafterLeves[leveId].LeveVendorID;
                                 var zoneID = LeveNPCDict[npc].ZoneID;
                                 var aetheryte = LeveNPCDict[npc].Aetheryte;
-                                var NPCLocation = LeveNPCDict[npc].NPCLocation;
+                                var NPCLocation = LeveNPCDict[npc].NPCInteractZone;
                                 var requiredLevel = CrafterLeves[leveId].Level;
                                 var jobID = CrafterLeves[leveId].EcomJob;
                                 var buttonSelected = 0;
