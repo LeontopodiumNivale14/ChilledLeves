@@ -64,17 +64,17 @@ internal class DebugWindow : Window
         ImGui.Text($"Job Exp: {GetJobExp((uint)ClassID)}");
 
 
-        ImGui.Text($"Miner: {C.LeveFilter.ShowMiner}");
-        ImGui.Text($"Botanist: {C.LeveFilter.ShowBotanist}");
-        ImGui.Text($"Fisher: {C.LeveFilter.ShowFisher}");
-        ImGui.Text($"Carpenter: {C.LeveFilter.ShowCarpenter}");
-        ImGui.Text($"Blacksmith: {C.LeveFilter.ShowBlacksmith}");
-        ImGui.Text($"Armorer: {C.LeveFilter.ShowArmorer}");
-        ImGui.Text($"Goldsmith: {C.LeveFilter.ShowGoldsmith}");
-        ImGui.Text($"Leatherworker {C.LeveFilter.ShowLeatherworker}");
-        ImGui.Text($"Weaver: {C.LeveFilter.ShowWeaver}");
-        ImGui.Text($"Alchemist: {C.LeveFilter.ShowAlchemist}");
-        ImGui.Text($"Culinarian: {C.LeveFilter.ShowCulinarian}");
+        ImGui.Text($"Miner: {C.ShowMiner}");
+        ImGui.Text($"Botanist: {C.ShowBotanist}"); //
+        ImGui.Text($"Fisher: {C.ShowFisher}");
+        ImGui.Text($"Carpenter: {C.ShowCarpenter}");
+        ImGui.Text($"Blacksmith: {C.ShowBlacksmith}");
+        ImGui.Text($"Armorer: {C.ShowArmorer}");
+        ImGui.Text($"Goldsmith: {C.ShowGoldsmith}");
+        ImGui.Text($"Leatherworker {C.ShowLeatherworker}");
+        ImGui.Text($"Weaver: {C.ShowWeaver}");
+        ImGui.Text($"Alchemist: {C.ShowAlchemist}");
+        ImGui.Text($"Culinarian: {C.ShowCulinarian}");
 
 
         foreach (var entry in C.workList)

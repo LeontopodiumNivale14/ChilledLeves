@@ -397,6 +397,19 @@ public static unsafe class Utils
                 }
             }
         }
+
+        for (int i = 0; i < LeveStatus.Count; i++)
+        {
+            int iconId = LeveStatus[i];
+
+            if (Svc.Texture.TryGetFromGameIcon(iconId, out var texture))
+            {
+                if (!LeveStatusDict.ContainsKey((uint)i))
+                {
+                    LeveStatusDict.Add((uint)i, texture);
+                }
+            }
+        }
     }
 
     public static Job EcomJobFinder(uint leveJob)
@@ -432,8 +445,6 @@ public static unsafe class Utils
     public static uint TurninNpcId(uint leveClient, uint JobType = 0)
     {
         uint NPCID = 0;
-        // 5, 7, 9, 13, 19, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
-        // 141, 142, 143, 144, 145, 146, 147, 148, 
         if (leveClient == 5)
         {
             // Central Shroud, Audrie

@@ -64,6 +64,7 @@ public static unsafe class Data
     public static HashSet<uint> SharlayanTurnin = new() { 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 254, 255, 256};
     public static HashSet<uint> TuliyoliTurnin = new() {  257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, };
     public static List<int> GreyIconList = new List<int>() { 91039, 91040, 91041, 91031, 91032, 91033, 91034, 91035, 91036, 91037, 91038 };
+    public static List<int> LeveStatus = new List<int>() { 71041, 71045, 71055 };
 
     public static HashSet<uint> SelectedLeves = new HashSet<uint>();
     public static uint IconSlot = 4;
@@ -2988,6 +2989,8 @@ public static unsafe class Data
     #endregion
 
     public static Dictionary<uint, ISharedImmediateTexture> GreyTexture = new Dictionary<uint, ISharedImmediateTexture>();
+
+    public static Dictionary<uint, ISharedImmediateTexture> LeveStatusDict = new Dictionary<uint, ISharedImmediateTexture>();
 
     // Used in the config
 

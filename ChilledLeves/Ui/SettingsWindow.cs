@@ -45,13 +45,15 @@ internal class SettingsWindow : Window
 
         ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");
 
-        ImGui.Text("Keep list after completion?");
-        ImGui.SameLine(0, 10);
         ImGui.Checkbox("###ChilledLevesKeepList", ref SchedulerMain.KeepLeves);
-        ImGui.SameLine(0, 20);
-        ImGui.Text("Increase delay between leves");
         ImGui.SameLine();
+        ImGui.Text("Keep list after completion?");
         ImGui.Checkbox("###Delay grabbing leves", ref C.IncreaseDelay);
+        ImGui.SameLine();
+        ImGui.Text("Increase delay between leves");
+        ImGui.Checkbox("###GrabMultiLeve", ref C.GrabMulti);
+        ImGui.SameLine();
+        ImGui.Text("Grab multiple leve's from vendor");
 
         if (ImGui.BeginTable($"Crafting Workshop List", 6, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
         {

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Lumina.Data.Parsing.Uld.UldRoot;
 
 namespace ChilledLeves.Ui;
 
@@ -64,7 +65,7 @@ internal class MainWindow : Window
         ImGui.SameLine();
 
         ImGui.BeginGroup();
-        ImGui.Dummy(new Vector2(0, 20));
+        ImGui.Dummy(new Vector2(0, 26));
         ImGui.Text($"Allowances: {Allowances}/100");
         ImGui.Text($"Next 3 in: {NextAllowances:hh':'mm':'ss}");
         ImGui.Spacing();
@@ -82,28 +83,29 @@ internal class MainWindow : Window
     {
         ImGui.Text("Filter Leves");
 
-        DrawButtonStar("Show only favorites", ref C.LeveFilter.OnlyFavorites, true);
-        DummyButton(8);
-        DrawButton(5, $"Leves", ref C.LeveFilter.ShowCarpenter, true);
-        DrawButton(6, $"Leves", ref C.LeveFilter.ShowBlacksmith, true);
-        DrawButton(7, $"Leves", ref C.LeveFilter.ShowArmorer, true);
-        DrawButton(8, $"Leves", ref C.LeveFilter.ShowGoldsmith, true);
-        DrawButton(9, $"Leves", ref C.LeveFilter.ShowLeatherworker, true);
-        DrawButton(10, $"Leves", ref C.LeveFilter.ShowWeaver, true);
-        DrawButton(11, $"Leves", ref C.LeveFilter.ShowAlchemist, true);
-        DrawButton(12, $"Leves", ref C.LeveFilter.ShowCulinarian, true);
+        DrawButtonStar("Show only favorites", ref C.OnlyFavorites, true);
+        DrawLeveStatusButton();
+        DummyButton(7);
+        DrawButton(5, $"Leves", ref C.ShowCarpenter, true);
+        DrawButton(6, $"Leves", ref C.ShowBlacksmith, true);
+        DrawButton(7, $"Leves", ref C.ShowArmorer, true);
+        DrawButton(8, $"Leves", ref C.ShowGoldsmith, true);
+        DrawButton(9, $"Leves", ref C.ShowLeatherworker, true);
+        DrawButton(10, $"Leves", ref C.ShowWeaver, true);
+        DrawButton(11, $"Leves", ref C.ShowAlchemist, true);
+        DrawButton(12, $"Leves", ref C.ShowCulinarian, true);
         DummyButton(1);
         ImGui.SameLine();
-        DrawButton(4, $"Leves", ref C.LeveFilter.ShowFisher, false);
+        DrawButton(4, $"Leves", ref C.ShowFisher, false);
 
-        ImGui.Text("Level:");
         ImGui.AlignTextToFramePadding();
+        ImGui.Text("Level:");
         ImGui.SameLine();
-        var level = C.LeveFilter.LevelFilter > 0 ? C.LeveFilter.LevelFilter.ToString() : "";
+        var level = C.LevelFilter > 0 ? C.LevelFilter.ToString() : "";
         ImGui.SetNextItemWidth(30);
         if (ImGui.InputText("###Level", ref level, 3))
         {
-            C.LeveFilter.LevelFilter = (int)(uint.TryParse(level, out var num) && num > 0 ? num : 0);
+            C.LevelFilter = (int)(uint.TryParse(level, out var num) && num > 0 ? num : 0);
             C.Save();
         }
         ImGui.SameLine();
@@ -111,9 +113,9 @@ internal class MainWindow : Window
         ImGui.AlignTextToFramePadding();
         ImGui.SameLine();
         ImGui.SetNextItemWidth(220);
-        if (ImGui.InputText("###Name", ref C.LeveFilter.NameFilter, 200))
+        if (ImGui.InputText("###Name", ref C.NameFilter, 200))
         {
-            C.LeveFilter.NameFilter = C.LeveFilter.NameFilter.Trim();
+            C.NameFilter = C.NameFilter.Trim();
             C.Save();
         }
     }
@@ -132,7 +134,7 @@ internal class MainWindow : Window
         }
     }
 
-#nullable disable
+    #nullable disable
     private void DrawButton(uint row, string tooltip, ref bool state, bool sameLine)
     {
         ISharedImmediateTexture? icon = null;
@@ -177,6 +179,100 @@ internal class MainWindow : Window
             ImGui.SameLine();
     }
 
+    #region Specific Buttons
+    private void CRPButton(string tooltip, bool sameLine)
+    {
+        ISharedImmediateTexture? icon = null;
+        bool state = C.ShowCarpenter;
+        uint row = 5;
+
+        if (state)
+        {
+            icon = LeveTypeDict[row].AssignmentIcon;
+        }
+        else if (!state)
+        {
+            icon = GreyTexture[row];
+        }
+
+        string tooltipText = $"{LeveTypeDict[row].LeveClassType} {tooltip}";
+
+        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0));
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0));
+        float scaleFactor = 1.0f;
+        if (!state)
+        {
+            scaleFactor = 1.4f;
+        }
+        Vector2 baseSize = new Vector2(24, 24);
+        Vector2 uv0 = new Vector2(0.5f - 0.5f / scaleFactor, 0.5f - 0.5f / scaleFactor);
+        Vector2 uv1 = new Vector2(0.5f + 0.5f / scaleFactor, 0.5f + 0.5f / scaleFactor);
+        if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, baseSize, uv0, uv1))
+        {
+            C.ShowCarpenter = !C.ShowCarpenter;
+            C.Save();
+        }
+        ImGui.PopStyleColor();
+        ImGui.PopStyleVar();
+
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text(tooltipText);
+            ImGui.Text($"Showing Leves: {state}");
+            ImGui.EndTooltip();
+        }
+        if (sameLine)
+            ImGui.SameLine();
+    }
+    private void BSMButton(string tooltip, bool sameLine)
+    {
+        ISharedImmediateTexture? icon = null;
+        bool state = C.ShowBlacksmith;
+        uint row = 6;
+
+        if (state)
+        {
+            icon = LeveTypeDict[row].AssignmentIcon;
+        }
+        else if (!state)
+        {
+            icon = GreyTexture[row];
+        }
+
+        string tooltipText = $"{LeveTypeDict[row].LeveClassType} {tooltip}";
+
+        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0));
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0));
+        float scaleFactor = 1.0f;
+        if (!state)
+        {
+            scaleFactor = 1.4f;
+        }
+        Vector2 baseSize = new Vector2(24, 24);
+        Vector2 uv0 = new Vector2(0.5f - 0.5f / scaleFactor, 0.5f - 0.5f / scaleFactor);
+        Vector2 uv1 = new Vector2(0.5f + 0.5f / scaleFactor, 0.5f + 0.5f / scaleFactor);
+        if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, baseSize, uv0, uv1))
+        {
+            C.ShowBlacksmith = !C.ShowBlacksmith;
+            C.Save();
+        }
+        ImGui.PopStyleColor();
+        ImGui.PopStyleVar();
+
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text(tooltipText);
+            ImGui.Text($"Showing Leves: {state}");
+            ImGui.EndTooltip();
+        }
+        if (sameLine)
+            ImGui.SameLine();
+    } //
+
+    #endregion
+
     private void DrawButtonStar(string tooltip, ref bool state, bool sameLine)
     {
         var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
@@ -194,7 +290,7 @@ internal class MainWindow : Window
 
         if (state)
         {
-            if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(20, 20), uvMin, uvMax))
+            if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(24, 24), uvMin, uvMax))
             {
                 state = !state;
                 C.Save();
@@ -202,7 +298,7 @@ internal class MainWindow : Window
         }
         else if (!state)
         {
-            if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(20, 20), uvMin2, uvMax2))
+            if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(24, 24), uvMin2, uvMax2))
             {
                 state = !state;
                 C.Save();
@@ -217,6 +313,55 @@ internal class MainWindow : Window
             ImGui.SameLine();
     }
 
+    private void DrawLeveStatusButton()
+    {
+        ISharedImmediateTexture? icon = null;
+
+        icon = LeveStatusDict[C.CompleteFilter];
+
+        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0));
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0));
+
+        float scaleFactor = 1.2f;
+        Vector2 baseSize = new Vector2(24, 24);
+        Vector2 uv0 = new Vector2(0.5f - 0.5f / scaleFactor, 0.5f - 0.5f / scaleFactor);
+        Vector2 uv1 = new Vector2(0.5f + 0.5f / scaleFactor, 0.5f + 0.5f / scaleFactor);
+        if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, baseSize, uv0, uv1))
+        {
+            C.CompleteFilter = C.CompleteFilter + 1;
+            if (C.CompleteFilter > 2)
+                C.CompleteFilter = 0;
+            C.Save();
+        }
+
+        ImGui.PopStyleColor();
+        ImGui.PopStyleVar();
+
+        string tooltipText = "";
+
+        if (C.CompleteFilter == 0)
+        {
+            tooltipText = "Showing all leves";
+        }
+        else if (C.CompleteFilter == 1)
+        {
+            tooltipText = "Showing Completed Leves";
+        }
+        else if (C.CompleteFilter == 2)
+        {
+            tooltipText = "Showing Incomplete Leves";
+        }
+
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text(tooltipText);
+            ImGui.EndTooltip();
+        }
+        ImGui.SameLine();
+
+    }
+
     private void DrawFavStar()
     {
         var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
@@ -224,6 +369,12 @@ internal class MainWindow : Window
         Vector2 uvMax = new Vector2(0.305575f, 0.4583333f);
 
         ImGui.Image(starTex.ImGuiHandle, new(20, 20), uvMin, uvMax);
+    }
+
+    private void DrawCompleteLeves()
+    {
+        var CompleteTexture = LeveStatusDict[1].GetWrapOrEmpty();
+        ImGui.Image(CompleteTexture.ImGuiHandle, new(20, 20));
     }
 
     private void DrawList()
@@ -236,7 +387,7 @@ internal class MainWindow : Window
 
         var widthFactor = (ImGui.GetWindowWidth() - 10) / 10;
         ImGui.BeginGroup();
-        if (C.LeveFilter.OnlyFavorites)
+        if (C.OnlyFavorites)
         {
             ImGui.Text($"Showing: {C.FavoriteLeves.Count} out of {CrafterLeves.Count}");
         }
@@ -279,6 +430,11 @@ internal class MainWindow : Window
                     DrawFavStar();
                     ImGui.SameLine(0, 5);
                 }
+                if (IsComplete(kdp.Key))
+                {
+                    DrawCompleteLeves();
+                    ImGui.SameLine(0, 5);
+                }
                 if (LeveTypeDict[kdp.Value.JobAssignmentType].AssignmentIcon != null)
                 {
                     ImGui.Image(LeveTypeDict[kdp.Value.JobAssignmentType].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new(20, 20));
@@ -315,19 +471,28 @@ internal class MainWindow : Window
         var showLeve = true;
         var jobAssignmentType = CrafterLeves[leveId].JobAssignmentType;
 
-        if (C.LeveFilter.OnlyFavorites)
+        if (C.OnlyFavorites)
         {
             return C.FavoriteLeves.Contains(leveId);
         }
 
-        if (C.LeveFilter.LevelFilter > 0)
+        if (C.LevelFilter > 0)
         {
-            showLeve &= CrafterLeves[leveId].Level == C.LeveFilter.LevelFilter;
+            showLeve &= CrafterLeves[leveId].Level == C.LevelFilter;
         }
 
-        if (!string.IsNullOrEmpty(C.LeveFilter.NameFilter))
+        if (C.CompleteFilter == 1)
         {
-            showLeve &= CrafterLeves[leveId].LeveName.Contains(C.LeveFilter.NameFilter, StringComparison.OrdinalIgnoreCase);
+            showLeve &= IsComplete(leveId);
+        }
+        else if (C.CompleteFilter == 2)
+        {
+            showLeve &= !IsComplete(leveId);
+        }
+
+        if (!string.IsNullOrEmpty(C.NameFilter))
+        {
+            showLeve &= CrafterLeves[leveId].LeveName.Contains(C.NameFilter, StringComparison.OrdinalIgnoreCase);
         }
 
         // Option #1 (one I created becuase I might be dumb
@@ -396,11 +561,13 @@ internal class MainWindow : Window
             ImGui.AlignTextToFramePadding();
             if (IsComplete(leve))
             {
-                FontAwesome.Print(ImGuiColors.HealerGreen, FontAwesome.Check);
+                var CompleteTexture = LeveStatusDict[1].GetWrapOrEmpty();
+                ImGui.Image(CompleteTexture.ImGuiHandle, new(24, 24));
             }
             else
             {
-                FontAwesome.Print(ImGuiColors.DalamudRed, FontAwesome.Cross);
+                var CompleteTexture = LeveStatusDict[2].GetWrapOrEmpty();
+                ImGui.Image(CompleteTexture.ImGuiHandle, new(24, 24));
             }
             if (IsStarted(leve))
             {
