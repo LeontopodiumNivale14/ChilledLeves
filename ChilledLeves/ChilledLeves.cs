@@ -19,6 +19,8 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal MainWindow mainWindow;
     internal SettingsWindow settingWindow;
     internal DebugWindow debugWindow;
+    internal WorkListUi workListUi;
+    internal GatherModeUi gatherModeUi;
 
     // Taskmanager from Ecommons
     internal TaskManager taskManager;
@@ -53,6 +55,8 @@ public sealed class ChilledLeves : IDalamudPlugin
         mainWindow = new();
         settingWindow = new();
         debugWindow = new();
+        workListUi = new();
+        gatherModeUi = new();
 
         taskManager = new(new(abortOnTimeout: true, timeLimitMS: 20000, showDebug: true));
         Svc.PluginInterface.UiBuilder.Draw += windowSystem.Draw;
@@ -62,14 +66,14 @@ public sealed class ChilledLeves : IDalamudPlugin
         };
         Svc.PluginInterface.UiBuilder.OpenConfigUi += () =>
         {
-            settingWindow.IsOpen = true;
+            workListUi.IsOpen = true;
         };
         EzCmd.Add("/chilledleves", OnCommand, """
             Open plugin interface
             /chilledleves add [leveID] [amount] - adds the leveID/amount to worklist
             /chilledleves clear - clears the worklist 
             /chilledleves start | stop - starts/stops the turnin process
-            /chilledleves s|settings - Opens the workshop menu
+            /chilledleves s|settings - Opens the worklist menu
             /leveitalone - alias
             """);
         EzCmd.Add("/leveitalone", OnCommand);
@@ -115,7 +119,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         }
         else if (firstArg.ToLower() == "s" || firstArg.ToLower() == "settings")
         {
-            settingWindow.IsOpen = true;
+            workListUi.IsOpen = true;
             return;
         }
         else if (firstArg.ToLower() == "add")
@@ -139,13 +143,13 @@ public sealed class ChilledLeves : IDalamudPlugin
                 }
                 else
                 {
-                    PluginLog($"{repeat} is not a valud input for the amount that you would like to do. Please input between 1-100");
+                    PluginVerbos($"{repeat} is not a valud input for the amount that you would like to do. Please input between 1-100");
                     return;
                 }
             }
             else
             {
-                PluginLog($"The leve you tried adding isn't a valid leveID: {subcommands[1]}");
+                PluginVerbos($"The leve you tried adding isn't a valid leveID: {subcommands[1]}");
                 return;
             }
         }
@@ -153,25 +157,25 @@ public sealed class ChilledLeves : IDalamudPlugin
         {
             C.workList.Clear();
             C.Save();
-            PluginLog("Cleared the worklist of all leves");
+            PluginVerbos("Cleared the worklist of all leves");
             return;
         }
         else if (firstArg.ToLower() == "start")
         {
             SchedulerMain.EnablePlugin();
-            PluginLog("Starting the turnin process");
+            PluginVerbos("Starting the turnin process");
             return;
         }
         else if (firstArg.ToLower() == "stop")
         {
             SchedulerMain.DisablePlugin();
-            PluginLog("Sopping the turnin process");
+            PluginVerbos("Sopping the turnin process");
             return;
         }
         else
         {
-            PluginLog($"Length of array is: {subcommands.Length} & no matching description. Can't do command");
-            PluginLog($"Command: -{command}- args?:-{args}-");
+            PluginVerbos($"Length of array is: {subcommands.Length} & no matching description. Can't do command");
+            PluginVerbos($"Command: -{command}- args?:-{args}-");
             return;
         }
     }

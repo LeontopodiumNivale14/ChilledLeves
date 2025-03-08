@@ -68,15 +68,18 @@ namespace ChilledLeves.Scheduler.Tasks
                 }
                 if (!hasLeve)
                 {
-                    PluginLog($"The following leve: {LeveName} could not be found at the vendor.");
-                    PluginLog($"This could be due to the following problems: ");
-                    PluginLog($"1: Leve turnin area not completed (aka missing a quest)");
-                    PluginLog($"2: It's a gathering leve and the vendor doesn't have this leve currently.");
-                    PluginLog($"In the case of #2, please do other gathering leves of this type to be able to do this leve potentionally");
+                    PluginVerbos($"The following leve: {LeveName} could not be found at the vendor.");
+                    PluginVerbos($"This could be due to the following problems: ");
+                    PluginVerbos($"1: Leve turnin area not completed (aka missing a quest)");
+                    PluginVerbos($"2: It's a gathering leve and the vendor doesn't have this leve currently.");
+                    PluginVerbos($"In the case of #2, please do other gathering leves of this type to be able to do this leve potentionally");
                     foreach (var kdp in C.workList)
                     {
-                        if (C.workList.Any(e => e.LeveID == kdp.LeveID))
-                        { C.workList.Remove(kdp); }
+                        if (C.workList.Any(e => e.LeveID == leveID))
+                        {
+                            { C.workList.Remove(kdp); }
+                            break;
+                        }
                     }
                     return true;
                 }

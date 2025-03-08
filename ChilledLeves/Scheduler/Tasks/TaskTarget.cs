@@ -9,7 +9,7 @@ namespace ChilledLeves.Scheduler.Tasks
             Svc.Log.Debug($"Targeting {objectID}");
             IGameObject? gameObject = null;
             P.taskManager.Enqueue(() => TryGetObjectByDataId(objectID, out gameObject), "Getting Object");
-            P.taskManager.Enqueue(() => PluginLog($"Targeting By ID. Target is: {gameObject?.DataId}"));
+            P.taskManager.Enqueue(() => PluginVerbos($"Targeting By ID. Target is: {gameObject?.DataId}"));
             P.taskManager.Enqueue(() => TargetgameObject(gameObject), "Targeting Object");
         }
     }

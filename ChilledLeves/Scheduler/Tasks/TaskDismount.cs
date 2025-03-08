@@ -18,7 +18,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 ActionManager.Instance()->UseAction(ActionType.GeneralAction, 24);
                 if (EzThrottler.Throttle("Dismount Attempt Log Spam", 2000))
-                    PluginLog("Attempting to dismount ya mount");
+                    PluginVerbos("Attempting to dismount ya mount");
             }
             return false;
         }

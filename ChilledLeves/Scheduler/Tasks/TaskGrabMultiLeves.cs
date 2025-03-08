@@ -67,7 +67,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
                     if (!leveMatch.Equals(default(KeyValuePair<uint, string>))) // If a match is found/that it didn't find one, and you haven't accepted the quest yet
                     {
-                        PluginLog($"Leve: {leveMatch.Value} [{leveMatch.Key}] was found");
+                        PluginVerbos($"Leve: {leveMatch.Value} [{leveMatch.Key}] was found");
                         var leveId = leveMatch.Key;
                         var leveName = leveMatch.Value;
                         var itemId = CrafterLeves[leveId].ItemID;
@@ -75,12 +75,12 @@ namespace ChilledLeves.Scheduler.Tasks
                         var itemAmountHave = GetItemCount((int)itemId);
 
                         if (GenericThrottle)
-                            PluginLog($"Leve {leveMatch.Value}: Accepted? {IsAccepted(leveId)}");
+                            PluginVerbos($"Leve {leveMatch.Value}: Accepted? {IsAccepted(leveId)}");
                         // if 3 <= 2
                         if (itemAmountRequired <= itemAmountHave && !IsAccepted(leveId) && Allowances > 0)
                         {
                             if (GenericThrottle)
-                            PluginLog($"Leve: {leveName} [{leveId}] has not been picked up yet");
+                            PluginVerbos($"Leve: {leveName} [{leveId}] has not been picked up yet");
 
                             foundLeve = true;
                             if (TryGetAddonMaster<AddonMaster.JournalDetail>("JournalDetail", out var det) && det.IsAddonReady)
@@ -90,7 +90,7 @@ namespace ChilledLeves.Scheduler.Tasks
                                     if (EzThrottler.Throttle("Selecting the Leve", 100))
                                     {
                                         l.Select();
-                                        PluginLog($"Selecting leve: {leveName}");
+                                        PluginVerbos($"Selecting leve: {leveName}");
                                     }
                                 }
                                 else if (GetNodeText("JournalDetail", 19) == leveName)
@@ -98,7 +98,7 @@ namespace ChilledLeves.Scheduler.Tasks
                                     if (EzThrottler.Throttle("Accepting leve", 100))
                                     {
                                         GenericHandlers.FireCallback("JournalDetail", true, 3, (int)leveId);
-                                        PluginLog($"Accepting the leve: {leveName}");
+                                        PluginVerbos($"Accepting the leve: {leveName}");
                                     }
                                 }
                                 break;
@@ -109,7 +109,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
                 if (!foundLeve)
                 {
-                    PluginLog("All possible leves at this vendor has been accepted, continuing on w/ the process");
+                    PluginVerbos("All possible leves at this vendor has been accepted, continuing on w/ the process");
                     IsAllAccepted = true;
                 }
             }

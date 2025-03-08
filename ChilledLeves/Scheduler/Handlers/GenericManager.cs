@@ -46,7 +46,7 @@ namespace ChilledLeves.Scheduler.Handlers
 
         internal static void Tick()
         {
-            if (P.taskManager.IsBusy)
+            if (SchedulerMain.AreWeTicking)
             {
                 //by Taurenkey https://github.com/PunishXIV/PandorasBox/blob/24a4352f5b01751767c7ca7f1d4b48369be98711/PandorasBox/Features/UI/AutoSelectTurnin.cs
                 var isenabled = (P.pandora.GetFeatureEnabled("Auto-select Turn-ins") ?? false)

@@ -3,6 +3,7 @@ using ChilledLeves.Utilities;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +14,24 @@ namespace ChilledLeves.Scheduler.Tasks
 {
     internal static class TaskGrabPrioLeve
     {
-        internal static void Enqueue(uint leveID, uint npcID, int classButton)
+        private static uint leveId = 0;
+        internal static void Enqueue(uint npcID, int classButton)
         {
+            P.taskManager.Enqueue(() => UpdateItemAmounts(), "Updating Item Count");
             TaskInteract.Enqueue(npcID);
-            P.taskManager.Enqueue(() => GrabLeve(npcID, classButton), DConfig);
-            P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), DConfig);
-            P.taskManager.Enqueue(() => PlayerNotBusy(), DConfig);
+            P.taskManager.Enqueue(() => GrabLeve(npcID, classButton), "Grabbing Leve from NPC", DConfig);
+            P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), "Leaving the Leve NPC", DConfig);
+            P.taskManager.Enqueue(() => PlayerNotBusy(), "Waiting for player to not be busy" ,DConfig);
+            P.taskManager.Enqueue(() => CheckLeve(leveId), "Checking if leve has been grabbed");
         }
 
         internal static unsafe bool? GrabLeve(uint npcID, int classButton)
         {
-            uint matchingLeveID = 0;
             var craftButton = LeveNPCDict[npcID].CrafterButton;
 
-            if (matchingLeveID != 0 && IsAccepted(matchingLeveID))
+            if (leveId != 0 && IsAccepted(leveId))
             {
+                PluginInfo($"LeveID {leveId} has been accepted. Exiting the NPC");
                 return true;
             }
             else if (TryGetAddonByName<AtkUnitBase>("Talk", out var TalkAddon) && IsAddonActive("Talk"))
@@ -46,57 +50,49 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (TryGetAddonMaster<GuildLeve>("GuildLeve", out var m) && m.IsAddonReady)
             {
-                bool hasLeve = false;
-                string matchingLeveName = null;
+                HashSet<string> PotentionalLeves = new HashSet<string>();
 
                 foreach (var l in m.Levequests)
                 {
-                    // Iterate over priority-ordered LeveIDs that exist in currentLeveIDs
-                    foreach (var leveID in CrafterLeves
-                        .Where(kv => SelectedLeves.Contains(kv.Key)) // Keep only existing LeveIDs
-                        .OrderBy(kv => kv.Value) // Sort by priority (lower = higher priority)
-                        .Select(kv => kv.Key)) // Select only the IDs
-                    {
-                        // Get the LeveName for this ID
-                        string leveName = CrafterLeves[leveID].LeveName;
+                    PotentionalLeves.Add(l.Name);
+                    PluginDebug($"Potentional Leves: {l.Name}");
+                }
 
-                        // If it matches, store it and break out of the loop
-                        if (l.Name == leveName)
+                string? prioLeve = GetLowestPriorityLeveName(PotentionalLeves);
+
+
+
+                if (prioLeve != null)
+                {
+                    foreach (var l in m.Levequests)
+                    {
+                        if (l.Name == prioLeve)
                         {
-                            matchingLeveID = leveID;
-                            matchingLeveName = leveName;
-                            hasLeve = true;
                             if (TryGetAddonMaster<AddonMaster.JournalDetail>("JournalDetail", out var det) && det.IsAddonReady)
                             {
-                                if (GetNodeText("JournalDetail", 19) != matchingLeveName)
+                                if (GetNodeText("JournalDetail", 19) != prioLeve)
                                 {
                                     if (EzThrottler.Throttle("Selecting the Leve"))
                                         l.Select();
                                 }
-                                else if (GetNodeText("JournalDetail", 19) == matchingLeveName)
+                                else if (GetNodeText("JournalDetail", 19) == prioLeve)
                                 {
                                     if (EzThrottler.Throttle("Accepting leve"))
                                     {
-                                        GenericHandlers.FireCallback("JournalDetail", true, 3, (ushort)matchingLeveID);
+                                        {
+                                            PluginDebug($"Grabbing the leve: {leveId}");
+                                            GenericHandlers.FireCallback("JournalDetail", true, 3, (int)leveId);
+                                        }
                                     }
                                 }
+
                             }
                         }
                     }
-
-                    // If no matching LeveID was found, continue to the next Levequest
-                    if (matchingLeveID == 0)
-                        continue;
-
-
                 }
-                if (!hasLeve)
+                else if (prioLeve == null)
                 {
-                    PluginLog($"Could not find a viable leve to grab for Gathering Mode");
-                    PluginLog($"This could be due to the following problems: ");
-                    PluginLog($"1: Leve level is to low or");
-                    PluginLog($"2: It's a gathering leve and the vendor doesn't have this leve currently.");
-                    PluginLog($"In the case of #2, please do other gathering leves of this type to be able to do this leve potentionally");
+                    PluginInfo("No leves are potentional to grab");
                     return true;
                 }
             }
@@ -134,6 +130,49 @@ namespace ChilledLeves.Scheduler.Tasks
             }
 
             return false;
+        }
+
+        internal static unsafe bool? CheckLeve(uint leveId)
+        {
+            if (!IsAccepted(leveId))
+            {
+                PluginVerbos("You can't do anymore leves, stopping the process");
+                Svc.Chat.Print("No more potentional leves, stopping gathering mode");
+                SchedulerMain.DisablePlugin();
+            }
+            else
+                return true;
+
+            return false;
+        }
+
+        private static string? GetLowestPriorityLeveName(HashSet<string> leveNames)
+        {
+            var leve = CrafterLeves
+                        .Where(kvp => leveNames.Contains(kvp.Value.LeveName) && (kvp.Value.TurninAmount <= kvp.Value.CurrentItemAmount)) // Filter by HashSet and check the TurninAmount
+                        .OrderBy(kvp => kvp.Value.Priority) // Sort by Priority
+                        .FirstOrDefault(); // Get the first (lowest priority) or null if none found
+
+            if (!CrafterLeves.ContainsKey(leve.Key))
+            {
+                leveId = 0;
+                return null;
+            }
+
+            leveId = leve.Key; // Output the LeveID
+            return leve.Value.LeveName; // Return the LeveName
+        }
+
+        private static void UpdateItemAmounts()
+        {
+            if (SelectedLeves.Count > 0)
+            {
+                foreach (var leve in SelectedLeves)
+                {
+                    int ItemId = (int)CrafterLeves[leve].ItemID;
+                    CrafterLeves[leve].CurrentItemAmount = GetItemCount(ItemId);
+                }
+            }
         }
     }
 }

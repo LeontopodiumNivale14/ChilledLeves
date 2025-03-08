@@ -7,7 +7,7 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         internal static unsafe void Enqueue(string QuestName, uint leveID)
         {
-            P.taskManager.Enqueue(() => Turnin(QuestName, leveID));
+            P.taskManager.Enqueue(() => Turnin(QuestName, leveID), configuration: DConfig);
             P.taskManager.Enqueue(() => !IsAccepted(leveID));
             P.taskManager.Enqueue(() => PlayerNotBusy());
         }
@@ -23,6 +23,7 @@ namespace ChilledLeves.Scheduler.Tasks
                 int callback = GetCallback(QuestName);
                 if (EzThrottler.Throttle("Selecting Correct Quest Turnin", 2000))
                 {
+                    PluginVerbos("Selecting the turnin quest");
                     GenericHandlers.FireCallback("SelectIconString", true, callback);
                 }
             }
@@ -30,6 +31,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 if (EzThrottler.Throttle("Talk Box", 100))
                 {
+                    PluginVerbos("Closing the Talk box");
                     GenericHandlers.FireCallback("Talk", true);
                 }
             }
@@ -37,6 +39,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 if (EzThrottler.Throttle("SelectYes to HQ", 100))
                 {
+                    PluginVerbos("Re-confirming that you want to turn in HQ");
                     GenericHandlers.FireCallback("SelectYesno", true, 0);
                 }
             }
@@ -44,6 +47,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 if (EzThrottler.Throttle("Accepting the journal", 100))
                 {
+                    PluginVerbos("Accepting the journal results");
                     GenericHandlers.FireCallback("JournalResult", true, 0, 0);
                 }
             }
@@ -51,6 +55,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 if (EzThrottler.Throttle("Accepting Multi-Turnin", 200))
                 {
+                    PluginVerbos("Saying yes to turning in multiple items");
                     GenericHandlers.FireCallback("SelectString", true, 0);
                 }
             }

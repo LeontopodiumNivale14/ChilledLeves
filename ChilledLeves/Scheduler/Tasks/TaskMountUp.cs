@@ -18,7 +18,7 @@ namespace ChilledLeves.Scheduler.Tasks
             if (!Svc.Condition[ConditionFlag.Casting] && !Svc.Condition[ConditionFlag.Unknown57] && PlayerNotBusy())
             {
                 ActionManager.Instance()->UseAction(ActionType.GeneralAction, 24);
-                PluginLog("Attempting to mount up");
+                PluginVerbos("Attempting to mount up");
             }
 
             return false;

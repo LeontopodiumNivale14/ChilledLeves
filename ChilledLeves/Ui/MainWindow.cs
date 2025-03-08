@@ -71,7 +71,12 @@ internal class MainWindow : Window
         ImGui.Spacing();
         if (ImGui.Button("Open Worklist"))
         {
-            P.settingWindow.IsOpen = !P.settingWindow.IsOpen;
+            P.workListUi.IsOpen = !P.workListUi.IsOpen;
+        }
+        ImGui.SameLine();
+        if (ImGui.Button("Open Gathering Grind"))
+        {
+            P.gatherModeUi.IsOpen = !P.gatherModeUi.IsOpen;
         }
         ImGui.EndGroup();
         ImGui.Separator();

@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Scheduler.Handlers;
+using ChilledLeves.Scheduler.Tasks;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface.Colors;
@@ -28,8 +29,9 @@ public static unsafe class Utils
     #region Plugin/Ecoms stuff
 
     public static bool HasPlugin(string name) => DalamudReflector.TryGetDalamudPlugin(name, out _, false, true);
-    public static void PluginLog(string message) => ECommons.Logging.PluginLog.Information(message);
-    public static void PluginDebug(string message) => ECommons.Logging.PluginLog.Debug(message);
+    public static void PluginVerbos(string message) => Svc.Log.Verbose(message);
+    public static void PluginInfo(string message) => Svc.Log.Info(message);
+    public static void PluginDebug(string message) => Svc.Log.Debug(message);
     internal static bool GenericThrottle => FrameThrottler.Throttle("AutoRetainerGenericThrottle", 10);
     public static TaskManagerConfiguration DConfig => new(timeLimitMS: 10 * 60 * 3000, abortOnTimeout: false);
 
@@ -234,7 +236,7 @@ public static unsafe class Utils
             if (CurrentText == questName)
             {
                 callback = i - 1;
-                PluginLog($"Callback number is: {callback}");
+                PluginVerbos($"Callback number is: {callback}");
                 break;
             }
         }
@@ -409,6 +411,12 @@ public static unsafe class Utils
                     LeveStatusDict.Add((uint)i, texture);
                 }
             }
+        }
+
+        foreach (var leveId in C.LevePriority)
+        {
+            var leve = leveId.Key;
+            CrafterLeves[leve].Priority = leveId.Value; //
         }
     }
 
@@ -754,6 +762,39 @@ public static unsafe class Utils
         {
             FontAwesome.Print(ImGuiColors.HealerGreen, FontAwesome.Check);
         }
+    }
+
+    public static uint HasAcceptedLeve()
+    {
+        uint returnLeveId = 0;
+
+        foreach (var leve in SelectedLeves)
+        {
+            var itemId = CrafterLeves[leve].ItemID;
+            var currentAmount = GetItemCount((int)itemId);
+            var turninAmount = CrafterLeves[leve].TurninAmount;
+
+
+            if (IsAccepted(leve) && currentAmount >= turninAmount)
+            {
+                returnLeveId = leve;
+                break;
+            }
+        }
+
+        return returnLeveId;
+    }
+
+    public static bool AllCompleted()
+    {
+        bool allCompleted = false;
+
+        foreach (var leve in SelectedLeves)
+        {
+            allCompleted &= IsComplete(leve);
+        }
+
+        return allCompleted;
     }
 
     #endregion

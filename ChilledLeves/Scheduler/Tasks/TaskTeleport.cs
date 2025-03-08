@@ -21,14 +21,14 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (targetTerritoryId == 819 || targetTerritoryId == 130)
             {
-                P.taskManager.Enqueue(() => PluginLog($"Target Territory is: {targetTerritoryId}"));
+                P.taskManager.Enqueue(() => PluginVerbos($"Target Territory is: {targetTerritoryId}"));
                 P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId));
-                P.taskManager.Enqueue(() => PluginLog($"Using the Aethernet"));
+                P.taskManager.Enqueue(() => PluginVerbos($"Using the Aethernet"));
                 TaskUseAethernet.Enqueue(targetTerritoryId);
             }
             else
             {
-                P.taskManager.Enqueue(() => PluginLog($"No special aethernet necessary, just teleporting to: {targetTerritoryId}"));
+                P.taskManager.Enqueue(() => PluginVerbos($"No special aethernet necessary, just teleporting to: {targetTerritoryId}"));
                 P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId));
             }
         }
@@ -47,7 +47,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 if (EzThrottler.Throttle("Teleport Throttle", 1000))
                 {
-                    PluginLog($"Teleporting to {aetherytID} at {targetTerritoryId}");
+                    PluginVerbos($"Teleporting to {aetherytID} at {targetTerritoryId}");
                     Telepo.Instance()->Teleport(aetherytID, 0);
                     return false;
                 }

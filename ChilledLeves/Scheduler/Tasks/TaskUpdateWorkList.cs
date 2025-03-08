@@ -15,7 +15,7 @@
             if (foundEntry != null)
             {
                 foundEntry.InputValue = foundEntry.InputValue - 1;
-                PluginLog($"Updated {leveID} to now have {foundEntry.InputValue}");
+                PluginVerbos($"Updated {leveID} to now have {foundEntry.InputValue}");
                 if (foundEntry.InputValue == 0)
                 {
                     if (foundEntry.InputValue == 0)

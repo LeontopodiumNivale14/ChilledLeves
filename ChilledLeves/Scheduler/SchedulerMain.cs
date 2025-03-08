@@ -82,20 +82,20 @@ namespace ChilledLeves.Scheduler
                                     }
                                     else if (entry.InputValue != 0)
                                     {
-                                        PluginLog($"Worklist has found that: {entry.LeveID} has an amount that isn't set to 0. Starting to work on this turnin process");
+                                        PluginVerbos($"Worklist has found that: {entry.LeveID} has an amount that isn't set to 0. Starting to work on this turnin process");
                                         hasLeves = true;
                                         var templeve = entry.LeveID;
                                         var currentAmount = GetItemCount((int)CrafterLeves[templeve].ItemID);
                                         var necessaryAmount = CrafterLeves[templeve].TurninAmount;
                                         if (currentAmount >= necessaryAmount)
                                         {
-                                            PluginLog("You have the necessary amount to run this leve. Grabbing/Turning In");
+                                            PluginVerbos("You have the necessary amount to run this leve. Grabbing/Turning In");
                                             leve = templeve;
                                             break;
                                         }
                                         else
                                         {
-                                            PluginLog("You do not have the amount to complete this turnin, skipping leve");
+                                            PluginVerbos("You do not have the amount to complete this turnin, skipping leve");
                                             if (!ListCycled.Any(e => e.LeveID == entry.LeveID))
                                             {
                                                 ListCycled.Add(new LeveEntry { LeveID = entry.LeveID, InputValue = entry.InputValue, ItemAmount = 0 });
@@ -119,7 +119,7 @@ namespace ChilledLeves.Scheduler
                                         {
                                             if (GetDistanceToPlayer(NPCLocation) < 1)
                                             {
-                                                P.taskManager.Enqueue(() => PluginLog("Close to the NPC, Starting Turnin Process"));
+                                                P.taskManager.Enqueue(() => PluginVerbos("Close to the NPC, Starting Turnin Process"));
                                                 TaskTurninMulti.Enqueue(zoneID);
                                             }
                                             else if (GetDistanceToPlayer(NPCLocation) > 1)
@@ -203,7 +203,7 @@ namespace ChilledLeves.Scheduler
                                     }
                                     else if (Allowances == 0)
                                     {
-                                        PluginLog("Somehow, you got here??? Not sure how but. Disabling the plugin");
+                                        PluginVerbos("Somehow, you got here??? Not sure how but. Disabling the plugin");
                                         DisablePlugin();
                                     }
                                 }
@@ -212,11 +212,11 @@ namespace ChilledLeves.Scheduler
                             {
                                 if (Allowances == 0)
                                 {
-                                    PluginLog("HEY. YOU HAVE NO LEVES FOOL.");
+                                    PluginVerbos("HEY. YOU HAVE NO LEVES FOOL.");
                                 }
                                 else if (C.workList.Count == 0)
                                 {
-                                    PluginLog("You have completed your list, stopping the plugin");
+                                    PluginVerbos("You have completed your list, stopping the plugin");
                                 }
                                 DisablePlugin();
                             }
@@ -227,114 +227,153 @@ namespace ChilledLeves.Scheduler
                             TaskClassChange.Enqueue(ecomJob);
 
                             uint leveId = 0;
-                            bool hasLeve = false;
                             bool isHighEnough = false;
                             bool isReadyforTurnin = false;
+                            bool canGrab = false;
                             var classLevel = UIState.Instance()->PlayerState.ClassJobLevels;
-                            foreach (var leve in SelectedLeves)
+
+                            if (C.RunUntilSelected == "Lv." && Player.GetUnsyncedLevel(ecomJob) == C.LevelSliderInput)
                             {
-                                var leveID = leve;
-
-                                if (CrafterLeves[leveID].Level <= Player.GetUnsyncedLevel(ecomJob))
-                                {
-                                    if (!isHighEnough)
-                                        isHighEnough = true;
-
-                                    var itemId = CrafterLeves[leveID].ItemID;
-                                    var currentAmount = GetItemCount((int)itemId);
-                                    if (currentAmount >= CrafterLeves[leveID].TurninAmount && IsAccepted(leveId))
-                                    {
-                                        isReadyforTurnin = true;
-                                        break;
-                                    }
-                                }
+                                string ChatText = "You have hit the level set, stopping the farming process";
+                                PluginVerbos(ChatText);
+                                Svc.Chat.Print(ChatText);
+                                DisablePlugin();
                             }
-
-                            if (isReadyforTurnin)
+                            else if (C.RunUntilSelected == "All Leves Complete" && AllCompleted())
                             {
-                                var Turninnpc = CrafterLeves[leveId].LeveTurninVendorID;
-                                var LeveName = CrafterLeves[leveId].LeveName;
-                                var zoneID = LeveNPCDict[Turninnpc].ZoneID;
-                                var aetheryte = LeveNPCDict[Turninnpc].Aetheryte;
-                                var NPCLocation = LeveNPCDict[Turninnpc].NPCInteractZone;
-
-                                if (IsInZone(zoneID))
-                                {
-                                    if (GetDistanceToPlayer(NPCLocation) < 1)
-                                    {
-                                        TaskTarget.Enqueue(Turninnpc);
-                                        TaskInteract.Enqueue(Turninnpc);
-                                        TaskTurnin.Enqueue(LeveName, leveId);
-                                        TaskUpdateWorkList.Enqueue(leveId);
-                                    }
-                                    else if (GetDistanceToPlayer(NPCLocation) > 1)
-                                    {
-                                        bool fly = false;
-
-                                        if (LeveNPCDict[Turninnpc].Mount)
-                                        {
-                                            TaskMountUp.Enqueue();
-                                            if (LeveNPCDict[Turninnpc].Fly.HasValue)
-                                            {
-                                                fly = (bool)LeveNPCDict[Turninnpc].Fly;
-                                            }
-                                        }
-
-                                        TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 1);
-                                    }
-                                }
-                                else if (!IsInZone(zoneID))
-                                {
-                                    TaskTeleport.Enqueue(aetheryte, zoneID);
-                                }
+                                string ChatText = "All leves have been completed on for this class, topping the process";
+                                PluginVerbos(ChatText);
+                                Svc.Chat.Print(ChatText);
+                                DisablePlugin();
                             }
-                            else if (isHighEnough && Allowances > 0)
+                            else
                             {
-                                var npc = CrafterLeves[leveId].LeveVendorID;
-                                var zoneID = LeveNPCDict[npc].ZoneID;
-                                var aetheryte = LeveNPCDict[npc].Aetheryte;
-                                var NPCLocation = LeveNPCDict[npc].NPCInteractZone;
-                                var requiredLevel = CrafterLeves[leveId].Level;
-                                var jobID = CrafterLeves[leveId].EcomJob;
-                                var buttonSelected = 0;
-                                if (GatheringJobList.Contains((int)jobID))
+                                foreach (var leve in SelectedLeves)
                                 {
-                                    buttonSelected = LeveNPCDict[npc].GatheringButton;
-                                }
-                                else if (CrafterJobList.Contains((int)jobID))
-                                {
-                                    buttonSelected = LeveNPCDict[npc].CrafterButton;
-                                }
+                                    leveId = leve;
 
-                                if (IsInZone(zoneID))
-                                {
-                                    if (GetDistanceToPlayer(NPCLocation) < 1)
+                                    if (CrafterLeves[leveId].Level <= Player.GetUnsyncedLevel(ecomJob))
                                     {
-                                        TaskTarget.Enqueue(npc);
-                                        TaskGrabPrioLeve.Enqueue(leveId, npc, buttonSelected);
-                                    }
-                                    else if (GetDistanceToPlayer(NPCLocation) > 1)
-                                    {
-                                        bool fly = false;
+                                        if (!isHighEnough)
+                                            isHighEnough = true;
 
-                                        if (LeveNPCDict[npc].Mount)
+                                        var itemId = CrafterLeves[leveId].ItemID;
+                                        var currentAmount = GetItemCount((int)itemId);
+                                        var turninAmount = CrafterLeves[leveId].TurninAmount;
+                                        var questCheck = HasAcceptedLeve();
+                                        if (questCheck != 0 && IsAccepted(questCheck))
                                         {
-                                            TaskMountUp.Enqueue();
-                                            if (LeveNPCDict[npc].Fly.HasValue)
-                                            {
-                                                fly = (bool)LeveNPCDict[npc].Fly;
-                                            }
+                                            PluginVerbos($"LeveId: {leveId} has been found and can be turned in. Proceeding onto the turnin process");
+                                            leveId = HasAcceptedLeve();
+                                            isReadyforTurnin = true;
+                                            break;
                                         }
-
-                                        TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 0.5f);
+                                        else if (currentAmount >= turninAmount)
+                                        {
+                                            PluginVerbos($"LeveId: {leveId} | leveName: {CrafterLeves[leveId].LeveName} has enough, but hasn't been accepted yet");
+                                            canGrab = true;
+                                            break;
+                                        }
                                     }
                                 }
-                                else if (!IsInZone(zoneID))
+
+                                if (!isReadyforTurnin && canGrab)
                                 {
-                                    TaskClassChange.Enqueue(jobID);
-                                    P.taskManager.EnqueueDelay(500);
-                                    TaskLevelChecker.Enqueue(requiredLevel);
-                                    TaskTeleport.Enqueue(aetheryte, zoneID);
+                                    PluginVerbos("No leves are ready for turnin, but you can grab a leve thankfully");
+                                }
+
+                                if (isReadyforTurnin)
+                                {
+                                    var Turninnpc = CrafterLeves[leveId].LeveTurninVendorID;
+                                    var LeveName = CrafterLeves[leveId].LeveName;
+                                    var zoneID = LeveNPCDict[Turninnpc].ZoneID;
+                                    var aetheryte = LeveNPCDict[Turninnpc].Aetheryte;
+                                    var NPCLocation = LeveNPCDict[Turninnpc].NPCInteractZone;
+
+                                    if (IsInZone(zoneID))
+                                    {
+                                        if (GetDistanceToPlayer(NPCLocation) < 1)
+                                        {
+                                            TaskTarget.Enqueue(Turninnpc);
+                                            TaskInteract.Enqueue(Turninnpc);
+                                            TaskTurnin.Enqueue(LeveName, leveId);
+                                            TaskUpdateWorkList.Enqueue(leveId);
+                                        }
+                                        else if (GetDistanceToPlayer(NPCLocation) > 1)
+                                        {
+                                            bool fly = false;
+
+                                            if (LeveNPCDict[Turninnpc].Mount)
+                                            {
+                                                TaskMountUp.Enqueue();
+                                                if (LeveNPCDict[Turninnpc].Fly.HasValue)
+                                                {
+                                                    fly = (bool)LeveNPCDict[Turninnpc].Fly;
+                                                }
+                                            }
+
+                                            TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 1);
+                                        }
+                                    }
+                                    else if (!IsInZone(zoneID))
+                                    {
+                                        TaskTeleport.Enqueue(aetheryte, zoneID);
+                                    }
+                                }
+                                else if (canGrab && Allowances > 0)
+                                {
+                                    var npc = CrafterLeves[leveId].LeveVendorID;
+                                    var zoneID = LeveNPCDict[npc].ZoneID;
+                                    var aetheryte = LeveNPCDict[npc].Aetheryte;
+                                    var NpcInteractZone = LeveNPCDict[npc].NPCInteractZone;
+                                    var NpcLocation = LeveNPCDict[npc].NPCLocation;
+                                    var requiredLevel = CrafterLeves[leveId].Level;
+                                    var jobID = CrafterLeves[leveId].EcomJob;
+                                    var buttonSelected = LeveNPCDict[npc].GatheringButton;
+
+                                    if (IsInZone(zoneID))
+                                    {
+                                        if (Player.DistanceTo(NpcLocation) < 6.8f)
+                                        {
+                                            TaskTarget.Enqueue(npc);
+                                            TaskGrabPrioLeve.Enqueue(npc, buttonSelected);
+                                        }
+                                        else if (Player.DistanceTo(NpcLocation) > 6.8f)
+                                        {
+                                            bool fly = false;
+
+                                            if (LeveNPCDict[npc].Mount && Player.DistanceTo(NpcLocation) > 20)
+                                            {
+                                                TaskMountUp.Enqueue();
+                                                if (Player.DistanceTo(NpcLocation) > 50)
+                                                {
+                                                    fly = true;
+                                                }
+                                                else if (LeveNPCDict[npc].Fly.HasValue)
+                                                {
+                                                    fly = true;
+                                                }
+                                            }
+
+                                            TaskMoveTo.Enqueue(NpcInteractZone, "LeveNPC", fly, 0.5f);
+                                        }
+                                    }
+                                    else if (!IsInZone(zoneID))
+                                    {
+                                        PluginVerbos("Not in the correct zone, heading to the proper one.");
+                                        PluginVerbos($"NPC Id = {npc}");
+                                        PluginVerbos($"NPC Name: {LeveNPCDict[npc].Name}");
+                                        PluginVerbos($"Zone: {ZoneName(LeveNPCDict[npc].ZoneID)}");
+                                        TaskClassChange.Enqueue(jobID);
+                                        P.taskManager.EnqueueDelay(500);
+                                        TaskLevelChecker.Enqueue(requiredLevel);
+                                        TaskTeleport.Enqueue(aetheryte, zoneID);
+                                    }
+                                }
+                                else
+                                {
+                                    PluginVerbos("Stopping the plugin, no potentional leves");
+                                    SchedulerMain.DisablePlugin();
                                 }
                             }
                         }

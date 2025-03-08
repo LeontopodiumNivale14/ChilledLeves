@@ -8,7 +8,7 @@ namespace ChilledLeves;
 public class Config : IEzConfig
 {
     [JsonIgnore]
-    public const int CurrentConfigVersion = 4;
+    public const int CurrentConfigVersion = 6;
 
     public uint CompleteFilter { get; set; } = 0;
 
@@ -57,7 +57,16 @@ public class Config : IEzConfig
     public string NameFilter = "";
     public bool GrabMulti = true;
 
+    public uint SelectedNpcId = 1000970;
+    public string SelectedNpcName = "Gontrant";
+    public string LocationName = "New Gridania";
+    public string ClassSelected = "Fisher";
+    public string RunUntilSelected = "Lv.";
+    public int LevelSliderInput = 1;
+
     public List<uint> FavoriteLeves = [];
+
+    public Dictionary<uint, int> LevePriority = new Dictionary<uint, int>(); 
 
     public bool IncreaseDelay = false;
 

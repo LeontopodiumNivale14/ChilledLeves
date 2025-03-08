@@ -17,7 +17,7 @@
             {
                 string errorMessage = "You're not the proper level to do this leve, stopping";
                 Svc.Toasts.ShowError(errorMessage);
-                PluginLog(errorMessage);
+                PluginVerbos(errorMessage);
                 SchedulerMain.DisablePlugin();
             }
             return false;

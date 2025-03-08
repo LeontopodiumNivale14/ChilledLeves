@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Scheduler;
+using ChilledLeves.Utilities;
 using Dalamud.Interface.Utility.Raii;
 using System;
 using System.Collections.Generic;
@@ -8,28 +9,40 @@ using System.Threading.Tasks;
 
 namespace ChilledLeves.Ui;
 
-public class SettingsUi
+internal class GatherModeUi : Window
 {
+    public GatherModeUi() :
+        base($"Gather Grind Mode Window {P.GetType().Assembly.GetName().Version} ###GatherModeWorkshopWindow")
+    {
+        Flags = ImGuiWindowFlags.None;
+        SizeConstraints = new()
+        {
+            MinimumSize = new Vector2(300, 300),
+            MaximumSize = new Vector2(2000, 2000),
+        };
+        P.windowSystem.AddWindow(this);
+        AllowPinning = false;
+    }
+
+    public void Dispose() { }
+
+    public override void Draw()
+    {
+        GatheringMode();
+    }
+
     #region Gathering Specific Planner
 
-    private List<uint> npcIds = CrafterLeves.Values
+    private static List<uint> npcIds = CrafterLeves.Values
         .Select(x => x.LeveVendorID)
         .Distinct()
         .ToList();
 
-    private uint selectedNpcId = 1000970;
-    private string selectedNPCName = NPCName(1000970);
-    private string LocationName = ZoneName(128);
+    private static HashSet<int> GatheringClasses = new HashSet<int>() { 2, 3, 4 };
+    private static List<string> classSelectList = new List<string>() { LeveTypeDict[2].LeveClassType, LeveTypeDict[3].LeveClassType, LeveTypeDict[4].LeveClassType };
+    private static List<string> RunUntilList = new List<string>() { "Lv.", "All Leves Complete" };
 
-    private HashSet<int> GatheringClasses = new HashSet<int>() { 2, 3, 4 };
-    private List<string> classSelectList = new List<string>() { LeveTypeDict[2].LeveClassType, LeveTypeDict[3].LeveClassType, LeveTypeDict[4].LeveClassType };
-    private List<string> RunUntilList = new List<string>() { "Lv.", "All Leves Complete" };
-
-    private string ClassSelected = LeveTypeDict[4].LeveClassType;
-    private string RunUntilSelected = "Lv.";
-    private int SliderInput = 1;
-
-    void CenterTextV2(string text)
+    private static void CenterTextV2(string text)
     {
         float columnWidth = ImGui.GetColumnWidth();
         float textWidth = ImGui.CalcTextSize(text).X;
@@ -37,8 +50,8 @@ public class SettingsUi
         ImGui.Text(text);
     }
 
-
-    private void GatheringMode()
+    private static uint leveId = 0;
+    private static void GatheringMode()
     {
         if (ImGui.BeginTable("Gathering Leve Settings", 2, ImGuiTableFlags.Borders))
         {
@@ -58,7 +71,7 @@ public class SettingsUi
                 tableColumn1Width = Option1Width;
 
             ImGui.TableNextColumn();
-            string selectableText = $"{selectedNPCName} → {LocationName}";
+            string selectableText = $"{C.SelectedNpcName} → {C.LocationName}";
             if (ImGui.Selectable(selectableText))
             {
                 ImGui.OpenPopup("NPC Selection Popup"); // Open the popup when the selectable is clicked
@@ -91,11 +104,12 @@ public class SettingsUi
                     // Create the row
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
-                    if (ImGui.Selectable(npcName, npcId == selectedNpcId)) // Check if it's the selected item
+                    if (ImGui.Selectable(npcName, npcId == C.SelectedNpcId)) // Check if it's the selected item
                     {
-                        selectedNpcId = npcId; // Update selected NPC ID
-                        selectedNPCName = npcName; // Update selected NPC Name
-                        LocationName = npcLocation;
+                        C.SelectedNpcId = npcId; // Update selected NPC ID
+                        C.SelectedNpcName = npcName; // Update selected NPC Name
+                        C.LocationName = npcLocation;
+                        C.Save();
                         ImGui.CloseCurrentPopup(); // Close the popup after selection
                     }
 
@@ -128,24 +142,26 @@ public class SettingsUi
             }
             combo2MaxWidth += 35;
             ImGui.SetNextItemWidth(combo2MaxWidth);
-            if (!classSelectList.Contains(ClassSelected))
+            if (!classSelectList.Contains(C.ClassSelected))
             {
-                ClassSelected = classSelectList.FirstOrDefault();
+            #nullable disable
+                C.ClassSelected = classSelectList.FirstOrDefault();
             }
-            if (ImGui.BeginCombo("###Class Selection", ClassSelected))
+            if (ImGui.BeginCombo("###Class Selection", C.ClassSelected))
             {
                 for (int i = 0; i < classSelectList.Count; i++)
                 {
                     int iconSlot = i + 2;
-                    bool isSelected = (classSelectList[i] == ClassSelected);
+                    bool isSelected = (classSelectList[i] == C.ClassSelected);
 
                     ImGui.PushID(iconSlot);
 
                     if (ImGui.Selectable("###hidden", isSelected, ImGuiSelectableFlags.SpanAllColumns))
                     {
                         SelectedLeves.Clear();
-                        ClassSelected = classSelectList[i];
+                        C.ClassSelected = classSelectList[i];
                         IconSlot = (uint)iconSlot;
+                        C.Save();
                     }
 
                     ImGui.SameLine();
@@ -186,14 +202,15 @@ public class SettingsUi
 
             combo3MaxWidth += 35;
             ImGui.SetNextItemWidth(combo3MaxWidth);
-            if (ImGui.BeginCombo("###Run Until Combo", RunUntilSelected))
+            if (ImGui.BeginCombo("###Run Until Combo", C.RunUntilSelected))
             {
                 foreach (var Selected in RunUntilList)
                 {
-                    bool isSelected = (RunUntilSelected == Selected);
+                    bool isSelected = (C.RunUntilSelected == Selected);
                     if (ImGui.Selectable(Selected, isSelected))
                     {
-                        RunUntilSelected = Selected;
+                        C.RunUntilSelected = Selected;
+                        C.Save();
                     }
                     if (isSelected)
                         ImGui.SetItemDefaultFocus();
@@ -201,16 +218,17 @@ public class SettingsUi
                 ImGui.EndCombo();
             }
 
-            if (RunUntilSelected == RunUntilList[0])
+            if (C.RunUntilSelected == RunUntilList[0])
             {
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100);
-                if (ImGui.SliderInt("###Lv Slider", ref SliderInput, 1, 100))
+                if (ImGui.SliderInt("###Lv Slider", ref C.LevelSliderInput, 1, 100))
                 {
-                    if (SliderInput > 100)
-                        SliderInput = 100;
-                    else if (SliderInput < 1)
-                        SliderInput = 1;
+                    if (C.LevelSliderInput > 100)
+                        C.LevelSliderInput = 100;
+                    else if (C.LevelSliderInput < 1)
+                        C.LevelSliderInput = 1;
+                    C.Save();
                 }
             }
 
@@ -237,6 +255,29 @@ public class SettingsUi
             ImGui.EndTooltip();
         }
 
+        if (TryGetAddonMaster<GuildLeve>("GuildLeve", out var m) && m.IsAddonReady)
+        {
+            ImGui.SameLine();
+            ImGui.Text("Prio Leve");
+            if (ImGui.IsItemHovered())
+            {
+                HashSet<string> PotentionalLeves = new HashSet<string>();
+                foreach (var l in m.Levequests)
+                {
+                    PotentionalLeves.Add(l.Name);
+                }
+
+                string? prioLeve = GetLowestPriorityLeveName(PotentionalLeves);
+                if (prioLeve != null)
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Text($"Leve to grab: {prioLeve}");
+                    ImGui.Text($"LeveID: {leveId}");
+                    ImGui.EndTooltip();
+                }
+            }
+        }
+
         using (ImRaii.Disabled(SchedulerMain.AreWeTicking))
         {
             if (ImGui.Button("Start Gathering Mode"))
@@ -254,7 +295,7 @@ public class SettingsUi
             }
         }
 
-        if (ImGui.BeginTable($"Crafting Workshop List", 7, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
+        if (ImGui.BeginTable($"Crafting Workshop List", 8, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingFixedFit))
         {
             // Columns for the crafters
             ImGui.TableSetupColumn("Prio###GatheringLevePrio", ImGuiTableColumnFlags.WidthFixed, 50);
@@ -264,6 +305,7 @@ public class SettingsUi
             ImGui.TableSetupColumn("Item Turnin###GatheringTurninItems", ImGuiTableColumnFlags.WidthFixed, 100);
             ImGui.TableSetupColumn("Need###GatheringAmountNecessary", ImGuiTableColumnFlags.WidthFixed, 50);
             ImGui.TableSetupColumn("Have###GatheringCompleteCheck", ImGuiTableColumnFlags.WidthFixed, 100);
+            ImGui.TableSetupColumn("Triple?");
 
             // Custom header row
             ImGui.TableHeadersRow();
@@ -284,7 +326,7 @@ public class SettingsUi
                 var itemNeed = kdp.Value.TurninAmount;
                 var itemId = kdp.Value.ItemID;
 
-                if (leveVendorId != selectedNpcId || jobAssignment != IconSlot)
+                if (leveVendorId != C.SelectedNpcId || jobAssignment != IconSlot)
                 {
                     continue;
                 }
@@ -303,13 +345,27 @@ public class SettingsUi
                 if (ImGui.DragInt("###GatheringPriority", ref priority))
                 {
                     kdp.Value.Priority = priority;
+                    if (!C.LevePriority.ContainsKey(leveID))
+                    {
+                        C.LevePriority.Add(leveID, priority);
+                    }
+                    else if (C.LevePriority.ContainsKey(leveID))
+                    {
+                        C.LevePriority[leveID] = priority;
+                    }
+                    C.Save();
                 }
 
                 ImGui.TableNextColumn();
                 bool leveCompleted = IsComplete(leveID);
-                FancyCheckmark(leveCompleted);
-                // Need to add a checkmark here, to lazy at the second
-
+                if (leveCompleted)
+                {
+                    ImGui.Image(LeveStatusDict[1].GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
+                }
+                if (!leveCompleted)
+                {
+                    ImGui.Image(LeveStatusDict[2].GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
+                }
 
                 ImGui.TableNextColumn();
                 CenterTextV2($"{leveLevel}");
@@ -328,12 +384,33 @@ public class SettingsUi
                 ImGui.TableNextColumn();
                 var itemHave = GetItemCount((int)kdp.Value.ItemID);
                 CenterTextV2($"{itemHave}");
+
+                ImGui.TableNextColumn();
+                bool tripleTurnin = kdp.Value.RepeatAmount > 1;
+                FancyCheckmark(tripleTurnin);
             }
 
             ImGui.EndTable();
         }
 
     }
+
+    private static string? GetLowestPriorityLeveName(HashSet<string> leveNames)
+    {
+        var leve = CrafterLeves
+                    .Where(kvp => leveNames.Contains(kvp.Value.LeveName) && (kvp.Value.TurninAmount <= kvp.Value.CurrentItemAmount)) // Filter by HashSet and check the TurninAmount
+                    .OrderBy(kvp => kvp.Value.Priority) // Sort by Priority
+                    .FirstOrDefault(); // Get the first (lowest priority) or null if none found
+
+        if (!CrafterLeves.ContainsKey(leve.Key))
+        {
+            return null;
+        }
+
+        leveId = leve.Key; // Output the LeveID
+        return leve.Value.LeveName; // Return the LeveName
+    }
+
 
     #endregion
 }

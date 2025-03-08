@@ -49,7 +49,7 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (IsInZone(goalZone) && IsScreenReady())
             {
-                PluginLog($"Is in zone: {goalZone}");
+                PluginVerbos($"Is in zone: {goalZone}");
                 return true;
             }
 
@@ -78,7 +78,7 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (GetDistanceToPlayer(teleportSpot) < teleportRange)
             {
-                PluginLog($"Is at the distance required for {ZoneID}");
+                PluginVerbos($"Is at the distance required for {ZoneID}");
                 return true;
             }
 

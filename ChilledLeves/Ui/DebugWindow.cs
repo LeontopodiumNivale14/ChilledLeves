@@ -1,5 +1,7 @@
-﻿using ChilledLeves.Scheduler.Tasks;
+﻿using ChilledLeves.Scheduler;
+using ChilledLeves.Scheduler.Tasks;
 using ChilledLeves.Utilities;
+using Dalamud.Interface.Utility.Raii;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.UIHelpers.AddonMasterImplementations;
@@ -131,7 +133,7 @@ internal class DebugWindow : Window
                     MathF.Round(Svc.Targets.Target.Position.Y, 2),
                     MathF.Round(Svc.Targets.Target.Position.Z, 2)
                     );
-                ImGui.SetClipboardText($"{roundedVector.X}f, {roundedVector.Y}f, {roundedVector.Z}f, ");
+                ImGui.SetClipboardText($"{roundedVector.X}f, {roundedVector.Y}f, {roundedVector.Z}f");
             }
             ImGui.Text($"{GetDistanceToPlayer(Svc.Targets.Target)}");
         }
@@ -249,23 +251,23 @@ internal class DebugWindow : Window
                         {
                             if (mount)
                             {
-                                P.taskManager.Enqueue(() => PluginLog($"{zoneID} is on the mounting list of enabled"));
+                                P.taskManager.Enqueue(() => PluginVerbos($"{zoneID} is on the mounting list of enabled"));
                                 TaskMountUp.Enqueue();
                             }
-                            if (fly)
+                            if (Player.DistanceTo(entry.Value.NPCLocation) > 35)
                             {
-                                P.taskManager.Enqueue(() => PluginLog($"{zoneID} is on the fly zone. GO GO GO."));
+                                P.taskManager.Enqueue(() => PluginVerbos($"{zoneID} is on the fly zone. GO GO GO."));
                                 fly = true;
                             }
 
-                            P.taskManager.Enqueue(() => PluginLog($"Flying: {fly}, moving to: {NPCLocation}"));
+                            P.taskManager.Enqueue(() => PluginVerbos($"Flying: {fly}, moving to: {NPCLocation}"));
                             TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 0.5f);
                             TaskDisMount.Enqueue();
 
                         }
                         else
                         {
-                            PluginLog("Not valid for movement");
+                            PluginVerbos("Not valid for movement");
                         }
                     }
 
@@ -537,7 +539,7 @@ internal class DebugWindow : Window
         var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
         if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(20), new Vector2(0.0000f, 0.0000f), new Vector2(0.3333f, 0.5000f)))
         {
-            PluginLog("Success");
+            PluginVerbos("Success");
         }
     }
 

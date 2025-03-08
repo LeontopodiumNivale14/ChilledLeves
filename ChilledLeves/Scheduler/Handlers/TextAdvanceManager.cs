@@ -14,7 +14,7 @@ namespace ChilledLeves.Scheduler.Handlers
         {
             if (WasChanged)
             {
-                if (!P.taskManager.IsBusy)
+                if (!SchedulerMain.AreWeTicking)
                 {
                     WasChanged = false;
                     UnlockTA();
@@ -23,7 +23,7 @@ namespace ChilledLeves.Scheduler.Handlers
             }
             else
             {
-                if (P.taskManager.IsBusy)
+                if (SchedulerMain.AreWeTicking)
                 {
                     WasChanged = true;
                     LockTA();
