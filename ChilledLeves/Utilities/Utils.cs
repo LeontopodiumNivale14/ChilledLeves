@@ -787,7 +787,7 @@ public static unsafe class Utils
 
     public static bool AllCompleted()
     {
-        bool allCompleted = false;
+        bool allCompleted = true;
 
         foreach (var leve in SelectedLeves)
         {
