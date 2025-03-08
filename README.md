@@ -7,14 +7,13 @@ Repo: `https://puni.sh/api/repository/ice`
 ### Currently supports
 ✔️ Turnins for Crafters  
 ✔️ Support for a list to be able to grab and turnin from each NPC  
-✔️ Turnins for Fisher (Through ARR, HW+ is known to be bugged at the second)   
+✔️ Turnins for Fisher (From ARR -> DT)   
+✔️ Gathering Farm mode (Currently supports fisher) where you can run until you complete all the leves at the vendor or until you hit x level 
+✔️ Multi-Grab Leves | Multi-Turnin Leves from the same NPC if you have them done
 
 ### Current Plans
 - [ ] Improve the Turnin NPC to see if there are multiple leves to be turned in
 - [ ] Fix mount roulette (for characters that only have 1 mount)
-- [ ] Fix HW+ Fishing Leves
-- [ ] Add a "farm" mode for gathering (so you can run until you hit a certain level or completed all leves
-- [ ] Being able to grab multiple leves for multiple classes at the same vendor 
 - [ ] More to come as I think about it
 
 Future plans:
