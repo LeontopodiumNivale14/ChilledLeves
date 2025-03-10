@@ -1,5 +1,6 @@
 ﻿using ChilledLeves.Scheduler;
 using ChilledLeves.Utilities;
+using Dalamud.Interface.Style;
 using Dalamud.Interface.Utility.Raii;
 using System;
 using System.Collections.Generic;
@@ -72,10 +73,12 @@ internal class GatherModeUi : Window
 
             ImGui.TableNextColumn();
             string selectableText = $"{C.SelectedNpcName} → {C.LocationName}";
+            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Green);
             if (ImGui.Selectable(selectableText))
             {
                 ImGui.OpenPopup("NPC Selection Popup"); // Open the popup when the selectable is clicked
             }
+            ImGui.PopStyleColor();
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();

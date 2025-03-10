@@ -402,8 +402,9 @@ internal class MainWindow : Window
         }
 
         var firstGroupWidth = Math.Max(350, widthFactor * 4f);
+        var firstGroupHeight = ImGui.GetContentRegionAvail().Y;
         ImGui.SetNextWindowSizeConstraints(new Vector2(0, 300),
-                                           new Vector2(firstGroupWidth, 300));
+                                           new Vector2(firstGroupWidth, firstGroupHeight));
         ImGui.BeginChild("###LeveList", new Vector2(0), true, ImGuiWindowFlags.NavFlattened | ImGuiWindowFlags.AlwaysVerticalScrollbar);
 
         foreach (var kdp in CrafterLeves)
@@ -462,8 +463,8 @@ internal class MainWindow : Window
         var secondGroupWidth =
             firstGroupWidth > 300 ? Math.Max(300, widthFactor * 6) - 25 : ImGui.GetWindowWidth() - 330;
         ImGui.SetNextWindowSizeConstraints(new Vector2(200f, 300),
-                                           new Vector2(secondGroupWidth, 300));
-        ImGui.BeginChild("###LeveDetail", new Vector2(0), true, ImGuiWindowFlags.NavFlattened);
+                                           new Vector2(secondGroupWidth, firstGroupHeight));
+        ImGui.BeginChild("###LeveDetail", new Vector2(0), true, ImGuiWindowFlags.NavFlattened | ImGuiWindowFlags.NoScrollbar);
 
         DrawLeveDetails();
 

@@ -24,36 +24,15 @@ namespace ChilledLeves.Ui
 
         public void Dispose() { }
 
-        private static Dictionary<uint, CrafterDataDict> WorklistDict = new Dictionary<uint, CrafterDataDict>();
-
         public override void Draw()
         {
-            foreach (var key in C.workList)
-            {
-                uint leveId = key.LeveID;
+            WorklistMode();
+        }
 
-                if (!WorklistDict.ContainsKey(leveId))
-                {
-                    WorklistDict.Add(leveId, new CrafterDataDict()
-                    {
-                        Amount = key.ItemAmount,
-                        JobAssignmentType = CrafterLeves[leveId].JobAssignmentType,
-                        Level = CrafterLeves[leveId].Level,
-                        LeveName = CrafterLeves[leveId].LeveName,
-                        ItemName = CrafterLeves[leveId].ItemName,
-                        ItemID = CrafterLeves[leveId].ItemID,
-                        TurninAmount = CrafterLeves[leveId].TurninAmount,
-                    });
-                }
-            }
+        #region
 
-            foreach (var entry in WorklistDict)
-            {
-                bool exist = C.workList.Any(e => e.LeveID == entry.Key);
-                if (!exist)
-                    WorklistDict.Remove(entry.Key);
-            }
-
+        public static void WorklistMode()
+        {
             ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");
 
             ImGui.Checkbox("###ChilledLevesKeepList", ref SchedulerMain.KeepLeves);
@@ -74,115 +53,125 @@ namespace ChilledLeves.Ui
             float col5Width = 0f;
             float col6Width = 0f;
 
-            if (ImGui.BeginTable("Workshop List", 7, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders))
+            float totalWidth = col0Width + col1Width + col2Width + col3Width + col4Width + col5Width + col6Width;
+
+            if (ImGui.BeginTable($"Workshop List", 7, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable))
             {
-                // All the worklist leve columns
                 ImGui.TableSetupColumn("Level###CrafterLevels", ImGuiTableColumnFlags.WidthFixed, col0Width);
                 ImGui.TableSetupColumn("Leve Name###CrafterLeveNames", ImGuiTableColumnFlags.WidthFixed, col1Width);
                 ImGui.TableSetupColumn("Run Amount###CrafterRunAmounts", ImGuiTableColumnFlags.WidthFixed, col2Width);
                 ImGui.TableSetupColumn("Item Turnin###CrafterTurninItems", ImGuiTableColumnFlags.WidthFixed, col3Width);
                 ImGui.TableSetupColumn("Need###CrafterAmountNecessary", ImGuiTableColumnFlags.WidthFixed, col4Width);
                 ImGui.TableSetupColumn("Have?###CrafterCompleteCheck", ImGuiTableColumnFlags.WidthFixed, col5Width);
-                ImGui.TableSetupColumn("Remove###CrafterLevesRemoveWorkList", ImGuiTableColumnFlags.WidthFixed, col6Width);
+                ImGui.TableSetupColumn("Remove###CrafterLevesRemoveWorkList");
 
-                // Making sure that the header row exist...
                 ImGui.TableHeadersRow();
 
-                foreach (var leve in WorklistDict)
+                foreach (var kdp in CrafterLeves)
                 {
-                    uint leveId = leve.Key;
-                    uint level = leve.Value.Level;
-                    uint jobId = leve.Value.JobAssignmentType;
-                    var jobIcon = LeveTypeDict[jobId].AssignmentIcon;
-                    string leveName = leve.Value.LeveName;
-                    string itemName = leve.Value.ItemName;
-                    uint itemId = leve.Value.ItemID;
-                    int itemAmount = leve.Value.Amount;
-                    int turninAmount = leve.Value.TurninAmount;
+                    var leveID = kdp.Key;
+                    var leveLevel = kdp.Value.Level;
+                    var leveName = kdp.Value.LeveName;
+                    var jobAssignment = kdp.Value.JobAssignmentType;
+                    var jobIcon = LeveTypeDict[jobAssignment].AssignmentIcon;
+
+                    var ItemImage = kdp.Value.ItemIcon.GetWrapOrEmpty();
+                    var itemName = kdp.Value.ItemName;
+                    var itemNeed = kdp.Value.TurninAmount;
+                    var itemId = kdp.Value.ItemID;
+
+                    if (!C.workList.Any(x => x.LeveID == leveID))
+                    {
+                        continue;
+                    }
 
                     ImGui.TableNextRow();
 
-                    ImGui.PushID((int)leveId);
+                    // Colomn 0 | Level Column
+                    ImGui.PushID((int)leveID);
                     ImGui.TableSetColumnIndex(0);
-                    CenterText($"{level}");
+                    CenterText($"{leveLevel}");
                     col0Width = Math.Max(col0Width, "Level".Length);
 
+                    // Column 1 | JobIcon + Leve Name
                     ImGui.TableNextColumn();
                     ImGui.Image(jobIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(25, 25));
                     ImGui.SameLine(0, 5);
                     ImGui.AlignTextToFramePadding();
                     CenterTextInHeight($"{leveName}");
-                    col1Width = Math.Max(col1Width, leveName.Length);
+                    col1Width = Math.Max(col1Width, leveName.Length + 10);
 
+                    // Column 2 | Amount to Run
                     ImGui.TableNextColumn();
-                    var inputValue = 0;
-                    foreach (var kdp in C.workList)
+                    var WorklistInput = C.workList.Where(x => x.LeveID == leveID).FirstOrDefault();
+                    var input = WorklistInput.InputValue;
+
+                    float availableWidth = ImGui.GetContentRegionAvail().X;  // Get remaining space in the column
+                    ImGui.SetNextItemWidth(availableWidth);  // Set the slider width
+                    ImGui.SliderInt("###RunAmountSlider", ref input, 1, 100);
+                    if (input < 1)
+                        input = 1;
+                    else if (input > 100)
+                        input = 100;
+                    if (WorklistInput.InputValue != input)
                     {
-                        if (kdp.LeveID == leveId)
-                        {
-                            var input = kdp.InputValue > 0 ? kdp.InputValue.ToString() : "0";
-                            CenterInputTextInHeight("###Input Run Amount", ref input, 3);
-                            if (uint.TryParse(input, out var num) && num > 0 && num <= 100)
-                            {
-                                kdp.InputValue = (int)num;
-                                inputValue = kdp.InputValue;
-                                C.Save();
-                            }
-                        }
+                        WorklistInput.InputValue = input;
+                        C.Save();
                     }
                     col2Width = 75;
 
+                    // Column 3 | Item Turnin
                     ImGui.TableNextColumn();
-                    CenterTextInHeight(itemName);
-                    col3Width = Math.Max(col3Width, itemName.Length);
+                    ImGui.Image(ItemImage.ImGuiHandle, new Vector2(25, 25));
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Image(ItemImage.ImGuiHandle, new Vector2(50, 50));
+                        ImGui.EndTooltip();
+                    }
+                    ImGui.SameLine(0, 5);
+                    ImGui.AlignTextToFramePadding();
+                    CenterTextInHeight($"{itemName}");
+                    col3Width = Math.Max(col3Width, itemName.Length + 15);
 
+                    // Column 4 | Need
                     ImGui.TableNextColumn();
-                    int amountNeeded = inputValue * turninAmount;
-                    if (amountNeeded > 0)
-                    {
-                        CenterText(amountNeeded.ToString());
-                    }
-                    else if (amountNeeded < 0)
-                    {
-                        amountNeeded = 0;
-                        CenterText(amountNeeded.ToString());
-                    }
+                    int needAmount = WorklistInput.InputValue * itemNeed;
+                    if (needAmount < 0)
+                        needAmount = 0;
+                    CenterText(needAmount.ToString());
                     col4Width = Math.Max(col4Width, "Need".Length);
 
+                    // Column 5 | Have
                     ImGui.TableNextColumn();
-                    int currentAmount = itemAmount;
-                    bool hasEnough = (currentAmount >= amountNeeded);
-                    if (amountNeeded != 0)
+                    int CurrentAmount = GetItemCount((int)itemId);
+                    bool hasEnough = needAmount <= CurrentAmount;
+                    if (needAmount != 0)
                     {
-                        FancyCheckmark(hasEnough);
-                        if (ImGui.IsItemHovered())
+                        if (hasEnough)
                         {
-                            ImGui.BeginTooltip();
-                            ImGui.Text($"Have: {currentAmount}");
-                            ImGui.EndTooltip();
+                            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Green);
                         }
+                        else if (!hasEnough)
+                        {
+                            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Red);
+                        }
+                        CenterText(CurrentAmount.ToString());
+                        ImGui.PopStyleColor();
                     }
                     col5Width = Math.Max(col5Width, "Have".Length);
 
+                    // Column 6 | Remove Leve from worklist
                     ImGui.TableNextColumn();
                     if (ImGuiEx.IconButton(FontAwesomeIcon.Trash, "Remove From LeveList"))
                     {
-                        foreach (var entry in C.workList)
-                        {
-                            if (entry.LeveID == leveId)
-                            {
-                                C.workList.Remove(entry);
-                                break;
-                            }
-                        }
+                        C.workList.Remove(WorklistInput);
                     }
                     col6Width = 75;
 
-                    ImGui.PopID();
                 }
-
-                ImGui.EndTable();
             }
+            ImGui.EndTable();
         }
 
         private static void CenterText(string text)
@@ -215,17 +204,6 @@ namespace ChilledLeves.Ui
             ImGui.Text(text);
         }
 
-        private static void CenterInputTextInHeight(string label, ref string input, uint maxLength)
-        {
-            float rowHeight = ImGui.GetTextLineHeightWithSpacing(); // Approximate row height
-            float inputHeight = ImGui.GetFrameHeight(); // Input field height
-
-            float cursorY = ImGui.GetCursorPosY() + (rowHeight - inputHeight) * 0.5f;
-            cursorY = Math.Max(cursorY, ImGui.GetCursorPosY()); // Prevent negative padding
-
-            ImGui.SetCursorPosY(cursorY);
-            ImGui.SetNextItemWidth(75);
-            ImGui.InputText(label, ref input, maxLength);
-        }
+        #endregion
     }
 }

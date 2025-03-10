@@ -297,6 +297,8 @@ public static unsafe class Utils
                 }
                 // Name of the leve that you're grabbing
                 string leveName = row.Name.ToString();
+                leveName = leveName.Replace("<nbsp>", " ");
+                leveName = leveName.Replace("<->", "");
 
                 uint leveLevel = row.ClassJobLevel;
                 int expReward = row.ExpReward.ToInt();
