@@ -1107,6 +1107,9 @@ public static unsafe class Data
             Aetheryte = 216,
             NPCInteractZone = new Vector3 (21.08f, -14.00f, 84.91f),
             NPCLocation = new Vector3(15.24f, -14f, 85.83f),
+            GatheringButton = 0,
+            CrafterButton = 1,
+            LeaveButton = 3,
             Mount = false,
             RequiredQuestId = 0,
             flagX = 15.24f, flagZ = 85.83f
