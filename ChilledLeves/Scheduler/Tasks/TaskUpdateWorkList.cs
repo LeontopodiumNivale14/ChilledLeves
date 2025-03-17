@@ -4,7 +4,7 @@
     {
         internal unsafe static void Enqueue(uint leveID)
         {
-            P.taskManager.Enqueue(() => UpdateWorkList(leveID));
+            P.taskManager.Enqueue(() => UpdateWorkList(leveID), "Updating the worklist");
         }
 
         internal unsafe static bool? UpdateWorkList(uint leveID)

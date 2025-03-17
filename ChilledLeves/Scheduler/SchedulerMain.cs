@@ -1,4 +1,5 @@
 using ChilledLeves.Scheduler.Tasks;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
@@ -109,33 +110,38 @@ namespace ChilledLeves.Scheduler
                                 {
                                     if (IsAccepted(leve))
                                     {
-                                        var Turninnpc = CrafterLeves[leve].LeveTurninVendorID;
+                                        var npc = CrafterLeves[leve].LeveTurninVendorID;
                                         var LeveName = CrafterLeves[leve].LeveName;
-                                        var zoneID = LeveNPCDict[Turninnpc].ZoneID;
-                                        var aetheryte = LeveNPCDict[Turninnpc].Aetheryte;
-                                        var NPCLocation = LeveNPCDict[Turninnpc].NPCInteractZone;
+                                        var zoneID = LeveNPCDict[npc].ZoneID;
+                                        var aetheryte = LeveNPCDict[npc].Aetheryte;
+                                        var NPCLocation = LeveNPCDict[npc].NPCInteractZone;
+                                        var NpcInteractZone = LeveNPCDict[npc].NPCInteractZone;
 
                                         if (IsInZone(zoneID))
                                         {
-                                            if (GetDistanceToPlayer(NPCLocation) < 1)
+                                            if (Player.DistanceTo(NPCLocation) < 6.8f)
                                             {
                                                 P.taskManager.Enqueue(() => PluginVerbos("Close to the NPC, Starting Turnin Process"));
                                                 TaskTurninMulti.Enqueue(zoneID);
                                             }
-                                            else if (GetDistanceToPlayer(NPCLocation) > 1)
+                                            else if (Player.DistanceTo(NPCLocation) > 6.8f)
                                             {
                                                 bool fly = false;
 
-                                                if (LeveNPCDict[Turninnpc].Mount)
+                                                if (LeveNPCDict[npc].Mount && Player.DistanceTo(NPCLocation) > 20)
                                                 {
                                                     TaskMountUp.Enqueue();
-                                                    if (LeveNPCDict[Turninnpc].Fly.HasValue)
+                                                    if (Player.DistanceTo(NPCLocation) > 50)
                                                     {
-                                                        fly = (bool)LeveNPCDict[Turninnpc].Fly;
+                                                        fly = true;
+                                                    }
+                                                    else if (LeveNPCDict[npc].Fly.HasValue)
+                                                    {
+                                                        fly = true;
                                                     }
                                                 }
 
-                                                TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 1);
+                                                TaskMoveTo.Enqueue(NpcInteractZone, "LeveNPC", fly, 0.5f);
                                             }
                                         }
                                         else if (!IsInZone(zoneID))

@@ -17,9 +17,9 @@ namespace ChilledLeves.Scheduler.Tasks
                 var leveName = CrafterLeves[leveId].LeveName;
                 var npcZone = LeveNPCDict[turninNPC].ZoneID;
 
-
-                if (npcZone == zoneId)
+                if (npcZone == zoneId && IsAccepted(leveId))
                 {
+                    P.taskManager.Enqueue(() => PluginInfo($"Starting the turnin process for LeveID: {leveId} | Levename: {leveName}"));
                     TaskTarget.Enqueue(turninNPC);
                     TaskInteract.Enqueue(turninNPC);
                     TaskTurnin.Enqueue(leveName, leveId);

@@ -7,9 +7,9 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         internal static unsafe void Enqueue(string QuestName, uint leveID)
         {
-            P.taskManager.Enqueue(() => Turnin(QuestName, leveID), configuration: DConfig);
-            P.taskManager.Enqueue(() => !IsAccepted(leveID));
-            P.taskManager.Enqueue(() => PlayerNotBusy());
+            P.taskManager.Enqueue(() => Turnin(QuestName, leveID), "Turning in Leve", configuration: DConfig);
+            P.taskManager.Enqueue(() => !IsAccepted(leveID), "Waiting for leve to not be accepted");
+            P.taskManager.Enqueue(() => PlayerNotBusy(), "Waiting for player to not be busy");
         }
 
         internal static unsafe bool? Turnin(string QuestName, uint leveID)
