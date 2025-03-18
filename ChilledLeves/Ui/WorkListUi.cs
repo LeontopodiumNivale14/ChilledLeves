@@ -45,6 +45,49 @@ namespace ChilledLeves.Ui
             ImGui.SameLine();
             ImGui.Text("Grab multiple leve's from vendor");
 
+            string artisan = "Copy for Artisan";
+            var CopyButton = artisan.Length;
+
+            ImGui.SetNextItemWidth(CopyButton);
+            if (ImGui.Button(artisan))
+            {
+                string importString = string.Empty;
+
+                importString = "Items : \n";
+
+                foreach (var kdp in CrafterLeves)
+                {
+                    var leveID = kdp.Key;
+                    var itemId = kdp.Value.ItemID;
+                    var itemName = kdp.Value.ItemName;
+                    var itemAmount = kdp.Value.TurninAmount;
+                    var jobType = kdp.Value.JobAssignmentType;
+
+                    if (!C.workList.Any(x => x.LeveID == leveID))
+                    {
+                        continue;
+                    }
+                    if (!CraftFisherJobs.Contains(jobType))
+                    {
+                        continue;
+                    }
+
+
+                    var WorklistInput = C.workList.Where(x => x.LeveID == leveID).FirstOrDefault();
+                    var InputAmount = WorklistInput.InputValue;
+                    var AmountNeeded = InputAmount * itemAmount;
+
+                    string temp = $"{AmountNeeded}x {itemName}\n";
+
+                    importString += temp;
+                }
+
+                ImGui.SetClipboardText($"{importString}");
+            }
+            ImGuiEx.HelpMarker("This lets you copy your worklist -> a format to import into Artisan \n" +
+                               "You can import it by going to \"Crafting List\" -> \"Teamcraft List Import\" \n" +
+                               "MAKE SURE TO PUT THIS IN FINAL ITEMS");
+
             float col0Width = 0f;
             float col1Width = 0f;
             float col2Width = 0f;
@@ -132,6 +175,16 @@ namespace ChilledLeves.Ui
                     ImGui.SameLine(0, 5);
                     ImGui.AlignTextToFramePadding();
                     CenterTextInHeight($"{itemName}");
+                    if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                    {
+                        ImGui.SetClipboardText(itemName);
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Text("Left click to copy item to clipboard");
+                        ImGui.EndTooltip();
+                    }
                     col3Width = Math.Max(col3Width, itemName.Length + 15);
 
                     // Column 4 | Need

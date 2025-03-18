@@ -1,5 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Conditions;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using ECommons.GameHelpers;
 
 namespace ChilledLeves.Scheduler.Tasks
 {
@@ -13,13 +14,15 @@ namespace ChilledLeves.Scheduler.Tasks
         // Mounting up on... well a mount. 
         internal unsafe static bool? MountUp()
         {
-            if (Svc.Condition[ConditionFlag.Mounted] && PlayerNotBusy()) return true;
+            if (Player.Mounted && PlayerNotBusy()) return true;
 
-            if (!Svc.Condition[ConditionFlag.Casting] && !Svc.Condition[ConditionFlag.Unknown57] && PlayerNotBusy())
+            if (!Svc.Condition[ConditionFlag.Casting] && !Player.Mounting && PlayerNotBusy())
             {
-                ActionManager.Instance()->UseAction(ActionType.GeneralAction, 24);
-                PluginVerbos("Attempting to mount up");
+                ActionManager.Instance()->UseAction(ActionType.GeneralAction, 9);
+                PluginDebug("Attempting to mount up");
             }
+
+
 
             return false;
         }
