@@ -357,9 +357,9 @@ public static unsafe class Utils
                 int priority = 0;
 
                 // Ensure the leveJobType is valid before inserting
-                if (!CrafterLeves.ContainsKey(leveNumber))
+                if (!LeveDictionary.ContainsKey(leveNumber))
                 {
-                    CrafterLeves[leveNumber] = new CrafterDataDict
+                    LeveDictionary[leveNumber] = new LeveDataDict
                     {
                         Amount = amount,
                         LeveName = leveName,
@@ -371,18 +371,24 @@ public static unsafe class Utils
                         GilReward = gilReward,
                         LeveVendorID = leveVendor,
                         LeveVendorName = vendorName,
-                        LeveTurninVendorID = turninNpcId,
 
+                        // Gathering Specific, but can be applied to all
+                        Priority = priority,
+                    };
+                }
+
+                if (!CraftDictionary.ContainsKey(leveNumber) && CraftFisherJobs.Contains(leveJob))
+                {
+                    CraftDictionary[leveNumber] = new CraftDataDict
+                    {
                         // Crafting Specific
+                        LeveTurninVendorID = turninNpcId,
                         RepeatAmount = leveRepeat,
                         ItemID = itemID,
                         ItemName = itemName,
                         ItemIcon = itemIcon,
                         TurninAmount = turninAmount,
                         CurrentItemAmount = currentlyHave,
-
-                        // Gathering Specific, but can be applied to all
-                        Priority = priority,
                     };
                 }
             }
@@ -418,7 +424,7 @@ public static unsafe class Utils
         foreach (var leveId in C.LevePriority)
         {
             var leve = leveId.Key;
-            CrafterLeves[leve].Priority = leveId.Value; //
+            LeveDictionary[leve].Priority = leveId.Value; //
         }
     }
 
@@ -772,9 +778,9 @@ public static unsafe class Utils
 
         foreach (var leve in SelectedLeves)
         {
-            var itemId = CrafterLeves[leve].ItemID;
+            var itemId = CraftDictionary[leve].ItemID;
             var currentAmount = GetItemCount((int)itemId);
-            var turninAmount = CrafterLeves[leve].TurninAmount;
+            var turninAmount = CraftDictionary[leve].TurninAmount;
 
 
             if (IsAccepted(leve) && currentAmount >= turninAmount)

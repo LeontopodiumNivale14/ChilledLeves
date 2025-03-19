@@ -13,8 +13,8 @@ namespace ChilledLeves.Scheduler.Tasks
             foreach (var leve in C.workList)
             {
                 var leveId = leve.LeveID;
-                var turninNPC = CrafterLeves[leveId].LeveTurninVendorID;
-                var leveName = CrafterLeves[leveId].LeveName;
+                var turninNPC = CraftDictionary[leveId].LeveTurninVendorID;
+                var leveName = LeveDictionary[leveId].LeveName;
                 var npcZone = LeveNPCDict[turninNPC].ZoneID;
 
                 if (npcZone == zoneId && IsAccepted(leveId))

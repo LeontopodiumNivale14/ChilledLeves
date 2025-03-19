@@ -129,7 +129,7 @@ public static unsafe class Data
 
     #region Crafter Leve Information
 
-    public class CrafterDataDict
+    public class LeveDataDict
     {
         // Universal information across the leves
         /// <summary>
@@ -159,11 +159,6 @@ public static unsafe class Data
         /// </summary>
         public uint LeveVendorID { get; set; }
         /// <summary>
-        /// The person who you're turning the leve into. 
-        /// This is also not hardcoded into the sheets anywhere... man this is rough lolol
-        /// </summary>
-        public uint LeveTurninVendorID { get; set; }
-        /// <summary>
         /// #17 [DataID] aka QuestID of it. Leads to CraftLeves for crafters. Not sure about the rest though...
         /// </summary>
         public uint QuestID { get; set; }
@@ -179,11 +174,20 @@ public static unsafe class Data
         /// Name of the leve person
         /// </summary>
         public string LeveVendorName { get; set; }
-        /// <summary>
-        /// The spot that tradecraft leves it on. Becuase this changes depending on which vendor/the type of leve...
-        /// </summary>
-        public int TradeCraftButton { get; set; }
 
+        // Gathering Specific
+        public int Priority { get; set; }
+    }
+
+    public static Dictionary<uint, LeveDataDict> LeveDictionary = new();
+
+    public class CraftDataDict
+    {
+        /// <summary>
+        /// The person who you're turning the leve into. 
+        /// This is also not hardcoded into the sheets anywhere... man this is rough lolol
+        /// </summary>
+        public uint LeveTurninVendorID { get; set; }
 
         // Crafter/Fisher Specific
         /// <summary>
@@ -212,12 +216,9 @@ public static unsafe class Data
         /// Updates currently every second. 
         /// </summary>
         public int CurrentItemAmount { get; set; }
-
-        // Gathering Specific
-        public int Priority { get; set; }
     }
 
-    public static Dictionary<uint, CrafterDataDict> CrafterLeves = new();
+    public static Dictionary<uint, CraftDataDict> CraftDictionary = new();
 
     #endregion
 

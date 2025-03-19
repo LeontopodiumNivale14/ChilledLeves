@@ -34,7 +34,7 @@ internal class GatherModeUi : Window
 
     #region Gathering Specific Planner
 
-    private static List<uint> npcIds = CrafterLeves.Values
+    private static List<uint> npcIds = LeveDictionary.Values
         .Select(x => x.LeveVendorID)
         .Distinct()
         .ToList();
@@ -248,7 +248,7 @@ internal class GatherModeUi : Window
             {
                 foreach (var leve in SelectedLeves)
                 {
-                    ImGui.Text($"leve: {leve} | Prio: {CrafterLeves[leve].Priority}");
+                    ImGui.Text($"leve: {leve} | Prio: {LeveDictionary[leve].Priority}");
                 }
             }
             else
@@ -313,7 +313,7 @@ internal class GatherModeUi : Window
             // Custom header row
             ImGui.TableHeadersRow();
 
-            foreach (var kdp in CrafterLeves)
+            foreach (var kdp in LeveDictionary)
             {
                 var leveID = kdp.Key;
                 var leveLevel = kdp.Value.Level;
@@ -324,10 +324,10 @@ internal class GatherModeUi : Window
                 var zoneId = LeveNPCDict[leveVendorId].ZoneID;
                 var priority = kdp.Value.Priority;
 
-                var ItemImage = kdp.Value.ItemIcon.GetWrapOrEmpty();
-                var itemName = kdp.Value.ItemName;
-                var itemNeed = kdp.Value.TurninAmount;
-                var itemId = kdp.Value.ItemID;
+                var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
+                var itemName = CraftDictionary[leveID].ItemName;
+                var itemNeed = CraftDictionary[leveID].TurninAmount;
+                var itemId = CraftDictionary[leveID].ItemID;
 
                 if (leveVendorId != C.SelectedNpcId || jobAssignment != IconSlot)
                 {
@@ -385,11 +385,11 @@ internal class GatherModeUi : Window
                 CenterTextV2($"{itemNeed}");
 
                 ImGui.TableNextColumn();
-                var itemHave = GetItemCount((int)kdp.Value.ItemID);
+                var itemHave = GetItemCount((int)CraftDictionary[leveID].ItemID);
                 CenterTextV2($"{itemHave}");
 
                 ImGui.TableNextColumn();
-                bool tripleTurnin = kdp.Value.RepeatAmount > 1;
+                bool tripleTurnin = CraftDictionary[leveID].RepeatAmount > 1;
                 FancyCheckmark(tripleTurnin);
             }
 
@@ -400,12 +400,12 @@ internal class GatherModeUi : Window
 
     private static string? GetLowestPriorityLeveName(HashSet<string> leveNames)
     {
-        var leve = CrafterLeves
-                    .Where(kvp => leveNames.Contains(kvp.Value.LeveName) && (kvp.Value.TurninAmount <= kvp.Value.CurrentItemAmount)) // Filter by HashSet and check the TurninAmount
+        var leve = LeveDictionary
+                    .Where(kvp => leveNames.Contains(kvp.Value.LeveName) && (CraftDictionary[kvp.Key].TurninAmount <= CraftDictionary[kvp.Key].CurrentItemAmount)) // Filter by HashSet and check the TurninAmount
                     .OrderBy(kvp => kvp.Value.Priority) // Sort by Priority
                     .FirstOrDefault(); // Get the first (lowest priority) or null if none found
 
-        if (!CrafterLeves.ContainsKey(leve.Key))
+        if (!LeveDictionary.ContainsKey(leve.Key))
         {
             return null;
         }

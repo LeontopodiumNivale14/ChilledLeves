@@ -394,11 +394,11 @@ internal class MainWindow : Window
         ImGui.BeginGroup();
         if (C.OnlyFavorites)
         {
-            ImGui.Text($"Showing: {C.FavoriteLeves.Count} out of {CrafterLeves.Count}");
+            ImGui.Text($"Showing: {C.FavoriteLeves.Count} out of {LeveDictionary.Count}");
         }
         else
         {
-            ImGui.Text($"Showing: {VisibleLeves.Count} out of {CrafterLeves.Count}");
+            ImGui.Text($"Showing: {VisibleLeves.Count} out of {LeveDictionary.Count}");
         }
 
         var firstGroupWidth = Math.Max(350, widthFactor * 4f);
@@ -407,7 +407,7 @@ internal class MainWindow : Window
                                            new Vector2(firstGroupWidth, firstGroupHeight));
         ImGui.BeginChild("###LeveList", new Vector2(0), true, ImGuiWindowFlags.NavFlattened | ImGuiWindowFlags.AlwaysVerticalScrollbar);
 
-        foreach (var kdp in CrafterLeves)
+        foreach (var kdp in LeveDictionary)
         {
             if (FilterLeve(kdp.Key))
             {
@@ -475,7 +475,7 @@ internal class MainWindow : Window
     private bool FilterLeve(uint leveId)
     {
         var showLeve = true;
-        var jobAssignmentType = CrafterLeves[leveId].JobAssignmentType;
+        var jobAssignmentType = LeveDictionary[leveId].JobAssignmentType;
 
         if (C.OnlyFavorites)
         {
@@ -484,7 +484,7 @@ internal class MainWindow : Window
 
         if (C.LevelFilter > 0)
         {
-            showLeve &= CrafterLeves[leveId].Level == C.LevelFilter;
+            showLeve &= LeveDictionary[leveId].Level == C.LevelFilter;
         }
 
         if (C.CompleteFilter == 1)
@@ -498,7 +498,7 @@ internal class MainWindow : Window
 
         if (!string.IsNullOrEmpty(C.NameFilter))
         {
-            showLeve &= CrafterLeves[leveId].LeveName.Contains(C.NameFilter, StringComparison.OrdinalIgnoreCase);
+            showLeve &= LeveDictionary[leveId].LeveName.Contains(C.NameFilter, StringComparison.OrdinalIgnoreCase);
         }
 
         // Option #1 (one I created becuase I might be dumb
@@ -524,19 +524,19 @@ internal class MainWindow : Window
     {
         var leve = (uint)selectedLeve;
         var questSheet = Svc.Data.GetExcelSheet<Quest>();
-        if (CrafterLeves.ContainsKey(leve))
+        if (LeveDictionary.ContainsKey(leve))
         {
             // string NPCName = NPCResidentsheet.GetRow(NPC).Singular.ToString();
             ImGui.Text($"LeveID: {leve}");
-            ImGui.Text($"[{CrafterLeves[leve].Level}] {CrafterLeves[leve].LeveName}");
+            ImGui.Text($"[{LeveDictionary[leve].Level}] {LeveDictionary[leve].LeveName}");
             ImGui.Separator();
-            ImGui.Text($"EXP Reward: {CrafterLeves[leve].ExpReward:N0}");
-            ImGui.Text($"Gil Reward: {CrafterLeves[leve].GilReward:N0} ± 5%%");
+            ImGui.Text($"EXP Reward: {LeveDictionary[leve].ExpReward:N0}");
+            ImGui.Text($"Gil Reward: {LeveDictionary[leve].GilReward:N0} ± 5%%");
             ImGui.Separator();
-            var vendorId = CrafterLeves[leve].LeveVendorID;
+            var vendorId = LeveDictionary[leve].LeveVendorID;
             var startZoneId = LeveNPCDict[vendorId].ZoneID;
             ImGui.Text($"Starting Zone: {ZoneName(startZoneId)}");
-            if (ImGui.Selectable($"NPC: {CrafterLeves[leve].LeveVendorName}"))
+            if (ImGui.Selectable($"NPC: {LeveDictionary[leve].LeveVendorName}"))
             {
                 var flagX = LeveNPCDict[vendorId].flagX;
                 var flagZ = LeveNPCDict[vendorId].flagZ;
@@ -550,18 +550,22 @@ internal class MainWindow : Window
             }
             ImGui.SameLine();
             FontAwesome.Print(ImGuiColors.DalamudWhite, FontAwesomeIcon.Flag);
-            
-            uint turninNPCId = CrafterLeves[leve].LeveTurninVendorID;
-            string turninName = string.Empty;
-            if (turninNPCId != 0)
+
+            var JobAssignment = LeveDictionary[leve].JobAssignmentType;
+            if (CraftFisherJobs.Contains(JobAssignment))
             {
-                turninName = NPCName(turninNPCId);
-            }
-            else
-            {
-                turninName = "not valid";
-            }
-            ImGui.Text($"Turnin NPC: {turninName}");
+                uint turninNPCId = CraftDictionary[leve].LeveTurninVendorID;
+                string turninName = string.Empty;
+                if (turninNPCId != 0)
+                {
+                    turninName = NPCName(turninNPCId);
+                }
+                else
+                {
+                    turninName = "not valid";
+                }
+                ImGui.Text($"Turnin NPC: {turninName}");
+            };
             ImGui.Text($"Is Complete:");
             ImGui.SameLine();
             ImGui.AlignTextToFramePadding();
@@ -579,19 +583,22 @@ internal class MainWindow : Window
             {
                 ImGui.Text("Quest is Accepted and Started");
             }
-            ImGui.Separator();
-            ImGui.Text($"Required Items:");
-            if (CrafterLeves[leve].RepeatAmount > 1)
+            if (CraftFisherJobs.Contains(JobAssignment))
             {
-                var totalTurnin = CrafterLeves[leve].RepeatAmount;
-                ImGui.Text($"    {CrafterLeves[leve].TurninAmount}({totalTurnin})x {CrafterLeves[leve].ItemName}");
+                ImGui.Separator();
+                ImGui.Text($"Required Items:");
+                if (CraftDictionary[leve].RepeatAmount > 1)
+                {
+                    var totalTurnin = CraftDictionary[leve].RepeatAmount;
+                    ImGui.Text($"    {CraftDictionary[leve].TurninAmount}({totalTurnin})x {CraftDictionary[leve].ItemName}");
+                }
+                else
+                {
+                    ImGui.Text($"    {CraftDictionary[leve].TurninAmount}x {CraftDictionary[leve].ItemName}");
+                }
+                ImGui.SameLine(0, 10);
+                ImGui.Image(CraftDictionary[leve].ItemIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(20));
             }
-            else
-            {
-                ImGui.Text($"    {CrafterLeves[leve].TurninAmount}x {CrafterLeves[leve].ItemName}");
-            }
-            ImGui.SameLine(0, 10);
-            ImGui.Image(CrafterLeves[leve].ItemIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(20));
             ImGui.Separator();
             ImGui.PushID((int)leve);
             if (ImGui.Button(C.FavoriteLeves.Contains(leve) ? $"Remove from Favorites" : "Add to favorites"))

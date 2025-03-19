@@ -83,7 +83,7 @@ internal class DebugWindow : Window
         {
             uint leve = entry.LeveID;
             ImGui.PushID((int)leve);
-            string leveName = CrafterLeves[leve].LeveName;
+            string leveName = LeveDictionary[leve].LeveName;
 
 
             ImGui.SetNextItemWidth(75);
@@ -343,7 +343,7 @@ internal class DebugWindow : Window
 
             ImGui.TableHeadersRow();
 
-            foreach (var entry in CrafterLeves)
+            foreach (var entry in LeveDictionary)
             {
                 string itemAmountText = entry.Value.Amount.ToString();
                 string leveName = entry.Value.LeveName.ToString();
@@ -351,7 +351,7 @@ internal class DebugWindow : Window
                 string leveVendorName = entry.Value.LeveVendorName.ToString();
                 string leveVendorId = entry.Value.LeveVendorID.ToString();
                 string leveStartName = ZoneName(LeveNPCDict[entry.Value.LeveVendorID].ZoneID);
-                uint turninVendorId = entry.Value.LeveTurninVendorID;
+                uint turninVendorId = CraftDictionary[entry.Key].LeveTurninVendorID;
                 string leveEndZoneName = ZoneName(LeveNPCDict[turninVendorId].ZoneID);
                 string turninVendorName = "";
                 int gilReward = entry.Value.GilReward;
@@ -582,7 +582,7 @@ internal class DebugWindow : Window
         {
             if (!ViableLeves.ContainsKey(leve.LeveID))
             {
-                string leveName = CrafterLeves[leve.LeveID].LeveName;
+                string leveName = LeveDictionary[leve.LeveID].LeveName;
                 ViableLeves.Add(leve.LeveID, leveName);
             }
         }

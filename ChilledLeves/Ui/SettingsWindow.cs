@@ -71,12 +71,12 @@ internal class SettingsWindow : Window
             foreach (var kdp in C.workList)
             {
                 uint leveID = kdp.LeveID;
-                uint level = CrafterLeves[leveID].Level;
-                uint jobID = CrafterLeves[leveID].JobAssignmentType;
+                uint level = LeveDictionary[leveID].Level;
+                uint jobID = LeveDictionary[leveID].JobAssignmentType;
                 var jobIcon = LeveTypeDict[jobID].AssignmentIcon;
-                string LeveName = CrafterLeves[leveID].LeveName;
-                string ItemName = CrafterLeves[leveID].ItemName;
-                uint itemId = CrafterLeves[leveID].ItemID;
+                string LeveName = LeveDictionary[leveID].LeveName;
+                string ItemName = CraftDictionary[leveID].ItemName;
+                uint itemId = CraftDictionary[leveID].ItemID;
                 int itemAmount = kdp.ItemAmount;
                 ImGui.TableNextRow();
 
@@ -103,7 +103,7 @@ internal class SettingsWindow : Window
                 CenterTextInHeight(ItemName);
 
                 ImGui.TableNextColumn();
-                int amountNeeded = kdp.InputValue * CrafterLeves[leveID].TurninAmount;
+                int amountNeeded = kdp.InputValue * CraftDictionary[leveID].TurninAmount;
                 if (amountNeeded > 0)
                 {
                     CenterText(amountNeeded.ToString());
@@ -185,7 +185,7 @@ internal class SettingsWindow : Window
             foreach (var leve in C.workList)
             {
                 var LeveId = leve.LeveID;
-                var ItemId = (int)CrafterLeves[LeveId].ItemID;
+                var ItemId = (int)CraftDictionary[LeveId].ItemID;
                 leve.ItemAmount = GetItemCount(ItemId);
             }
         }

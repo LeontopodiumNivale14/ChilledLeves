@@ -18,7 +18,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
         internal static unsafe bool? GrabLeve(ushort leveID, uint npcID, int classButton)
         {
-            var LeveName = CrafterLeves[leveID].LeveName;
+            var LeveName = LeveDictionary[leveID].LeveName;
             var craftButton = LeveNPCDict[npcID].CrafterButton;
 
             if (IsAccepted(leveID))

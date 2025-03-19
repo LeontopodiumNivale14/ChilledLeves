@@ -128,7 +128,7 @@ public sealed class ChilledLeves : IDalamudPlugin
             string thirdCommand = subcommands[2];
             uint leveId = 0;
             int repeatAmount = 0;
-            if (int.TryParse(secondCommand, out int value) && CrafterLeves.ContainsKey((uint)value))
+            if (int.TryParse(secondCommand, out int value) && LeveDictionary.ContainsKey((uint)value))
             {
                 leveId = (uint)value;
                 if (int.TryParse(thirdCommand, out int repeat) && (repeat > 0 && repeat <= 100))

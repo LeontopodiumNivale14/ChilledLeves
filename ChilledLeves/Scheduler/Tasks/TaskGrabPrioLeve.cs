@@ -148,12 +148,12 @@ namespace ChilledLeves.Scheduler.Tasks
 
         private static string? GetLowestPriorityLeveName(HashSet<string> leveNames)
         {
-            var leve = CrafterLeves
-                        .Where(kvp => leveNames.Contains(kvp.Value.LeveName) && (kvp.Value.TurninAmount <= kvp.Value.CurrentItemAmount)) // Filter by HashSet and check the TurninAmount
+            var leve = LeveDictionary
+                        .Where(kvp => leveNames.Contains(kvp.Value.LeveName) && (CraftDictionary[kvp.Key].TurninAmount <= CraftDictionary[kvp.Key].CurrentItemAmount)) // Filter by HashSet and check the TurninAmount
                         .OrderBy(kvp => kvp.Value.Priority) // Sort by Priority
                         .FirstOrDefault(); // Get the first (lowest priority) or null if none found
 
-            if (!CrafterLeves.ContainsKey(leve.Key))
+            if (!LeveDictionary.ContainsKey(leve.Key))
             {
                 leveId = 0;
                 return null;
@@ -169,8 +169,8 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 foreach (var leve in SelectedLeves)
                 {
-                    int ItemId = (int)CrafterLeves[leve].ItemID;
-                    CrafterLeves[leve].CurrentItemAmount = GetItemCount(ItemId);
+                    int ItemId = (int)CraftDictionary[leve].ItemID;
+                    CraftDictionary[leve].CurrentItemAmount = GetItemCount(ItemId);
                 }
             }
         }

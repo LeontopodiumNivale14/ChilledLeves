@@ -55,13 +55,14 @@ namespace ChilledLeves.Ui
 
                 importString = "Items : \n";
 
-                foreach (var kdp in CrafterLeves)
+                foreach (var kdp in LeveDictionary)
                 {
                     var leveID = kdp.Key;
-                    var itemId = kdp.Value.ItemID;
-                    var itemName = kdp.Value.ItemName;
-                    var itemAmount = kdp.Value.TurninAmount;
                     var jobType = kdp.Value.JobAssignmentType;
+
+                    var itemId = CraftDictionary[leveID].ItemID;
+                    var itemName = CraftDictionary[leveID].ItemName;
+                    var itemAmount = CraftDictionary[leveID].TurninAmount;
 
                     if (!C.workList.Any(x => x.LeveID == leveID))
                     {
@@ -110,7 +111,7 @@ namespace ChilledLeves.Ui
 
                 ImGui.TableHeadersRow();
 
-                foreach (var kdp in CrafterLeves)
+                foreach (var kdp in LeveDictionary)
                 {
                     var leveID = kdp.Key;
                     var leveLevel = kdp.Value.Level;
@@ -118,10 +119,10 @@ namespace ChilledLeves.Ui
                     var jobAssignment = kdp.Value.JobAssignmentType;
                     var jobIcon = LeveTypeDict[jobAssignment].AssignmentIcon;
 
-                    var ItemImage = kdp.Value.ItemIcon.GetWrapOrEmpty();
-                    var itemName = kdp.Value.ItemName;
-                    var itemNeed = kdp.Value.TurninAmount;
-                    var itemId = kdp.Value.ItemID;
+                    var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
+                    var itemName = CraftDictionary[leveID].ItemName;
+                    var itemNeed = CraftDictionary[leveID].TurninAmount;
+                    var itemId = CraftDictionary[leveID].ItemID;
 
                     if (!C.workList.Any(x => x.LeveID == leveID))
                     {

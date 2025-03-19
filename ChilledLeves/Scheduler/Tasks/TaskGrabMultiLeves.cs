@@ -33,7 +33,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 if (!ViableLeves.ContainsKey(leve.LeveID))
                 {
-                    string leveName = CrafterLeves[leve.LeveID].LeveName;
+                    string leveName = LeveDictionary[leve.LeveID].LeveName;
                     ViableLeves.Add(leve.LeveID, leveName);
                 }
             }
@@ -70,8 +70,8 @@ namespace ChilledLeves.Scheduler.Tasks
                         PluginVerbos($"Leve: {leveMatch.Value} [{leveMatch.Key}] was found");
                         var leveId = leveMatch.Key;
                         var leveName = leveMatch.Value;
-                        var itemId = CrafterLeves[leveId].ItemID;
-                        var itemAmountRequired = CrafterLeves[leveId].TurninAmount;
+                        var itemId = CraftDictionary[leveId].ItemID;
+                        var itemAmountRequired = CraftDictionary[leveId].TurninAmount;
                         var itemAmountHave = GetItemCount((int)itemId);
 
                         if (GenericThrottle)

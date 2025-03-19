@@ -86,8 +86,8 @@ namespace ChilledLeves.Scheduler
                                         PluginVerbos($"Worklist has found that: {entry.LeveID} has an amount that isn't set to 0. Starting to work on this turnin process");
                                         hasLeves = true;
                                         var templeve = entry.LeveID;
-                                        var currentAmount = GetItemCount((int)CrafterLeves[templeve].ItemID);
-                                        var necessaryAmount = CrafterLeves[templeve].TurninAmount;
+                                        var currentAmount = GetItemCount((int)CraftDictionary[templeve].ItemID);
+                                        var necessaryAmount = CraftDictionary[templeve].TurninAmount;
                                         if (currentAmount >= necessaryAmount)
                                         {
                                             PluginVerbos("You have the necessary amount to run this leve. Grabbing/Turning In");
@@ -110,8 +110,8 @@ namespace ChilledLeves.Scheduler
                                 {
                                     if (IsAccepted(leve))
                                     {
-                                        var npc = CrafterLeves[leve].LeveTurninVendorID;
-                                        var LeveName = CrafterLeves[leve].LeveName;
+                                        var npc = CraftDictionary[leve].LeveTurninVendorID;
+                                        var LeveName = LeveDictionary[leve].LeveName;
                                         var zoneID = LeveNPCDict[npc].ZoneID;
                                         var aetheryte = LeveNPCDict[npc].Aetheryte;
                                         var NPCLocation = LeveNPCDict[npc].NPCInteractZone;
@@ -151,12 +151,12 @@ namespace ChilledLeves.Scheduler
                                     }
                                     else if (!IsAccepted(leve) && Allowances > 0)
                                     {
-                                        var npc = CrafterLeves[leve].LeveVendorID;
+                                        var npc = LeveDictionary[leve].LeveVendorID;
                                         var zoneID = LeveNPCDict[npc].ZoneID;
                                         var aetheryte = LeveNPCDict[npc].Aetheryte;
                                         var NPCLocation = LeveNPCDict[npc].NPCInteractZone;
-                                        var requiredLevel = CrafterLeves[leve].Level;
-                                        var jobID = CrafterLeves[leve].EcomJob;
+                                        var requiredLevel = LeveDictionary[leve].Level;
+                                        var jobID = LeveDictionary[leve].EcomJob;
                                         var buttonSelected = 0;
                                         if (GatheringJobList.Contains((int)jobID))
                                         {
@@ -258,14 +258,14 @@ namespace ChilledLeves.Scheduler
                                 {
                                     leveId = leve;
 
-                                    if (CrafterLeves[leveId].Level <= Player.GetUnsyncedLevel(ecomJob))
+                                    if (LeveDictionary[leveId].Level <= Player.GetUnsyncedLevel(ecomJob))
                                     {
                                         if (!isHighEnough)
                                             isHighEnough = true;
 
-                                        var itemId = CrafterLeves[leveId].ItemID;
+                                        var itemId = CraftDictionary[leveId].ItemID;
                                         var currentAmount = GetItemCount((int)itemId);
-                                        var turninAmount = CrafterLeves[leveId].TurninAmount;
+                                        var turninAmount = CraftDictionary[leveId].TurninAmount;
                                         var questCheck = HasAcceptedLeve();
                                         if (questCheck != 0 && IsAccepted(questCheck))
                                         {
@@ -276,7 +276,7 @@ namespace ChilledLeves.Scheduler
                                         }
                                         else if (currentAmount >= turninAmount)
                                         {
-                                            PluginVerbos($"LeveId: {leveId} | leveName: {CrafterLeves[leveId].LeveName} has enough, but hasn't been accepted yet");
+                                            PluginVerbos($"LeveId: {leveId} | leveName: {LeveDictionary[leveId].LeveName} has enough, but hasn't been accepted yet");
                                             canGrab = true;
                                             break;
                                         }
@@ -290,8 +290,8 @@ namespace ChilledLeves.Scheduler
 
                                 if (isReadyforTurnin)
                                 {
-                                    var Turninnpc = CrafterLeves[leveId].LeveTurninVendorID;
-                                    var LeveName = CrafterLeves[leveId].LeveName;
+                                    var Turninnpc = CraftDictionary[leveId].LeveTurninVendorID;
+                                    var LeveName = LeveDictionary[leveId].LeveName;
                                     var zoneID = LeveNPCDict[Turninnpc].ZoneID;
                                     var aetheryte = LeveNPCDict[Turninnpc].Aetheryte;
                                     var NPCLocation = LeveNPCDict[Turninnpc].NPCInteractZone;
@@ -328,13 +328,13 @@ namespace ChilledLeves.Scheduler
                                 }
                                 else if (canGrab && Allowances > 0)
                                 {
-                                    var npc = CrafterLeves[leveId].LeveVendorID;
+                                    var npc = LeveDictionary[leveId].LeveVendorID;
                                     var zoneID = LeveNPCDict[npc].ZoneID;
                                     var aetheryte = LeveNPCDict[npc].Aetheryte;
                                     var NpcInteractZone = LeveNPCDict[npc].NPCInteractZone;
                                     var NpcLocation = LeveNPCDict[npc].NPCLocation;
-                                    var requiredLevel = CrafterLeves[leveId].Level;
-                                    var jobID = CrafterLeves[leveId].EcomJob;
+                                    var requiredLevel = LeveDictionary[leveId].Level;
+                                    var jobID = LeveDictionary[leveId].EcomJob;
                                     var buttonSelected = LeveNPCDict[npc].GatheringButton;
 
                                     if (IsInZone(zoneID))
