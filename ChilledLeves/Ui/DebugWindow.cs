@@ -351,17 +351,26 @@ internal class DebugWindow : Window
                 string leveVendorName = entry.Value.LeveVendorName.ToString();
                 string leveVendorId = entry.Value.LeveVendorID.ToString();
                 string leveStartName = ZoneName(LeveNPCDict[entry.Value.LeveVendorID].ZoneID);
-                uint turninVendorId = CraftDictionary[entry.Key].LeveTurninVendorID;
-                string leveEndZoneName = ZoneName(LeveNPCDict[turninVendorId].ZoneID);
-                string turninVendorName = "";
                 int gilReward = entry.Value.GilReward;
+                var jobType = entry.Value.JobAssignmentType;
+
+
+                uint turninVendorId = 0;
+                string leveEndZoneName = "";
+                if (CraftFisherJobs.Contains(jobType))
+                {
+                    turninVendorId = CraftDictionary[entry.Key].LeveTurninVendorID;
+                    leveEndZoneName = ZoneName(LeveNPCDict[turninVendorId].ZoneID);
+                }
+
+                string turninVendorName = "";
                 if (turninVendorId != 0)
                 {
                     turninVendorName = LeveNPCDict[turninVendorId].Name;
                 }
                 else
                 {
-                    turninVendorName = "Not a valid turnin vendor!";
+                    turninVendorName = "N/A";
                 }
 
                 // Search Filtering

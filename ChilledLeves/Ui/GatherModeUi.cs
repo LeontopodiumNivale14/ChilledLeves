@@ -324,11 +324,6 @@ internal class GatherModeUi : Window
                 var zoneId = LeveNPCDict[leveVendorId].ZoneID;
                 var priority = kdp.Value.Priority;
 
-                var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
-                var itemName = CraftDictionary[leveID].ItemName;
-                var itemNeed = CraftDictionary[leveID].TurninAmount;
-                var itemId = CraftDictionary[leveID].ItemID;
-
                 if (leveVendorId != C.SelectedNpcId || jobAssignment != IconSlot)
                 {
                     continue;
@@ -344,6 +339,7 @@ internal class GatherModeUi : Window
                 ImGui.TableNextRow();
 
                 ImGui.PushID((int)leveID);
+                // Priority
                 ImGui.TableSetColumnIndex(0);
                 if (ImGui.DragInt("###GatheringPriority", ref priority))
                 {
@@ -359,6 +355,7 @@ internal class GatherModeUi : Window
                     C.Save();
                 }
 
+                // Completed
                 ImGui.TableNextColumn();
                 bool leveCompleted = IsComplete(leveID);
                 if (leveCompleted)
@@ -370,27 +367,49 @@ internal class GatherModeUi : Window
                     ImGui.Image(LeveStatusDict[2].GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
                 }
 
+                // Level
                 ImGui.TableNextColumn();
                 CenterTextV2($"{leveLevel}");
 
+                // Leve Name
                 ImGui.TableNextColumn();
                 ImGui.Text($"{leveName}");
 
+                // Gathering Item (if applicable)
                 ImGui.TableNextColumn();
-                ImGui.Image(ItemImage.ImGuiHandle, new Vector2(20, 20));
-                ImGui.SameLine(0, 5);
-                ImGui.Text($"{itemName}");
+                if (CraftFisherJobs.Contains(jobAssignment))
+                {
+                    var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
+                    var itemName = CraftDictionary[leveID].ItemName;
 
-                ImGui.TableNextColumn();
-                CenterTextV2($"{itemNeed}");
+                    ImGui.Image(ItemImage.ImGuiHandle, new Vector2(20, 20));
+                    ImGui.SameLine(0, 5);
+                    ImGui.Text($"{itemName}");
+                }
 
+                // Amount to turnin
                 ImGui.TableNextColumn();
-                var itemHave = GetItemCount((int)CraftDictionary[leveID].ItemID);
-                CenterTextV2($"{itemHave}");
+                if (CraftFisherJobs.Contains(jobAssignment))
+                {
+                    var itemNeed = CraftDictionary[leveID].TurninAmount;
+                    CenterTextV2($"{itemNeed}");
+                }
 
+                // Amount you currently have
                 ImGui.TableNextColumn();
-                bool tripleTurnin = CraftDictionary[leveID].RepeatAmount > 1;
-                FancyCheckmark(tripleTurnin);
+                if (CraftFisherJobs.Contains(jobAssignment))
+                {
+                    var itemHave = GetItemCount((int)CraftDictionary[leveID].ItemID);
+                    CenterTextV2($"{itemHave}");
+                }
+
+                // Triple Turnin?
+                ImGui.TableNextColumn();
+                if (CraftFisherJobs.Contains(jobAssignment))
+                {
+                    bool tripleTurnin = CraftDictionary[leveID].RepeatAmount > 1;
+                    FancyCheckmark(tripleTurnin);
+                }
             }
 
             ImGui.EndTable();

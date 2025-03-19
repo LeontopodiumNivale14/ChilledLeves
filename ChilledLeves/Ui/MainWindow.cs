@@ -90,7 +90,12 @@ internal class MainWindow : Window
 
         DrawButtonStar("Show only favorites", ref C.OnlyFavorites, true);
         DrawLeveStatusButton();
-        DummyButton(7);
+        DummyButton(6);
+        ImGui.SameLine();
+        DrawButton(1, $"Leves", ref C.ShowBattleLeve, true);
+        DrawButton(13, $"Leves", ref C.ShowMaelstrom, true);
+        DrawButton(14, $"Leves", ref C.ShowTwinAdder, true);
+        DrawButton(15, $"Leves", ref C.ShowImmortalFlames, false);
         DrawButton(5, $"Leves", ref C.ShowCarpenter, true);
         DrawButton(6, $"Leves", ref C.ShowBlacksmith, true);
         DrawButton(7, $"Leves", ref C.ShowArmorer, true);
@@ -101,6 +106,8 @@ internal class MainWindow : Window
         DrawButton(12, $"Leves", ref C.ShowCulinarian, true);
         DummyButton(1);
         ImGui.SameLine();
+        DrawButton(2, $"Leves", ref C.ShowMiner, true);
+        DrawButton(3, $"Leves", ref C.ShowBotanist, true);
         DrawButton(4, $"Leves", ref C.ShowFisher, false);
 
         ImGui.AlignTextToFramePadding();
@@ -117,7 +124,7 @@ internal class MainWindow : Window
         ImGui.Text("Name:");
         ImGui.AlignTextToFramePadding();
         ImGui.SameLine();
-        ImGui.SetNextItemWidth(220);
+        ImGui.SetNextItemWidth(250);
         if (ImGui.InputText("###Name", ref C.NameFilter, 200))
         {
             C.NameFilter = C.NameFilter.Trim();
@@ -520,6 +527,8 @@ internal class MainWindow : Window
         return showLeve;
     }
 
+    private bool copied = false;
+
     private void DrawLeveDetails()
     {
         var leve = (uint)selectedLeve;
@@ -616,8 +625,11 @@ internal class MainWindow : Window
             }
             var requiredQuestId = LeveNPCDict[vendorId].RequiredQuestId;
             bool levesQuestUnlocked = QuestChecker(requiredQuestId);
+            bool Accessable = CraftFisherJobs.Contains(JobAssignment);
 
-            using (ImRaii.Disabled(!levesQuestUnlocked))
+            bool canRunLeve = levesQuestUnlocked && Accessable;
+
+            using (ImRaii.Disabled(!canRunLeve))
             {
                 if (C.workList.Any(e => e.LeveID == leve))
                 {
@@ -703,6 +715,27 @@ internal class MainWindow : Window
                     ImGui.EndTooltip();
                 }
             }
+            if (BattleJobs.Contains(JobAssignment))
+            {
+                ImGuiEx.HelpMarker($"Battle classes aren't supported in this plugin, this is here to merely help you track which ones you need to get done." +
+                                   $"If you would like to automate them, I would recommend downloading Nightmares \"BattleVest\" plugin to do so");
+                ImGui.SameLine();
+                if (ImGui.Button(copied ? "Copied!" : "Copy link to repo"))
+                {
+                    ImGui.SetClipboardText("https://raw.githubusercontent.com/NightmareXIV/MyDalamudPlugins/main/pluginmaster.json");
+                    copied = true;
+
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(2000);
+                        copied = false;
+                    });
+                }
+            }
+            else if (GatheringJobs.Contains(JobAssignment))
+            {
+                ImGuiEx.HelpMarker("Miner & Botanist are not currently supported, but is in the works!");
+            }
             ImGui.PopID();
         }
         else
@@ -710,6 +743,23 @@ internal class MainWindow : Window
             ImGui.Text("No Leve Selected");
         }
 
+    }
+
+    // Grabbed from HaselCommon
+    public static void VerticalSeparator(uint color)
+    {
+        ImGui.SameLine();
+
+        var height = ImGui.GetFrameHeight();
+        var pos = ImGui.GetWindowPos() + ImGui.GetCursorPos();
+
+        ImGui.GetWindowDrawList().AddLine(
+            pos + new Vector2(3f, 0f),
+            pos + new Vector2(3f, height),
+            color
+        );
+
+        ImGui.Dummy(new(7, height));
     }
 
 

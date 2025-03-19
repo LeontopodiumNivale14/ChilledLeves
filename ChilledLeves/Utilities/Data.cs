@@ -52,8 +52,11 @@ public static unsafe class Data
     // List of all of the Crafter Job ID's into a nice checklist for self
     #endregion
 
-    #region Leve Mist Information
+    #region Leve Misc Information
 
+    public static HashSet<uint> ValidJobs = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    public static HashSet<uint> BattleJobs = new() {1, 13, 14, 15 };
+    public static HashSet<uint> GatheringJobs = new() { 2, 3 };
     public static HashSet<uint> CraftFisherJobs = new() {4, 5, 6, 7, 8, 9, 10, 11, 12 };
     public static HashSet<int> CrafterJobList = new() { 8, 9, 10, 11, 12, 13, 14, 15};
     public static HashSet<int> GatheringJobList = new() { 16, 17, 18};
@@ -63,7 +66,7 @@ public static unsafe class Data
     public static HashSet<uint> CrystariumTurnin = new() { 195, 196, 199, 200, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228 };
     public static HashSet<uint> SharlayanTurnin = new() { 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 254, 255, 256};
     public static HashSet<uint> TuliyoliTurnin = new() {  257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, };
-    public static List<int> GreyIconList = new List<int>() { 91039, 91040, 91041, 91031, 91032, 91033, 91034, 91035, 91036, 91037, 91038 };
+    public static List<int> GreyIconList = new List<int>() { 91022, 91039, 91040, 91041, 91031, 91032, 91033, 91034, 91035, 91036, 91037, 91038, 91018, 91017, 91013 };
     public static List<int> LeveStatus = new List<int>() { 71041, 71045, 71055 };
 
     public static HashSet<uint> SelectedLeves = new HashSet<uint>();
