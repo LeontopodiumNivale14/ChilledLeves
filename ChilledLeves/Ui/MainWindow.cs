@@ -606,6 +606,7 @@ namespace ChilledLeves.Ui
                     ImGui.SameLine(0, 8);
                 }
 
+                ImGui.AlignTextToFramePadding();
                 ImGui.Text($"[{LeveDictionary[leve].Level}] {LeveDictionary[leve].LeveName}");
                 ImGui.TextDisabled($"LeveID: {leve}");
                 ImGui.Separator();
@@ -1008,8 +1009,14 @@ namespace ChilledLeves.Ui
             ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 2.0f);
             styleCount++;
 
-            // Actual toggle button with the job icon
-            if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, new Vector2(26, 26)))
+            Vector2 size = new Vector2(26, 26);
+            float zoomFactor = 0.25f; // 25% zoom-in
+            float cropAmount = zoomFactor / 2; // Crop equally from all sides
+
+            Vector2 uv0 = state ? new Vector2(0, 0) : new Vector2(cropAmount, cropAmount);
+            Vector2 uv1 = state ? new Vector2(1, 1) : new Vector2(1 - cropAmount, 1 - cropAmount);
+
+            if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, size, uv0, uv1))
             {
                 state = !state;
                 C.Save();
