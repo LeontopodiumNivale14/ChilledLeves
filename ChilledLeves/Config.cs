@@ -19,7 +19,6 @@ public class Config : IEzConfig
     {
         if (jobFilter.Count == 0)
         {
-            if (!ShowBattleLeve) jobFilter.Add(1);
             if (!ShowMiner) jobFilter.Add(2);
             if (!ShowBotanist) jobFilter.Add(3);
             if (!ShowFisher) jobFilter.Add(4);
@@ -32,9 +31,6 @@ public class Config : IEzConfig
             if (!ShowWeaver) jobFilter.Add(10);
             if (!ShowAlchemist) jobFilter.Add(11);
             if (!ShowCulinarian) jobFilter.Add(12);
-            if (!ShowMaelstrom) jobFilter.Add(13);
-            if (!ShowTwinAdder) jobFilter.Add(14);
-            if (!ShowImmortalFlames) jobFilter.Add(15);
         }
 
         return jobFilter;
