@@ -36,10 +36,10 @@ namespace ChilledLeves.Scheduler
                     {
                         if (kpd.InputValue == 0)
                             kpd.InputValue = 1;
-                        C.workList.Add(new LeveEntry { LeveID = kpd.LeveID, InputValue = kpd.InputValue});
+                        C.workList.Add(new LeveEntry { LeveID = kpd.LeveID, InputValue = kpd.InputValue, ItemAmount = 0 });
                     }
                     else if (kpd.InputValue != 0)
-                        C.workList.Add(new LeveEntry { LeveID = kpd.LeveID, InputValue = kpd.InputValue});
+                        C.workList.Add(new LeveEntry { LeveID = kpd.LeveID, InputValue = kpd.InputValue, ItemAmount = 0 });
                 }
             }
 
@@ -76,7 +76,7 @@ namespace ChilledLeves.Scheduler
                                         {
                                             if (entry.InputValue == 0)
                                                 entry.InputValue = 1;
-                                            ListCycled.Add(new LeveEntry { LeveID = entry.LeveID, InputValue = 0});
+                                            ListCycled.Add(new LeveEntry { LeveID = entry.LeveID, InputValue = 0, ItemAmount = 0 });
                                             PluginDebug($"List Cycled entry added {entry.LeveID}");
                                         }
                                         C.workList.Remove(entry);
@@ -99,7 +99,7 @@ namespace ChilledLeves.Scheduler
                                             PluginVerbos("You do not have the amount to complete this turnin, skipping leve");
                                             if (!ListCycled.Any(e => e.LeveID == entry.LeveID))
                                             {
-                                                ListCycled.Add(new LeveEntry { LeveID = entry.LeveID, InputValue = entry.InputValue});
+                                                ListCycled.Add(new LeveEntry { LeveID = entry.LeveID, InputValue = entry.InputValue, ItemAmount = 0 });
                                                 PluginDebug($"List Cycled entry added {entry.LeveID}");
                                             }
                                             C.workList.Remove(entry);

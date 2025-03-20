@@ -41,6 +41,8 @@ internal class SettingsWindow : Window
 
     private void MainPlanner()
     {
+        UpdateItemCount();
+
         ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");
 
         ImGui.Checkbox("###ChilledLevesKeepList", ref SchedulerMain.KeepLeves);
@@ -75,7 +77,7 @@ internal class SettingsWindow : Window
                 string LeveName = LeveDictionary[leveID].LeveName;
                 string ItemName = CraftDictionary[leveID].ItemName;
                 uint itemId = CraftDictionary[leveID].ItemID;
-                int itemAmount = GetItemCount((int)itemId);
+                int itemAmount = kdp.ItemAmount;
                 ImGui.TableNextRow();
 
                 ImGui.PushID((int)leveID);
@@ -174,6 +176,19 @@ internal class SettingsWindow : Window
         ImGui.SetCursorPosY(cursorY);
         ImGui.SetNextItemWidth(75);
         ImGui.InputText(label, ref input, maxLength);
+    }
+
+    private static void UpdateItemCount()
+    {
+        if (EzThrottler.Throttle("Updating Item Count", 1000))
+        {
+            foreach (var leve in C.workList)
+            {
+                var LeveId = leve.LeveID;
+                var ItemId = (int)CraftDictionary[LeveId].ItemID;
+                leve.ItemAmount = GetItemCount(ItemId);
+            }
+        }
     }
 
     #endregion

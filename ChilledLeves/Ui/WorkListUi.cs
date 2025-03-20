@@ -60,6 +60,10 @@ namespace ChilledLeves.Ui
                     var leveID = kdp.Key;
                     var jobType = kdp.Value.JobAssignmentType;
 
+                    var itemId = CraftDictionary[leveID].ItemID;
+                    var itemName = CraftDictionary[leveID].ItemName;
+                    var itemAmount = CraftDictionary[leveID].TurninAmount;
+
                     if (!C.workList.Any(x => x.LeveID == leveID))
                     {
                         continue;
@@ -69,9 +73,6 @@ namespace ChilledLeves.Ui
                         continue;
                     }
 
-                    var itemId = CraftDictionary[leveID].ItemID;
-                    var itemName = CraftDictionary[leveID].ItemName;
-                    var itemAmount = CraftDictionary[leveID].TurninAmount;
 
                     var WorklistInput = C.workList.Where(x => x.LeveID == leveID).FirstOrDefault();
                     var InputAmount = WorklistInput.InputValue;
@@ -118,6 +119,11 @@ namespace ChilledLeves.Ui
                     var jobAssignment = kdp.Value.JobAssignmentType;
                     var jobIcon = LeveTypeDict[jobAssignment].AssignmentIcon;
 
+                    var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
+                    var itemName = CraftDictionary[leveID].ItemName;
+                    var itemNeed = CraftDictionary[leveID].TurninAmount;
+                    var itemId = CraftDictionary[leveID].ItemID;
+
                     if (!C.workList.Any(x => x.LeveID == leveID))
                     {
                         continue;
@@ -158,67 +164,59 @@ namespace ChilledLeves.Ui
                     }
                     col2Width = 75;
 
-                    if (CraftFisherJobs.Contains(jobAssignment))
+                    // Column 3 | Item Turnin
+                    ImGui.TableNextColumn();
+                    ImGui.Image(ItemImage.ImGuiHandle, new Vector2(25, 25));
+                    if (ImGui.IsItemHovered())
                     {
-                        var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
-                        var itemName = CraftDictionary[leveID].ItemName;
-                        var itemNeed = CraftDictionary[leveID].TurninAmount;
-                        var itemId = CraftDictionary[leveID].ItemID;
-
-                        // Column 3 | Item Turnin
-                        ImGui.TableNextColumn();
-                        ImGui.Image(ItemImage.ImGuiHandle, new Vector2(25, 25));
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.BeginTooltip();
-                            ImGui.Image(ItemImage.ImGuiHandle, new Vector2(50, 50));
-                            ImGui.EndTooltip();
-                        }
-                        ImGui.SameLine(0, 5);
-                        ImGui.AlignTextToFramePadding();
-                        CenterTextInHeight($"{itemName}");
-                        if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
-                        {
-                            ImGui.SetClipboardText(itemName);
-                        }
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.BeginTooltip();
-                            ImGui.Text("Left click to copy item to clipboard");
-                            ImGui.EndTooltip();
-                        }
-                        col3Width = Math.Max(col3Width, itemName.Length + 15);
-
-                        // Column 4 | Need
-                        ImGui.TableNextColumn();
-                        int needAmount = WorklistInput.InputValue * itemNeed;
-                        if (needAmount < 0)
-                            needAmount = 0;
-                        CenterText(needAmount.ToString());
-                        col4Width = Math.Max(col4Width, "Need".Length);
-
-                        // Column 5 | Have
-                        ImGui.TableNextColumn();
-                        int CurrentAmount = GetItemCount((int)itemId);
-                        bool hasEnough = needAmount <= CurrentAmount;
-                        if (needAmount != 0)
-                        {
-                            if (hasEnough)
-                            {
-                                ImGui.PushStyleColor(ImGuiCol.Text, EColor.Green);
-                            }
-                            else if (!hasEnough)
-                            {
-                                ImGui.PushStyleColor(ImGuiCol.Text, EColor.Red);
-                            }
-                            CenterText(CurrentAmount.ToString());
-                            ImGui.PopStyleColor();
-                        }
-                        col5Width = Math.Max(col5Width, "Have".Length);
+                        ImGui.BeginTooltip();
+                        ImGui.Image(ItemImage.ImGuiHandle, new Vector2(50, 50));
+                        ImGui.EndTooltip();
                     }
+                    ImGui.SameLine(0, 5);
+                    ImGui.AlignTextToFramePadding();
+                    CenterTextInHeight($"{itemName}");
+                    if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                    {
+                        ImGui.SetClipboardText(itemName);
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Text("Left click to copy item to clipboard");
+                        ImGui.EndTooltip();
+                    }
+                    col3Width = Math.Max(col3Width, itemName.Length + 15);
+
+                    // Column 4 | Need
+                    ImGui.TableNextColumn();
+                    int needAmount = WorklistInput.InputValue * itemNeed;
+                    if (needAmount < 0)
+                        needAmount = 0;
+                    CenterText(needAmount.ToString());
+                    col4Width = Math.Max(col4Width, "Need".Length);
+
+                    // Column 5 | Have
+                    ImGui.TableNextColumn();
+                    int CurrentAmount = GetItemCount((int)itemId);
+                    bool hasEnough = needAmount <= CurrentAmount;
+                    if (needAmount != 0)
+                    {
+                        if (hasEnough)
+                        {
+                            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Green);
+                        }
+                        else if (!hasEnough)
+                        {
+                            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Red);
+                        }
+                        CenterText(CurrentAmount.ToString());
+                        ImGui.PopStyleColor();
+                    }
+                    col5Width = Math.Max(col5Width, "Have".Length);
 
                     // Column 6 | Remove Leve from worklist
-                    ImGui.TableSetColumnIndex(6);
+                    ImGui.TableNextColumn();
                     if (ImGuiEx.IconButton(FontAwesomeIcon.Trash, "Remove From LeveList"))
                     {
                         C.workList.Remove(WorklistInput);

@@ -90,7 +90,12 @@ internal class MainWindow : Window
 
         DrawButtonStar("Show only favorites", ref C.OnlyFavorites, true);
         DrawLeveStatusButton();
+        DummyButton(6);
         ImGui.SameLine();
+        DrawButton(1, $"Leves", ref C.ShowBattleLeve, true);
+        DrawButton(13, $"Leves", ref C.ShowMaelstrom, true);
+        DrawButton(14, $"Leves", ref C.ShowTwinAdder, true);
+        DrawButton(15, $"Leves", ref C.ShowImmortalFlames, false);
         DrawButton(5, $"Leves", ref C.ShowCarpenter, true);
         DrawButton(6, $"Leves", ref C.ShowBlacksmith, true);
         DrawButton(7, $"Leves", ref C.ShowArmorer, true);
@@ -98,16 +103,12 @@ internal class MainWindow : Window
         DrawButton(9, $"Leves", ref C.ShowLeatherworker, true);
         DrawButton(10, $"Leves", ref C.ShowWeaver, true);
         DrawButton(11, $"Leves", ref C.ShowAlchemist, true);
-        DrawButton(12, $"Leves", ref C.ShowCulinarian, false);
+        DrawButton(12, $"Leves", ref C.ShowCulinarian, true);
+        DummyButton(1);
+        ImGui.SameLine();
         DrawButton(2, $"Leves", ref C.ShowMiner, true);
         DrawButton(3, $"Leves", ref C.ShowBotanist, true);
-        DrawButton(4, $"Leves", ref C.ShowFisher, true);
-        DummyButton(3);
-        ImGui.SameLine();
-        DrawButton(1, $"Leves", ref C.ShowBattleLeve, true);
-        DrawButton(13, $"Leves", ref C.ShowMaelstrom, true);
-        DrawButton(14, $"Leves", ref C.ShowTwinAdder, true);
-        DrawButton(15, $"Leves", ref C.ShowImmortalFlames, false);
+        DrawButton(4, $"Leves", ref C.ShowFisher, false);
 
         ImGui.AlignTextToFramePadding();
         ImGui.Text("Level:");
@@ -428,7 +429,7 @@ internal class MainWindow : Window
                     {
                         if (!C.workList.Any(e => e.LeveID == id))
                         {
-                            C.workList.Add(new LeveEntry { LeveID = kdp.Key, InputValue = 1});
+                            C.workList.Add(new LeveEntry { LeveID = kdp.Key, InputValue = 1, ItemAmount = 0 });
                         }
                     }
 
@@ -537,12 +538,9 @@ internal class MainWindow : Window
             // string NPCName = NPCResidentsheet.GetRow(NPC).Singular.ToString();
             ImGui.Text($"LeveID: {leve}");
             ImGui.Text($"[{LeveDictionary[leve].Level}] {LeveDictionary[leve].LeveName}");
-            if (CraftFisherJobs.Contains(LeveDictionary[leve].JobAssignmentType))
-            {
-                ImGui.Separator();
-                ImGui.Text($"EXP Reward: {LeveDictionary[leve].ExpReward:N0}");
-                ImGui.Text($"Gil Reward: {LeveDictionary[leve].GilReward:N0} ± 5%%");
-            }
+            ImGui.Separator();
+            ImGui.Text($"EXP Reward: {LeveDictionary[leve].ExpReward:N0}");
+            ImGui.Text($"Gil Reward: {LeveDictionary[leve].GilReward:N0} ± 5%%");
             ImGui.Separator();
             var vendorId = LeveDictionary[leve].LeveVendorID;
             var startZoneId = LeveNPCDict[vendorId].ZoneID;
@@ -612,122 +610,114 @@ internal class MainWindow : Window
             }
             ImGui.Separator();
             ImGui.PushID((int)leve);
+            if (ImGui.Button(C.FavoriteLeves.Contains(leve) ? $"Remove from Favorites" : "Add to favorites"))
+            {
+                if (C.FavoriteLeves.Contains(leve))
+                {
+                    C.FavoriteLeves.Remove(leve);
+                    C.Save();
+                }
+                else
+                {
+                    C.FavoriteLeves.Add(leve);
+                    C.Save();
+                }
+            }
             var requiredQuestId = LeveNPCDict[vendorId].RequiredQuestId;
             bool levesQuestUnlocked = QuestChecker(requiredQuestId);
             bool Accessable = CraftFisherJobs.Contains(JobAssignment);
 
             bool canRunLeve = levesQuestUnlocked && Accessable;
 
-            if (!BattleJobs.Contains(JobAssignment))
+            using (ImRaii.Disabled(!canRunLeve))
             {
-                if (ImGui.Button(C.FavoriteLeves.Contains(leve) ? $"Remove from Favorites" : "Add to favorites"))
+                if (C.workList.Any(e => e.LeveID == leve))
                 {
-                    if (C.FavoriteLeves.Contains(leve))
+                    if (ImGui.Button("Remove from WorkList"))
                     {
-                        C.FavoriteLeves.Remove(leve);
-                        C.Save();
-                    }
-                    else
-                    {
-                        C.FavoriteLeves.Add(leve);
+                        C.workList.RemoveAll(e => e.LeveID == leve);
                         C.Save();
                     }
                 }
-                using (ImRaii.Disabled(!canRunLeve))
+                else if (!C.workList.Any(e => e.LeveID == leve))
                 {
-                    if (C.workList.Any(e => e.LeveID == leve))
+                    if (ImGui.Button("Add to WorkList"))
                     {
-                        if (ImGui.Button("Remove from WorkList"))
-                        {
-                            C.workList.RemoveAll(e => e.LeveID == leve);
-                            C.Save();
-                        }
-                    }
-                    else if (!C.workList.Any(e => e.LeveID == leve))
-                    {
-                        if (ImGui.Button("Add to WorkList"))
-                        {
-                            C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 1});
-                            C.Save();
-                        }
-                    }
-                }
-                if (GatheringJobs.Contains(JobAssignment))
-                {
-                    ImGuiEx.HelpMarker("Miner & Botanist are not currently supported, but is in the works!");
-                }
-                if (!levesQuestUnlocked)
-                {
-                    ImGui.SameLine();
-                    FontAwesome.Print(ImGuiColors.DalamudRed, FontAwesome.Cross);
-                    if (ImGui.IsItemHovered())
-                    {
-                        bool LimsaLeveNPC = IsMSQComplete(66005); // Just Deserts
-                        bool UlDahLeveNPC = IsMSQComplete(65856); // Way down in the hole
-                        bool GridaniaNPC = IsMSQComplete(65665); // Spirithold Broken
-
-                        ImGui.BeginTooltip();
-                        ImGui.Text($"You need to complete the following quest(s) to be able to do this leve");
-                        if (requiredQuestId == 0)
-                        {
-                            uint questId = 0;
-
-                            if (LimsaLeveNPC)
-                                questId = 66229;
-                            else if (UlDahLeveNPC)
-                                questId = 66223;
-                            else if (GridaniaNPC)
-                                questId = 65756;
-
-                            var questName = questSheet.GetRow(questId).Name.ToString();
-                            ImGui.Text(questName);
-                        }
-                        else if (requiredQuestId == 1)
-                        {
-                            uint questId1 = 0;
-                            uint questId2 = 0;
-
-                            if (LimsaLeveNPC)
-                            {
-                                questId1 = 66229;
-                                questId2 = 65595;
-                            }
-                            else if (UlDahLeveNPC)
-                            {
-                                questId1 = 66223;
-                                questId2 = 65594;
-                            }
-                            else if (GridaniaNPC)
-                            {
-                                questId1 = 65756;
-                                questId2 = 65596;
-                            }
-
-                            var quest1Name = questSheet.GetRow(questId1).Name.ToString();
-                            var quest2Name = questSheet.GetRow(questId2).Name.ToString();
-
-                            if (!IsMSQComplete(questId1))
-                            {
-                                ImGui.Text($"  -> {quest1Name}");
-                            }
-                            if (!IsMSQComplete(questId2))
-                            {
-                                ImGui.Text($"  -> {quest2Name}");
-                            }
-                        }
-                        else
-                        {
-                            var questName = questSheet.GetRow(requiredQuestId).Name.ToString();
-                            ImGui.Text(questName);
-                        }
-                        ImGui.EndTooltip();
+                        C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 1, ItemAmount = 0 });
+                        C.Save();
                     }
                 }
             }
-            else if (BattleJobs.Contains(JobAssignment))
+            if (!levesQuestUnlocked)
             {
-                ImGui.NewLine();
-                ImGuiEx.HelpMarker($"Battle classes aren't supported in this plugin, this is here to merely help you track which ones you need to get done. " +
+                ImGui.SameLine();
+                FontAwesome.Print(ImGuiColors.DalamudRed, FontAwesome.Cross);
+                if (ImGui.IsItemHovered())
+                {
+                    bool LimsaLeveNPC = IsMSQComplete(66005); // Just Deserts
+                    bool UlDahLeveNPC = IsMSQComplete(65856); // Way down in the hole
+                    bool GridaniaNPC = IsMSQComplete(65665); // Spirithold Broken
+
+                    ImGui.BeginTooltip();
+                    ImGui.Text($"You need to complete the following quest(s) to be able to do this leve");
+                    if (requiredQuestId == 0)
+                    {
+                        uint questId = 0;
+
+                        if (LimsaLeveNPC)
+                            questId = 66229;
+                        else if (UlDahLeveNPC)
+                            questId = 66223;
+                        else if (GridaniaNPC)
+                            questId = 65756;
+
+                        var questName = questSheet.GetRow(questId).Name.ToString();
+                        ImGui.Text(questName);
+                    }
+                    else if (requiredQuestId == 1)
+                    {
+                        uint questId1 = 0;
+                        uint questId2 = 0;
+
+                        if (LimsaLeveNPC)
+                        {
+                            questId1 = 66229;
+                            questId2 = 65595;
+                        }
+                        else if (UlDahLeveNPC)
+                        {
+                            questId1 = 66223;
+                            questId2 = 65594;
+                        }
+                        else if (GridaniaNPC)
+                        {
+                            questId1 = 65756;
+                            questId2 = 65596;
+                        }
+
+                        var quest1Name = questSheet.GetRow(questId1).Name.ToString();
+                        var quest2Name = questSheet.GetRow(questId2).Name.ToString();
+
+                        if (!IsMSQComplete(questId1))
+                        {
+                            ImGui.Text($"  -> {quest1Name}");
+                        }
+                        if (!IsMSQComplete(questId2))
+                        {
+                            ImGui.Text($"  -> {quest2Name}");
+                        }
+                    }
+                    else
+                    {
+                        var questName = questSheet.GetRow(requiredQuestId).Name.ToString();
+                        ImGui.Text(questName);
+                    }
+                    ImGui.EndTooltip();
+                }
+            }
+            if (BattleJobs.Contains(JobAssignment))
+            {
+                ImGuiEx.HelpMarker($"Battle classes aren't supported in this plugin, this is here to merely help you track which ones you need to get done." +
                                    $"If you would like to automate them, I would recommend downloading Nightmares \"BattleVest\" plugin to do so");
                 ImGui.SameLine();
                 if (ImGui.Button(copied ? "Copied!" : "Copy link to repo"))
@@ -742,6 +732,10 @@ internal class MainWindow : Window
                     });
                 }
             }
+            else if (GatheringJobs.Contains(JobAssignment))
+            {
+                ImGuiEx.HelpMarker("Miner & Botanist are not currently supported, but is in the works!");
+            }
             ImGui.PopID();
         }
         else
@@ -750,4 +744,23 @@ internal class MainWindow : Window
         }
 
     }
+
+    // Grabbed from HaselCommon
+    public static void VerticalSeparator(uint color)
+    {
+        ImGui.SameLine();
+
+        var height = ImGui.GetFrameHeight();
+        var pos = ImGui.GetWindowPos() + ImGui.GetCursorPos();
+
+        ImGui.GetWindowDrawList().AddLine(
+            pos + new Vector2(3f, 0f),
+            pos + new Vector2(3f, height),
+            color
+        );
+
+        ImGui.Dummy(new(7, height));
+    }
+
+
 }
