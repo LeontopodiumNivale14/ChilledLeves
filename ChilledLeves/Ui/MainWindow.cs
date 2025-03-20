@@ -93,7 +93,7 @@ namespace ChilledLeves.Ui
             }
             else
             {
-                ImGui.Text("Filters");
+                ImGui.Text("Controls");
             }
             ImGui.NextColumn();
 
