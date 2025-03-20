@@ -15,9 +15,10 @@ namespace ChilledLeves.Ui
 {
     internal class MainWindow : Window
     {
+
         private static int selectedLeve;
 
-        // Ice theme colors
+        // Ice theme color definitions:
         private static Vector4 IceBlue = new Vector4(0.7f, 0.85f, 1.0f, 1.0f);
         private static Vector4 DarkIceBlue = new Vector4(0.3f, 0.5f, 0.7f, 1.0f);
         private static Vector4 DeepIceBlue = new Vector4(0.15f, 0.25f, 0.4f, 1.0f);
@@ -25,18 +26,28 @@ namespace ChilledLeves.Ui
         private static Vector4 TranslucentIce = new Vector4(0.8f, 0.9f, 1.0f, 0.15f);
         private static Vector4 DarkSlate = new Vector4(0.12f, 0.14f, 0.18f, 0.9f);
 
+        /// <summary>
+        /// Constructor for the main window. Adjusts window size, flags, and initializes data.
+        /// </summary>
         public MainWindow() :
             base($"Chilled Leves {P.GetType().Assembly.GetName().Version} ###ChilledLevesMainWindow")
         {
+
             Flags = ImGuiWindowFlags.None;
+
+            // Set up size constraints to ensure window cannot be too small or too large.
             SizeConstraints = new()
             {
                 MinimumSize = new Vector2(950, 600),
                 MaximumSize = new Vector2(2000, 2000)
             };
+
+            // Register this window with Dalamud’s window system.
             P.windowSystem.AddWindow(this);
+
             AllowPinning = false;
 
+            // Populate leve dictionaries and other data on creation.
             PopulateDictionary();
         }
 
@@ -44,47 +55,50 @@ namespace ChilledLeves.Ui
         {
         }
 
+        /// <summary>
+        /// Primary draw method. Responsible for drawing the entire UI of the main window.
+        /// </summary>
         public override void Draw()
         {
-            // Apply window background only if ice theme is active
-            bool usingIceTheme = C.UseIceTheme; // Capture current value to avoid changes mid-function
-
+            // If user has enabled Ice Theme, push a dark-slate background color for the window.
+            bool usingIceTheme = C.UseIceTheme;
             if (usingIceTheme)
             {
                 ImGui.PushStyleColor(ImGuiCol.WindowBg, DarkSlate);
             }
 
+            // Draw the custom or default style header at the top:
             DrawSimpleHeader(usingIceTheme);
 
+            // The header is ~38px tall; compute remaining height for content area.
             float headerHeight = 38f;
             float contentAreaHeight = ImGui.GetWindowHeight() - headerHeight - 4;
             float labelHeight = ImGui.GetTextLineHeightWithSpacing();
             float childHeight = contentAreaHeight - labelHeight;
 
-            // Set up the 3-panel layout with headers
+            // Use a 3-column layout to hold Filters (left panel), Leve List (middle panel), and Details (right panel).
             ImGui.Columns(3, "MainLayout", false);
 
-            // ---------------------
-            // PANEL HEADERS
-            // ---------------------
-            ImGui.SetColumnWidth(0, 220);
+            // -----------------------------------------
+            //  PANEL HEADERS (the text above each panel)
+            // -----------------------------------------
 
             // Left panel header
+            ImGui.SetColumnWidth(0, 220);
             if (usingIceTheme)
             {
                 ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
-                ImGui.Text("Filters");
+                ImGui.Text("Controls");
                 ImGui.PopStyleColor();
             }
             else
             {
                 ImGui.Text("Filters");
             }
-
             ImGui.NextColumn();
-            ImGui.SetColumnWidth(1, 350);
 
-            // Middle panel header - just showing count
+            // Middle panel header - shows how many leves are visible vs total
+            ImGui.SetColumnWidth(1, 350);
             if (C.OnlyFavorites)
             {
                 ImGui.Text($"Showing: {C.FavoriteLeves.Count} out of {LeveDictionary.Count}");
@@ -93,7 +107,6 @@ namespace ChilledLeves.Ui
             {
                 ImGui.Text($"Showing: {VisibleLeves.Count} out of {LeveDictionary.Count}");
             }
-
             ImGui.NextColumn();
 
             // Right panel header
@@ -108,25 +121,26 @@ namespace ChilledLeves.Ui
                 ImGui.Text("Selected Leve Details");
             }
 
-            // Reset columns to start panel content with proper alignment
+            // Reset columns in order to begin actual panel content
             ImGui.Columns(1);
             ImGui.Columns(3, "MainLayoutPanels", false);
 
-            // ---------------------
-            // LEFT PANEL
-            // ---------------------
+            // ------------------------------------------------
+            //  LEFT PANEL: Start/Stop, Worklist, Gathering, and Filter UI
+            // ------------------------------------------------
             ImGui.SetColumnWidth(0, 220);
 
-            // Begin left panel child region
+            // Possibly push a child background color if ice theme is active
             if (usingIceTheme)
             {
                 ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.15f, 0.18f, 0.22f, 0.7f));
             }
             ImGui.BeginChild("###FilterPanel", new Vector2(0, childHeight), true);
 
-            // Two "Open" buttons at the top.
+            // We push a rounded corner style for the top-left panel buttons (Start/Stop, Worklist, etc.)
             ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
 
+            // If Ice Theme, push a custom color for the button. If not, use default/dalamud.
             int buttonColors = 0;
             if (usingIceTheme)
             {
@@ -135,6 +149,24 @@ namespace ChilledLeves.Ui
                 buttonColors = 2;
             }
 
+            // Start and Stop buttons 
+            using (ImRaii.Disabled(SchedulerMain.AreWeTicking))
+            {
+                if (ImGui.Button("Start", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+                {
+                    SchedulerMain.WorkListMode = true;
+                    SchedulerMain.EnablePlugin();
+                }
+            }
+            using (ImRaii.Disabled(!SchedulerMain.AreWeTicking))
+            {
+                if (ImGui.Button("Stop", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+                {
+                    SchedulerMain.DisablePlugin();
+                }
+            }
+
+            // Two extra plugin UI toggles: Worklist and Gathering Grind.
             if (ImGui.Button("Open Worklist", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
             {
                 P.workListUi.IsOpen = !P.workListUi.IsOpen;
@@ -144,7 +176,15 @@ namespace ChilledLeves.Ui
                 P.gatherModeUi.IsOpen = !P.gatherModeUi.IsOpen;
             }
 
-            // Theme toggle right after the buttons
+            // Pop the button colors if we used them for the ice theme
+            if (buttonColors > 0)
+            {
+                ImGui.PopStyleColor(buttonColors);
+            }
+            // Pop the frame rounding
+            ImGui.PopStyleVar();
+
+            // Theme Toggle
             ImGui.Spacing();
             ImGui.Spacing();
 
@@ -163,15 +203,10 @@ namespace ChilledLeves.Ui
                 ImGui.EndTooltip();
             }
 
-            if (buttonColors > 0)
-            {
-                ImGui.PopStyleColor(buttonColors);
-            }
-            ImGui.PopStyleVar();
-
+            ImGui.Spacing();
             ImGui.Spacing();
 
-            // "Filter Leves" heading below the buttons.
+            // Heading for main filter area
             if (usingIceTheme)
             {
                 ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
@@ -184,12 +219,12 @@ namespace ChilledLeves.Ui
             }
             ImGui.Separator();
 
-            // Independent filter checkboxes
+            // Independent filter checkboxes (Favorites, Completed, Incomplete).
             ImGui.Spacing();
             ImGui.Text("Filter Options:");
             ImGui.Spacing();
 
-            // Independent checkbox for Favorites
+            // Favorites only
             bool showFavorites = C.OnlyFavorites;
             if (usingIceTheme)
             {
@@ -203,7 +238,7 @@ namespace ChilledLeves.Ui
                 C.OnlyFavorites = showFavorites;
                 if (showFavorites)
                 {
-                    C.CompleteFilter = 0; // Reset complete filter when turning on favorites
+                    C.CompleteFilter = 0; // if turning on favorites, reset the complete filter
                 }
                 C.Save();
             }
@@ -218,7 +253,7 @@ namespace ChilledLeves.Ui
                 ImGui.EndTooltip();
             }
 
-            // Checkbox for Completed filter
+            // Show Completed
             int completeFilter = (int)C.CompleteFilter;
             bool showCompleted = completeFilter == 1;
             if (usingIceTheme)
@@ -233,8 +268,8 @@ namespace ChilledLeves.Ui
                 C.CompleteFilter = showCompleted ? 1u : 0u;
                 if (showCompleted)
                 {
-                    C.OnlyFavorites = false; // Turn off favorites filter
-                    // Also turn off incomplete filter
+                    // Turn off favorites filter and enable "completed only"
+                    C.OnlyFavorites = false;
                     C.CompleteFilter = 1u;
                 }
                 C.Save();
@@ -250,6 +285,7 @@ namespace ChilledLeves.Ui
                 ImGui.EndTooltip();
             }
 
+            // Show Incomplete
             bool showIncomplete = completeFilter == 2;
             if (usingIceTheme)
             {
@@ -263,8 +299,8 @@ namespace ChilledLeves.Ui
                 C.CompleteFilter = showIncomplete ? 2u : 0u;
                 if (showIncomplete)
                 {
-                    C.OnlyFavorites = false; // Turn off favorites filter
-                    // Also turn off completed filter
+                    // Turn off favorites and show "incomplete only"
+                    C.OnlyFavorites = false;
                     C.CompleteFilter = 2u;
                 }
                 C.Save();
@@ -280,7 +316,7 @@ namespace ChilledLeves.Ui
                 ImGui.EndTooltip();
             }
 
-            // Reset button for filters
+            // Reset all filters button
             ImGui.Spacing();
             if (usingIceTheme)
             {
@@ -295,9 +331,9 @@ namespace ChilledLeves.Ui
                 C.CompleteFilter = 0;
                 C.LevelFilter = 0;
                 C.NameFilter = "";
-                C.RefreshJobFilter(); // Reset job filters
+                C.RefreshJobFilter();
 
-                // Reset job filters
+                // Turn on all job filters by default:
                 C.ShowCarpenter = true;
                 C.ShowBlacksmith = true;
                 C.ShowArmorer = true;
@@ -325,7 +361,7 @@ namespace ChilledLeves.Ui
 
             ImGui.Spacing();
 
-            // Job Filters section with separator below.
+            // Job Filters heading
             if (usingIceTheme)
             {
                 ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
@@ -338,7 +374,7 @@ namespace ChilledLeves.Ui
             }
             ImGui.Separator();
 
-            // Crafters section.
+            // Crafters
             ImGui.Spacing();
             ImGui.Text("Crafters:");
             ImGui.Spacing();
@@ -349,7 +385,7 @@ namespace ChilledLeves.Ui
             float startX = (availWidth - (iconSize + iconSpacing) * 4 + iconSpacing) * 0.5f;
             ImGui.SetCursorPosX(startX);
 
-            // Row 1.
+            // Row 1: CRP, BSM, ARM, GSM
             DrawJobToggle(5, ref C.ShowCarpenter, "Carpenter", usingIceTheme);
             ImGui.SameLine(0, iconSpacing);
             DrawJobToggle(6, ref C.ShowBlacksmith, "Blacksmith", usingIceTheme);
@@ -360,7 +396,7 @@ namespace ChilledLeves.Ui
 
             ImGui.SetCursorPosX(startX);
 
-            // Row 2.
+            // Row 2: LTW, WVR, ALC, CUL
             DrawJobToggle(9, ref C.ShowLeatherworker, "Leatherworker", usingIceTheme);
             ImGui.SameLine(0, iconSpacing);
             DrawJobToggle(10, ref C.ShowWeaver, "Weaver", usingIceTheme);
@@ -369,7 +405,7 @@ namespace ChilledLeves.Ui
             ImGui.SameLine(0, iconSpacing);
             DrawJobToggle(12, ref C.ShowCulinarian, "Culinarian", usingIceTheme);
 
-            // Gatherers section.
+            // Gatherers
             ImGui.Spacing();
             ImGui.Text("Gatherers:");
             ImGui.Spacing();
@@ -381,7 +417,7 @@ namespace ChilledLeves.Ui
             ImGui.SameLine(0, iconSpacing);
             DrawJobToggle(3, ref C.ShowBotanist, "Botanist", usingIceTheme);
 
-            // Additional Filters section.
+            // Additional Filters heading
             ImGui.Spacing();
             ImGui.Spacing();
             if (usingIceTheme)
@@ -397,7 +433,7 @@ namespace ChilledLeves.Ui
             ImGui.Separator();
             ImGui.Spacing();
 
-            // Level filter.
+            // Level filter
             ImGui.AlignTextToFramePadding();
             ImGui.Text("Level:");
             ImGui.SameLine();
@@ -422,7 +458,7 @@ namespace ChilledLeves.Ui
                 }
             }
 
-            // Name filter.
+            // Name filter
             ImGui.AlignTextToFramePadding();
             ImGui.Text("Name:");
             ImGui.SameLine();
@@ -449,17 +485,16 @@ namespace ChilledLeves.Ui
             ImGui.EndChild();
             if (usingIceTheme)
             {
-                ImGui.PopStyleColor(); // ChildBg
+                ImGui.PopStyleColor(); // ChildBg for left panel
             }
 
             ImGui.NextColumn();
 
-            // ---------------------
-            // MIDDLE PANEL
-            // ---------------------
+            // -----------------------------------------
+            //  MIDDLE PANEL: Leve List
+            // -----------------------------------------
             ImGui.SetColumnWidth(1, 350);
 
-            // Begin middle panel directly without any filter indicators
             if (usingIceTheme)
             {
                 ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.15f, 0.18f, 0.22f, 0.7f));
@@ -475,6 +510,7 @@ namespace ChilledLeves.Ui
                 headerColors = 3;
             }
 
+            // Draw each leve entry if it passes the filter
             foreach (var kdp in LeveDictionary)
             {
                 if (FilterLeve(kdp.Key))
@@ -482,15 +518,15 @@ namespace ChilledLeves.Ui
                     var id = (int)kdp.Key;
                     ImGui.PushID(id);
 
-                    // Leve number badge.
+                    // Show a small numeric "badge" for the leve's level
                     ImGui.Text($"{LeveDictionary[kdp.Key].Level}");
                     ImGui.SameLine(30);
 
-                    // Selectable leve row.
+                    // Main clickable row for the leve
                     if (ImGui.Selectable($"###Leve{id}", selectedLeve == id, ImGuiSelectableFlags.SpanAllColumns))
                         selectedLeve = id;
 
-                    // Double-click to add leve to worklist.
+                    // Double-click to add leve to the WorkList
                     if (ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
                     {
                         if (!C.workList.Any(e => e.LeveID == id))
@@ -502,12 +538,14 @@ namespace ChilledLeves.Ui
                     ImGui.SetItemAllowOverlap();
                     ImGui.SameLine();
 
-                    // Icons for job, favorite, and completion.
+                    // Job Icon
                     if (LeveTypeDict[kdp.Value.JobAssignmentType].AssignmentIcon != null)
                     {
                         ImGui.Image(LeveTypeDict[kdp.Value.JobAssignmentType].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(20, 20));
                         ImGui.SameLine(0, 4);
                     }
+
+                    // Favorite icon
                     if (C.FavoriteLeves.Contains(kdp.Key))
                     {
                         var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
@@ -516,6 +554,8 @@ namespace ChilledLeves.Ui
                         ImGui.Image(starTex.ImGuiHandle, new Vector2(18, 18), uvMin, uvMax);
                         ImGui.SameLine(0, 4);
                     }
+
+                    // Completion icon
                     if (IsComplete(kdp.Key))
                     {
                         var CompleteTexture = LeveStatusDict[1].GetWrapOrEmpty();
@@ -523,6 +563,7 @@ namespace ChilledLeves.Ui
                         ImGui.SameLine(0, 4);
                     }
 
+                    // Then print the actual leve name
                     ImGui.TextWrapped($"{LeveDictionary[kdp.Key].LeveName}");
                     ImGui.PopID();
                 }
@@ -535,14 +576,14 @@ namespace ChilledLeves.Ui
             ImGui.EndChild();
             if (usingIceTheme)
             {
-                ImGui.PopStyleColor(); // ChildBg
+                ImGui.PopStyleColor(); // ChildBg for middle panel
             }
 
             ImGui.NextColumn();
 
-            // ---------------------
-            // RIGHT PANEL
-            // ---------------------
+            // -----------------------------------------
+            //  RIGHT PANEL: Selected Leve Details
+            // -----------------------------------------
             if (usingIceTheme)
             {
                 ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.15f, 0.18f, 0.22f, 0.7f));
@@ -554,6 +595,7 @@ namespace ChilledLeves.Ui
 
             if (LeveDictionary.ContainsKey(leve))
             {
+                // Print the job icon (if any) + leve name + level
                 if (usingIceTheme)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Text, FrostWhite);
@@ -572,6 +614,7 @@ namespace ChilledLeves.Ui
                     ImGui.PopStyleColor();
                 }
 
+                // Rewards section
                 if (usingIceTheme)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
@@ -597,6 +640,7 @@ namespace ChilledLeves.Ui
 
                 ImGui.Separator();
 
+                // Location
                 if (usingIceTheme)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
@@ -621,12 +665,12 @@ namespace ChilledLeves.Ui
                 ImGui.Text("NPC:");
                 ImGui.TableNextColumn();
 
-                buttonColors = 0;
+                int npcButtonColors = 0;
                 if (usingIceTheme)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Button, DarkIceBlue);
                     ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(DarkIceBlue.X + 0.1f, DarkIceBlue.Y + 0.1f, DarkIceBlue.Z + 0.1f, 1.0f));
-                    buttonColors = 2;
+                    npcButtonColors = 2;
                 }
 
                 if (ImGui.Button($"{LeveDictionary[leve].LeveVendorName}###NPC"))
@@ -635,12 +679,13 @@ namespace ChilledLeves.Ui
                     var flagZ = LeveNPCDict[vendorId].flagZ;
                     SetFlagForNPC(startZoneId, flagX, flagZ);
                 }
-                if (buttonColors > 0)
+                if (npcButtonColors > 0)
                 {
-                    ImGui.PopStyleColor(buttonColors);
+                    ImGui.PopStyleColor(npcButtonColors);
                 }
                 ImGui.EndTable();
 
+                // If crafter/fisher job, show the turn-in NPC
                 var JobAssignment = LeveDictionary[leve].JobAssignmentType;
                 if (CraftFisherJobs.Contains(JobAssignment))
                 {
@@ -656,6 +701,7 @@ namespace ChilledLeves.Ui
 
                 ImGui.Separator();
 
+                // Status
                 if (usingIceTheme)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
@@ -681,6 +727,8 @@ namespace ChilledLeves.Ui
                     var CompleteTexture = LeveStatusDict[2].GetWrapOrEmpty();
                     ImGui.Image(CompleteTexture.ImGuiHandle, new Vector2(24, 24));
                 }
+
+                // If the quest is started, indicate that
                 if (IsStarted(leve))
                 {
                     ImGui.TableNextRow();
@@ -691,6 +739,7 @@ namespace ChilledLeves.Ui
                 }
                 ImGui.EndTable();
 
+                // If it's crafter or fisher, show required items
                 if (CraftFisherJobs.Contains(JobAssignment))
                 {
                     ImGui.Separator();
@@ -710,6 +759,7 @@ namespace ChilledLeves.Ui
                         ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.2f, 0.25f, 0.3f, 0.5f));
                     }
                     ImGui.BeginChild("###ItemInfo", new Vector2(ImGui.GetContentRegionAvail().X, 50), true);
+
                     ImGui.Image(CraftDictionary[leve].ItemIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(32, 32));
                     ImGui.SameLine(0, 10);
                     if (CraftDictionary[leve].RepeatAmount > 1)
@@ -721,6 +771,7 @@ namespace ChilledLeves.Ui
                     {
                         ImGui.Text($"{CraftDictionary[leve].TurninAmount}x {CraftDictionary[leve].ItemName}");
                     }
+
                     ImGui.EndChild();
                     if (usingIceTheme)
                     {
@@ -728,19 +779,22 @@ namespace ChilledLeves.Ui
                     }
                 }
 
+                // Favorites/WorkList buttons
                 ImGui.Dummy(new Vector2(0, 10));
                 ImGui.PushID((int)leve);
                 ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
 
-                buttonColors = 0;
+                int actionButtonColors = 0;
                 if (usingIceTheme)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Button, DarkIceBlue);
                     ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(DarkIceBlue.X + 0.1f, DarkIceBlue.Y + 0.1f, DarkIceBlue.Z + 0.1f, 1.0f));
-                    buttonColors = 2;
+                    actionButtonColors = 2;
                 }
 
-                if (ImGui.Button(C.FavoriteLeves.Contains(leve) ? "Remove from Favorites" : "Add to Favorites", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+                // Favorite add/remove
+                if (ImGui.Button(C.FavoriteLeves.Contains(leve) ? "Remove from Favorites" : "Add to Favorites",
+                                 new Vector2(ImGui.GetContentRegionAvail().X, 0)))
                 {
                     if (C.FavoriteLeves.Contains(leve))
                     {
@@ -753,9 +807,14 @@ namespace ChilledLeves.Ui
                         C.Save();
                     }
                 }
+
                 ImGui.Spacing();
+
+                // Checking if we have the quest unlocked
                 var requiredQuestId = LeveNPCDict[vendorId].RequiredQuestId;
                 bool levesQuestUnlocked = QuestChecker(requiredQuestId);
+
+                // Gray out the add/remove from worklist if not unlocked
                 using (ImRaii.Disabled(!levesQuestUnlocked))
                 {
                     if (C.workList.Any(e => e.LeveID == leve))
@@ -775,21 +834,25 @@ namespace ChilledLeves.Ui
                         }
                     }
                 }
-                if (buttonColors > 0)
+
+                if (actionButtonColors > 0)
                 {
-                    ImGui.PopStyleColor(buttonColors);
+                    ImGui.PopStyleColor(actionButtonColors);
                 }
                 ImGui.PopStyleVar();
+
+                // If quest is locked, draw a red warning text
                 if (!levesQuestUnlocked)
                 {
                     ImGui.TextColored(ImGuiColors.DalamudRed, "⚠ Required quest not completed");
                     if (ImGui.IsItemHovered())
                     {
-                        bool LimsaLeveNPC = IsMSQComplete(66005);
-                        bool UlDahLeveNPC = IsMSQComplete(65856);
-                        bool GridaniaNPC = IsMSQComplete(65665);
+                        bool LimsaLeveNPC = IsMSQComplete(66005); // Just Deserts
+                        bool UlDahLeveNPC = IsMSQComplete(65856); // Way down in the hole
+                        bool GridaniaNPC = IsMSQComplete(65665);  // Spirithold Broken
+
                         ImGui.BeginTooltip();
-                        ImGui.Text($"You need to complete the following quest(s) to be able to do this leve");
+                        ImGui.Text("You need to complete the following quest(s) to be able to do this leve");
                         if (requiredQuestId == 0)
                         {
                             uint questId = 0;
@@ -799,6 +862,7 @@ namespace ChilledLeves.Ui
                                 questId = 66223;
                             else if (GridaniaNPC)
                                 questId = 65756;
+
                             var questName = questSheet.GetRow(questId).Name.ToString();
                             ImGui.Text(questName);
                         }
@@ -844,6 +908,7 @@ namespace ChilledLeves.Ui
             }
             else
             {
+                // If none is selected
                 float centerY = ImGui.GetWindowHeight() * 0.4f;
                 ImGui.SetCursorPosY(centerY);
                 float textWidth = ImGui.CalcTextSize("No Leve Selected").X;
@@ -870,40 +935,49 @@ namespace ChilledLeves.Ui
                     ImGui.TextDisabled(hintText);
                 }
             }
+
             ImGui.EndChild();
             if (usingIceTheme)
             {
-                ImGui.PopStyleColor(); // ChildBg
+                ImGui.PopStyleColor(); // ChildBg for right panel
             }
 
             ImGui.Columns(1);
+
+            // Pop the window background color if ice theme
             if (usingIceTheme)
             {
-                ImGui.PopStyleColor(); // WindowBg
+                ImGui.PopStyleColor();
             }
         }
 
-        // Helper for drawing job toggle buttons.
+        /// <summary>
+        /// Helper method to draw job toggle buttons for the crafters/gatherers.
+        /// </summary>
         private void DrawJobToggle(uint row, ref bool state, string tooltip, bool usingIceTheme)
         {
+            // If enabled, use original color icon, else grey texture
             ISharedImmediateTexture? icon = state ? LeveTypeDict[row].AssignmentIcon : GreyTexture[row];
+
+            // Slight padding around the button
             ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(2, 2));
 
-            int styleCount = 1; 
+            int styleCount = 1;
             int colorCount = 0;
 
             if (state)
             {
+                // Indicate an enabled job filter with some highlight
                 if (usingIceTheme)
                 {
-                    // Ice theme 
+                    // Ice theme
                     ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.15f, 0.25f, 0.38f, 0.7f));
                     ImGui.PushStyleColor(ImGuiCol.Border, IceBlue);
                     colorCount = 2;
                 }
                 else
                 {
-                    // Dalamud theme 
+                    // Dalamud theme
                     ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.3f, 0.3f, 0.35f, 0.7f));
                     ImGui.PushStyleColor(ImGuiCol.Border, ImGuiColors.ParsedGold);
                     colorCount = 2;
@@ -913,7 +987,7 @@ namespace ChilledLeves.Ui
             }
             else if (usingIceTheme)
             {
-                // Ice theme 
+                // Disabled job with Ice theme
                 ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
                 ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(0.3f, 0.3f, 0.3f, 0.3f));
                 colorCount = 2;
@@ -922,7 +996,7 @@ namespace ChilledLeves.Ui
             }
             else
             {
-                // Dalamud theme 
+                // Disabled job with Dalamud theme
                 ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.2f, 0.2f, 0.2f, 0.1f));
                 ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(0.4f, 0.4f, 0.4f, 0.5f));
                 colorCount = 2;
@@ -930,21 +1004,25 @@ namespace ChilledLeves.Ui
                 styleCount++;
             }
 
+            // Rounded corners
             ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 2.0f);
             styleCount++;
 
+            // Actual toggle button with the job icon
             if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, new Vector2(26, 26)))
             {
                 state = !state;
                 C.Save();
             }
 
+            // Pop style variables and colors
             ImGui.PopStyleVar(styleCount);
             if (colorCount > 0)
             {
                 ImGui.PopStyleColor(colorCount);
             }
 
+            // Show tooltip on hover
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
@@ -954,18 +1032,27 @@ namespace ChilledLeves.Ui
             }
         }
 
+        /// <summary>
+        /// The filter logic for whether a leve should be displayed in the middle panel.
+        /// </summary>
         private bool FilterLeve(uint leveId)
         {
             var showLeve = true;
             var jobAssignmentType = LeveDictionary[leveId].JobAssignmentType;
+
+            // If "Only Favorites" is on, ignore everything except favorite status
             if (C.OnlyFavorites)
             {
                 return C.FavoriteLeves.Contains(leveId);
             }
+
+            // Level filter
             if (C.LevelFilter > 0)
             {
                 showLeve &= LeveDictionary[leveId].Level == C.LevelFilter;
             }
+
+            // Completed / incomplete filter
             if (C.CompleteFilter == 1)
             {
                 showLeve &= IsComplete(leveId);
@@ -974,11 +1061,17 @@ namespace ChilledLeves.Ui
             {
                 showLeve &= !IsComplete(leveId);
             }
+
+            // Name filter
             if (!string.IsNullOrEmpty(C.NameFilter))
             {
                 showLeve &= LeveDictionary[leveId].LeveName.Contains(C.NameFilter, StringComparison.OrdinalIgnoreCase);
             }
+
+            // Filter out jobs that are not currently shown
             showLeve &= showLeve && !C.GetJobFilter().Contains(jobAssignmentType);
+
+            // Update VisibleLeves collection for external references
             if (VisibleLeves.Contains(leveId) && !showLeve)
             {
                 VisibleLeves.Remove(leveId);
@@ -989,6 +1082,9 @@ namespace ChilledLeves.Ui
             }
             return showLeve;
         }
+
+
+        /// Draws the header at the top of the window showing plugin name, allowances, etc.
 
         private void DrawSimpleHeader(bool usingIceTheme)
         {
@@ -1001,6 +1097,7 @@ namespace ChilledLeves.Ui
                 headerBgColor = 1;
             }
 
+            // Begin a small child region to hold the header text
             ImGui.BeginChild("###Header", new Vector2(headerWidth, 38), false,
                 ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
 
@@ -1011,33 +1108,37 @@ namespace ChilledLeves.Ui
                 headerTextColor = 1;
             }
 
-            // Define header items.
+            // Header items
             string titleText = $"Chilled Leves {P.GetType().Assembly.GetName().Version}";
             string allowancesText = $"Allowances: {Allowances}/100";
             string nextText = $"Next in: {NextAllowances:hh':'mm':'ss}";
             string sepText = " | ";
 
-            // Extra spacing (in pixels) between items.
+            // Additional spacing in pixels
             float extraSpacing = 20f;
 
-            // Calculate widths.
+            // Calculate widths of each piece
             float titleWidth = ImGui.CalcTextSize(titleText).X;
             float sepWidth = ImGui.CalcTextSize(sepText).X;
             float allowancesWidth = ImGui.CalcTextSize(allowancesText).X;
             float nextWidth = ImGui.CalcTextSize(nextText).X;
 
             float totalWidth = titleWidth + allowancesWidth + nextWidth + 2 * sepWidth + 2 * extraSpacing;
-            // Starting X to center the header.
             float centerX = (headerWidth - totalWidth) * 0.5f;
 
+            // Position the text in the center of the header child
             ImGui.SetCursorPos(new Vector2(centerX, 10));
             ImGui.TextUnformatted(titleText);
+
             ImGui.SameLine(centerX + titleWidth + extraSpacing);
             ImGui.TextUnformatted(sepText);
+
             ImGui.SameLine(centerX + titleWidth + extraSpacing + sepWidth + extraSpacing);
             ImGui.TextUnformatted(allowancesText);
+
             ImGui.SameLine(centerX + titleWidth + extraSpacing + sepWidth + extraSpacing + allowancesWidth + extraSpacing);
             ImGui.TextUnformatted(sepText);
+
             ImGui.SameLine(centerX + titleWidth + extraSpacing + sepWidth + extraSpacing + allowancesWidth + extraSpacing + sepWidth + extraSpacing);
             ImGui.TextUnformatted(nextText);
 
@@ -1045,7 +1146,9 @@ namespace ChilledLeves.Ui
             {
                 ImGui.PopStyleColor(headerTextColor);
             }
+
             ImGui.EndChild();
+
             if (headerBgColor > 0)
             {
                 ImGui.PopStyleColor(headerBgColor);
