@@ -51,6 +51,8 @@ namespace ChilledLeves.Scheduler
         internal static bool KeepLeves = false;
         internal static bool GatheringMode = false;
         internal static bool WorkListMode = false;
+        private static int MinMountDistance = 25;
+        private static float InteractDistance = 6.8f;
 
         internal static void Tick()
         {
@@ -119,16 +121,16 @@ namespace ChilledLeves.Scheduler
 
                                         if (IsInZone(zoneID))
                                         {
-                                            if (Player.DistanceTo(NPCLocation) < 6.8f)
+                                            if (Player.DistanceTo(NPCLocation) < InteractDistance)
                                             {
                                                 P.taskManager.Enqueue(() => PluginVerbos("Close to the NPC, Starting Turnin Process"));
                                                 TaskTurninMulti.Enqueue(zoneID);
                                             }
-                                            else if (Player.DistanceTo(NPCLocation) > 6.8f)
+                                            else if (Player.DistanceTo(NPCLocation) > InteractDistance)
                                             {
                                                 bool fly = false;
 
-                                                if (LeveNPCDict[npc].Mount && Player.DistanceTo(NPCLocation) > 20)
+                                                if (LeveNPCDict[npc].Mount && Player.DistanceTo(NPCLocation) > MinMountDistance)
                                                 {
                                                     TaskMountUp.Enqueue();
                                                     if (Player.DistanceTo(NPCLocation) > 50)
@@ -170,7 +172,7 @@ namespace ChilledLeves.Scheduler
 
                                         if (IsInZone(zoneID))
                                         {
-                                            if (GetDistanceToPlayer(NPCLocation) < 1)
+                                            if (Player.DistanceTo(NPCLocation) < InteractDistance)
                                             {
                                                 TaskTarget.Enqueue(npc);
                                                 if (!C.GrabMulti)
@@ -184,14 +186,14 @@ namespace ChilledLeves.Scheduler
                                                 if (C.IncreaseDelay)
                                                     P.taskManager.EnqueueDelay(1000);
                                             }
-                                            else if (GetDistanceToPlayer(NPCLocation) > 1)
+                                            else if (Player.DistanceTo(NPCLocation) > InteractDistance)
                                             {
                                                 bool fly = false;
 
                                                 if (LeveNPCDict[npc].Mount)
                                                 {
                                                     TaskMountUp.Enqueue();
-                                                    if (LeveNPCDict[npc].Fly.HasValue)
+                                                    if (LeveNPCDict[npc].Fly.HasValue && Player.DistanceTo(NPCLocation) > 50)
                                                     {
                                                         fly = (bool)LeveNPCDict[npc].Fly;
                                                     }
@@ -298,27 +300,27 @@ namespace ChilledLeves.Scheduler
 
                                     if (IsInZone(zoneID))
                                     {
-                                        if (GetDistanceToPlayer(NPCLocation) < 1)
+                                        if (Player.DistanceTo(NPCLocation) < InteractDistance)
                                         {
                                             TaskTarget.Enqueue(Turninnpc);
                                             TaskInteract.Enqueue(Turninnpc);
                                             TaskTurnin.Enqueue(LeveName, leveId);
                                             TaskUpdateWorkList.Enqueue(leveId);
                                         }
-                                        else if (GetDistanceToPlayer(NPCLocation) > 1)
+                                        else if (Player.DistanceTo(NPCLocation) > MinMountDistance)
                                         {
                                             bool fly = false;
 
                                             if (LeveNPCDict[Turninnpc].Mount)
                                             {
                                                 TaskMountUp.Enqueue();
-                                                if (LeveNPCDict[Turninnpc].Fly.HasValue)
+                                                if (LeveNPCDict[Turninnpc].Fly.HasValue && Player.DistanceTo(NPCLocation) > 50)
                                                 {
                                                     fly = (bool)LeveNPCDict[Turninnpc].Fly;
                                                 }
                                             }
 
-                                            TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 1);
+                                            TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 0.5f);
                                         }
                                     }
                                     else if (!IsInZone(zoneID))
@@ -348,7 +350,7 @@ namespace ChilledLeves.Scheduler
                                         {
                                             bool fly = false;
 
-                                            if (LeveNPCDict[npc].Mount && Player.DistanceTo(NpcLocation) > 20)
+                                            if (LeveNPCDict[npc].Mount && Player.DistanceTo(NpcLocation) > MinMountDistance)
                                             {
                                                 TaskMountUp.Enqueue();
                                                 if (Player.DistanceTo(NpcLocation) > 50)

@@ -15,6 +15,6 @@ internal static unsafe class PlayerHandlers
     }
     public static unsafe bool IsMoving()
     {
-        return AgentMap.Instance()->IsPlayerMoving == 1;
+        return AgentMap.Instance()->IsPlayerMoving;
     }
 }

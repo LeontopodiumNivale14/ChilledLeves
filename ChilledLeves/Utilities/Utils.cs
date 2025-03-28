@@ -80,7 +80,7 @@ public static unsafe class Utils
 
         var agent = AgentMap.Instance();
 
-        agent->IsFlagMarkerSet = 0;
+        agent->IsFlagMarkerSet = false;
         agent->SetFlagMapMarker(teri, mapId, x, y);
         agent->OpenMapByMapId(mapId, territoryId: teri);
     }
