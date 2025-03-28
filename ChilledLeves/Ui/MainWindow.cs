@@ -74,7 +74,7 @@ namespace ChilledLeves.Ui
             float headerHeight = 38f;
             float contentAreaHeight = ImGui.GetWindowHeight() - headerHeight - 4;
             float labelHeight = ImGui.GetTextLineHeightWithSpacing();
-            float childHeight = contentAreaHeight - labelHeight;
+            float childHeight = ImGui.GetContentRegionAvail().Y - labelHeight;
 
             // Use a 3-column layout to hold Filters (left panel), Leve List (middle panel), and Details (right panel).
             ImGui.Columns(3, "MainLayout", false);
@@ -663,6 +663,7 @@ namespace ChilledLeves.Ui
                 ImGui.Text($"{ZoneName(startZoneId)}");
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
+                ImGui.AlignTextToFramePadding();
                 ImGui.Text("NPC:");
                 ImGui.TableNextColumn();
 
@@ -684,7 +685,6 @@ namespace ChilledLeves.Ui
                 {
                     ImGui.PopStyleColor(npcButtonColors);
                 }
-                ImGui.EndTable();
 
                 // If crafter/fisher job, show the turn-in NPC
                 var JobAssignment = LeveDictionary[leve].JobAssignmentType;
@@ -692,13 +692,40 @@ namespace ChilledLeves.Ui
                 {
                     uint turninNPCId = CraftDictionary[leve].LeveTurninVendorID;
                     string turninName = turninNPCId != 0 ? NPCName(turninNPCId) : "not valid";
-                    ImGui.BeginTable("turnin_table", 2, ImGuiTableFlags.SizingFixedFit);
                     ImGui.TableNextColumn();
+                    ImGui.AlignTextToFramePadding();
                     ImGui.Text("Turnin NPC:");
                     ImGui.TableNextColumn();
-                    ImGui.Text($"{turninName}");
-                    ImGui.EndTable();
+
+                    if (turninNPCId != 0)
+                    {
+                        int turninNpcButtonColors = 0;
+                        if (usingIceTheme)
+                        {
+                            ImGui.PushStyleColor(ImGuiCol.Button, DarkIceBlue);
+                            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(DarkIceBlue.X + 0.1f, DarkIceBlue.Y + 0.1f, DarkIceBlue.Z + 0.1f, 1.0f));
+                            turninNpcButtonColors = 2;
+                        }
+
+                        if (ImGui.Button($"{turninName}###TurninNPC"))
+                        {
+                            var flagX = LeveNPCDict[turninNPCId].flagX;
+                            var flagZ = LeveNPCDict[turninNPCId].flagZ;
+                            var TurninZoneId = LeveNPCDict[turninNPCId].ZoneID;
+                            SetFlagForNPC(TurninZoneId, flagX, flagZ);
+                        }
+                        if (turninNpcButtonColors > 0)
+                        {
+                            ImGui.PopStyleColor(turninNpcButtonColors);
+                        }
+                    }
+                    else
+                    {
+                        ImGui.Text($"{turninName}");
+                    }
                 }
+
+                ImGui.EndTable();
 
                 ImGui.Separator();
 
@@ -1051,6 +1078,20 @@ namespace ChilledLeves.Ui
             if (C.OnlyFavorites)
             {
                 return C.FavoriteLeves.Contains(leveId);
+            }
+            if (C.ShowCompletable)
+            {
+                if (CraftFisherJobs.Contains(jobAssignmentType))
+                {
+                    var itemID = CraftDictionary[leveId].ItemID;
+                    var turninAmount = CraftDictionary[leveId].TurninAmount;
+
+                    return turninAmount <= GetItemCount((int)itemID);
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             // Level filter
