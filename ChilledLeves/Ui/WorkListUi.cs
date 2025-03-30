@@ -1,55 +1,313 @@
 ﻿using ChilledLeves.Scheduler;
+using Dalamud.Interface.Utility.Raii;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ChilledLeves.Ui
 {
+    // Class to represent a saved worklist for export/import
+    public class SavedWorklist
+    {
+        public string Name { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public List<LeveEntry> Entries { get; set; } = new List<LeveEntry>();
+    }
+
     internal class WorkListUi : Window
     {
+        // Directory where worklists will be saved
+        private static readonly string WorklistDirectory = Path.Combine(Svc.PluginInterface.GetPluginConfigDirectory(), "worklists");
+        
+        // List of available saved worklists
+        private List<SavedWorklist> savedWorklists = new List<SavedWorklist>();
+        
+        // Input field for naming the worklist to export
+        private string exportWorklistName = "";
+        
+        // Whether the import/export section is expanded
+        private bool showImportExport = false;
+        
+        // Selected worklist index for import
+        private int selectedWorklistIndex = -1;
+        
+        // Import confirmation modal state
+        private bool _importConfirmationOpen = false;
+        
+        // Temporary variable to store the worklist to be imported
+        private SavedWorklist _worklistToImport;
+
         public WorkListUi() : 
             base($"Worklist [ChilledLeves] {P.GetType().Assembly.GetName().Version} ###WorkListChilledLeves")
         {
             Flags = ImGuiWindowFlags.None;
             SizeConstraints = new()
             {
-                MinimumSize = new Vector2(300, 300),
+                MinimumSize = new Vector2(400, 400),
                 MaximumSize = new Vector2(2000, 2000),
             };
             P.windowSystem.AddWindow(this);
             AllowPinning = false;
+            
+            // Create the worklist directory if it doesn't exist
+            if (!Directory.Exists(WorklistDirectory))
+                Directory.CreateDirectory(WorklistDirectory);
+                
+            // Load saved worklists on initialization
+            LoadSavedWorklists();
         }
 
         public void Dispose() { }
 
         public override void Draw()
         {
-            WorklistMode();
+            // Check for Ice theme
+            bool usingIceTheme = C.UseIceTheme;
+            
+            // Begin theming with improved style boundary
+            ThemeHelper.BeginTheming(usingIceTheme);
+            
+            // Call WorklistMode to render the UI
+            WorklistMode(this);
+            
+            // End theming with proper style restoration
+            ThemeHelper.EndTheming(usingIceTheme);
         }
 
         #region
 
-        public static void WorklistMode()
+        public static void WorklistMode(WorkListUi currentInstance)
         {
+            // Get font scaling metrics
+            float textLineHeight = ImGui.GetTextLineHeight();
+            float fontScale = ImGui.GetIO().FontGlobalScale;
+            float scaledSpacing = ImGui.GetStyle().ItemSpacing.Y * fontScale;
+            
+            // Get theme setting (but don't re-apply window styles - those are set by Draw method)
+            bool usingIceTheme = C.UseIceTheme;
+            
+            // Add navigation buttons to other windows at the top
+            if (usingIceTheme)
+            {
+                int navigationBtnStyleCount = ThemeHelper.PushButtonStyle();
+                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+                
+                float navButtonHeight = textLineHeight * 1.5f;
+                float btnPadding = 8 * fontScale;
+                float mainBtnWidth = ImGui.CalcTextSize("Main Window").X + btnPadding * 2;
+                float gatherBtnWidth = ImGui.CalcTextSize("Gathering Window").X + btnPadding * 2;
+                
+                // Left-aligned buttons
+                ImGui.BeginGroup();
+                if (ImGui.Button("Main Window", new Vector2(mainBtnWidth, navButtonHeight)))
+                {
+                    P.mainWindow.IsOpen = true;
+                }
+                
+                ImGui.SameLine();
+                
+                if (ImGui.Button("Gathering Window", new Vector2(gatherBtnWidth, navButtonHeight)))
+                {
+                    P.gatherModeUi.IsOpen = true;
+                }
+                ImGui.EndGroup();
+                
+                // Right-aligned allowances info
+                float windowWidth = ImGui.GetWindowWidth();
+                string allowancesInfo = $"Allowances: {Allowances}/100 | Next in: {NextAllowances:hh\\:mm\\:ss}";
+                float infoWidth = ImGui.CalcTextSize(allowancesInfo).X;
+                
+                ImGui.SameLine(windowWidth - infoWidth - btnPadding);
+                
+                // Add ice theme styling for the text
+                int textStyleCount = ThemeHelper.PushHeadingTextStyle();
+                ImGui.Text(allowancesInfo);
+                ImGui.PopStyleColor(textStyleCount);
+                
+                ImGui.PopStyleVar();
+                ImGui.PopStyleColor(navigationBtnStyleCount);
+            }
+            else
+            {
+                float navButtonHeight = textLineHeight * 1.5f;
+                float btnPadding = 8 * fontScale;
+                float mainBtnWidth = ImGui.CalcTextSize("Main Window").X + btnPadding * 2;
+                float gatherBtnWidth = ImGui.CalcTextSize("Gathering Window").X + btnPadding * 2;
+                
+                // Left-aligned buttons
+                ImGui.BeginGroup();
+                if (ImGui.Button("Main Window", new Vector2(mainBtnWidth, navButtonHeight)))
+                {
+                    P.mainWindow.IsOpen = true;
+                }
+                
+                ImGui.SameLine();
+                
+                if (ImGui.Button("Gathering Window", new Vector2(gatherBtnWidth, navButtonHeight)))
+                {
+                    P.gatherModeUi.IsOpen = true;
+                }
+                ImGui.EndGroup();
+                
+                // Right-aligned allowances info
+                float windowWidth = ImGui.GetWindowWidth();
+                string allowancesInfo = $"Allowances: {Allowances}/100 | Next in: {NextAllowances:hh\\:mm\\:ss}";
+                float infoWidth = ImGui.CalcTextSize(allowancesInfo).X;
+                
+                ImGui.SameLine(windowWidth - infoWidth - btnPadding);
+                ImGui.Text(allowancesInfo);
+            }
+            
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+            
             ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");
 
+            // Apply control styling for checkboxes via scope to ensure cleanup
+            if (usingIceTheme)
+            {
+                int styleCount = ThemeHelper.PushControlStyle();
+                ImGui.Checkbox("###ChilledLevesKeepList", ref SchedulerMain.KeepLeves);
+                ImGui.PopStyleColor(styleCount);
+            }
+            else
+            {
             ImGui.Checkbox("###ChilledLevesKeepList", ref SchedulerMain.KeepLeves);
+            }
+            
             ImGui.SameLine();
             ImGui.Text("Keep list after completion?");
+            
+            if (usingIceTheme)
+            {
+                int styleCount = ThemeHelper.PushControlStyle();
+                ImGui.Checkbox("###Delay grabbing leves", ref C.IncreaseDelay);
+                ImGui.PopStyleColor(styleCount);
+            }
+            else
+            {
             ImGui.Checkbox("###Delay grabbing leves", ref C.IncreaseDelay);
+            }
+            
             ImGui.SameLine();
             ImGui.Text("Increase delay between leves");
+            
+            if (usingIceTheme)
+            {
+                int styleCount = ThemeHelper.PushControlStyle();
+                ImGui.Checkbox("###GrabMultiLeve", ref C.GrabMulti);
+                ImGui.PopStyleColor(styleCount);
+            }
+            else
+            {
             ImGui.Checkbox("###GrabMultiLeve", ref C.GrabMulti);
+            }
+            
             ImGui.SameLine();
             ImGui.Text("Grab multiple leve's from vendor");
 
+            // Create a row of buttons for different actions
+            float buttonSpacing = 10 * fontScale;
+            float availWidth = ImGui.GetContentRegionAvail().X;
+            float buttonHeight = textLineHeight * 1.5f;
+            
+            // Artisan export button
             string artisan = "Copy for Artisan";
-            var CopyButton = artisan.Length;
+            var buttonSize = ImGui.CalcTextSize(artisan);
+            float artisanBtnWidth = buttonSize.X + ImGui.GetStyle().FramePadding.X * 2 * fontScale;
+            
+            // Import/Export button
+            string importExport = "Import/Export Worklists";
+            var ieBtnSize = ImGui.CalcTextSize(importExport);
+            float ieBtnWidth = ieBtnSize.X + ImGui.GetStyle().FramePadding.X * 2 * fontScale;
+            
+            // Calculate button widths to fit the row
+            float totalBtnWidth = artisanBtnWidth + ieBtnWidth + buttonSpacing;
+            float leftPadding = (availWidth - totalBtnWidth) / 2; // Center the buttons
+            
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + leftPadding);
+            
+            // Apply button styling in a scoped way
+            if (usingIceTheme)
+            {
+                int btnStyleCount = ThemeHelper.PushButtonStyle();
+                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+                
+                // Copy to Artisan button
+                if (ImGui.Button(artisan, new Vector2(artisanBtnWidth, buttonHeight)))
+                {
+                    string importString = string.Empty;
 
-            ImGui.SetNextItemWidth(CopyButton);
-            if (ImGui.Button(artisan))
+                    importString = "Items : \n";
+
+                    foreach (var kdp in LeveDictionary)
+                    {
+                        var leveID = kdp.Key;
+                        var jobType = kdp.Value.JobAssignmentType;
+
+                        var itemId = CraftDictionary[leveID].ItemID;
+                        var itemName = CraftDictionary[leveID].ItemName;
+                        var itemAmount = CraftDictionary[leveID].TurninAmount;
+
+                        if (!C.workList.Any(x => x.LeveID == leveID))
+                        {
+                            continue;
+                        }
+                        if (!CraftFisherJobs.Contains(jobType))
+                        {
+                            continue;
+                        }
+
+
+                        var WorklistInput = C.workList.Where(x => x.LeveID == leveID).FirstOrDefault();
+                        var InputAmount = WorklistInput.InputValue;
+                        var AmountNeeded = InputAmount * itemAmount;
+
+                        string temp = $"{AmountNeeded}x {itemName}\n";
+
+                        importString += temp;
+                    }
+
+                    ImGui.SetClipboardText($"{importString}");
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Text("Copy worklist in a format for Artisan");
+                    ImGui.Text("Import via \"Crafting List\" -> \"Teamcraft List Import\"");
+                    ImGui.Text("Make sure to put it in FINAL ITEMS");
+                    ImGui.EndTooltip();
+                }
+                
+                ImGui.SameLine(0, buttonSpacing);
+                
+                // Import/Export toggle button
+                if (ImGui.Button(importExport, new Vector2(ieBtnWidth, buttonHeight)))
+                {
+                    currentInstance.showImportExport = !currentInstance.showImportExport;
+                    
+                    // Load saved worklists when opening the section
+                    if (currentInstance.showImportExport)
+                    {
+                        currentInstance.LoadSavedWorklists();
+                    }
+                }
+                
+                // Pop button styling
+                ImGui.PopStyleVar();
+                ImGui.PopStyleColor(btnStyleCount);
+            }
+            else
+            {
+                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+                
+                // Copy to Artisan button
+                if (ImGui.Button(artisan, new Vector2(artisanBtnWidth, buttonHeight)))
             {
                 string importString = string.Empty;
 
@@ -85,19 +343,310 @@ namespace ChilledLeves.Ui
 
                 ImGui.SetClipboardText($"{importString}");
             }
-            ImGuiEx.HelpMarker("This lets you copy your worklist -> a format to import into Artisan \n" +
-                               "You can import it by going to \"Crafting List\" -> \"Teamcraft List Import\" \n" +
-                               "MAKE SURE TO PUT THIS IN FINAL ITEMS");
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Text("Copy worklist in a format for Artisan");
+                    ImGui.Text("Import via \"Crafting List\" -> \"Teamcraft List Import\"");
+                    ImGui.Text("Make sure to put it in FINAL ITEMS");
+                    ImGui.EndTooltip();
+                }
+                
+                ImGui.SameLine(0, buttonSpacing);
+                
+                // Import/Export toggle button
+                if (ImGui.Button(importExport, new Vector2(ieBtnWidth, buttonHeight)))
+                {
+                    currentInstance.showImportExport = !currentInstance.showImportExport;
+                    
+                    // Load saved worklists when opening the section
+                    if (currentInstance.showImportExport)
+                    {
+                        currentInstance.LoadSavedWorklists();
+                    }
+                }
+                
+                // Pop button styling
+                ImGui.PopStyleVar();
+            }
+            
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text("Save and load worklists from JSON files");
+                ImGui.EndTooltip();
+            }
+            
+            // Import/Export section
+            if (currentInstance.showImportExport)
+            {
+                ImGui.Spacing();
+                
+                // Setup child window with proper styling
+                if (usingIceTheme)
+                {
+                    int childStyleCount = ThemeHelper.PushChildStyle();
+                    ImGui.BeginChild("###ImportExportSection", new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 14), true);
+                    ImGui.PopStyleColor(childStyleCount);
+                }
+                else
+                {
+                    ImGui.BeginChild("###ImportExportSection", new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 14), true);
+                }
+                
+                // Export section
+                if (usingIceTheme)
+                {
+                    int textStyleCount = ThemeHelper.PushHeadingTextStyle();
+                    ImGui.Text("Export Current Worklist");
+                    ImGui.PopStyleColor(textStyleCount);
+                }
+                else
+                {
+                    ImGui.Text("Export Current Worklist");
+                }
+                
+                ImGui.Separator();
+                
+                // Export worklist name input
+                ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X * 0.7f);
+                
+                if (usingIceTheme)
+                {
+                    int controlStyleCount = ThemeHelper.PushControlStyle();
+                    ImGui.InputText("Worklist Name", ref currentInstance.exportWorklistName, 50);
+                    ImGui.PopStyleColor(controlStyleCount);
+                }
+                else
+                {
+                    ImGui.InputText("Worklist Name", ref currentInstance.exportWorklistName, 50);
+                }
+                
+                ImGui.SameLine();
+                
+                // Export button
+                bool canExport = !string.IsNullOrWhiteSpace(currentInstance.exportWorklistName) && C.workList.Count > 0;
+                
+                if (usingIceTheme)
+                {
+                    int btnExportStyleCount = ThemeHelper.PushButtonStyle();
+                    ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+                    
+                    using (ImRaii.Disabled(!canExport))
+                    {
+                        if (ImGui.Button("Export", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+                        {
+                            currentInstance.ExportWorklist(currentInstance.exportWorklistName);
+                        }
+                    }
+                    
+                    ImGui.PopStyleVar();
+                    ImGui.PopStyleColor(btnExportStyleCount);
+                }
+                else
+                {
+                    using (ImRaii.Disabled(!canExport))
+                    {
+                        if (ImGui.Button("Export", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+                        {
+                            currentInstance.ExportWorklist(currentInstance.exportWorklistName);
+                        }
+                    }
+                }
+                
+                if (ImGui.IsItemHovered() && !canExport)
+                {
+                    ImGui.BeginTooltip();
+                    if (C.workList.Count == 0)
+                    {
+                        ImGui.Text("Worklist is empty. Add items before exporting.");
+                    }
+                    else
+                    {
+                        ImGui.Text("Enter a name for the worklist to export");
+                    }
+                    ImGui.EndTooltip();
+                }
+                
+                ImGui.Spacing();
+                ImGui.Spacing();
+                
+                // Import section
+                if (usingIceTheme)
+                {
+                    int textStyleCount = ThemeHelper.PushHeadingTextStyle();
+                    ImGui.Text("Import Saved Worklist");
+                    ImGui.PopStyleColor(textStyleCount);
+                }
+                else
+                {
+                    ImGui.Text("Import Saved Worklist");
+                }
+                
+                ImGui.Separator();
+                
+                if (currentInstance.savedWorklists.Count == 0)
+                {
+                    ImGui.TextDisabled("No saved worklists found");
+                }
+                else
+                {
+                    // Create a table to display saved worklists with themed headers
+                    if (usingIceTheme)
+                    {
+                        // Push table header styling
+                        ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue);
+                        int headerStyleCount = ThemeHelper.PushHeaderStyle();
+                        
+                        if (ImGui.BeginTable("###SavedWorklistsTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders))
+                        {
+                            // Calculate column widths based on font metrics
+                            float nameColWidth = Math.Max(200, textLineHeight * 10);
+                            float dateColWidth = Math.Max(150, textLineHeight * 9);
+                            float actionColWidth = Math.Max(80, textLineHeight * 5);
+                            
+                            ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, nameColWidth);
+                            ImGui.TableSetupColumn("Created", ImGuiTableColumnFlags.WidthFixed, dateColWidth);
+                            ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.WidthFixed, actionColWidth);
+                            
+                            ImGui.TableHeadersRow();
+                            
+                            // Pop the header style after headers are drawn
+                            ImGui.PopStyleColor(headerStyleCount + 1); // +1 for TableHeaderBg
+                            
+                            // Draw table rows
+                            DrawWorklistTableRows(currentInstance, textLineHeight, usingIceTheme);
+                            
+                            ImGui.EndTable();
+                        }
+                    }
+                    else
+                    {
+                        if (ImGui.BeginTable("###SavedWorklistsTable", 3, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders))
+                        {
+                            // Calculate column widths based on font metrics
+                            float nameColWidth = Math.Max(200, textLineHeight * 10);
+                            float dateColWidth = Math.Max(150, textLineHeight * 9);
+                            float actionColWidth = Math.Max(80, textLineHeight * 5);
+                            
+                            ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, nameColWidth);
+                            ImGui.TableSetupColumn("Created", ImGuiTableColumnFlags.WidthFixed, dateColWidth);
+                            ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.WidthFixed, actionColWidth);
+                            
+                            ImGui.TableHeadersRow();
+                            
+                            // Draw table rows 
+                            DrawWorklistTableRows(currentInstance, textLineHeight, usingIceTheme);
+                            
+                            ImGui.EndTable();
+                        }
+                    }
+                }
+                
+                ImGui.EndChild();
+                
+                // Confirmation popup
+                bool importConfirmOpen = currentInstance._importConfirmationOpen;
+                if (ImGui.BeginPopupModal("Import Confirmation", ref importConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize))
+                {
+                    currentInstance._importConfirmationOpen = importConfirmOpen;
+                    
+                    ImGui.Text("This will replace your current worklist. Are you sure?");
+                    if (currentInstance._worklistToImport != null)
+                    {
+                        ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1.0f), 
+                            $"Importing: {currentInstance._worklistToImport.Name} ({currentInstance._worklistToImport.Entries.Count} items)");
+                    }
+                    ImGui.Separator();
+                    
+                    ImGui.Spacing();
+                    
+                    float popupWidth = ImGui.GetWindowWidth();
+                    float buttonWidth = (popupWidth - 30) / 2;
+                    
+                    if (usingIceTheme)
+                    {
+                        int btnPopupStyleCount = ThemeHelper.PushButtonStyle();
+                        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+                        
+                        if (ImGui.Button("Cancel", new Vector2(buttonWidth, 0)))
+                        {
+                            currentInstance._worklistToImport = null;
+                            currentInstance._importConfirmationOpen = false;
+                            ImGui.CloseCurrentPopup();
+                        }
+                        
+                        ImGui.SameLine();
+                        
+                        if (ImGui.Button("Import", new Vector2(buttonWidth, 0)))
+                        {
+                            if (currentInstance._worklistToImport != null)
+                            {
+                                currentInstance.ApplyImport(currentInstance._worklistToImport);
+                                currentInstance._worklistToImport = null;
+                            }
+                            currentInstance._importConfirmationOpen = false;
+                            ImGui.CloseCurrentPopup();
+                        }
+                        
+                        ImGui.PopStyleVar();
+                        ImGui.PopStyleColor(btnPopupStyleCount);
+                    }
+                    else
+                    {
+                        if (ImGui.Button("Cancel", new Vector2(buttonWidth, 0)))
+                        {
+                            currentInstance._worklistToImport = null;
+                            currentInstance._importConfirmationOpen = false;
+                            ImGui.CloseCurrentPopup();
+                        }
+                        
+                        ImGui.SameLine();
+                        
+                        if (ImGui.Button("Import", new Vector2(buttonWidth, 0)))
+                        {
+                            if (currentInstance._worklistToImport != null)
+                            {
+                                currentInstance.ApplyImport(currentInstance._worklistToImport);
+                                currentInstance._worklistToImport = null;
+                            }
+                            currentInstance._importConfirmationOpen = false;
+                            ImGui.CloseCurrentPopup();
+                        }
+                    }
+                    
+                    ImGui.EndPopup();
+                }
+                else if (currentInstance._importConfirmationOpen)
+                {
+                    // If the popup should be open but isn't showing, open it
+                    ImGui.OpenPopup("Import Confirmation");
+                }
+            }
+            
+            ImGui.Spacing();
+            ImGui.Spacing();
+            
+            // Worklist table
+            // Calculate column widths based on font metrics
+            float baseColumnWidth = textLineHeight * 3;
+            float col0Width = Math.Max(50, baseColumnWidth);  // Level column
+            float col1Width = Math.Max(200, textLineHeight * 12);  // Leve name
+            float col2Width = Math.Max(75, textLineHeight * 5);  // Run amount
+            float col3Width = Math.Max(200, textLineHeight * 12);  // Item turnin
+            float col4Width = Math.Max(50, baseColumnWidth);  // Need
+            float col5Width = Math.Max(50, baseColumnWidth);  // Have
+            float col6Width = Math.Max(70, textLineHeight * 4);  // Remove
 
-            float col0Width = 0f;
-            float col1Width = 0f;
-            float col2Width = 0f;
-            float col3Width = 0f;
-            float col4Width = 0f;
-            float col5Width = 0f;
-            float col6Width = 0f;
-
-            float totalWidth = col0Width + col1Width + col2Width + col3Width + col4Width + col5Width + col6Width;
+            // Begin the worklist table with themed headers
+            if (usingIceTheme)
+            {
+                // Apply child background
+                int childStyleCount = ThemeHelper.PushChildStyle();
+                
+                // Apply table headers styling
+                ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue);
+                int headerStyleCount = ThemeHelper.PushHeaderStyle();
 
             if (ImGui.BeginTable($"Workshop List", 7, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable))
             {
@@ -106,12 +655,48 @@ namespace ChilledLeves.Ui
                 ImGui.TableSetupColumn("Run Amount###CrafterRunAmounts", ImGuiTableColumnFlags.WidthFixed, col2Width);
                 ImGui.TableSetupColumn("Item Turnin###CrafterTurninItems", ImGuiTableColumnFlags.WidthFixed, col3Width);
                 ImGui.TableSetupColumn("Need###CrafterAmountNecessary", ImGuiTableColumnFlags.WidthFixed, col4Width);
-                ImGui.TableSetupColumn("Have?###CrafterCompleteCheck", ImGuiTableColumnFlags.WidthFixed, col5Width);
-                ImGui.TableSetupColumn("Remove###CrafterLevesRemoveWorkList");
+                    ImGui.TableSetupColumn("Have###CrafterCompleteCheck", ImGuiTableColumnFlags.WidthFixed, col5Width);
+                    ImGui.TableSetupColumn("Remove###CrafterLevesRemoveWorkList", ImGuiTableColumnFlags.WidthFixed, col6Width);
 
                 ImGui.TableHeadersRow();
 
-                foreach (var kdp in LeveDictionary)
+                    // Pop the styling after the headers are drawn
+                    ImGui.PopStyleColor(headerStyleCount + 1); // +1 for TableHeaderBg
+                    
+                    // Draw the table rows
+                    DrawWorklistRows(textLineHeight, fontScale, usingIceTheme);
+                    
+                    ImGui.EndTable();
+                }
+                
+                // Pop child background
+                ImGui.PopStyleColor(childStyleCount);
+            }
+            else
+            {
+                if (ImGui.BeginTable($"Workshop List", 7, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders | ImGuiTableFlags.Reorderable))
+                {
+                    ImGui.TableSetupColumn("Level###CrafterLevels", ImGuiTableColumnFlags.WidthFixed, col0Width);
+                    ImGui.TableSetupColumn("Leve Name###CrafterLeveNames", ImGuiTableColumnFlags.WidthFixed, col1Width);
+                    ImGui.TableSetupColumn("Run Amount###CrafterRunAmounts", ImGuiTableColumnFlags.WidthFixed, col2Width);
+                    ImGui.TableSetupColumn("Item Turnin###CrafterTurninItems", ImGuiTableColumnFlags.WidthFixed, col3Width);
+                    ImGui.TableSetupColumn("Need###CrafterAmountNecessary", ImGuiTableColumnFlags.WidthFixed, col4Width);
+                    ImGui.TableSetupColumn("Have###CrafterCompleteCheck", ImGuiTableColumnFlags.WidthFixed, col5Width);
+                    ImGui.TableSetupColumn("Remove###CrafterLevesRemoveWorkList", ImGuiTableColumnFlags.WidthFixed, col6Width);
+                    
+                    ImGui.TableHeadersRow();
+                    
+                    // Draw the table rows
+                    DrawWorklistRows(textLineHeight, fontScale, usingIceTheme);
+                    
+                    ImGui.EndTable();
+                }
+            }
+        }
+
+        private static void DrawWorklistRows(float textLineHeight, float fontScale, bool usingIceTheme)
+        {
+            foreach (var kdp in LeveDictionary)
                 {
                     var leveID = kdp.Key;
                     var leveLevel = kdp.Value.Level;
@@ -131,19 +716,19 @@ namespace ChilledLeves.Ui
 
                     ImGui.TableNextRow();
 
-                    // Colomn 0 | Level Column
+                // Column 0 | Level Column
                     ImGui.PushID((int)leveID);
                     ImGui.TableSetColumnIndex(0);
                     CenterText($"{leveLevel}");
-                    col0Width = Math.Max(col0Width, "Level".Length);
 
                     // Column 1 | JobIcon + Leve Name
                     ImGui.TableNextColumn();
-                    ImGui.Image(jobIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(25, 25));
-                    ImGui.SameLine(0, 5);
+                // Scale icon size based on text line height
+                float iconSize = Math.Max(25, textLineHeight * 1.5f);
+                ImGui.Image(jobIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
+                ImGui.SameLine(0, 5 * fontScale); // Scale spacing
                     ImGui.AlignTextToFramePadding();
                     CenterTextInHeight($"{leveName}");
-                    col1Width = Math.Max(col1Width, leveName.Length + 10);
 
                     // Column 2 | Amount to Run
                     ImGui.TableNextColumn();
@@ -151,8 +736,25 @@ namespace ChilledLeves.Ui
                     var input = WorklistInput.InputValue;
 
                     float availableWidth = ImGui.GetContentRegionAvail().X;  // Get remaining space in the column
+                
+                // Apply slider styling for ice theme
+                if (usingIceTheme)
+                {
+                    int sliderStyleCount = ThemeHelper.PushControlStyle();
+                    ImGui.PushStyleColor(ImGuiCol.SliderGrab, ThemeHelper.IceBlue);
+                    ImGui.PushStyleColor(ImGuiCol.SliderGrabActive, ThemeHelper.FrostWhite);
+                    
                     ImGui.SetNextItemWidth(availableWidth);  // Set the slider width
                     ImGui.SliderInt("###RunAmountSlider", ref input, 1, 100);
+                    
+                    ImGui.PopStyleColor(sliderStyleCount + 2); // +2 for the additional slider colors
+                }
+                else
+                {
+                    ImGui.SetNextItemWidth(availableWidth);  // Set the slider width
+                    ImGui.SliderInt("###RunAmountSlider", ref input, 1, 100);
+                }
+                
                     if (input < 1)
                         input = 1;
                     else if (input > 100)
@@ -162,18 +764,17 @@ namespace ChilledLeves.Ui
                         WorklistInput.InputValue = input;
                         C.Save();
                     }
-                    col2Width = 75;
 
                     // Column 3 | Item Turnin
                     ImGui.TableNextColumn();
-                    ImGui.Image(ItemImage.ImGuiHandle, new Vector2(25, 25));
+                ImGui.Image(ItemImage.ImGuiHandle, new Vector2(iconSize, iconSize));
                     if (ImGui.IsItemHovered())
                     {
                         ImGui.BeginTooltip();
-                        ImGui.Image(ItemImage.ImGuiHandle, new Vector2(50, 50));
+                    ImGui.Image(ItemImage.ImGuiHandle, new Vector2(iconSize * 2, iconSize * 2));
                         ImGui.EndTooltip();
                     }
-                    ImGui.SameLine(0, 5);
+                ImGui.SameLine(0, 5 * fontScale); // Scale spacing
                     ImGui.AlignTextToFramePadding();
                     CenterTextInHeight($"{itemName}");
                     if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
@@ -186,7 +787,6 @@ namespace ChilledLeves.Ui
                         ImGui.Text("Left click to copy item to clipboard");
                         ImGui.EndTooltip();
                     }
-                    col3Width = Math.Max(col3Width, itemName.Length + 15);
 
                     // Column 4 | Need
                     ImGui.TableNextColumn();
@@ -194,38 +794,48 @@ namespace ChilledLeves.Ui
                     if (needAmount < 0)
                         needAmount = 0;
                     CenterText(needAmount.ToString());
-                    col4Width = Math.Max(col4Width, "Need".Length);
 
                     // Column 5 | Have
                     ImGui.TableNextColumn();
-                    int CurrentAmount = GetItemCount((int)itemId);
-                    bool hasEnough = needAmount <= CurrentAmount;
-                    if (needAmount != 0)
-                    {
-                        if (hasEnough)
-                        {
-                            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Green);
-                        }
-                        else if (!hasEnough)
-                        {
-                            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Red);
-                        }
-                        CenterText(CurrentAmount.ToString());
-                        ImGui.PopStyleColor();
-                    }
-                    col5Width = Math.Max(col5Width, "Have".Length);
+                var haveAmount = GetItemCount((int)itemId);
+                var isEnough = (haveAmount >= needAmount);
 
-                    // Column 6 | Remove Leve from worklist
-                    ImGui.TableNextColumn();
+                FancyCheckmark(isEnough);
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Text($"Have: {haveAmount}");
+                    ImGui.EndTooltip();
+                }
+
+                // Column 6 | Remove Button
+                ImGui.TableNextColumn();
+                
+                if (usingIceTheme)
+                {
+                    int btnRemoveStyleCount = ThemeHelper.PushButtonStyle();
+                    ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+                    
                     if (ImGuiEx.IconButton(FontAwesomeIcon.Trash, "Remove From LeveList"))
                     {
-                        C.workList.Remove(WorklistInput);
+                        C.workList.Remove(C.workList.Where(x => x.LeveID == leveID).FirstOrDefault());
+                        C.Save();
                     }
-                    col6Width = 75;
-
+                    
+                    ImGui.PopStyleVar();
+                    ImGui.PopStyleColor(btnRemoveStyleCount);
                 }
+                else
+                {
+                    if (ImGuiEx.IconButton(FontAwesomeIcon.Trash, "Remove From LeveList"))
+                    {
+                        C.workList.Remove(C.workList.Where(x => x.LeveID == leveID).FirstOrDefault());
+                        C.Save();
+                    }
+                }
+
+                ImGui.PopID();
             }
-            ImGui.EndTable();
         }
 
         private static void CenterText(string text)
@@ -259,5 +869,186 @@ namespace ChilledLeves.Ui
         }
 
         #endregion
+
+        // Load all saved worklists from the worklists directory
+        private void LoadSavedWorklists()
+        {
+            savedWorklists.Clear();
+            
+            if (!Directory.Exists(WorklistDirectory))
+            {
+                Directory.CreateDirectory(WorklistDirectory);
+                return;
+            }
+            
+            var files = Directory.GetFiles(WorklistDirectory, "*.json");
+                
+            foreach (var file in files)
+            {
+                try
+                {
+                    var json = File.ReadAllText(file);
+                    var worklist = JsonSerializer.Deserialize<SavedWorklist>(json);
+                    if (worklist != null)
+                    {
+                        savedWorklists.Add(worklist);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle deserialization errors
+                    Svc.Log.Error($"Error loading worklist: {ex.Message}");
+                }
+            }
+            
+            // Sort worklists by creation date (newest first)
+            savedWorklists = savedWorklists.OrderByDescending(w => w.CreatedAt).ToList();
+        }
+        
+        // Export the current worklist to a JSON file
+        private void ExportWorklist(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return;
+            
+            if (C.workList.Count == 0)
+                return;
+                
+            var worklist = new SavedWorklist
+            {
+                Name = name,
+                CreatedAt = DateTime.Now,
+                Entries = C.workList.ToList() // Create a copy of the current worklist
+            };
+            
+            try
+            {
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                string json = JsonSerializer.Serialize(worklist, options);
+                string filename = $"{name}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+                string filePath = Path.Combine(WorklistDirectory, filename);
+                
+                File.WriteAllText(filePath, json);
+                
+                // Reload the worklists to include the newly saved one
+                LoadSavedWorklists();
+                
+                // Reset the export name
+                exportWorklistName = "";
+            }
+            catch (Exception ex)
+            {
+                // Handle serialization/file writing errors
+                Svc.Log.Error($"Error exporting worklist: {ex.Message}");
+            }
+        }
+        
+        // Import a worklist from the saved list
+        private void ImportWorklist(SavedWorklist worklist)
+        {
+            if (worklist == null || worklist.Entries == null)
+                return;
+            
+            // Store the worklist to be imported temporarily
+            _worklistToImport = worklist;
+                
+            // Ask for confirmation if there are items in the current worklist
+            if (C.workList.Count > 0)
+            {
+                _importConfirmationOpen = true;
+                ImGui.OpenPopup("Import Confirmation");
+            }
+            else
+            {
+                // If worklist is empty, just import directly
+                ApplyImport(worklist);
+            }
+        }
+        
+        // Apply the import after confirmation
+        private void ApplyImport(SavedWorklist worklist)
+        {
+            if (worklist == null || worklist.Entries == null)
+                return;
+            
+            // Replace the current worklist with the imported one
+            C.workList.Clear();
+            
+            foreach (var entry in worklist.Entries)
+            {
+                // Ensure the leve exists in the dictionary before adding it
+                if (LeveDictionary.ContainsKey(entry.LeveID))
+                {
+                    C.workList.Add(entry);
+                }
+            }
+            
+            C.Save();
+        }
+
+        private static void DrawWorklistTableRows(WorkListUi currentInstance, float textLineHeight, bool usingIceTheme)
+        {
+            for (int i = 0; i < currentInstance.savedWorklists.Count; i++)
+            {
+                var worklist = currentInstance.savedWorklists[i];
+                
+                ImGui.TableNextRow();
+                
+                // Name column
+                ImGui.TableSetColumnIndex(0);
+                bool isSelected = currentInstance.selectedWorklistIndex == i;
+                
+                if (isSelected && usingIceTheme)
+                {
+                    int headerSelectStyleCount = ThemeHelper.PushHeaderStyle();
+                    if (ImGui.Selectable($"{worklist.Name}###wl{i}", isSelected))
+                    {
+                        currentInstance.selectedWorklistIndex = i;
+                    }
+                    ImGui.PopStyleColor(headerSelectStyleCount);
+                }
+                else
+                {
+                    if (ImGui.Selectable($"{worklist.Name}###wl{i}", isSelected))
+                    {
+                        currentInstance.selectedWorklistIndex = i;
+                    }
+                }
+                
+                // Date column
+                ImGui.TableSetColumnIndex(1);
+                ImGui.Text(worklist.CreatedAt.ToString("yyyy-MM-dd HH:mm"));
+                
+                // Actions column
+                ImGui.TableSetColumnIndex(2);
+                ImGui.PushID(i);
+                
+                float actionColWidth = Math.Max(80, textLineHeight * 5);
+                if (usingIceTheme)
+                {
+                    int btnImportStyleCount = ThemeHelper.PushButtonStyle();
+                    ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+                    
+                    if (ImGui.Button("Import", new Vector2(actionColWidth - 10, 0)))
+                    {
+                        currentInstance.selectedWorklistIndex = i;
+                        currentInstance.ImportWorklist(worklist);
+                    }
+                    
+                    ImGui.PopStyleVar();
+                    ImGui.PopStyleColor(btnImportStyleCount);
+                }
+                else
+                {
+                    if (ImGui.Button("Import", new Vector2(actionColWidth - 10, 0)))
+                    {
+                        currentInstance.selectedWorklistIndex = i;
+                        currentInstance.ImportWorklist(worklist);
+                    }
+                }
+                
+                ImGui.PopID();
+            }
+        }
     }
 }

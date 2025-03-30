@@ -18,13 +18,7 @@ namespace ChilledLeves.Ui
 
         private static int selectedLeve;
 
-        // Ice theme color definitions:
-        private static Vector4 IceBlue = new Vector4(0.7f, 0.85f, 1.0f, 1.0f);
-        private static Vector4 DarkIceBlue = new Vector4(0.3f, 0.5f, 0.7f, 1.0f);
-        private static Vector4 DeepIceBlue = new Vector4(0.15f, 0.25f, 0.4f, 1.0f);
-        private static Vector4 FrostWhite = new Vector4(0.95f, 0.97f, 1.0f, 1.0f);
-        private static Vector4 TranslucentIce = new Vector4(0.8f, 0.9f, 1.0f, 0.15f);
-        private static Vector4 DarkSlate = new Vector4(0.12f, 0.14f, 0.18f, 0.9f);
+        // Ice theme color definitions are now moved to ThemeHelper class
 
         // Used for the navmesh button
         private string buttonText = "Need Navmesh Installed";
@@ -41,13 +35,14 @@ namespace ChilledLeves.Ui
             Flags = ImGuiWindowFlags.None;
 
             // Set up size constraints to ensure window cannot be too small or too large.
+            // Increased minimum size to better accommodate larger font sizes
             SizeConstraints = new()
             {
-                MinimumSize = new Vector2(950, 600),
+                MinimumSize = new Vector2(1050, 650),
                 MaximumSize = new Vector2(2000, 2000)
             };
 
-            // Register this window with Dalamud’s window system.
+            // Register this window with Dalamud's window system.
             P.windowSystem.AddWindow(this);
 
             AllowPinning = false;
@@ -67,16 +62,21 @@ namespace ChilledLeves.Ui
         {
             // If user has enabled Ice Theme, push a dark-slate background color for the window.
             bool usingIceTheme = C.UseIceTheme;
-            if (usingIceTheme)
-            {
-                ImGui.PushStyleColor(ImGuiCol.WindowBg, DarkSlate);
-            }
+            
+            // Use the new ThemeHelper method to begin theming
+            ThemeHelper.BeginTheming(usingIceTheme);
+
+            // Calculate scaling factors based on current font size
+            float fontScale = ImGui.GetIO().FontGlobalScale;
+            float textLineHeight = ImGui.GetTextLineHeight();
+            float scaledSpacing = ImGui.GetStyle().ItemSpacing.Y * fontScale;
+            float headerPadding = textLineHeight * 1.2f;
 
             // Draw the custom or default style header at the top:
             DrawSimpleHeader(usingIceTheme);
 
-            // The header is ~38px tall; compute remaining height for content area.
-            float headerHeight = 38f;
+            // The header is dynamically sized based on font metrics - taller header now
+            float headerHeight = textLineHeight + headerPadding * 2;
             float contentAreaHeight = ImGui.GetWindowHeight() - headerHeight - 4;
             float labelHeight = ImGui.GetTextLineHeightWithSpacing();
             float childHeight = ImGui.GetContentRegionAvail().Y - labelHeight;
@@ -88,13 +88,14 @@ namespace ChilledLeves.Ui
             //  PANEL HEADERS (the text above each panel)
             // -----------------------------------------
 
-            // Left panel header
-            ImGui.SetColumnWidth(0, 220);
+            // Left panel header - dynamically sized based on font metrics
+            float leftPanelWidth = Math.Max(220, textLineHeight * 14);
+            ImGui.SetColumnWidth(0, leftPanelWidth);
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
+                int styleCount = ThemeHelper.PushHeadingTextStyle();
                 ImGui.Text("Controls");
-                ImGui.PopStyleColor();
+                ImGui.PopStyleColor(styleCount);
             }
             else
             {
@@ -102,8 +103,9 @@ namespace ChilledLeves.Ui
             }
             ImGui.NextColumn();
 
-            // Middle panel header - shows how many leves are visible vs total
-            ImGui.SetColumnWidth(1, 350);
+            // Middle panel header - dynamically sized based on font metrics
+            float middlePanelWidth = Math.Max(350, textLineHeight * 22);
+            ImGui.SetColumnWidth(1, middlePanelWidth);
             if (C.OnlyFavorites)
             {
                 ImGui.Text($"Showing: {C.FavoriteLeves.Count} out of {LeveDictionary.Count}");
@@ -117,9 +119,9 @@ namespace ChilledLeves.Ui
             // Right panel header
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
+                int styleCount = ThemeHelper.PushHeadingTextStyle();
                 ImGui.Text("Selected Leve Details");
-                ImGui.PopStyleColor();
+                ImGui.PopStyleColor(styleCount);
             }
             else
             {
@@ -133,12 +135,13 @@ namespace ChilledLeves.Ui
             // ------------------------------------------------
             //  LEFT PANEL: Start/Stop, Worklist, Gathering, and Filter UI
             // ------------------------------------------------
-            ImGui.SetColumnWidth(0, 220);
+            ImGui.SetColumnWidth(0, leftPanelWidth);
 
             // Possibly push a child background color if ice theme is active
+            int childBgStyleCount = 0;
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.15f, 0.18f, 0.22f, 0.7f));
+                childBgStyleCount = ThemeHelper.PushChildStyle();
             }
             ImGui.BeginChild("###FilterPanel", new Vector2(0, childHeight), true);
 
@@ -149,9 +152,7 @@ namespace ChilledLeves.Ui
             int buttonColors = 0;
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.Button, DarkIceBlue);
-                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(DarkIceBlue.X + 0.1f, DarkIceBlue.Y + 0.1f, DarkIceBlue.Z + 0.1f, 1.0f));
-                buttonColors = 2;
+                buttonColors = ThemeHelper.PushButtonStyle();
             }
 
             // Start and Stop buttons 
@@ -160,7 +161,7 @@ namespace ChilledLeves.Ui
                 if (!HasPlugin("vnavmesh"))
                 {
                     // Check if button is clicked
-                    if (ImGui.Button(buttonText, new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+                    if (ImGui.Button(buttonText, new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f)))
                     {
                         ImGui.SetClipboardText("Navmesh installation guide or link here");
                         buttonText = "Copied to Clipboard";
@@ -182,7 +183,7 @@ namespace ChilledLeves.Ui
                 }
                 else if (HasPlugin("vnavmesh"))
                 {
-                    if (ImGui.Button("Start", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+                    if (ImGui.Button("Start", new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f)))
                     {
                         SchedulerMain.WorkListMode = true;
                         SchedulerMain.EnablePlugin();
@@ -191,18 +192,18 @@ namespace ChilledLeves.Ui
             }
             using (ImRaii.Disabled(!SchedulerMain.AreWeTicking))
             {
-                if (ImGui.Button("Stop", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+                if (ImGui.Button("Stop", new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f)))
                 {
                     SchedulerMain.DisablePlugin();
                 }
             }
 
             // Two extra plugin UI toggles: Worklist and Gathering Grind.
-            if (ImGui.Button("Open Worklist", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+            if (ImGui.Button("Open Worklist", new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f)))
             {
                 P.workListUi.IsOpen = !P.workListUi.IsOpen;
             }
-            if (ImGui.Button("Open Gathering Grind", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
+            if (ImGui.Button("Open Gathering Grind", new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f)))
             {
                 P.gatherModeUi.IsOpen = !P.gatherModeUi.IsOpen;
             }
@@ -240,9 +241,9 @@ namespace ChilledLeves.Ui
             // Heading for main filter area
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
+                int styleCount = ThemeHelper.PushHeadingTextStyle();
                 ImGui.Text("Filter Leves");
-                ImGui.PopStyleColor();
+                ImGui.PopStyleColor(styleCount);
             }
             else
             {
@@ -259,23 +260,29 @@ namespace ChilledLeves.Ui
             bool showFavorites = C.OnlyFavorites;
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.18f, 0.22f, 0.28f, 1.0f));
-                ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, new Vector4(0.23f, 0.27f, 0.33f, 1.0f));
-                ImGui.PushStyleColor(ImGuiCol.FrameBgActive, new Vector4(0.25f, 0.3f, 0.35f, 1.0f));
-                ImGui.PushStyleColor(ImGuiCol.CheckMark, IceBlue);
-            }
-            if (ImGui.Checkbox("Show Favorites Only", ref showFavorites))
-            {
-                C.OnlyFavorites = showFavorites;
-                if (showFavorites)
+                int controlStyleCount = ThemeHelper.PushControlStyle();
+                if (ImGui.Checkbox("Show Favorites Only", ref showFavorites))
                 {
-                    C.CompleteFilter = 0; // if turning on favorites, reset the complete filter
+                    C.OnlyFavorites = showFavorites;
+                    if (showFavorites)
+                    {
+                        C.CompleteFilter = 0; // if turning on favorites, reset the complete filter
+                    }
+                    C.Save();
                 }
-                C.Save();
+                ImGui.PopStyleColor(controlStyleCount);
             }
-            if (usingIceTheme)
+            else
             {
-                ImGui.PopStyleColor(4);
+                if (ImGui.Checkbox("Show Favorites Only", ref showFavorites))
+                {
+                    C.OnlyFavorites = showFavorites;
+                    if (showFavorites)
+                    {
+                        C.CompleteFilter = 0; // if turning on favorites, reset the complete filter
+                    }
+                    C.Save();
+                }
             }
             if (ImGui.IsItemHovered())
             {
@@ -289,25 +296,33 @@ namespace ChilledLeves.Ui
             bool showCompleted = completeFilter == 1;
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.18f, 0.22f, 0.28f, 1.0f));
-                ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, new Vector4(0.23f, 0.27f, 0.33f, 1.0f));
-                ImGui.PushStyleColor(ImGuiCol.FrameBgActive, new Vector4(0.25f, 0.3f, 0.35f, 1.0f));
-                ImGui.PushStyleColor(ImGuiCol.CheckMark, IceBlue);
-            }
-            if (ImGui.Checkbox("Show Completed Only", ref showCompleted))
-            {
-                C.CompleteFilter = showCompleted ? 1u : 0u;
-                if (showCompleted)
+                int controlStyleCount = ThemeHelper.PushControlStyle();
+                if (ImGui.Checkbox("Show Completed Only", ref showCompleted))
                 {
-                    // Turn off favorites filter and enable "completed only"
-                    C.OnlyFavorites = false;
-                    C.CompleteFilter = 1u;
+                    C.CompleteFilter = showCompleted ? 1u : 0u;
+                    if (showCompleted)
+                    {
+                        // Turn off favorites filter and enable "completed only"
+                        C.OnlyFavorites = false;
+                        C.CompleteFilter = 1u;
+                    }
+                    C.Save();
                 }
-                C.Save();
+                ImGui.PopStyleColor(controlStyleCount);
             }
-            if (usingIceTheme)
+            else
             {
-                ImGui.PopStyleColor(4);
+                if (ImGui.Checkbox("Show Completed Only", ref showCompleted))
+                {
+                    C.CompleteFilter = showCompleted ? 1u : 0u;
+                    if (showCompleted)
+                    {
+                        // Turn off favorites filter and enable "completed only"
+                        C.OnlyFavorites = false;
+                        C.CompleteFilter = 1u;
+                    }
+                    C.Save();
+                }
             }
             if (ImGui.IsItemHovered())
             {
@@ -320,25 +335,33 @@ namespace ChilledLeves.Ui
             bool showIncomplete = completeFilter == 2;
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.18f, 0.22f, 0.28f, 1.0f));
-                ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, new Vector4(0.23f, 0.27f, 0.33f, 1.0f));
-                ImGui.PushStyleColor(ImGuiCol.FrameBgActive, new Vector4(0.25f, 0.3f, 0.35f, 1.0f));
-                ImGui.PushStyleColor(ImGuiCol.CheckMark, IceBlue);
-            }
-            if (ImGui.Checkbox("Show Incomplete Only", ref showIncomplete))
-            {
-                C.CompleteFilter = showIncomplete ? 2u : 0u;
-                if (showIncomplete)
+                int controlStyleCount = ThemeHelper.PushControlStyle();
+                if (ImGui.Checkbox("Show Incomplete Only", ref showIncomplete))
                 {
-                    // Turn off favorites and show "incomplete only"
-                    C.OnlyFavorites = false;
-                    C.CompleteFilter = 2u;
+                    C.CompleteFilter = showIncomplete ? 2u : 0u;
+                    if (showIncomplete)
+                    {
+                        // Turn off favorites and show "incomplete only"
+                        C.OnlyFavorites = false;
+                        C.CompleteFilter = 2u;
+                    }
+                    C.Save();
                 }
-                C.Save();
+                ImGui.PopStyleColor(controlStyleCount);
             }
-            if (usingIceTheme)
+            else
             {
-                ImGui.PopStyleColor(4);
+                if (ImGui.Checkbox("Show Incomplete Only", ref showIncomplete))
+                {
+                    C.CompleteFilter = showIncomplete ? 2u : 0u;
+                    if (showIncomplete)
+                    {
+                        // Turn off favorites and show "incomplete only"
+                        C.OnlyFavorites = false;
+                        C.CompleteFilter = 2u;
+                    }
+                    C.Save();
+                }
             }
             if (ImGui.IsItemHovered())
             {
@@ -351,38 +374,61 @@ namespace ChilledLeves.Ui
             ImGui.Spacing();
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.15f, 0.25f, 0.4f, 0.7f));
-                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.2f, 0.3f, 0.45f, 0.8f));
-                ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.25f, 0.35f, 0.5f, 0.9f));
-                ImGui.PushStyleColor(ImGuiCol.Text, FrostWhite);
-            }
-            if (ImGui.Button("Reset All Filters", new Vector2(ImGui.GetContentRegionAvail().X * 0.9f, 0)))
-            {
-                C.OnlyFavorites = false;
-                C.CompleteFilter = 0;
-                C.LevelFilter = 0;
-                C.NameFilter = "";
-                C.RefreshJobFilter();
+                int buttonStyleCount = ThemeHelper.PushButtonStyle();
+                ImGui.PushStyleColor(ImGuiCol.Text, ThemeHelper.FrostWhite);
+                if (ImGui.Button("Reset All Filters", new Vector2(ImGui.GetContentRegionAvail().X * 0.9f, 0)))
+                {
+                    C.OnlyFavorites = false;
+                    C.CompleteFilter = 0;
+                    C.LevelFilter = 0;
+                    C.NameFilter = "";
+                    C.RefreshJobFilter();
 
-                // Turn on all job filters by default:
-                C.ShowCarpenter = true;
-                C.ShowBlacksmith = true;
-                C.ShowArmorer = true;
-                C.ShowGoldsmith = true;
-                C.ShowLeatherworker = true;
-                C.ShowWeaver = true;
-                C.ShowAlchemist = true;
-                C.ShowCulinarian = true;
-                C.ShowFisher = true;
-                C.ShowMiner = true;
-                C.ShowBotanist = true;
+                    // Turn on all job filters by default:
+                    C.ShowCarpenter = true;
+                    C.ShowBlacksmith = true;
+                    C.ShowArmorer = true;
+                    C.ShowGoldsmith = true;
+                    C.ShowLeatherworker = true;
+                    C.ShowWeaver = true;
+                    C.ShowAlchemist = true;
+                    C.ShowCulinarian = true;
+                    C.ShowFisher = true;
+                    C.ShowMiner = true;
+                    C.ShowBotanist = true;
 
-                C.Save();
+                    C.Save();
+                }
+                ImGui.PopStyleColor(buttonStyleCount + 1); // +1 for the text color
             }
-            if (usingIceTheme)
+            else
             {
-                ImGui.PopStyleColor(4);
+                if (ImGui.Button("Reset All Filters", new Vector2(ImGui.GetContentRegionAvail().X * 0.9f, 0)))
+                {
+                    C.OnlyFavorites = false;
+                    C.CompleteFilter = 0;
+                    C.LevelFilter = 0;
+                    C.NameFilter = "";
+                    C.RefreshJobFilter();
+
+                    // Turn on all job filters by default:
+                    C.ShowCarpenter = true;
+                    C.ShowBlacksmith = true;
+                    C.ShowArmorer = true;
+                    C.ShowGoldsmith = true;
+                    C.ShowLeatherworker = true;
+                    C.ShowWeaver = true;
+                    C.ShowAlchemist = true;
+                    C.ShowCulinarian = true;
+                    C.ShowFisher = true;
+                    C.ShowMiner = true;
+                    C.ShowBotanist = true;
+
+                    C.Save();
+                }
             }
+            
+            // Tooltip for Reset All Filters button
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
@@ -395,9 +441,9 @@ namespace ChilledLeves.Ui
             // Job Filters heading
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
+                int styleCount = ThemeHelper.PushHeadingTextStyle();
                 ImGui.Text("Job Filters:");
-                ImGui.PopStyleColor();
+                ImGui.PopStyleColor(styleCount);
             }
             else
             {
@@ -467,9 +513,9 @@ namespace ChilledLeves.Ui
             ImGui.Spacing();
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
+                int styleCount = ThemeHelper.PushHeadingTextStyle();
                 ImGui.Text("Additional Filters:");
-                ImGui.PopStyleColor();
+                ImGui.PopStyleColor(styleCount);
             }
             else
             {
@@ -498,13 +544,13 @@ namespace ChilledLeves.Ui
                 ImGui.SetNextItemWidth(60);
                 if (usingIceTheme)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.18f, 0.22f, 0.28f, 1.0f));
+                    int controlStyleCount = ThemeHelper.PushControlStyle();
                     if (ImGui.InputText("###Level", ref level, 3))
                     {
                         C.LevelFilter = (int)(uint.TryParse(level, out var num) && num > 0 ? num : 0);
                         C.Save();
                     }
-                    ImGui.PopStyleColor();
+                    ImGui.PopStyleColor(controlStyleCount);
                 }
                 else
                 {
@@ -529,13 +575,13 @@ namespace ChilledLeves.Ui
                 ImGui.SetNextItemWidth(FilterSize2);
                 if (usingIceTheme)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0.18f, 0.22f, 0.28f, 1.0f));
+                    int controlStyleCount = ThemeHelper.PushControlStyle();
                     if (ImGui.InputText("###Name", ref C.NameFilter, 200))
                     {
                         C.NameFilter = C.NameFilter.Trim();
                         C.Save();
                     }
-                    ImGui.PopStyleColor();
+                    ImGui.PopStyleColor(controlStyleCount);
                 }
                 else
                 {
@@ -549,10 +595,11 @@ namespace ChilledLeves.Ui
                 ImGui.EndTable();
             }
 
+            // End of left panel
             ImGui.EndChild();
             if (usingIceTheme)
             {
-                ImGui.PopStyleColor(); // ChildBg for left panel
+                ImGui.PopStyleColor(childBgStyleCount);
             }
 
             ImGui.NextColumn();
@@ -560,21 +607,19 @@ namespace ChilledLeves.Ui
             // -----------------------------------------
             //  MIDDLE PANEL: Leve List
             // -----------------------------------------
-            ImGui.SetColumnWidth(1, 350);
+            ImGui.SetColumnWidth(1, middlePanelWidth);
 
+            int middlePanelChildBgCount = 0;
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.15f, 0.18f, 0.22f, 0.7f));
+                middlePanelChildBgCount = ThemeHelper.PushChildStyle();
             }
             ImGui.BeginChild("###LeveList", new Vector2(0, childHeight), true);
 
             int headerColors = 0;
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(0.23f, 0.35f, 0.48f, 0.55f));
-                ImGui.PushStyleColor(ImGuiCol.HeaderHovered, new Vector4(0.26f, 0.38f, 0.52f, 0.7f));
-                ImGui.PushStyleColor(ImGuiCol.HeaderActive, new Vector4(0.28f, 0.42f, 0.58f, 0.9f));
-                headerColors = 3;
+                headerColors = ThemeHelper.PushHeaderStyle();
             }
 
             // Draw each leve entry if it passes the filter
@@ -643,7 +688,7 @@ namespace ChilledLeves.Ui
             ImGui.EndChild();
             if (usingIceTheme)
             {
-                ImGui.PopStyleColor(); // ChildBg for middle panel
+                ImGui.PopStyleColor(middlePanelChildBgCount);
             }
 
             ImGui.NextColumn();
@@ -651,9 +696,10 @@ namespace ChilledLeves.Ui
             // -----------------------------------------
             //  RIGHT PANEL: Selected Leve Details
             // -----------------------------------------
+            int rightPanelChildBgCount = 0;
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.15f, 0.18f, 0.22f, 0.7f));
+                rightPanelChildBgCount = ThemeHelper.PushChildStyle();
             }
             ImGui.BeginChild("###LeveDetail", new Vector2(0, childHeight), true);
 
@@ -665,7 +711,7 @@ namespace ChilledLeves.Ui
                 // Print the job icon (if any) + leve name + level
                 if (usingIceTheme)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Text, FrostWhite);
+                    ImGui.PushStyleColor(ImGuiCol.Text, ThemeHelper.FrostWhite);
                 }
                 if (LeveTypeDict[LeveDictionary[leve].JobAssignmentType].AssignmentIcon != null)
                 {
@@ -685,9 +731,9 @@ namespace ChilledLeves.Ui
                 // Rewards section
                 if (usingIceTheme)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
+                    int styleCount = ThemeHelper.PushHeadingTextStyle();
                     ImGui.Text("Rewards");
-                    ImGui.PopStyleColor();
+                    ImGui.PopStyleColor(styleCount);
                 }
                 else
                 {
@@ -711,9 +757,9 @@ namespace ChilledLeves.Ui
                 // Location
                 if (usingIceTheme)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
+                    int styleCount = ThemeHelper.PushHeadingTextStyle();
                     ImGui.Text("Location");
-                    ImGui.PopStyleColor();
+                    ImGui.PopStyleColor(styleCount);
                 }
                 else
                 {
@@ -737,8 +783,8 @@ namespace ChilledLeves.Ui
                 int npcButtonColors = 0;
                 if (usingIceTheme)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Button, DarkIceBlue);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(DarkIceBlue.X + 0.1f, DarkIceBlue.Y + 0.1f, DarkIceBlue.Z + 0.1f, 1.0f));
+                    ImGui.PushStyleColor(ImGuiCol.Button, ThemeHelper.DarkIceBlue);
+                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(ThemeHelper.DarkIceBlue.X + 0.1f, ThemeHelper.DarkIceBlue.Y + 0.1f, ThemeHelper.DarkIceBlue.Z + 0.1f, 1.0f));
                     npcButtonColors = 2;
                 }
 
@@ -769,8 +815,8 @@ namespace ChilledLeves.Ui
                         int turninNpcButtonColors = 0;
                         if (usingIceTheme)
                         {
-                            ImGui.PushStyleColor(ImGuiCol.Button, DarkIceBlue);
-                            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(DarkIceBlue.X + 0.1f, DarkIceBlue.Y + 0.1f, DarkIceBlue.Z + 0.1f, 1.0f));
+                            ImGui.PushStyleColor(ImGuiCol.Button, ThemeHelper.DarkIceBlue);
+                            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(ThemeHelper.DarkIceBlue.X + 0.1f, ThemeHelper.DarkIceBlue.Y + 0.1f, ThemeHelper.DarkIceBlue.Z + 0.1f, 1.0f));
                             turninNpcButtonColors = 2;
                         }
 
@@ -799,9 +845,9 @@ namespace ChilledLeves.Ui
                 // Status
                 if (usingIceTheme)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
+                    int styleCount = ThemeHelper.PushHeadingTextStyle();
                     ImGui.Text("Status");
-                    ImGui.PopStyleColor();
+                    ImGui.PopStyleColor(styleCount);
                 }
                 else
                 {
@@ -840,9 +886,9 @@ namespace ChilledLeves.Ui
                     ImGui.Separator();
                     if (usingIceTheme)
                     {
-                        ImGui.PushStyleColor(ImGuiCol.Text, IceBlue);
+                        int styleCount = ThemeHelper.PushHeadingTextStyle();
                         ImGui.Text("Required Items");
-                        ImGui.PopStyleColor();
+                        ImGui.PopStyleColor(styleCount);
                     }
                     else
                     {
@@ -882,9 +928,7 @@ namespace ChilledLeves.Ui
                 int actionButtonColors = 0;
                 if (usingIceTheme)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Button, DarkIceBlue);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(DarkIceBlue.X + 0.1f, DarkIceBlue.Y + 0.1f, DarkIceBlue.Z + 0.1f, 1.0f));
-                    actionButtonColors = 2;
+                    actionButtonColors = ThemeHelper.PushButtonStyle();
                 }
 
                 // Favorite add/remove
@@ -1034,16 +1078,13 @@ namespace ChilledLeves.Ui
             ImGui.EndChild();
             if (usingIceTheme)
             {
-                ImGui.PopStyleColor(); // ChildBg for right panel
+                ImGui.PopStyleColor(rightPanelChildBgCount);
             }
 
             ImGui.Columns(1);
 
-            // Pop the window background color if ice theme
-            if (usingIceTheme)
-            {
-                ImGui.PopStyleColor();
-            }
+            // End theming at the end of the Draw method
+            ThemeHelper.EndTheming(usingIceTheme);
         }
 
         /// <summary>
@@ -1067,7 +1108,7 @@ namespace ChilledLeves.Ui
                 {
                     // Ice theme
                     ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.15f, 0.25f, 0.38f, 0.7f));
-                    ImGui.PushStyleColor(ImGuiCol.Border, IceBlue);
+                    ImGui.PushStyleColor(ImGuiCol.Border, ThemeHelper.IceBlue);
                     colorCount = 2;
                 }
                 else
@@ -1151,7 +1192,7 @@ namespace ChilledLeves.Ui
                 {
                     // Ice theme
                     ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.15f, 0.25f, 0.38f, 0.7f));
-                    ImGui.PushStyleColor(ImGuiCol.Border, IceBlue);
+                    ImGui.PushStyleColor(ImGuiCol.Border, ThemeHelper.IceBlue);
                     colorCount = 2;
                 }
                 else
@@ -1273,71 +1314,68 @@ namespace ChilledLeves.Ui
 
         private void DrawSimpleHeader(bool usingIceTheme)
         {
-            float headerWidth = ImGui.GetWindowWidth() - 16;
+            float fontScale = ImGui.GetIO().FontGlobalScale;
+            float textLineHeight = ImGui.GetTextLineHeight();
+            // Increase padding to ensure text is not cut off
+            float headerPadding = textLineHeight * 1.5f;
 
-            int headerBgColor = 0;
-            if (usingIceTheme)
-            {
-                ImGui.PushStyleColor(ImGuiCol.ChildBg, DarkIceBlue);
-                headerBgColor = 1;
-            }
+            // Get the title bar background color based on the theme
+            Vector4 titleBgColor = usingIceTheme ? ThemeHelper.DeepIceBlue : ImGui.GetStyle().Colors[(int)ImGuiCol.TitleBgActive];
+            
+            // Calculate the header size with extra height to ensure text is visible
+            Vector2 headerSize = new Vector2(ImGui.GetWindowWidth(), textLineHeight + headerPadding * 2);
 
-            // Begin a small child region to hold the header text
-            ImGui.BeginChild("###Header", new Vector2(headerWidth, 38), false,
-                ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
+            // Draw the title bar background
+            ImGui.GetWindowDrawList().AddRectFilled(
+                ImGui.GetWindowPos(),
+                ImGui.GetWindowPos() + headerSize,
+                ImGui.ColorConvertFloat4ToU32(titleBgColor)
+            );
 
-            int headerTextColor = 0;
-            if (usingIceTheme)
-            {
-                ImGui.PushStyleColor(ImGuiCol.Text, FrostWhite);
-                headerTextColor = 1;
-            }
-
-            // Header items
-            string titleText = $"Chilled Leves {P.GetType().Assembly.GetName().Version}";
+            // Add allowances information centered in the header
             string allowancesText = $"Allowances: {Allowances}/100";
             string nextText = $"Next in: {NextAllowances:hh':'mm':'ss}";
             string sepText = " | ";
-
-            // Additional spacing in pixels
-            float extraSpacing = 20f;
-
-            // Calculate widths of each piece
-            float titleWidth = ImGui.CalcTextSize(titleText).X;
+            
+            // Calculate text dimensions
             float sepWidth = ImGui.CalcTextSize(sepText).X;
             float allowancesWidth = ImGui.CalcTextSize(allowancesText).X;
             float nextWidth = ImGui.CalcTextSize(nextText).X;
-
-            float totalWidth = titleWidth + allowancesWidth + nextWidth + 2 * sepWidth + 2 * extraSpacing;
-            float centerX = (headerWidth - totalWidth) * 0.5f;
-
-            // Position the text in the center of the header child
-            ImGui.SetCursorPos(new Vector2(centerX, 10));
-            ImGui.TextUnformatted(titleText);
-
-            ImGui.SameLine(centerX + titleWidth + extraSpacing);
-            ImGui.TextUnformatted(sepText);
-
-            ImGui.SameLine(centerX + titleWidth + extraSpacing + sepWidth + extraSpacing);
-            ImGui.TextUnformatted(allowancesText);
-
-            ImGui.SameLine(centerX + titleWidth + extraSpacing + sepWidth + extraSpacing + allowancesWidth + extraSpacing);
-            ImGui.TextUnformatted(sepText);
-
-            ImGui.SameLine(centerX + titleWidth + extraSpacing + sepWidth + extraSpacing + allowancesWidth + extraSpacing + sepWidth + extraSpacing);
-            ImGui.TextUnformatted(nextText);
-
-            if (headerTextColor > 0)
+            
+            float totalInfoWidth = allowancesWidth + sepWidth + nextWidth;
+            
+            // Calculate exact center positions for perfect alignment
+            float windowWidth = ImGui.GetWindowWidth();
+            float centerX = windowWidth / 2;
+            float textStartX = centerX - (totalInfoWidth / 2);
+            float centerY = headerPadding + (textLineHeight / 2);
+            
+            if (usingIceTheme)
             {
-                ImGui.PopStyleColor(headerTextColor);
+                ThemeHelper.PushBodyTextStyle();
+            }
+            
+            // Position and draw allowances text
+            ImGui.SetCursorPos(new Vector2(textStartX, centerY));
+            ImGui.Text(allowancesText);
+            
+            // Position and draw separator
+            textStartX += allowancesWidth;
+            ImGui.SetCursorPos(new Vector2(textStartX, centerY));
+            ImGui.Text(sepText);
+            
+            // Position and draw next text
+            textStartX += sepWidth;
+            ImGui.SetCursorPos(new Vector2(textStartX, centerY));
+            ImGui.Text(nextText);
+            
+            if (usingIceTheme)
+            {
+                ImGui.PopStyleColor();
             }
 
-            ImGui.EndChild();
-
-            if (headerBgColor > 0)
-            {
-                ImGui.PopStyleColor(headerBgColor);
-            }
+            // Add padding for the rest of the content
+            ImGui.SetCursorPosY(headerSize.Y);
         }
     }
 }
