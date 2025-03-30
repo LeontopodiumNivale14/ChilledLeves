@@ -18,7 +18,7 @@ internal class GatherModeUi : Window
         Flags = ImGuiWindowFlags.None;
         SizeConstraints = new()
         {
-            MinimumSize = new Vector2(300, 300),
+            MinimumSize = new Vector2(400, 400),
             MaximumSize = new Vector2(2000, 2000),
         };
         P.windowSystem.AddWindow(this);
@@ -29,7 +29,16 @@ internal class GatherModeUi : Window
 
     public override void Draw()
     {
+        // Check for Ice theme
+        bool usingIceTheme = C.UseIceTheme;
+        
+        // Begin theming with the improved style boundary
+        ThemeHelper.BeginTheming(usingIceTheme);
+        
         GatheringMode();
+        
+        // End theming properly
+        ThemeHelper.EndTheming(usingIceTheme);
     }
 
     #region Gathering Specific Planner
@@ -54,102 +63,462 @@ internal class GatherModeUi : Window
     private static uint leveId = 0;
     private static void GatheringMode()
     {
-        if (ImGui.BeginTable("Gathering Leve Settings", 2, ImGuiTableFlags.Borders))
+        // Get font scaling metrics
+        float textLineHeight = ImGui.GetTextLineHeight();
+        float fontScale = ImGui.GetIO().FontGlobalScale;
+        float scaledSpacing = ImGui.GetStyle().ItemSpacing.Y * fontScale;
+        
+        // Get theme setting (but don't set window styles - Draw method handles that)
+        bool usingIceTheme = C.UseIceTheme;
+        
+        // Add navigation buttons to other windows at the top
+        if (usingIceTheme)
         {
-            float tableColumn1Width = 0f;
-
-            ImGui.TableSetupColumn("Text Information", ImGuiTableColumnFlags.WidthFixed, tableColumn1Width);
-            ImGui.TableSetupColumn("Setting Selection", ImGuiTableColumnFlags.WidthFixed, 500);
-
-            ImGui.TableNextRow();
-
-            // Row 1
-            ImGui.TableSetColumnIndex(0);
-            string Option1Text = "Levement NPC:";
-            float Option1Width = ImGui.CalcTextSize(Option1Text).X;
-            ImGui.Text(Option1Text);
-            if (Option1Width > tableColumn1Width)
-                tableColumn1Width = Option1Width;
-
-            ImGui.TableNextColumn();
-            string selectableText = $"{C.SelectedNpcName} → {C.LocationName}";
-            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Green);
-            if (ImGui.Selectable(selectableText))
+            int navigationBtnStyleCount = ThemeHelper.PushButtonStyle();
+            ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+            
+            float navButtonHeight = textLineHeight * 1.5f;
+            float btnPadding = 8 * fontScale;
+            float mainBtnWidth = ImGui.CalcTextSize("Main Window").X + btnPadding * 2;
+            float worklistBtnWidth = ImGui.CalcTextSize("Worklist Window").X + btnPadding * 2;
+            
+            // Left-aligned buttons
+            ImGui.BeginGroup();
+            if (ImGui.Button("Main Window", new Vector2(mainBtnWidth, navButtonHeight)))
             {
-                ImGui.OpenPopup("NPC Selection Popup"); // Open the popup when the selectable is clicked
+                P.mainWindow.IsOpen = true;
             }
-            ImGui.PopStyleColor();
-            if (ImGui.IsItemHovered())
+            
+            ImGui.SameLine();
+            
+            if (ImGui.Button("Worklist Window", new Vector2(worklistBtnWidth, navButtonHeight)))
             {
-                ImGui.BeginTooltip();
-                ImGui.Text("Left click to select Leve NPC");
-                ImGui.EndTooltip();
+                P.workListUi.IsOpen = true;
             }
-
-            // Create the popup
-            if (ImGui.BeginPopup("NPC Selection Popup"))
+            ImGui.EndGroup();
+            
+            // Right-aligned allowances info
+            float windowWidth = ImGui.GetWindowWidth();
+            string allowancesInfo = $"Allowances: {Allowances}/100 | Next in: {NextAllowances:hh\\:mm\\:ss}";
+            float infoWidth = ImGui.CalcTextSize(allowancesInfo).X;
+            
+            ImGui.SameLine(windowWidth - infoWidth - btnPadding);
+            
+            // Add ice theme styling for the text
+            int textStyleCount = ThemeHelper.PushHeadingTextStyle();
+            ImGui.Text(allowancesInfo);
+            ImGui.PopStyleColor(textStyleCount);
+            
+            ImGui.PopStyleVar();
+            ImGui.PopStyleColor(navigationBtnStyleCount);
+        }
+        else
+        {
+            float navButtonHeight = textLineHeight * 1.5f;
+            float btnPadding = 8 * fontScale;
+            float mainBtnWidth = ImGui.CalcTextSize("Main Window").X + btnPadding * 2;
+            float worklistBtnWidth = ImGui.CalcTextSize("Worklist Window").X + btnPadding * 2;
+            
+            // Left-aligned buttons
+            ImGui.BeginGroup();
+            if (ImGui.Button("Main Window", new Vector2(mainBtnWidth, navButtonHeight)))
             {
-                SelectedLeves.Clear();
-                // Create a table inside the popup
-                ImGui.BeginTable("NPC Table", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg);
+                P.mainWindow.IsOpen = true;
+            }
+            
+            ImGui.SameLine();
+            
+            if (ImGui.Button("Worklist Window", new Vector2(worklistBtnWidth, navButtonHeight)))
+            {
+                P.workListUi.IsOpen = true;
+            }
+            ImGui.EndGroup();
+            
+            // Right-aligned allowances info
+            float windowWidth = ImGui.GetWindowWidth();
+            string allowancesInfo = $"Allowances: {Allowances}/100 | Next in: {NextAllowances:hh\\:mm\\:ss}";
+            float infoWidth = ImGui.CalcTextSize(allowancesInfo).X;
+            
+            ImGui.SameLine(windowWidth - infoWidth - btnPadding);
+            ImGui.Text(allowancesInfo);
+        }
+        
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+        
+        // Apply table styling if using ice theme
+        if (usingIceTheme)
+        {
+            int childStyleCount = ThemeHelper.PushChildStyle();
+            ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue);
+            int headerStyleCount = ThemeHelper.PushHeaderStyle();
+            
+            if (ImGui.BeginTable("Gathering Leve Settings", 2, ImGuiTableFlags.Borders))
+            {
+                // Use dynamic column width based on font size
+                float tableColumn1Width = Math.Max(150, textLineHeight * 10);
+                float tableColumn2Width = Math.Max(500, textLineHeight * 30);
 
-                // Define column widths
-                ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, 200);
-                ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, 200);
+                ImGui.TableSetupColumn("Text Information", ImGuiTableColumnFlags.WidthFixed, tableColumn1Width);
+                ImGui.TableSetupColumn("Setting Selection", ImGuiTableColumnFlags.WidthFixed, tableColumn2Width);
+                
                 ImGui.TableHeadersRow();
+                
+                // Pop style after headers are drawn
+                ImGui.PopStyleColor(headerStyleCount + 1); // +1 for TableHeaderBg
+        
+                // Now continue with the table content
+                DrawGatheringTableRows(textLineHeight, fontScale, usingIceTheme);
+                
+                ImGui.EndTable();
+            }
+            
+            // Pop child background style
+            ImGui.PopStyleColor(childStyleCount);
+        }
+        else
+        {
+            if (ImGui.BeginTable("Gathering Leve Settings", 2, ImGuiTableFlags.Borders))
+            {
+                // Use dynamic column width based on font size
+                float tableColumn1Width = Math.Max(150, textLineHeight * 10);
+                float tableColumn2Width = Math.Max(500, textLineHeight * 30);
 
-                // Loop through each NPC ID and display their name and location in the table
-                foreach (var npcId in npcIds)
+                ImGui.TableSetupColumn("Text Information", ImGuiTableColumnFlags.WidthFixed, tableColumn1Width);
+                ImGui.TableSetupColumn("Setting Selection", ImGuiTableColumnFlags.WidthFixed, tableColumn2Width);
+                
+                ImGui.TableHeadersRow();
+                
+                // Table content
+                DrawGatheringTableRows(textLineHeight, fontScale, usingIceTheme);
+                
+                ImGui.EndTable();
+            }
+        }
+        
+        // The buttons section below the table
+        ImGui.Spacing();
+        ImGui.Spacing();
+        
+        // Action Buttons
+        float buttonHeight = textLineHeight * 1.5f;
+        
+        if (usingIceTheme)
+        {
+            int btnStyleCount = ThemeHelper.PushButtonStyle();
+            ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+            
+            DrawGatheringButtons(buttonHeight);
+            
+            ImGui.PopStyleVar();
+            ImGui.PopStyleColor(btnStyleCount);
+        }
+        else
+        {
+            DrawGatheringButtons(buttonHeight);
+        }
+        
+        // If leves are selected, draw the leve list
+        if (SelectedLeves.Count > 0)
+        {
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+            
+            if (usingIceTheme)
+            {
+                int textStyleCount = ThemeHelper.PushHeadingTextStyle();
+                ImGui.Text("Selected Leves:");
+                ImGui.PopStyleColor(textStyleCount);
+            }
+            else
+            {
+                ImGui.Text("Selected Leves:");
+            }
+            
+            // Draw the selected leves table
+            DrawSelectedLeves(textLineHeight, fontScale, usingIceTheme);
+        }
+    }
+
+    private static void DrawGatheringButtons(float buttonHeight)
+    {
+        // Drawing start button
+        using (ImRaii.Disabled(SchedulerMain.AreWeTicking))
+        {
+            if (ImGui.Button("Start Gathering Leves", new Vector2(ImGui.GetContentRegionAvail().X, buttonHeight)))
+            {
+                SchedulerMain.WorkListMode = false;
+                SchedulerMain.EnablePlugin();
+            }
+        }
+        
+        // Drawing stop button
+        using (ImRaii.Disabled(!SchedulerMain.AreWeTicking))
+        {
+            if (ImGui.Button("Stop Gathering Leves", new Vector2(ImGui.GetContentRegionAvail().X, buttonHeight)))
+            {
+                SchedulerMain.DisablePlugin();
+            }
+        }
+    }
+
+    private static void DrawSelectedLeves(float textLineHeight, float fontScale, bool usingIceTheme)
+    {
+        if (usingIceTheme)
+        {
+            int childStyleCount = ThemeHelper.PushChildStyle();
+            ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue);
+            int headerStyleCount = ThemeHelper.PushHeaderStyle();
+            
+            if (ImGui.BeginTable("Selected Leves Table", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders))
+            {
+                // Calculate column widths based on font metrics
+                float nameColWidth = Math.Max(200, textLineHeight * 10);
+                float levelColWidth = Math.Max(80, textLineHeight * 5);
+                
+                ImGui.TableSetupColumn("Leve Name", ImGuiTableColumnFlags.WidthFixed, nameColWidth);
+                ImGui.TableSetupColumn("Level", ImGuiTableColumnFlags.WidthFixed, levelColWidth);
+                
+                ImGui.TableHeadersRow();
+                
+                // Pop styling after headers are drawn
+                ImGui.PopStyleColor(headerStyleCount + 1); // +1 for TableHeaderBg
+                
+                // Draw the selected leves
+                foreach (uint leveId in SelectedLeves)
                 {
-                    string npcName = NPCName(npcId); // Get NPC name
-                    string npcLocation = ZoneName(LeveNPCDict[npcId].ZoneID); // Get NPC location
-
-                    // Create the row
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
-                    if (ImGui.Selectable(npcName, npcId == C.SelectedNpcId)) // Check if it's the selected item
+                    ImGui.Text(LeveDictionary[leveId].LeveName);
+                    
+                    ImGui.TableSetColumnIndex(1);
+                    ImGui.Text($"{LeveDictionary[leveId].Level}");
+                }
+                
+                ImGui.EndTable();
+            }
+            
+            ImGui.PopStyleColor(childStyleCount);
+        }
+        else
+        {
+            if (ImGui.BeginTable("Selected Leves Table", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders))
+            {
+                // Calculate column widths based on font metrics
+                float nameColWidth = Math.Max(200, textLineHeight * 10);
+                float levelColWidth = Math.Max(80, textLineHeight * 5);
+                
+                ImGui.TableSetupColumn("Leve Name", ImGuiTableColumnFlags.WidthFixed, nameColWidth);
+                ImGui.TableSetupColumn("Level", ImGuiTableColumnFlags.WidthFixed, levelColWidth);
+                
+                ImGui.TableHeadersRow();
+                
+                // Draw the selected leves
+                foreach (uint leveId in SelectedLeves)
+                {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.Text(LeveDictionary[leveId].LeveName);
+                    
+                    ImGui.TableSetColumnIndex(1);
+                    ImGui.Text($"{LeveDictionary[leveId].Level}");
+                }
+                
+                ImGui.EndTable();
+            }
+        }
+    }
+
+    private static void DrawGatheringTableRows(float textLineHeight, float fontScale, bool usingIceTheme)
+    {
+        // Row 1 - NPC Selection
+        ImGui.TableNextRow();
+        ImGui.TableSetColumnIndex(0);
+        ImGui.Text("Levement NPC:");
+
+        ImGui.TableNextColumn();
+        string selectableText = $"{C.SelectedNpcName} → {C.LocationName}";
+        
+        // Use a themed text color for the NPC selection
+        if (usingIceTheme)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, ThemeHelper.IceBlue);
+        }
+        else
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Green);
+        }
+        
+        if (ImGui.Selectable(selectableText))
+        {
+            ImGui.OpenPopup("NPC Selection Popup");
+        }
+        ImGui.PopStyleColor();
+        
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text("Left click to select Leve NPC");
+            ImGui.EndTooltip();
+        }
+
+        // NPC Selection Popup
+        if (ImGui.BeginPopup("NPC Selection Popup"))
+        {
+            SelectedLeves.Clear();
+            
+            if (usingIceTheme)
+            {
+                ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue);
+                int headerStyleCount = ThemeHelper.PushHeaderStyle();
+                
+                float popupColumnWidth = Math.Max(200, textLineHeight * 12);
+                if (ImGui.BeginTable("NPC Table", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+                {
+                    ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, popupColumnWidth);
+                    ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, popupColumnWidth);
+                    ImGui.TableHeadersRow();
+                    
+                    ImGui.PopStyleColor(headerStyleCount + 1);
+                    
+                    // Render NPC rows
+                    foreach (uint npcId in npcIds)
                     {
-                        C.SelectedNpcId = npcId; // Update selected NPC ID
-                        C.SelectedNpcName = npcName; // Update selected NPC Name
-                        C.LocationName = npcLocation;
+                        string npcName = GetNpcName(npcId);
+                        string locationName = GetLocationName(npcId);
+                        
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        
+                        bool isSelected = C.SelectedNpcName == npcName;
+                        if (isSelected && usingIceTheme)
+                        {
+                            int selectStyleCount = ThemeHelper.PushHeaderStyle();
+                            if (ImGui.Selectable($"{npcName}###{npcId}", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                            {
+                                C.SelectedNpcId = npcId;
+                                C.SelectedNpcName = npcName;
+                                C.LocationName = locationName;
+                                C.Save();
+                            }
+                            ImGui.PopStyleColor(selectStyleCount);
+                        }
+                        else
+                        {
+                            if (ImGui.Selectable($"{npcName}###{npcId}", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                            {
+                                C.SelectedNpcId = npcId;
+                                C.SelectedNpcName = npcName;
+                                C.LocationName = locationName;
+                                C.Save();
+                            }
+                        }
+                        
+                        ImGui.TableSetColumnIndex(1);
+                        ImGui.Text(locationName);
+                    }
+                    
+                    ImGui.EndTable();
+                }
+            }
+            else
+            {
+                float popupColumnWidth = Math.Max(200, textLineHeight * 12);
+                if (ImGui.BeginTable("NPC Table", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+                {
+                    ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, popupColumnWidth);
+                    ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, popupColumnWidth);
+                    ImGui.TableHeadersRow();
+                    
+                    // Render NPC rows
+                    foreach (uint npcId in npcIds)
+                    {
+                        string npcName = GetNpcName(npcId);
+                        string locationName = GetLocationName(npcId);
+                        
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        
+                        bool isSelected = C.SelectedNpcName == npcName;
+                        if (ImGui.Selectable($"{npcName}###{npcId}", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                        {
+                            C.SelectedNpcId = npcId;
+                            C.SelectedNpcName = npcName;
+                            C.LocationName = locationName;
+                            C.Save();
+                        }
+                        
+                        ImGui.TableSetColumnIndex(1);
+                        ImGui.Text(locationName);
+                    }
+                    
+                    ImGui.EndTable();
+                }
+            }
+            
+            ImGui.EndPopup();
+        }
+        
+        // Row 2 - Class Selection
+        ImGui.TableNextRow();
+        ImGui.TableSetColumnIndex(0);
+        ImGui.Text("Class");
+
+        ImGui.TableNextColumn();
+        float classComboWidth = Math.Max(120, textLineHeight * 7);
+        ImGui.SetNextItemWidth(classComboWidth);
+        
+        if (!classSelectList.Contains(C.ClassSelected))
+        {
+        #nullable disable
+            C.ClassSelected = classSelectList.FirstOrDefault();
+        }
+        
+        // Apply control styling for combo box
+        if (usingIceTheme)
+        {
+            int controlStyleCount = ThemeHelper.PushControlStyle();
+            
+            if (ImGui.BeginCombo("###Class Selection", C.ClassSelected))
+            {
+                ImGui.PopStyleColor(controlStyleCount);
+                
+                for (int i = 0; i < classSelectList.Count; i++)
+                {
+                    int iconSlot = i + 2;
+                    bool isSelected = (classSelectList[i] == C.ClassSelected);
+
+                    ImGui.PushID(iconSlot);
+
+                    if (ImGui.Selectable("###hidden", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                    {
+                        SelectedLeves.Clear();
+                        C.ClassSelected = classSelectList[i];
+                        IconSlot = (uint)iconSlot;
                         C.Save();
-                        ImGui.CloseCurrentPopup(); // Close the popup after selection
                     }
 
-                    ImGui.TableSetColumnIndex(1);
+                    ImGui.SameLine();
 
-                    ImGui.Text(npcLocation); // Display NPC location in the second column
+                    // Scale icon size based on font size
+                    float iconSize = Math.Max(20, textLineHeight * 1.2f);
+                    ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
+
+                    ImGui.SameLine();
+                    ImGui.TextUnformatted(classSelectList[i]);
+
+                    if (isSelected)
+                        ImGui.SetItemDefaultFocus();
+
+                    ImGui.PopID();
                 }
-
-                ImGui.EndTable(); // End the table
-
-                ImGui.EndPopup(); // End the popup
+                ImGui.EndCombo();
             }
-
-            ImGui.TableNextRow();
-            //Row 2
-            ImGui.TableSetColumnIndex(0);
-            string Option2Text = "Class";
-            float Option2Width = ImGui.CalcTextSize(Option2Text).X;
-            ImGui.Text("Class");
-            if (Option2Width > tableColumn1Width)
-                tableColumn1Width = Option2Width;
-
-            ImGui.TableNextColumn();
-            float combo2MaxWidth = 0f;
-            foreach (string Class in classSelectList)
-            {
-                float textWidth2 = ImGui.CalcTextSize(Class).X;
-                if (textWidth2 > combo2MaxWidth)
-                    combo2MaxWidth = textWidth2;
-            }
-            combo2MaxWidth += 35;
-            ImGui.SetNextItemWidth(combo2MaxWidth);
-            if (!classSelectList.Contains(C.ClassSelected))
-            {
-            #nullable disable
-                C.ClassSelected = classSelectList.FirstOrDefault();
-            }
+        }
+        else
+        {
             if (ImGui.BeginCombo("###Class Selection", C.ClassSelected))
             {
                 for (int i = 0; i < classSelectList.Count; i++)
@@ -169,7 +538,9 @@ internal class GatherModeUi : Window
 
                     ImGui.SameLine();
 
-                    ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(20, 20));
+                    // Scale icon size based on font size
+                    float iconSize = Math.Max(20, textLineHeight * 1.2f);
+                    ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
 
                     ImGui.SameLine();
                     ImGui.TextUnformatted(classSelectList[i]);
@@ -181,38 +552,47 @@ internal class GatherModeUi : Window
                 }
                 ImGui.EndCombo();
             }
-            ImGui.SameLine();
-            ImGui.Image(LeveTypeDict[IconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(20, 20));
+        }
+        
+        ImGui.SameLine();
+        // Scale icon size based on font size
+        float classIconSize = Math.Max(20, textLineHeight * 1.2f);
+        ImGui.Image(LeveTypeDict[IconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(classIconSize, classIconSize));
 
-            ImGui.TableNextRow();
-            ImGui.TableSetColumnIndex(0);
-            string Option3Text = "Run Until: ";
-            float Option3Width = ImGui.CalcTextSize(Option3Text).X;
-            ImGui.Text(Option3Text);
-            if (Option3Width > tableColumn1Width)
-                tableColumn1Width = Option3Width;
+        // Row 3 - Run Until option
+        ImGui.TableNextRow();
+        ImGui.TableSetColumnIndex(0);
+        ImGui.Text("Run Until:");
 
-            ImGui.TableNextColumn();
-            float combo3MaxWidth = 0f;
-            foreach (string RunUntil in RunUntilList)
+        ImGui.TableNextColumn();
+        float runUntilComboWidth = 0f;
+        foreach (string runUntil in RunUntilList)
+        {
+            float textWidth = ImGui.CalcTextSize(runUntil).X;
+            if (textWidth > runUntilComboWidth)
             {
-                float textWidth3 = ImGui.CalcTextSize(RunUntil).X;
-                if (textWidth3 > combo3MaxWidth)
-                {
-                    combo3MaxWidth = textWidth3;
-                }
+                runUntilComboWidth = textWidth;
             }
+        }
 
-            combo3MaxWidth += 35;
-            ImGui.SetNextItemWidth(combo3MaxWidth);
+        runUntilComboWidth = Math.Max(runUntilComboWidth + 35, textLineHeight * 8);
+        ImGui.SetNextItemWidth(runUntilComboWidth);
+        
+        // Apply control styling for the combo box
+        if (usingIceTheme)
+        {
+            int controlStyleCount = ThemeHelper.PushControlStyle();
+            
             if (ImGui.BeginCombo("###Run Until Combo", C.RunUntilSelected))
             {
-                foreach (var Selected in RunUntilList)
+                ImGui.PopStyleColor(controlStyleCount);
+                
+                foreach (var selected in RunUntilList)
                 {
-                    bool isSelected = (C.RunUntilSelected == Selected);
-                    if (ImGui.Selectable(Selected, isSelected))
+                    bool isSelected = (C.RunUntilSelected == selected);
+                    if (ImGui.Selectable(selected, isSelected))
                     {
-                        C.RunUntilSelected = Selected;
+                        C.RunUntilSelected = selected;
                         C.Save();
                     }
                     if (isSelected)
@@ -220,200 +600,45 @@ internal class GatherModeUi : Window
                 }
                 ImGui.EndCombo();
             }
-
-            if (C.RunUntilSelected == RunUntilList[0])
-            {
-                ImGui.SameLine();
-                ImGui.SetNextItemWidth(100);
-                if (ImGui.SliderInt("###Lv Slider", ref C.LevelSliderInput, 1, 100))
-                {
-                    if (C.LevelSliderInput > 100)
-                        C.LevelSliderInput = 100;
-                    else if (C.LevelSliderInput < 1)
-                        C.LevelSliderInput = 1;
-                    C.Save();
-                }
-            }
-
-            ImGui.EndTable();
-
-
         }
-
-        ImGui.Text("List of Leves:");
-        if (ImGui.IsItemHovered())
+        else
         {
-            ImGui.BeginTooltip();
-            if (SelectedLeves.Count > 0)
+            if (ImGui.BeginCombo("###Run Until Combo", C.RunUntilSelected))
             {
-                foreach (var leve in SelectedLeves)
+                foreach (var selected in RunUntilList)
                 {
-                    ImGui.Text($"leve: {leve} | Prio: {LeveDictionary[leve].Priority}");
-                }
-            }
-            else
-            {
-                ImGui.Text("No possible leves");
-            }
-            ImGui.EndTooltip();
-        }
-
-        if (TryGetAddonMaster<GuildLeve>("GuildLeve", out var m) && m.IsAddonReady)
-        {
-            ImGui.SameLine();
-            ImGui.Text("Prio Leve");
-            if (ImGui.IsItemHovered())
-            {
-                HashSet<string> PotentionalLeves = new HashSet<string>();
-                foreach (var l in m.Levequests)
-                {
-                    PotentionalLeves.Add(l.Name);
-                }
-
-                string? prioLeve = GetLowestPriorityLeveName(PotentionalLeves);
-                if (prioLeve != null)
-                {
-                    ImGui.BeginTooltip();
-                    ImGui.Text($"Leve to grab: {prioLeve}");
-                    ImGui.Text($"LeveID: {leveId}");
-                    ImGui.EndTooltip();
-                }
-            }
-        }
-
-        using (ImRaii.Disabled(SchedulerMain.AreWeTicking))
-        {
-            if (ImGui.Button("Start Gathering Mode"))
-            {
-                SchedulerMain.GatheringMode = true;
-                SchedulerMain.EnablePlugin();
-            }
-        }
-        using (ImRaii.Disabled(!SchedulerMain.AreWeTicking))
-        {
-            ImGui.SameLine();
-            if (ImGui.Button("Stop"))
-            {
-                SchedulerMain.DisablePlugin();
-            }
-        }
-
-        if (ImGui.BeginTable($"Crafting Workshop List", 8, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingFixedFit))
-        {
-            // Columns for the crafters
-            ImGui.TableSetupColumn("Prio###GatheringLevePrio", ImGuiTableColumnFlags.WidthFixed, 50);
-            ImGui.TableSetupColumn("Complete?###GatheringLeveComplete", ImGuiTableColumnFlags.WidthFixed, 100);
-            ImGui.TableSetupColumn("Level###GatheringLeveLevel", ImGuiTableColumnFlags.WidthFixed, 50);
-            ImGui.TableSetupColumn("Leve Name###GatheringLeveName", ImGuiTableColumnFlags.WidthFixed, 100);
-            ImGui.TableSetupColumn("Item Turnin###GatheringTurninItems", ImGuiTableColumnFlags.WidthFixed, 100);
-            ImGui.TableSetupColumn("Need###GatheringAmountNecessary", ImGuiTableColumnFlags.WidthFixed, 50);
-            ImGui.TableSetupColumn("Have###GatheringCompleteCheck", ImGuiTableColumnFlags.WidthFixed, 100);
-            ImGui.TableSetupColumn("Triple?");
-
-            // Custom header row
-            ImGui.TableHeadersRow();
-
-            foreach (var kdp in LeveDictionary)
-            {
-                var leveID = kdp.Key;
-                var leveLevel = kdp.Value.Level;
-                var leveName = kdp.Value.LeveName;
-                var leveVendorId = kdp.Value.LeveVendorID;
-                var leveVendorName = kdp.Value.LeveVendorName;
-                var jobAssignment = kdp.Value.JobAssignmentType;
-                var zoneId = LeveNPCDict[leveVendorId].ZoneID;
-                var priority = kdp.Value.Priority;
-
-                var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
-                var itemName = CraftDictionary[leveID].ItemName;
-                var itemNeed = CraftDictionary[leveID].TurninAmount;
-                var itemId = CraftDictionary[leveID].ItemID;
-
-                if (leveVendorId != C.SelectedNpcId || jobAssignment != IconSlot)
-                {
-                    continue;
-                }
-                else
-                {
-                    if (!SelectedLeves.Contains(leveID))
+                    bool isSelected = (C.RunUntilSelected == selected);
+                    if (ImGui.Selectable(selected, isSelected))
                     {
-                        SelectedLeves.Add(leveID);
+                        C.RunUntilSelected = selected;
+                        C.Save();
                     }
+                    if (isSelected)
+                        ImGui.SetItemDefaultFocus();
                 }
-
-                ImGui.TableNextRow();
-
-                ImGui.PushID((int)leveID);
-                ImGui.TableSetColumnIndex(0);
-                if (ImGui.DragInt("###GatheringPriority", ref priority))
-                {
-                    kdp.Value.Priority = priority;
-                    if (!C.LevePriority.ContainsKey(leveID))
-                    {
-                        C.LevePriority.Add(leveID, priority);
-                    }
-                    else if (C.LevePriority.ContainsKey(leveID))
-                    {
-                        C.LevePriority[leveID] = priority;
-                    }
-                    C.Save();
-                }
-
-                ImGui.TableNextColumn();
-                bool leveCompleted = IsComplete(leveID);
-                if (leveCompleted)
-                {
-                    ImGui.Image(LeveStatusDict[1].GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
-                }
-                if (!leveCompleted)
-                {
-                    ImGui.Image(LeveStatusDict[2].GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
-                }
-
-                ImGui.TableNextColumn();
-                CenterTextV2($"{leveLevel}");
-
-                ImGui.TableNextColumn();
-                ImGui.Text($"{leveName}");
-
-                ImGui.TableNextColumn();
-                ImGui.Image(ItemImage.ImGuiHandle, new Vector2(20, 20));
-                ImGui.SameLine(0, 5);
-                ImGui.Text($"{itemName}");
-
-                ImGui.TableNextColumn();
-                CenterTextV2($"{itemNeed}");
-
-                ImGui.TableNextColumn();
-                var itemHave = GetItemCount((int)CraftDictionary[leveID].ItemID);
-                CenterTextV2($"{itemHave}");
-
-                ImGui.TableNextColumn();
-                bool tripleTurnin = CraftDictionary[leveID].RepeatAmount > 1;
-                FancyCheckmark(tripleTurnin);
+                ImGui.EndCombo();
             }
-
-            ImGui.EndTable();
         }
-
     }
 
-    private static string? GetLowestPriorityLeveName(HashSet<string> leveNames)
+    // Helper methods for NPC selection
+    private static string GetNpcName(uint npcId)
     {
-        var leve = LeveDictionary
-                    .Where(kvp => leveNames.Contains(kvp.Value.LeveName) && (CraftDictionary[kvp.Key].TurninAmount <= CraftDictionary[kvp.Key].CurrentItemAmount)) // Filter by HashSet and check the TurninAmount
-                    .OrderBy(kvp => kvp.Value.Priority) // Sort by Priority
-                    .FirstOrDefault(); // Get the first (lowest priority) or null if none found
-
-        if (!LeveDictionary.ContainsKey(leve.Key))
-        {
-            return null;
-        }
-
-        leveId = leve.Key; // Output the LeveID
-        return leve.Value.LeveName; // Return the LeveName
+        return LeveDictionary.Values
+            .Where(x => x.LeveVendorID == npcId)
+            .Select(x => x.LeveName)
+            .FirstOrDefault() ?? string.Empty;
     }
 
+    private static string GetLocationName(uint npcId)
+    {
+        if (LeveNPCDict.ContainsKey(npcId))
+        {
+            var zoneId = LeveNPCDict[npcId].ZoneID;
+            return ZoneName(zoneId);
+        }
+        return string.Empty;
+    }
 
     #endregion
 }

@@ -34,6 +34,12 @@ internal class DebugWindow : Window
 
     public override void Draw()
     {
+        // Check for Ice theme
+        bool usingIceTheme = C.UseIceTheme;
+        
+        // Begin theming this window only
+        ThemeHelper.BeginTheming(usingIceTheme);
+        
         ImGuiEx.EzTabBar("ROR Debug Tabs",
                 ("Main Debug###LeaveItAloneMainDebug", MainDebug, null, true),
                 ("Targeting Debug ###LeveItAloneTargeting", TargetingDebug, null, true),
@@ -44,6 +50,9 @@ internal class DebugWindow : Window
                 ("Fish Peeps", FisherTurnin, null, true),
                 ("Leve Vendor Info", LeveVendor, null, true)
         );
+        
+        // End theming
+        ThemeHelper.EndTheming(usingIceTheme);
     }
 
     private int ClassID = 1;
