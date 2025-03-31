@@ -572,7 +572,9 @@ namespace ChilledLeves.Ui
                 string allowancesInfo = $"Allowances: {Allowances}/100 | Next in: {NextAllowances:hh\\:mm\\:ss}";
                 float infoWidth = ImGui.CalcTextSize(allowancesInfo).X;
                 
-                ImGui.SameLine(windowWidth - infoWidth - btnPadding);
+                // Increased padding to prevent text from being cut off
+                float extraPadding = 20 * fontScale;
+                ImGui.SameLine(windowWidth - infoWidth - btnPadding - extraPadding);
                 
                 // Add ice theme styling for the text
                 int textStyleCount = ThemeHelper.PushHeadingTextStyle();
@@ -609,7 +611,9 @@ namespace ChilledLeves.Ui
                 string allowancesInfo = $"Allowances: {Allowances}/100 | Next in: {NextAllowances:hh\\:mm\\:ss}";
                 float infoWidth = ImGui.CalcTextSize(allowancesInfo).X;
                 
-                ImGui.SameLine(windowWidth - infoWidth - btnPadding);
+                // Increased padding to prevent text from being cut off
+                float extraPadding = 20 * fontScale;
+                ImGui.SameLine(windowWidth - infoWidth - btnPadding - extraPadding);
                 ImGui.Text(allowancesInfo);
             }
             
@@ -822,7 +826,7 @@ namespace ChilledLeves.Ui
 
             // Confirmation popup for regular import
             bool importConfirmOpen = currentInstance._importConfirmationOpen;
-            if (ImGui.BeginPopupModal("Import Confirmation", ref importConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse))
+            if (ImGui.BeginPopupModal("Import Confirmation", ref importConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoTitleBar))
             {
                 currentInstance._importConfirmationOpen = importConfirmOpen;
                 
@@ -900,7 +904,7 @@ namespace ChilledLeves.Ui
 
             // Confirmation popup for clipboard import
             bool clipboardImportConfirmOpen = currentInstance._clipboardImportConfirmationOpen;
-            if (ImGui.BeginPopupModal("Clipboard Import Confirmation", ref clipboardImportConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse))
+            if (ImGui.BeginPopupModal("Clipboard Import Confirmation", ref clipboardImportConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoTitleBar))
             {
                 currentInstance._clipboardImportConfirmationOpen = clipboardImportConfirmOpen;
                 
