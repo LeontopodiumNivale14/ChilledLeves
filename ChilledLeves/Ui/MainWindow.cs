@@ -256,11 +256,11 @@ namespace ChilledLeves.Ui
             ImGui.Text("Filter Options:");
             ImGui.Spacing();
 
-            // Favorites only
+            #region Favorites Checkbox
+
             bool showFavorites = C.OnlyFavorites;
-            if (usingIceTheme)
+            void FavoritesOnly()
             {
-                int controlStyleCount = ThemeHelper.PushControlStyle();
                 if (ImGui.Checkbox("Show Favorites Only", ref showFavorites))
                 {
                     C.OnlyFavorites = showFavorites;
@@ -270,19 +270,18 @@ namespace ChilledLeves.Ui
                     }
                     C.Save();
                 }
+            }
+
+            // Favorites only
+            if (usingIceTheme)
+            {
+                int controlStyleCount = ThemeHelper.PushControlStyle();
+                FavoritesOnly();
                 ImGui.PopStyleColor(controlStyleCount);
             }
             else
             {
-                if (ImGui.Checkbox("Show Favorites Only", ref showFavorites))
-                {
-                    C.OnlyFavorites = showFavorites;
-                    if (showFavorites)
-                    {
-                        C.CompleteFilter = 0; // if turning on favorites, reset the complete filter
-                    }
-                    C.Save();
-                }
+                FavoritesOnly();
             }
             if (ImGui.IsItemHovered())
             {
@@ -291,12 +290,15 @@ namespace ChilledLeves.Ui
                 ImGui.EndTooltip();
             }
 
+            #endregion
+
+            #region Show Completed
+
             // Show Completed
             int completeFilter = (int)C.CompleteFilter;
             bool showCompleted = completeFilter == 1;
-            if (usingIceTheme)
+            void ShowCompletedOnly()
             {
-                int controlStyleCount = ThemeHelper.PushControlStyle();
                 if (ImGui.Checkbox("Show Completed Only", ref showCompleted))
                 {
                     C.CompleteFilter = showCompleted ? 1u : 0u;
@@ -308,21 +310,17 @@ namespace ChilledLeves.Ui
                     }
                     C.Save();
                 }
+            }
+
+            if (usingIceTheme)
+            {
+                int controlStyleCount = ThemeHelper.PushControlStyle();
+                ShowCompletedOnly();
                 ImGui.PopStyleColor(controlStyleCount);
             }
             else
             {
-                if (ImGui.Checkbox("Show Completed Only", ref showCompleted))
-                {
-                    C.CompleteFilter = showCompleted ? 1u : 0u;
-                    if (showCompleted)
-                    {
-                        // Turn off favorites filter and enable "completed only"
-                        C.OnlyFavorites = false;
-                        C.CompleteFilter = 1u;
-                    }
-                    C.Save();
-                }
+                ShowCompletedOnly();
             }
             if (ImGui.IsItemHovered())
             {
@@ -331,11 +329,15 @@ namespace ChilledLeves.Ui
                 ImGui.EndTooltip();
             }
 
+            #endregion
+
+            #region Show Incomplete
+
             // Show Incomplete
+            // Used to filter out completed leves
             bool showIncomplete = completeFilter == 2;
-            if (usingIceTheme)
+            void ShowIncompleteOnly()
             {
-                int controlStyleCount = ThemeHelper.PushControlStyle();
                 if (ImGui.Checkbox("Show Incomplete Only", ref showIncomplete))
                 {
                     C.CompleteFilter = showIncomplete ? 2u : 0u;
@@ -347,21 +349,17 @@ namespace ChilledLeves.Ui
                     }
                     C.Save();
                 }
+            }
+
+            if (usingIceTheme)
+            {
+                int controlStyleCount = ThemeHelper.PushControlStyle();
+                ShowIncompleteOnly();
                 ImGui.PopStyleColor(controlStyleCount);
             }
             else
             {
-                if (ImGui.Checkbox("Show Incomplete Only", ref showIncomplete))
-                {
-                    C.CompleteFilter = showIncomplete ? 2u : 0u;
-                    if (showIncomplete)
-                    {
-                        // Turn off favorites and show "incomplete only"
-                        C.OnlyFavorites = false;
-                        C.CompleteFilter = 2u;
-                    }
-                    C.Save();
-                }
+                ShowIncompleteOnly();
             }
             if (ImGui.IsItemHovered())
             {
@@ -370,62 +368,48 @@ namespace ChilledLeves.Ui
                 ImGui.EndTooltip();
             }
 
+            #endregion
+
+            #region Reset All Filters
+
             // Reset all filters button
+            void ResetAllFilterButton()
+            {
+                if (ImGui.Button("Reset All Filters", new Vector2(ImGui.GetContentRegionAvail().X * 0.9f, 0)))
+                {
+                    C.OnlyFavorites = false;
+                    C.CompleteFilter = 0;
+                    C.LevelFilter = 0;
+                    C.NameFilter = "";
+                    C.RefreshJobFilter();
+
+                    // Turn on all job filters by default:
+                    C.ShowCarpenter = true;
+                    C.ShowBlacksmith = true;
+                    C.ShowArmorer = true;
+                    C.ShowGoldsmith = true;
+                    C.ShowLeatherworker = true;
+                    C.ShowWeaver = true;
+                    C.ShowAlchemist = true;
+                    C.ShowCulinarian = true;
+                    C.ShowFisher = true;
+                    C.ShowMiner = true;
+                    C.ShowBotanist = true;
+
+                    C.Save();
+                }
+            }
             ImGui.Spacing();
             if (usingIceTheme)
             {
                 int buttonStyleCount = ThemeHelper.PushButtonStyle();
                 ImGui.PushStyleColor(ImGuiCol.Text, ThemeHelper.FrostWhite);
-                if (ImGui.Button("Reset All Filters", new Vector2(ImGui.GetContentRegionAvail().X * 0.9f, 0)))
-                {
-                    C.OnlyFavorites = false;
-                    C.CompleteFilter = 0;
-                    C.LevelFilter = 0;
-                    C.NameFilter = "";
-                    C.RefreshJobFilter();
-
-                    // Turn on all job filters by default:
-                    C.ShowCarpenter = true;
-                    C.ShowBlacksmith = true;
-                    C.ShowArmorer = true;
-                    C.ShowGoldsmith = true;
-                    C.ShowLeatherworker = true;
-                    C.ShowWeaver = true;
-                    C.ShowAlchemist = true;
-                    C.ShowCulinarian = true;
-                    C.ShowFisher = true;
-                    C.ShowMiner = true;
-                    C.ShowBotanist = true;
-
-                    C.Save();
-                }
+                ResetAllFilterButton();
                 ImGui.PopStyleColor(buttonStyleCount + 1); // +1 for the text color
             }
             else
             {
-                if (ImGui.Button("Reset All Filters", new Vector2(ImGui.GetContentRegionAvail().X * 0.9f, 0)))
-                {
-                    C.OnlyFavorites = false;
-                    C.CompleteFilter = 0;
-                    C.LevelFilter = 0;
-                    C.NameFilter = "";
-                    C.RefreshJobFilter();
-
-                    // Turn on all job filters by default:
-                    C.ShowCarpenter = true;
-                    C.ShowBlacksmith = true;
-                    C.ShowArmorer = true;
-                    C.ShowGoldsmith = true;
-                    C.ShowLeatherworker = true;
-                    C.ShowWeaver = true;
-                    C.ShowAlchemist = true;
-                    C.ShowCulinarian = true;
-                    C.ShowFisher = true;
-                    C.ShowMiner = true;
-                    C.ShowBotanist = true;
-
-                    C.Save();
-                }
+                ResetAllFilterButton();
             }
             
             // Tooltip for Reset All Filters button
@@ -436,18 +420,24 @@ namespace ChilledLeves.Ui
                 ImGui.EndTooltip();
             }
 
+            #endregion
+
             ImGui.Spacing();
+
+            #region Job Filters
+
+            string JobFilterText = "Job Filters:";
 
             // Job Filters heading
             if (usingIceTheme)
             {
                 int styleCount = ThemeHelper.PushHeadingTextStyle();
-                ImGui.Text("Job Filters:");
+                ImGui.Text(JobFilterText);
                 ImGui.PopStyleColor(styleCount);
             }
             else
             {
-                ImGui.Text("Job Filters:");
+                ImGui.Text(JobFilterText);
             }
             ImGui.Separator();
 
@@ -507,6 +497,8 @@ namespace ChilledLeves.Ui
                 ImGui.Text("These aren't supported yet, but will be in a future update!");
                 ImGui.EndTooltip();
             }
+
+            #endregion
 
             // Additional Filters heading
             ImGui.Spacing();

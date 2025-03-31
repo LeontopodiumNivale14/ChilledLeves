@@ -62,7 +62,6 @@ internal class GatherModeUi : Window
         .Distinct()
         .ToList();
 
-    private static HashSet<int> GatheringClasses = new HashSet<int>() { 2, 3, 4 };
     private static List<string> classSelectList = new List<string>() { LeveTypeDict[2].LeveClassType, LeveTypeDict[3].LeveClassType, LeveTypeDict[4].LeveClassType };
     private static List<string> RunUntilList = new List<string>() { "Lv.", "All Leves Complete" };
 
@@ -74,7 +73,6 @@ internal class GatherModeUi : Window
         ImGui.Text(text);
     }
 
-    private static uint leveId = 0;
     private static void GatheringMode()
     {
         // Get font scaling metrics
@@ -135,7 +133,7 @@ internal class GatherModeUi : Window
             ImGui.EndGroup();
             
             // Right-aligned allowances info
-            float windowWidth = ImGui.GetWindowWidth();
+            float windowWidth = ImGui.GetWindowWidth() - 20; // To give a little bit of room for the text in case of scroll bar
             string allowancesInfo = $"Allowances: {Allowances}/100 | Next in: {NextAllowances:hh\\:mm\\:ss}";
             float infoWidth = ImGui.CalcTextSize(allowancesInfo).X;
             
