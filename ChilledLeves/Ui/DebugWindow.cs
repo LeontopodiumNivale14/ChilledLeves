@@ -38,7 +38,7 @@ internal class DebugWindow : Window
         bool usingIceTheme = C.UseIceTheme;
         
         // Begin theming this window only
-        ThemeHelper.BeginTheming(usingIceTheme);
+        int styleCount = ThemeHelper.BeginTheming(usingIceTheme);
         
         ImGuiEx.EzTabBar("ROR Debug Tabs",
                 ("Main Debug###LeaveItAloneMainDebug", MainDebug, null, true),
@@ -52,7 +52,7 @@ internal class DebugWindow : Window
         );
         
         // End theming
-        ThemeHelper.EndTheming(usingIceTheme);
+        ThemeHelper.EndTheming(usingIceTheme, styleCount);
     }
 
     private int ClassID = 1;

@@ -64,7 +64,7 @@ namespace ChilledLeves.Ui
             bool usingIceTheme = C.UseIceTheme;
             
             // Use the new ThemeHelper method to begin theming
-            ThemeHelper.BeginTheming(usingIceTheme);
+            int themingStyleCount = ThemeHelper.BeginTheming(usingIceTheme);
 
             // Calculate scaling factors based on current font size
             float fontScale = ImGui.GetIO().FontGlobalScale;
@@ -1084,7 +1084,7 @@ namespace ChilledLeves.Ui
             ImGui.Columns(1);
 
             // End theming at the end of the Draw method
-            ThemeHelper.EndTheming(usingIceTheme);
+            ThemeHelper.EndTheming(usingIceTheme, themingStyleCount);
         }
 
         /// <summary>
@@ -1352,7 +1352,7 @@ namespace ChilledLeves.Ui
             
             if (usingIceTheme)
             {
-                ThemeHelper.PushBodyTextStyle();
+                ThemeHelper.PushHeadingTextStyle();
             }
             
             // Position and draw allowances text
