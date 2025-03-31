@@ -500,18 +500,20 @@ namespace ChilledLeves.Ui
 
             #endregion
 
+            #region Additional Filters
             // Additional Filters heading
             ImGui.Spacing();
             ImGui.Spacing();
+            string AdditionalFilterText = "Additional Filters:";
             if (usingIceTheme)
             {
                 int styleCount = ThemeHelper.PushHeadingTextStyle();
-                ImGui.Text("Additional Filters:");
+                ImGui.Text(AdditionalFilterText);
                 ImGui.PopStyleColor(styleCount);
             }
             else
             {
-                ImGui.Text("Additional Filters:");
+                ImGui.Text(AdditionalFilterText);
             }
             ImGui.Separator();
             ImGui.Spacing();
@@ -533,24 +535,25 @@ namespace ChilledLeves.Ui
 
                 ImGui.TableNextColumn();
                 var level = C.LevelFilter > 0 ? C.LevelFilter.ToString() : "";
+
+                void LevelFilter()
+                {
+                    if (ImGui.InputText("###Level", ref level, 3))
+                    {
+                        C.LevelFilter = (int)(uint.TryParse(level, out var num) && num > 0 ? num : 0);
+                        C.Save();
+                    }
+                }
                 ImGui.SetNextItemWidth(60);
                 if (usingIceTheme)
                 {
                     int controlStyleCount = ThemeHelper.PushControlStyle();
-                    if (ImGui.InputText("###Level", ref level, 3))
-                    {
-                        C.LevelFilter = (int)(uint.TryParse(level, out var num) && num > 0 ? num : 0);
-                        C.Save();
-                    }
+                    LevelFilter();
                     ImGui.PopStyleColor(controlStyleCount);
                 }
                 else
                 {
-                    if (ImGui.InputText("###Level", ref level, 3))
-                    {
-                        C.LevelFilter = (int)(uint.TryParse(level, out var num) && num > 0 ? num : 0);
-                        C.Save();
-                    }
+                    LevelFilter();
                 }
 
                 ImGui.TableNextRow();
@@ -564,28 +567,29 @@ namespace ChilledLeves.Ui
                 ImGui.TableNextColumn();
 
                 FilterSize2 = 100;
+                void NameFilter()
+                {
+                    if (ImGui.InputText("###Name", ref C.NameFilter, 200))
+                    {
+                        C.NameFilter = C.NameFilter.Trim();
+                        C.Save();
+                    }
+                }
                 ImGui.SetNextItemWidth(FilterSize2);
                 if (usingIceTheme)
                 {
                     int controlStyleCount = ThemeHelper.PushControlStyle();
-                    if (ImGui.InputText("###Name", ref C.NameFilter, 200))
-                    {
-                        C.NameFilter = C.NameFilter.Trim();
-                        C.Save();
-                    }
+                    NameFilter();
                     ImGui.PopStyleColor(controlStyleCount);
                 }
                 else
                 {
-                    if (ImGui.InputText("###Name", ref C.NameFilter, 200))
-                    {
-                        C.NameFilter = C.NameFilter.Trim();
-                        C.Save();
-                    }
+                    NameFilter();
                 }
 
                 ImGui.EndTable();
             }
+            #endregion
 
             // End of left panel
             ImGui.EndChild();
@@ -721,15 +725,16 @@ namespace ChilledLeves.Ui
                 }
 
                 // Rewards section
+                string rewardText = "Rewards";
                 if (usingIceTheme)
                 {
                     int styleCount = ThemeHelper.PushHeadingTextStyle();
-                    ImGui.Text("Rewards");
+                    ImGui.Text(rewardText);
                     ImGui.PopStyleColor(styleCount);
                 }
                 else
                 {
-                    ImGui.Text("Rewards");
+                    ImGui.Text(rewardText);
                 }
 
                 ImGui.BeginTable("reward_table", 2, ImGuiTableFlags.SizingFixedFit);
@@ -747,15 +752,16 @@ namespace ChilledLeves.Ui
                 ImGui.Separator();
 
                 // Location
+                string locationText = "Location";
                 if (usingIceTheme)
                 {
                     int styleCount = ThemeHelper.PushHeadingTextStyle();
-                    ImGui.Text("Location");
+                    ImGui.Text(locationText);
                     ImGui.PopStyleColor(styleCount);
                 }
                 else
                 {
-                    ImGui.Text("Location");
+                    ImGui.Text(locationText);
                 }
 
                 var vendorId = LeveDictionary[leve].LeveVendorID;
