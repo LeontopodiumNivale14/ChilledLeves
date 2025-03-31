@@ -336,10 +336,10 @@ internal class GatherModeUi : Window
         // Row 1 - NPC Selection
         ImGui.TableNextRow();
         ImGui.TableSetColumnIndex(0);
-        ImGui.Text("Levement NPC:");
+        ImGui.Text("Levequest NPC:");
 
         ImGui.TableNextColumn();
-        string selectableText = $"{C.SelectedNpcName} → {C.LocationName}";
+        string selectableText = $"{C.SelectedNpcName}";
         
         // Use a themed text color for the NPC selection
         if (usingIceTheme)
@@ -624,10 +624,11 @@ internal class GatherModeUi : Window
     // Helper methods for NPC selection
     private static string GetNpcName(uint npcId)
     {
-        return LeveDictionary.Values
-            .Where(x => x.LeveVendorID == npcId)
-            .Select(x => x.LeveName)
-            .FirstOrDefault() ?? string.Empty;
+        if (LeveNPCDict.ContainsKey(npcId))
+        {
+            return LeveNPCDict[npcId].Name;
+        }
+        return string.Empty;
     }
 
     private static string GetLocationName(uint npcId)

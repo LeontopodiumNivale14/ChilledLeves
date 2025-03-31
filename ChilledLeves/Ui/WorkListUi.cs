@@ -821,89 +821,89 @@ namespace ChilledLeves.Ui
             }
 
             // Confirmation popup for regular import
-                bool importConfirmOpen = currentInstance._importConfirmationOpen;
-                if (ImGui.BeginPopupModal("Import Confirmation", ref importConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize))
+            bool importConfirmOpen = currentInstance._importConfirmationOpen;
+            if (ImGui.BeginPopupModal("Import Confirmation", ref importConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+            {
+                currentInstance._importConfirmationOpen = importConfirmOpen;
+                
+                ImGui.Text("This will replace your current worklist. Are you sure?");
+                if (currentInstance._worklistToImport != null)
                 {
-                    currentInstance._importConfirmationOpen = importConfirmOpen;
-                    
-                    ImGui.Text("This will replace your current worklist. Are you sure?");
-                    if (currentInstance._worklistToImport != null)
-                    {
-                        ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1.0f), 
-                            $"Importing: {currentInstance._worklistToImport.Name} ({currentInstance._worklistToImport.Entries.Count} items)");
-                    }
-                    ImGui.Separator();
-                    
-                    ImGui.Spacing();
-                    
-                    float popupWidth = ImGui.GetWindowWidth();
-                    float buttonWidth = (popupWidth - 30) / 2;
-                    
-                    if (usingIceTheme)
-                    {
-                        int btnPopupStyleCount = ThemeHelper.PushButtonStyle();
-                        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
-                        
-                        if (ImGui.Button("Cancel", new Vector2(buttonWidth, 0)))
-                        {
-                            currentInstance._worklistToImport = null;
-                            currentInstance._importConfirmationOpen = false;
-                            ImGui.CloseCurrentPopup();
-                        }
-                        
-                        ImGui.SameLine();
-                        
-                        if (ImGui.Button("Import", new Vector2(buttonWidth, 0)))
-                        {
-                            if (currentInstance._worklistToImport != null)
-                            {
-                                currentInstance.ApplyImport(currentInstance._worklistToImport);
-                                currentInstance._worklistToImport = null;
-                            }
-                            currentInstance._importConfirmationOpen = false;
-                            ImGui.CloseCurrentPopup();
-                        }
-                        
-                        ImGui.PopStyleVar();
-                        ImGui.PopStyleColor(btnPopupStyleCount);
-                    }
-                    else
-                    {
-                        if (ImGui.Button("Cancel", new Vector2(buttonWidth, 0)))
-                        {
-                            currentInstance._worklistToImport = null;
-                            currentInstance._importConfirmationOpen = false;
-                            ImGui.CloseCurrentPopup();
-                        }
-                        
-                        ImGui.SameLine();
-                        
-                        if (ImGui.Button("Import", new Vector2(buttonWidth, 0)))
-                        {
-                            if (currentInstance._worklistToImport != null)
-                            {
-                                currentInstance.ApplyImport(currentInstance._worklistToImport);
-                                currentInstance._worklistToImport = null;
-                            }
-                            currentInstance._importConfirmationOpen = false;
-                            ImGui.CloseCurrentPopup();
-                        }
-                    }
-                    
-                    ImGui.EndPopup();
+                    ImGui.TextColored(new Vector4(0.9f, 0.9f, 0.3f, 1.0f), 
+                        $"Importing: {currentInstance._worklistToImport.Name} ({currentInstance._worklistToImport.Entries.Count} items)");
                 }
-                else if (currentInstance._importConfirmationOpen)
+                ImGui.Separator();
+                
+                ImGui.Spacing();
+                
+                float popupWidth = ImGui.GetWindowWidth();
+                float buttonWidth = (popupWidth - 30) / 2;
+                
+                if (usingIceTheme)
                 {
-                    // If the popup should be open but isn't showing, open it
-                    ImGui.OpenPopup("Import Confirmation");
+                    int btnPopupStyleCount = ThemeHelper.PushButtonStyle();
+                    ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+                    
+                    if (ImGui.Button("Cancel", new Vector2(buttonWidth, 0)))
+                    {
+                        currentInstance._worklistToImport = null;
+                        currentInstance._importConfirmationOpen = false;
+                        ImGui.CloseCurrentPopup();
+                    }
+                    
+                    ImGui.SameLine();
+                    
+                    if (ImGui.Button("Import", new Vector2(buttonWidth, 0)))
+                    {
+                        if (currentInstance._worklistToImport != null)
+                        {
+                            currentInstance.ApplyImport(currentInstance._worklistToImport);
+                            currentInstance._worklistToImport = null;
+                        }
+                        currentInstance._importConfirmationOpen = false;
+                        ImGui.CloseCurrentPopup();
+                    }
+                    
+                    ImGui.PopStyleVar();
+                    ImGui.PopStyleColor(btnPopupStyleCount);
                 }
+                else
+                {
+                    if (ImGui.Button("Cancel", new Vector2(buttonWidth, 0)))
+                    {
+                        currentInstance._worklistToImport = null;
+                        currentInstance._importConfirmationOpen = false;
+                        ImGui.CloseCurrentPopup();
+                    }
+                    
+                    ImGui.SameLine();
+                    
+                    if (ImGui.Button("Import", new Vector2(buttonWidth, 0)))
+                    {
+                        if (currentInstance._worklistToImport != null)
+                        {
+                            currentInstance.ApplyImport(currentInstance._worklistToImport);
+                            currentInstance._worklistToImport = null;
+                        }
+                        currentInstance._importConfirmationOpen = false;
+                        ImGui.CloseCurrentPopup();
+                    }
+                }
+                
+                ImGui.EndPopup();
+            }
+            else if (currentInstance._importConfirmationOpen)
+            {
+                // If the popup should be open but isn't showing, open it
+                ImGui.OpenPopup("Import Confirmation");
+            }
 
             // Confirmation popup for clipboard import
             bool clipboardImportConfirmOpen = currentInstance._clipboardImportConfirmationOpen;
-            if (ImGui.BeginPopupModal("Clipboard Import Confirmation", ref clipboardImportConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize))
+            if (ImGui.BeginPopupModal("Clipboard Import Confirmation", ref clipboardImportConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
             {
                 currentInstance._clipboardImportConfirmationOpen = clipboardImportConfirmOpen;
-
+                
                 ImGui.Text("This will replace your current worklist with data from clipboard. Continue?");
                 if (currentInstance._clipboardWorklist != null)
                 {
