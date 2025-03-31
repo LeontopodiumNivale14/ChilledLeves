@@ -88,13 +88,13 @@ namespace ChilledLeves.Ui
             bool usingIceTheme = C.UseIceTheme;
             
             // Begin theming with improved style boundary
-            ThemeHelper.BeginTheming(usingIceTheme);
+            int styleCount = ThemeHelper.BeginTheming(usingIceTheme);
             
             // Call WorklistMode to render the UI
             WorklistMode(this);
             
             // End theming with proper style restoration
-            ThemeHelper.EndTheming(usingIceTheme);
+            ThemeHelper.EndTheming(usingIceTheme, styleCount);
         }
 
         #region JSON Operations
@@ -822,7 +822,7 @@ namespace ChilledLeves.Ui
 
             // Confirmation popup for regular import
             bool importConfirmOpen = currentInstance._importConfirmationOpen;
-            if (ImGui.BeginPopupModal("Import Confirmation", ref importConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+            if (ImGui.BeginPopupModal("Import Confirmation", ref importConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse))
             {
                 currentInstance._importConfirmationOpen = importConfirmOpen;
                 
@@ -900,7 +900,7 @@ namespace ChilledLeves.Ui
 
             // Confirmation popup for clipboard import
             bool clipboardImportConfirmOpen = currentInstance._clipboardImportConfirmationOpen;
-            if (ImGui.BeginPopupModal("Clipboard Import Confirmation", ref clipboardImportConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+            if (ImGui.BeginPopupModal("Clipboard Import Confirmation", ref clipboardImportConfirmOpen, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse))
             {
                 currentInstance._clipboardImportConfirmationOpen = clipboardImportConfirmOpen;
                 

@@ -32,13 +32,27 @@ internal class GatherModeUi : Window
         // Check for Ice theme
         bool usingIceTheme = C.UseIceTheme;
         
-        // Begin theming with the improved style boundary
-        ThemeHelper.BeginTheming(usingIceTheme);
+        // Reset style tracking at the start of each frame when debugging
+        if (usingIceTheme)
+        {
+            ThemeHelper.ResetStyleTracking();
+        }
         
-        GatheringMode();
-        
-        // End theming properly
-        ThemeHelper.EndTheming(usingIceTheme);
+        // Use try/finally to guarantee style cleanup
+        int styleCount = 0;
+        try
+        {
+            // Begin theming
+            styleCount = ThemeHelper.BeginTheming(usingIceTheme);
+            
+            // Draw all UI content
+            GatheringMode();
+        }
+        finally
+        {
+            // Always clean up styles, even if exceptions occur
+            ThemeHelper.EndTheming(usingIceTheme, styleCount);
+        }
     }
 
     #region Gathering Specific Planner
@@ -71,11 +85,34 @@ internal class GatherModeUi : Window
         // Get theme setting (but don't set window styles - Draw method handles that)
         bool usingIceTheme = C.UseIceTheme;
         
-        // Add navigation buttons to other windows at the top
+        // Populate SelectedLeves based on current selections
+        // This ensures the leve list is always up to date
+        SelectedLeves.Clear();
+        foreach (var kdp in LeveDictionary)
+        {
+            var leveID = kdp.Key;
+            var leveVendorId = kdp.Value.LeveVendorID;
+            var jobAssignment = kdp.Value.JobAssignmentType;
+            
+            if (leveVendorId == C.SelectedNpcId && jobAssignment == IconSlot)
+            {
+                if (!SelectedLeves.Contains(leveID))
+                {
+                    SelectedLeves.Add(leveID);
+                }
+            }
+        }
+        
+        // Navigation buttons section with StyleScope for guaranteed cleanup
         if (usingIceTheme)
         {
-            int navigationBtnStyleCount = ThemeHelper.PushButtonStyle();
-            ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+            using var navStyle = new ThemeHelper.StyleScope();
+            
+            // Apply button styling
+            navStyle.PushColor(ImGuiCol.Button, ThemeHelper.ButtonBg)
+                   .PushColor(ImGuiCol.ButtonHovered, ThemeHelper.ButtonHovered)
+                   .PushColor(ImGuiCol.ButtonActive, ThemeHelper.ButtonActive)
+                   .PushVar(ImGuiStyleVar.FrameRounding, 4.0f);
             
             float navButtonHeight = textLineHeight * 1.5f;
             float btnPadding = 8 * fontScale;
@@ -105,12 +142,9 @@ internal class GatherModeUi : Window
             ImGui.SameLine(windowWidth - infoWidth - btnPadding);
             
             // Add ice theme styling for the text
-            int textStyleCount = ThemeHelper.PushHeadingTextStyle();
+            using var textStyle = new ThemeHelper.StyleScope();
+            textStyle.PushColor(ImGuiCol.Text, ThemeHelper.IceBlue);
             ImGui.Text(allowancesInfo);
-            ImGui.PopStyleColor(textStyleCount);
-            
-            ImGui.PopStyleVar();
-            ImGui.PopStyleColor(navigationBtnStyleCount);
         }
         else
         {
@@ -147,13 +181,18 @@ internal class GatherModeUi : Window
         ImGui.Separator();
         ImGui.Spacing();
         
-        // Apply table styling if using ice theme
+        // Main settings table with StyleScope for complete style isolation
         if (usingIceTheme)
         {
-            int childStyleCount = ThemeHelper.PushChildStyle();
-            ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue);
-            int headerStyleCount = ThemeHelper.PushHeaderStyle();
+            using var tableStyles = new ThemeHelper.StyleScope();
             
+            // Apply comprehensive styling using StyleScope instead of individual pushes
+            tableStyles.PushColor(ImGuiCol.ChildBg, ThemeHelper.ChildBg)
+                      .PushColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue)
+                      .PushColor(ImGuiCol.Header, ThemeHelper.HeaderBg)
+                      .PushColor(ImGuiCol.HeaderHovered, ThemeHelper.HeaderHovered)
+                      .PushColor(ImGuiCol.HeaderActive, ThemeHelper.HeaderActive);
+                
             if (ImGui.BeginTable("Gathering Leve Settings", 2, ImGuiTableFlags.Borders))
             {
                 // Use dynamic column width based on font size
@@ -164,18 +203,13 @@ internal class GatherModeUi : Window
                 ImGui.TableSetupColumn("Setting Selection", ImGuiTableColumnFlags.WidthFixed, tableColumn2Width);
                 
                 ImGui.TableHeadersRow();
-                
-                // Pop style after headers are drawn
-                ImGui.PopStyleColor(headerStyleCount + 1); // +1 for TableHeaderBg
         
                 // Now continue with the table content
                 DrawGatheringTableRows(textLineHeight, fontScale, usingIceTheme);
                 
                 ImGui.EndTable();
             }
-            
-            // Pop child background style
-            ImGui.PopStyleColor(childStyleCount);
+            // No need for cleanup with StyleScope - it's handled by the using statement
         }
         else
         {
@@ -197,48 +231,168 @@ internal class GatherModeUi : Window
             }
         }
         
-        // The buttons section below the table
+        // Add spacing
         ImGui.Spacing();
         ImGui.Spacing();
         
-        // Action Buttons
-        float buttonHeight = textLineHeight * 1.5f;
-        
+        // Action Buttons with StyleScope for guaranteed cleanup
         if (usingIceTheme)
         {
-            int btnStyleCount = ThemeHelper.PushButtonStyle();
-            ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+            using var btnStyle = new ThemeHelper.StyleScope();
             
+            btnStyle.PushColor(ImGuiCol.Button, ThemeHelper.ButtonBg)
+                   .PushColor(ImGuiCol.ButtonHovered, ThemeHelper.ButtonHovered)
+                   .PushColor(ImGuiCol.ButtonActive, ThemeHelper.ButtonActive)
+                   .PushVar(ImGuiStyleVar.FrameRounding, 4.0f);
+            
+            float buttonHeight = textLineHeight * 1.5f;
             DrawGatheringButtons(buttonHeight);
-            
-            ImGui.PopStyleVar();
-            ImGui.PopStyleColor(btnStyleCount);
         }
         else
         {
+            float buttonHeight = textLineHeight * 1.5f;
             DrawGatheringButtons(buttonHeight);
         }
         
-        // If leves are selected, draw the leve list
-        if (SelectedLeves.Count > 0)
+        // Draw the Crafting Workshop table with StyleScope for proper cleanup
+        ImGui.Spacing();
+        ImGui.Separator();
+        ImGui.Spacing();
+        
+        // Draw detailed leve table - completely isolated with StyleScope
+        using (var scope = new ThemeHelper.StyleScope())
         {
-            ImGui.Spacing();
-            ImGui.Separator();
-            ImGui.Spacing();
+            ImGui.PushID("CraftingWorkshopTableScope");
             
             if (usingIceTheme)
             {
-                int textStyleCount = ThemeHelper.PushHeadingTextStyle();
-                ImGui.Text("Selected Leves:");
-                ImGui.PopStyleColor(textStyleCount);
+                // Apply styles for themed table using StyleScope
+                scope.PushColor(ImGuiCol.ChildBg, ThemeHelper.ChildBg)
+                     .PushColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue)
+                     .PushColor(ImGuiCol.Header, ThemeHelper.HeaderBg)
+                     .PushColor(ImGuiCol.HeaderHovered, ThemeHelper.HeaderHovered)
+                     .PushColor(ImGuiCol.HeaderActive, ThemeHelper.HeaderActive);
+                
+                if (ImGui.BeginTable($"Crafting Workshop List", 8, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingFixedFit))
+                {
+                    // Columns for the crafters
+                    ImGui.TableSetupColumn("Prio###GatheringLevePrio", ImGuiTableColumnFlags.WidthFixed, 50);
+                    ImGui.TableSetupColumn("Complete?###GatheringLeveComplete", ImGuiTableColumnFlags.WidthFixed, 100);
+                    ImGui.TableSetupColumn("Level###GatheringLeveLevel", ImGuiTableColumnFlags.WidthFixed, 50);
+                    ImGui.TableSetupColumn("Leve Name###GatheringLeveName", ImGuiTableColumnFlags.WidthFixed, 100);
+                    ImGui.TableSetupColumn("Item Turnin###GatheringTurninItems", ImGuiTableColumnFlags.WidthFixed, 100);
+                    ImGui.TableSetupColumn("Need###GatheringAmountNecessary", ImGuiTableColumnFlags.WidthFixed, 50);
+                    ImGui.TableSetupColumn("Have###GatheringCompleteCheck", ImGuiTableColumnFlags.WidthFixed, 100);
+                    ImGui.TableSetupColumn("Triple?");
+                    
+                    ImGui.TableHeadersRow();
+                    
+                    DrawGatheringTableContent();
+                    
+                    ImGui.EndTable();
+                }
             }
             else
             {
-                ImGui.Text("Selected Leves:");
+                if (ImGui.BeginTable($"Crafting Workshop List", 8, ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable | ImGuiTableFlags.SizingFixedFit))
+                {
+                    // Columns for the crafters
+                    ImGui.TableSetupColumn("Prio###GatheringLevePrio", ImGuiTableColumnFlags.WidthFixed, 50);
+                    ImGui.TableSetupColumn("Complete?###GatheringLeveComplete", ImGuiTableColumnFlags.WidthFixed, 100);
+                    ImGui.TableSetupColumn("Level###GatheringLeveLevel", ImGuiTableColumnFlags.WidthFixed, 50);
+                    ImGui.TableSetupColumn("Leve Name###GatheringLeveName", ImGuiTableColumnFlags.WidthFixed, 100);
+                    ImGui.TableSetupColumn("Item Turnin###GatheringTurninItems", ImGuiTableColumnFlags.WidthFixed, 100);
+                    ImGui.TableSetupColumn("Need###GatheringAmountNecessary", ImGuiTableColumnFlags.WidthFixed, 50);
+                    ImGui.TableSetupColumn("Have###GatheringCompleteCheck", ImGuiTableColumnFlags.WidthFixed, 100);
+                    ImGui.TableSetupColumn("Triple?");
+                    
+                    ImGui.TableHeadersRow();
+                    
+                    DrawGatheringTableContent();
+                    
+                    ImGui.EndTable();
+                }
             }
             
-            // Draw the selected leves table
-            DrawSelectedLeves(textLineHeight, fontScale, usingIceTheme);
+            ImGui.PopID();
+        }
+    }
+
+    // Extract table content drawing to separate method for better organization
+    private static void DrawGatheringTableContent()
+    {
+        foreach (var kdp in LeveDictionary)
+        {
+            var leveID = kdp.Key;
+            var leveLevel = kdp.Value.Level;
+            var leveName = kdp.Value.LeveName;
+            var leveVendorId = kdp.Value.LeveVendorID;
+            var leveVendorName = kdp.Value.LeveVendorName;
+            var jobAssignment = kdp.Value.JobAssignmentType;
+            var zoneId = LeveNPCDict[leveVendorId].ZoneID;
+            var priority = kdp.Value.Priority;
+            
+            var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
+            var itemName = CraftDictionary[leveID].ItemName;
+            var itemNeed = CraftDictionary[leveID].TurninAmount;
+            var itemId = CraftDictionary[leveID].ItemID;
+            
+            if (leveVendorId != C.SelectedNpcId || jobAssignment != IconSlot)
+            {
+                continue;
+            }
+            
+            ImGui.TableNextRow();
+            
+            ImGui.PushID((int)leveID);
+            ImGui.TableSetColumnIndex(0);
+            if (ImGui.DragInt("###GatheringPriority", ref priority))
+            {
+                kdp.Value.Priority = priority;
+                if (!C.LevePriority.ContainsKey(leveID))
+                {
+                    C.LevePriority.Add(leveID, priority);
+                }
+                else if (C.LevePriority.ContainsKey(leveID))
+                {
+                    C.LevePriority[leveID] = priority;
+                }
+                C.Save();
+            }
+            
+            ImGui.TableNextColumn();
+            bool leveCompleted = IsComplete(leveID);
+            if (leveCompleted)
+            {
+                ImGui.Image(LeveStatusDict[1].GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
+            }
+            if (!leveCompleted)
+            {
+                ImGui.Image(LeveStatusDict[2].GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
+            }
+            
+            ImGui.TableNextColumn();
+            CenterTextV2($"{leveLevel}");
+            
+            ImGui.TableNextColumn();
+            ImGui.Text($"{leveName}");
+            
+            ImGui.TableNextColumn();
+            ImGui.Image(ItemImage.ImGuiHandle, new Vector2(20, 20));
+            ImGui.SameLine(0, 5);
+            ImGui.Text($"{itemName}");
+            
+            ImGui.TableNextColumn();
+            CenterTextV2($"{itemNeed}");
+            
+            ImGui.TableNextColumn();
+            var itemHave = GetItemCount((int)CraftDictionary[leveID].ItemID);
+            CenterTextV2($"{itemHave}");
+            
+            ImGui.TableNextColumn();
+            bool tripleTurnin = CraftDictionary[leveID].RepeatAmount > 1;
+            FancyCheckmark(tripleTurnin);
+            ImGui.PopID();
         }
     }
 
@@ -264,73 +418,6 @@ internal class GatherModeUi : Window
         }
     }
 
-    private static void DrawSelectedLeves(float textLineHeight, float fontScale, bool usingIceTheme)
-    {
-        if (usingIceTheme)
-        {
-            int childStyleCount = ThemeHelper.PushChildStyle();
-            ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue);
-            int headerStyleCount = ThemeHelper.PushHeaderStyle();
-            
-            if (ImGui.BeginTable("Selected Leves Table", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders))
-            {
-                // Calculate column widths based on font metrics
-                float nameColWidth = Math.Max(200, textLineHeight * 10);
-                float levelColWidth = Math.Max(80, textLineHeight * 5);
-                
-                ImGui.TableSetupColumn("Leve Name", ImGuiTableColumnFlags.WidthFixed, nameColWidth);
-                ImGui.TableSetupColumn("Level", ImGuiTableColumnFlags.WidthFixed, levelColWidth);
-                
-                ImGui.TableHeadersRow();
-                
-                // Pop styling after headers are drawn
-                ImGui.PopStyleColor(headerStyleCount + 1); // +1 for TableHeaderBg
-                
-                // Draw the selected leves
-                foreach (uint leveId in SelectedLeves)
-                {
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    ImGui.Text(LeveDictionary[leveId].LeveName);
-                    
-                    ImGui.TableSetColumnIndex(1);
-                    ImGui.Text($"{LeveDictionary[leveId].Level}");
-                }
-                
-                ImGui.EndTable();
-            }
-            
-            ImGui.PopStyleColor(childStyleCount);
-        }
-        else
-        {
-            if (ImGui.BeginTable("Selected Leves Table", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders))
-            {
-                // Calculate column widths based on font metrics
-                float nameColWidth = Math.Max(200, textLineHeight * 10);
-                float levelColWidth = Math.Max(80, textLineHeight * 5);
-                
-                ImGui.TableSetupColumn("Leve Name", ImGuiTableColumnFlags.WidthFixed, nameColWidth);
-                ImGui.TableSetupColumn("Level", ImGuiTableColumnFlags.WidthFixed, levelColWidth);
-                
-                ImGui.TableHeadersRow();
-                
-                // Draw the selected leves
-                foreach (uint leveId in SelectedLeves)
-                {
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    ImGui.Text(LeveDictionary[leveId].LeveName);
-                    
-                    ImGui.TableSetColumnIndex(1);
-                    ImGui.Text($"{LeveDictionary[leveId].Level}");
-                }
-                
-                ImGui.EndTable();
-            }
-        }
-    }
-
     private static void DrawGatheringTableRows(float textLineHeight, float fontScale, bool usingIceTheme)
     {
         // Row 1 - NPC Selection
@@ -339,24 +426,31 @@ internal class GatherModeUi : Window
         ImGui.Text("Levequest NPC:");
 
         ImGui.TableNextColumn();
-        string selectableText = $"{C.SelectedNpcName}";
+        string selectableText = $"{C.SelectedNpcName} → {C.LocationName}";
         
         // Use a themed text color for the NPC selection
         if (usingIceTheme)
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, ThemeHelper.IceBlue);
+            using var textStyle = new ThemeHelper.StyleScope();
+            textStyle.PushColor(ImGuiCol.Text, ThemeHelper.IceBlue);
+            
+            if (ImGui.Selectable(selectableText))
+            {
+                ImGui.OpenPopup("NPC Selection Popup"); // Open the popup when the selectable is clicked
+            }
         }
         else
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, EColor.Green);
+            using var textStyle = new ThemeHelper.StyleScope();
+            textStyle.PushColor(ImGuiCol.Text, EColor.Green);
+            
+            if (ImGui.Selectable(selectableText))
+            {
+                ImGui.OpenPopup("NPC Selection Popup"); // Open the popup when the selectable is clicked
+            }
         }
         
-        if (ImGui.Selectable(selectableText))
-        {
-            ImGui.OpenPopup("NPC Selection Popup");
-        }
-        ImGui.PopStyleColor();
-        
+        // Add tooltip for NPC selection
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
@@ -364,101 +458,117 @@ internal class GatherModeUi : Window
             ImGui.EndTooltip();
         }
 
-        // NPC Selection Popup
+        // NPC Selection Popup - NO ID SCOPE to avoid breaking popup behavior
         if (ImGui.BeginPopup("NPC Selection Popup"))
         {
             SelectedLeves.Clear();
             
+            // Create a table inside the popup
             if (usingIceTheme)
             {
-                ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue);
-                int headerStyleCount = ThemeHelper.PushHeaderStyle();
-                
-                float popupColumnWidth = Math.Max(200, textLineHeight * 12);
-                if (ImGui.BeginTable("NPC Table", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+                // Use StyleScope for guaranteed cleanup of styles
+                using (var tableStyles = new ThemeHelper.StyleScope())
                 {
-                    ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, popupColumnWidth);
-                    ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, popupColumnWidth);
-                    ImGui.TableHeadersRow();
+                    // Add styling for the table with proper cleanup
+                    tableStyles.PushColor(ImGuiCol.TableHeaderBg, ThemeHelper.DeepIceBlue)
+                              .PushColor(ImGuiCol.Header, ThemeHelper.HeaderBg)
+                              .PushColor(ImGuiCol.HeaderHovered, ThemeHelper.HeaderHovered)
+                              .PushColor(ImGuiCol.HeaderActive, ThemeHelper.HeaderActive);
                     
-                    ImGui.PopStyleColor(headerStyleCount + 1);
-                    
-                    // Render NPC rows
-                    foreach (uint npcId in npcIds)
+                    if (ImGui.BeginTable("NPC Table", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
                     {
-                        string npcName = GetNpcName(npcId);
-                        string locationName = GetLocationName(npcId);
+                        // Define column widths
+                        ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, 200);
+                        ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, 200);
+                        ImGui.TableHeadersRow();
                         
-                        ImGui.TableNextRow();
-                        ImGui.TableSetColumnIndex(0);
-                        
-                        bool isSelected = C.SelectedNpcName == npcName;
-                        if (isSelected && usingIceTheme)
+                        // Loop through each NPC ID and display their name and location in the table
+                        foreach (var npcId in npcIds)
                         {
-                            int selectStyleCount = ThemeHelper.PushHeaderStyle();
-                            if (ImGui.Selectable($"{npcName}###{npcId}", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                            string npcName = NPCName(npcId); // Get NPC name
+                            string npcLocation = ZoneName(LeveNPCDict[npcId].ZoneID); // Get NPC location
+        
+                            // Create the row
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            
+                            // Highlight the selected NPC with the ice theme
+                            bool isSelected = npcId == C.SelectedNpcId;
+                            if (isSelected)
                             {
-                                C.SelectedNpcId = npcId;
-                                C.SelectedNpcName = npcName;
-                                C.LocationName = locationName;
-                                C.Save();
+                                using (var rowStyle = new ThemeHelper.StyleScope())
+                                {
+                                    rowStyle.PushColor(ImGuiCol.Header, ThemeHelper.HeaderBg)
+                                           .PushColor(ImGuiCol.HeaderHovered, ThemeHelper.HeaderHovered)
+                                           .PushColor(ImGuiCol.HeaderActive, ThemeHelper.HeaderActive);
+                                           
+                                    if (ImGui.Selectable(npcName, true))
+                                    {
+                                        C.SelectedNpcId = npcId; // Update selected NPC ID
+                                        C.SelectedNpcName = npcName; // Update selected NPC Name
+                                        C.LocationName = npcLocation;
+                                        C.Save();
+                                        ImGui.CloseCurrentPopup(); // Close the popup after selection
+                                    }
+                                }
                             }
-                            ImGui.PopStyleColor(selectStyleCount);
-                        }
-                        else
-                        {
-                            if (ImGui.Selectable($"{npcName}###{npcId}", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                            else
                             {
-                                C.SelectedNpcId = npcId;
-                                C.SelectedNpcName = npcName;
-                                C.LocationName = locationName;
-                                C.Save();
+                                if (ImGui.Selectable(npcName, false))
+                                {
+                                    C.SelectedNpcId = npcId; // Update selected NPC ID
+                                    C.SelectedNpcName = npcName; // Update selected NPC Name
+                                    C.LocationName = npcLocation;
+                                    C.Save();
+                                    ImGui.CloseCurrentPopup(); // Close the popup after selection
+                                }
                             }
+        
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.Text(npcLocation); // Display NPC location in the second column
                         }
-                        
-                        ImGui.TableSetColumnIndex(1);
-                        ImGui.Text(locationName);
+        
+                        ImGui.EndTable(); // End the table
                     }
-                    
-                    ImGui.EndTable();
-                }
+                } // StyleScope automatically cleans up all styles when disposed
             }
             else
             {
-                float popupColumnWidth = Math.Max(200, textLineHeight * 12);
+                // Non-themed table
                 if (ImGui.BeginTable("NPC Table", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
                 {
-                    ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, popupColumnWidth);
-                    ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, popupColumnWidth);
+                    // Define column widths
+                    ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, 200);
+                    ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, 200);
                     ImGui.TableHeadersRow();
-                    
-                    // Render NPC rows
-                    foreach (uint npcId in npcIds)
+    
+                    // Loop through each NPC ID and display their name and location in the table
+                    foreach (var npcId in npcIds)
                     {
-                        string npcName = GetNpcName(npcId);
-                        string locationName = GetLocationName(npcId);
-                        
+                        string npcName = NPCName(npcId); // Get NPC name
+                        string npcLocation = ZoneName(LeveNPCDict[npcId].ZoneID); // Get NPC location
+    
+                        // Create the row
                         ImGui.TableNextRow();
                         ImGui.TableSetColumnIndex(0);
-                        
-                        bool isSelected = C.SelectedNpcName == npcName;
-                        if (ImGui.Selectable($"{npcName}###{npcId}", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                        if (ImGui.Selectable(npcName, npcId == C.SelectedNpcId)) // Check if it's the selected item
                         {
-                            C.SelectedNpcId = npcId;
-                            C.SelectedNpcName = npcName;
-                            C.LocationName = locationName;
+                            C.SelectedNpcId = npcId; // Update selected NPC ID
+                            C.SelectedNpcName = npcName; // Update selected NPC Name
+                            C.LocationName = npcLocation;
                             C.Save();
+                            ImGui.CloseCurrentPopup(); // Close the popup after selection
                         }
-                        
+    
                         ImGui.TableSetColumnIndex(1);
-                        ImGui.Text(locationName);
+                        ImGui.Text(npcLocation); // Display NPC location in the second column
                     }
-                    
-                    ImGui.EndTable();
+    
+                    ImGui.EndTable(); // End the table
                 }
             }
             
-            ImGui.EndPopup();
+            ImGui.EndPopup(); // End the popup
         }
         
         // Row 2 - Class Selection
@@ -476,82 +586,95 @@ internal class GatherModeUi : Window
             C.ClassSelected = classSelectList.FirstOrDefault();
         }
         
-        // Apply control styling for combo box
-        if (usingIceTheme)
+        // Apply control styling for combo box with proper ID scope
+        ImGui.PushID("ClassComboScope");
+        try 
         {
-            int controlStyleCount = ThemeHelper.PushControlStyle();
-            
-            if (ImGui.BeginCombo("###Class Selection", C.ClassSelected))
+            if (usingIceTheme)
             {
-                ImGui.PopStyleColor(controlStyleCount);
-                
-                for (int i = 0; i < classSelectList.Count; i++)
+                // Use StyleScope for safer style management
+                using (var comboStyles = new ThemeHelper.StyleScope())
                 {
-                    int iconSlot = i + 2;
-                    bool isSelected = (classSelectList[i] == C.ClassSelected);
-
-                    ImGui.PushID(iconSlot);
-
-                    if (ImGui.Selectable("###hidden", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                    comboStyles.PushColor(ImGuiCol.FrameBg, ThemeHelper.FrameBg)
+                               .PushColor(ImGuiCol.FrameBgHovered, ThemeHelper.FrameBgHovered)
+                               .PushColor(ImGuiCol.FrameBgActive, ThemeHelper.FrameBgActive)
+                               .PushColor(ImGuiCol.CheckMark, ThemeHelper.IceBlue);
+                    
+                    if (ImGui.BeginCombo("###Class Selection", C.ClassSelected))
                     {
-                        SelectedLeves.Clear();
-                        C.ClassSelected = classSelectList[i];
-                        IconSlot = (uint)iconSlot;
-                        C.Save();
+                        for (int i = 0; i < classSelectList.Count; i++)
+                        {
+                            int iconSlot = i + 2;
+                            bool isSelected = (classSelectList[i] == C.ClassSelected);
+
+                            ImGui.PushID(iconSlot);
+
+                            if (ImGui.Selectable("###hidden", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                            {
+                                SelectedLeves.Clear();
+                                C.ClassSelected = classSelectList[i];
+                                IconSlot = (uint)iconSlot;
+                                C.Save();
+                            }
+
+                            ImGui.SameLine();
+
+                            // Scale icon size based on font size
+                            float iconSize = Math.Max(20, textLineHeight * 1.2f);
+                            ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
+
+                            ImGui.SameLine();
+                            ImGui.TextUnformatted(classSelectList[i]);
+
+                            if (isSelected)
+                                ImGui.SetItemDefaultFocus();
+
+                            ImGui.PopID();
+                        }
+                        ImGui.EndCombo();
                     }
+                } // StyleScope automatically disposes and cleans up styles
+            }
+            else
+            {
+                if (ImGui.BeginCombo("###Class Selection", C.ClassSelected))
+                {
+                    for (int i = 0; i < classSelectList.Count; i++)
+                    {
+                        int iconSlot = i + 2;
+                        bool isSelected = (classSelectList[i] == C.ClassSelected);
 
-                    ImGui.SameLine();
+                        ImGui.PushID(iconSlot);
 
-                    // Scale icon size based on font size
-                    float iconSize = Math.Max(20, textLineHeight * 1.2f);
-                    ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
+                        if (ImGui.Selectable("###hidden", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                        {
+                            SelectedLeves.Clear();
+                            C.ClassSelected = classSelectList[i];
+                            IconSlot = (uint)iconSlot;
+                            C.Save();
+                        }
 
-                    ImGui.SameLine();
-                    ImGui.TextUnformatted(classSelectList[i]);
+                        ImGui.SameLine();
 
-                    if (isSelected)
-                        ImGui.SetItemDefaultFocus();
+                        // Scale icon size based on font size
+                        float iconSize = Math.Max(20, textLineHeight * 1.2f);
+                        ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
 
-                    ImGui.PopID();
+                        ImGui.SameLine();
+                        ImGui.TextUnformatted(classSelectList[i]);
+
+                        if (isSelected)
+                            ImGui.SetItemDefaultFocus();
+
+                        ImGui.PopID();
+                    }
+                    ImGui.EndCombo();
                 }
-                ImGui.EndCombo();
             }
         }
-        else
+        finally
         {
-            if (ImGui.BeginCombo("###Class Selection", C.ClassSelected))
-            {
-                for (int i = 0; i < classSelectList.Count; i++)
-                {
-                    int iconSlot = i + 2;
-                    bool isSelected = (classSelectList[i] == C.ClassSelected);
-
-                    ImGui.PushID(iconSlot);
-
-                    if (ImGui.Selectable("###hidden", isSelected, ImGuiSelectableFlags.SpanAllColumns))
-                    {
-                        SelectedLeves.Clear();
-                        C.ClassSelected = classSelectList[i];
-                        IconSlot = (uint)iconSlot;
-                        C.Save();
-                    }
-
-                    ImGui.SameLine();
-
-                    // Scale icon size based on font size
-                    float iconSize = Math.Max(20, textLineHeight * 1.2f);
-                    ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
-
-                    ImGui.SameLine();
-                    ImGui.TextUnformatted(classSelectList[i]);
-
-                    if (isSelected)
-                        ImGui.SetItemDefaultFocus();
-
-                    ImGui.PopID();
-                }
-                ImGui.EndCombo();
-            }
+            ImGui.PopID();
         }
         
         ImGui.SameLine();
@@ -578,67 +701,74 @@ internal class GatherModeUi : Window
         runUntilComboWidth = Math.Max(runUntilComboWidth + 35, textLineHeight * 8);
         ImGui.SetNextItemWidth(runUntilComboWidth);
         
-        // Apply control styling for the combo box
-        if (usingIceTheme)
+        // Apply control styling for the combo box with proper ID scope
+        ImGui.PushID("RunUntilComboScope");
+        try
         {
-            int controlStyleCount = ThemeHelper.PushControlStyle();
-            
-            if (ImGui.BeginCombo("###Run Until Combo", C.RunUntilSelected))
+            if (usingIceTheme)
             {
-                ImGui.PopStyleColor(controlStyleCount);
-                
-                foreach (var selected in RunUntilList)
+                // Use StyleScope for safer style management
+                using (var comboStyles = new ThemeHelper.StyleScope())
                 {
-                    bool isSelected = (C.RunUntilSelected == selected);
-                    if (ImGui.Selectable(selected, isSelected))
+                    comboStyles.PushColor(ImGuiCol.FrameBg, ThemeHelper.FrameBg)
+                               .PushColor(ImGuiCol.FrameBgHovered, ThemeHelper.FrameBgHovered)
+                               .PushColor(ImGuiCol.FrameBgActive, ThemeHelper.FrameBgActive)
+                               .PushColor(ImGuiCol.CheckMark, ThemeHelper.IceBlue);
+                    
+                    if (ImGui.BeginCombo("###Run Until Combo", C.RunUntilSelected))
                     {
-                        C.RunUntilSelected = selected;
-                        C.Save();
+                        foreach (var selected in RunUntilList)
+                        {
+                            bool isSelected = (C.RunUntilSelected == selected);
+                            if (ImGui.Selectable(selected, isSelected))
+                            {
+                                C.RunUntilSelected = selected;
+                                C.Save();
+                            }
+                            if (isSelected)
+                                ImGui.SetItemDefaultFocus();
+                        }
+                        ImGui.EndCombo();
                     }
-                    if (isSelected)
-                        ImGui.SetItemDefaultFocus();
+                } // StyleScope automatically disposes and cleans up styles
+            }
+            else
+            {
+                if (ImGui.BeginCombo("###Run Until Combo", C.RunUntilSelected))
+                {
+                    foreach (var selected in RunUntilList)
+                    {
+                        bool isSelected = (C.RunUntilSelected == selected);
+                        if (ImGui.Selectable(selected, isSelected))
+                        {
+                            C.RunUntilSelected = selected;
+                            C.Save();
+                        }
+                        if (isSelected)
+                            ImGui.SetItemDefaultFocus();
+                    }
+                    ImGui.EndCombo();
                 }
-                ImGui.EndCombo();
             }
         }
-        else
+        finally
         {
-            if (ImGui.BeginCombo("###Run Until Combo", C.RunUntilSelected))
+            ImGui.PopID();
+        }
+        
+        if (C.RunUntilSelected == RunUntilList[0])
+        {
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(100);
+            if (ImGui.SliderInt("###Lv Slider", ref C.LevelSliderInput, 1, 100))
             {
-                foreach (var selected in RunUntilList)
-                {
-                    bool isSelected = (C.RunUntilSelected == selected);
-                    if (ImGui.Selectable(selected, isSelected))
-                    {
-                        C.RunUntilSelected = selected;
-                        C.Save();
-                    }
-                    if (isSelected)
-                        ImGui.SetItemDefaultFocus();
-                }
-                ImGui.EndCombo();
+                if (C.LevelSliderInput > 100)
+                    C.LevelSliderInput = 100;
+                else if (C.LevelSliderInput < 1)
+                    C.LevelSliderInput = 1;
+                C.Save();
             }
         }
-    }
-
-    // Helper methods for NPC selection
-    private static string GetNpcName(uint npcId)
-    {
-        if (LeveNPCDict.ContainsKey(npcId))
-        {
-            return LeveNPCDict[npcId].Name;
-        }
-        return string.Empty;
-    }
-
-    private static string GetLocationName(uint npcId)
-    {
-        if (LeveNPCDict.ContainsKey(npcId))
-        {
-            var zoneId = LeveNPCDict[npcId].ZoneID;
-            return ZoneName(zoneId);
-        }
-        return string.Empty;
     }
 
     #endregion

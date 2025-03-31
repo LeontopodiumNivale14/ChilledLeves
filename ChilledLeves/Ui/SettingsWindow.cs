@@ -35,7 +35,7 @@ internal class SettingsWindow : Window
         bool usingIceTheme = C.UseIceTheme;
         
         // Begin theming this window only
-        ThemeHelper.BeginTheming(usingIceTheme);
+        int styleCount = ThemeHelper.BeginTheming(usingIceTheme);
         
         ImGuiEx.EzTabBar("ChilledLeves Settings Window",
             ("Worklist Planner", MainPlanner, null, true)//,
@@ -43,7 +43,7 @@ internal class SettingsWindow : Window
             );
         
         // End theming
-        ThemeHelper.EndTheming(usingIceTheme);
+        ThemeHelper.EndTheming(usingIceTheme, styleCount);
     }
 
     #region Main Planner Window 
