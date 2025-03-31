@@ -253,11 +253,9 @@ internal class GatherModeUi : Window
             float buttonHeight = textLineHeight * 1.5f;
             DrawGatheringButtons(buttonHeight);
         }
-        
+
         // Draw the Crafting Workshop table with StyleScope for proper cleanup
-        ImGui.Spacing();
-        ImGui.Separator();
-        ImGui.Spacing();
+        ImGui.Dummy(new Vector2(0, 7));
         
         // Draw detailed leve table - completely isolated with StyleScope
         using (var scope = new ThemeHelper.StyleScope())
