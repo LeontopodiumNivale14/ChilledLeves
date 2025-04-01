@@ -136,7 +136,7 @@ public sealed class ChilledLeves : IDalamudPlugin
                     repeatAmount = repeat;
                     if (!C.workList.Any(e => e.LeveID == leveId))
                     {
-                        C.workList.Add(new LeveEntry { LeveID = leveId, InputValue = repeatAmount, ItemAmount = 0 });
+                        C.workList.Add(new LeveEntry { LeveID = leveId, InputValue = repeatAmount});
                         C.Save();
                         return;
                     }

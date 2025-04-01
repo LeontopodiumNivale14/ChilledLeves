@@ -3037,7 +3037,6 @@ public static unsafe class Data
     {
         public uint LeveID { get; set; }
         public int InputValue { get; set; }
-        public int ItemAmount { get; set; }
     }
 
     public class LeveFilterSettings

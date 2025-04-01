@@ -639,7 +639,7 @@ namespace ChilledLeves.Ui
                     {
                         if (!C.workList.Any(e => e.LeveID == id))
                         {
-                            C.workList.Add(new LeveEntry { LeveID = kdp.Key, InputValue = 1, ItemAmount = 0 });
+                            C.workList.Add(new LeveEntry { LeveID = kdp.Key, InputValue = 1 });
                         }
                     }
 
@@ -966,7 +966,7 @@ namespace ChilledLeves.Ui
                     {
                         if (ImGui.Button("Add to WorkList", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
                         {
-                            C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 1, ItemAmount = 0 });
+                            C.workList.Add(new LeveEntry { LeveID = leve, InputValue = 1});
                             C.Save();
                         }
                     }

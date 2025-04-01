@@ -149,8 +149,6 @@ internal class SettingsWindow : Window
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();
-        
-        UpdateItemCount();
 
         ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");
 
@@ -278,7 +276,7 @@ internal class SettingsWindow : Window
             string LeveName = LeveDictionary[leveID].LeveName;
             string ItemName = CraftDictionary[leveID].ItemName;
             uint itemId = CraftDictionary[leveID].ItemID;
-            int itemAmount = kdp.ItemAmount;
+            int itemAmount = GetItemCount((int)itemId);
             ImGui.TableNextRow();
 
             ImGui.PushID((int)leveID);
@@ -390,19 +388,6 @@ internal class SettingsWindow : Window
         // Scale the input field width based on font scale
         ImGui.SetNextItemWidth(75 * fontScale);
         ImGui.InputText(label, ref input, maxLength);
-    }
-
-    private static void UpdateItemCount()
-    {
-        if (EzThrottler.Throttle("Updating Item Count", 1000))
-        {
-            foreach (var leve in C.workList)
-            {
-                var LeveId = leve.LeveID;
-                var ItemId = (int)CraftDictionary[LeveId].ItemID;
-                leve.ItemAmount = GetItemCount(ItemId);
-            }
-        }
     }
 
     #endregion
