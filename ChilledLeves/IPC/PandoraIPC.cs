@@ -13,6 +13,7 @@ public class PandoraIPC
 
     [EzIPC] public Func<string, bool?> GetFeatureEnabled;
     [EzIPC] public Func<string, string, bool?> GetConfigEnabled;
+    [EzIPC] public Func<string, bool?, object> SetFeatureEnabled;
     [EzIPC] public Func<string, string, bool, object> SetConfigEnabled;
     [EzIPC] public Func<string, int, object> PauseFeature;
 }

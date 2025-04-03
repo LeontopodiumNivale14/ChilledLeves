@@ -13,7 +13,7 @@ namespace ChilledLeves.Ui;
 internal class GatherModeUi : Window
 {
     public GatherModeUi() :
-        base($"Gather Grind Mode Window {P.GetType().Assembly.GetName().Version} ###GatherModeWorkshopWindow")
+        base($"Priority Leve Grind Window {P.GetType().Assembly.GetName().Version} ###GatherModeWorkshopWindow")
     {
         Flags = ImGuiWindowFlags.None;
         SizeConstraints = new()

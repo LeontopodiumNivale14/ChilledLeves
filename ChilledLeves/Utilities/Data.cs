@@ -70,6 +70,7 @@ public static unsafe class Data
     public static uint IconSlot = 4;
 
     public static List<LeveEntry> ListCycled = new List<LeveEntry>();
+    public static List<LeveEntry> TemporaryList = new List<LeveEntry>();
 
     // MSQ Quest ID's
     public static readonly uint LevesofWineport = 65550;
@@ -578,7 +579,7 @@ public static unsafe class Data
             Name = NPCName(1004344),
             ZoneID = 137, // Eastern La Noscea
             Aetheryte = 11,
-            NPCInteractZone = new Vector3 (453.88f, 17.67f, 470.52f),
+            NPCInteractZone = new Vector3 (454.62418f, 16.995407f, 467.68893f),
             NPCLocation = new Vector3(450.22f, 17.75f, 470.3f),
             BattlecraftButton = 0,
             GatheringButton = 1,
@@ -752,7 +753,7 @@ public static unsafe class Data
             Name = NPCName(1004345),
             ZoneID = 137, // Eastern La Noscea
             Aetheryte = 11,
-            NPCInteractZone = new Vector3 (454.24f, 17.40f, 464.79f),
+            NPCInteractZone = new Vector3 (454.62418f, 16.995407f, 467.68893f),
             NPCLocation = new Vector3(452.41f, 17.75f, 464.84f),
             Mount = true,
             RequiredQuestId = LevesofCostadelSol,
@@ -918,7 +919,7 @@ public static unsafe class Data
             Name = NPCName(1007064),
             ZoneID = 137,
             Aetheryte = 11,
-            NPCInteractZone = new Vector3 (453.77896f, 17.483797f, 475.90152f),
+            NPCInteractZone = new Vector3 (454.03705f, 17.493235f, 475.09576f),
             NPCLocation = new Vector3(454.98f, 17.25f, 479.97f),
             Mount = false,
             flagX = 489.15845f, flagZ = 468.80298f, 

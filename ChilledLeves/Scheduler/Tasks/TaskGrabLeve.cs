@@ -1,19 +1,45 @@
 ﻿using ChilledLeves.Scheduler.Handlers;
 using ChilledLeves.Utilities;
+using ECommons.Logging;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using System.Collections.Generic;
 
 namespace ChilledLeves.Scheduler.Tasks
 {
     internal static class TaskGrabLeve
     {
+        private static uint FishLeve = 0;
+
+        private static Dictionary<uint, string> FisherDictionary = new Dictionary<uint, string>();
+
         internal static void Enqueue(uint leveID, uint npcID, int classButton)
         {
+            P.taskManager.Enqueue(() => PluginLog.Information($"Leve Type is: {LeveDictionary[leveID].JobAssignmentType}"));
             TaskInteract.Enqueue(npcID);
-            P.taskManager.Enqueue(() => GrabLeve((ushort)leveID, npcID, classButton), DConfig);
+            if (LeveDictionary[leveID].JobAssignmentType == 4)
+            {
+                P.taskManager.Enqueue(() => UpdateFisherLeves());
+                P.taskManager.Enqueue(() => GrabFisher((ushort)leveID, npcID, classButton), DConfig);
+            }
+            else
+                P.taskManager.Enqueue(() => GrabLeve((ushort)leveID, npcID, classButton), DConfig);
             P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), DConfig);
             P.taskManager.Enqueue(() => PlayerNotBusy(), DConfig);
+        }
+
+        internal static void UpdateFisherLeves()
+        {
+            FisherDictionary.Clear();
+            foreach (var leve in C.workList)
+            {
+                if (!FisherDictionary.ContainsKey(leve.LeveID) && LeveDictionary[leve.LeveID].JobAssignmentType == 4)
+                {
+                    string leveName = LeveDictionary[leve.LeveID].LeveName;
+                    FisherDictionary.Add(leve.LeveID, leveName);
+                }
+            }
         }
 
         internal static unsafe bool? GrabLeve(ushort leveID, uint npcID, int classButton)
@@ -60,7 +86,7 @@ namespace ChilledLeves.Scheduler.Tasks
                             {
                                 if (EzThrottler.Throttle("Accepting leve"))
                                 {
-                                    GenericHandlers.FireCallback("JournalDetail", true, 3, leveID);
+                                    GenericHandlers.FireCallback("JournalDetail", true, 3, (int)FishLeve);
                                 }
                             }
                         }
@@ -73,15 +99,84 @@ namespace ChilledLeves.Scheduler.Tasks
                     PluginVerbos($"1: Leve turnin area not completed (aka missing a quest)");
                     PluginVerbos($"2: It's a gathering leve and the vendor doesn't have this leve currently.");
                     PluginVerbos($"In the case of #2, please do other gathering leves of this type to be able to do this leve potentionally");
+
                     foreach (var kdp in C.workList)
                     {
                         if (C.workList.Any(e => e.LeveID == leveID))
                         {
-                            { C.workList.Remove(kdp); }
+                            ListCycled.Add(kdp);
+                            C.workList.Remove(kdp);
                             break;
                         }
                     }
                     return true;
+                }
+            }
+            return false;
+        }
+
+        internal static unsafe bool? GrabFisher(ushort leveID, uint npcID, int classButton)
+        {
+            var LeveName = LeveDictionary[leveID].LeveName;
+            var craftButton = LeveNPCDict[npcID].CrafterButton;
+
+            if (IsAccepted(leveID) || IsAccepted(FishLeve))
+            {
+                return true;
+            }
+            else if (TryGetAddonByName<AtkUnitBase>("Talk", out var TalkAddon) && IsAddonActive("Talk"))
+            {
+                if (EzThrottler.Throttle("Talk Box", 100))
+                {
+                    GenericHandlers.FireCallback("Talk", true, 0);
+                }
+            }
+            else if (TryGetAddonByName<AtkUnitBase>("SelectString", out var LeveWindow) && IsAddonReady(LeveWindow))
+            {
+                if (EzThrottler.Throttle("Opening the Levequests Window", 100))
+                {
+                    GenericHandlers.FireCallback("SelectString", true, classButton);
+                }
+            }
+            else if (TryGetAddonMaster<GuildLeve>("GuildLeve", out var m) && m.IsAddonReady)
+            {
+                HashSet<string> PotentionalLeves = new HashSet<string>();
+
+                foreach (var l in m.Levequests)
+                {
+                    PotentionalLeves.Add(l.Name);
+                    PluginDebug($"Potentional Leves: {l.Name}");
+                }
+
+                string? firstLeve = GetFirstLeve(PotentionalLeves);
+
+                if (firstLeve != null)
+                {
+                    foreach (var l in m.Levequests)
+                    {
+                        if (l.Name == firstLeve)
+                        {
+                            if (TryGetAddonMaster<AddonMaster.JournalDetail>("JournalDetail", out var det) && det.IsAddonReady)
+                            {
+                                if (GetNodeText("JournalDetail", 19) != firstLeve)
+                                {
+                                    if (EzThrottler.Throttle("Selecting the Leve"))
+                                        l.Select();
+                                }
+                                else if (GetNodeText("JournalDetail", 19) == firstLeve)
+                                {
+                                    if (EzThrottler.Throttle("Accepting leve"))
+                                    {
+                                        {
+                                            PluginDebug($"Grabbing the leve: {FishLeve}");
+                                            GenericHandlers.FireCallback("JournalDetail", true, 3, (int)FishLeve);
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
                 }
             }
             return false;
@@ -118,6 +213,24 @@ namespace ChilledLeves.Scheduler.Tasks
             }
 
             return false;
+        }
+
+        private static string? GetFirstLeve(HashSet<string> PotentionalLeves)
+        {
+            var leve = LeveDictionary
+                        .Where(kvp => PotentionalLeves.Contains(kvp.Value.LeveName) && (CraftDictionary[kvp.Key].TurninAmount <= CraftDictionary[kvp.Key].CurrentItemAmount))
+                        .FirstOrDefault();
+
+            if (!LeveDictionary.ContainsKey(leve.Key))
+            {
+                FishLeve = 0;
+                return null;
+            }
+            else
+            {
+                FishLeve = leve.Key;
+                return leve.Value.LeveName;
+            }
         }
     }
 }

@@ -104,6 +104,18 @@ internal class DebugWindow : Window
         }
 
         ImGui.Text($"{CurrentMap().ToString()}");
+
+        ImGui.Text($"Pandora's Box: Auto-Select Turnin: {P.pandora.GetFeatureEnabled("Auto-select Turn-ins")}");
+        ImGui.SameLine();
+        if (ImGui.Button("Toggle Auto-Select Turn-ins"))
+        {
+            P.pandora.PauseFeature("Auto-select Turn-ins", 1000);
+        }
+        if (ImGui.Button("Toggle Auto-Select Turn-ins Config"))
+        {
+            P.pandora.SetFeatureEnabled("Auto-select Turn-ins", false);
+        }
+        ImGui.Text($"Pandora's Box: Auto-Select Turnin: {P.pandora.GetConfigEnabled("Auto-select Turn-ins", "AutoConfirm")}");
     }
 
     public void TargetingDebug()
@@ -304,6 +316,7 @@ internal class DebugWindow : Window
     private static string LeveNPCResult = "";
 
     private static int gilAmount = 0;
+    private static int minLevel = 0;
 
     #nullable disable
     public void LeveItAloneTable()
@@ -334,6 +347,9 @@ internal class DebugWindow : Window
         ImGui.SetNextItemWidth(125);
         ImGui.InputInt("Gil Input", ref gilAmount);
 
+        ImGui.SetNextItemWidth(300);
+        ImGui.SliderInt("Min Level", ref minLevel, 1, 98);
+
         if (ImGui.BeginTable("NPC Info Table", 12, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
         {
             ImGui.TableSetupColumn("Amount", ImGuiTableColumnFlags.WidthFixed, col1Width);
@@ -356,7 +372,7 @@ internal class DebugWindow : Window
             {
                 string itemAmountText = entry.Value.Amount.ToString();
                 string leveName = entry.Value.LeveName.ToString();
-                string leveLevel = entry.Value.Level.ToString();
+                uint leveLevel = entry.Value.Level;
                 string leveVendorName = entry.Value.LeveVendorName.ToString();
                 string leveVendorId = entry.Value.LeveVendorID.ToString();
                 string leveStartName = ZoneName(LeveNPCDict[entry.Value.LeveVendorID].ZoneID);
@@ -385,6 +401,10 @@ internal class DebugWindow : Window
                         continue;
                 }
                 if (gilAmount > gilReward)
+                {
+                    continue;
+                }
+                if (minLevel > leveLevel)
                 {
                     continue;
                 }

@@ -203,7 +203,7 @@ namespace ChilledLeves.Ui
             {
                 P.workListUi.IsOpen = !P.workListUi.IsOpen;
             }
-            if (ImGui.Button("Open Gathering Grind", new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f)))
+            if (ImGui.Button("Open Priority Leve Grind", new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f)))
             {
                 P.gatherModeUi.IsOpen = !P.gatherModeUi.IsOpen;
             }

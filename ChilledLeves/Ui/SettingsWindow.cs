@@ -68,7 +68,7 @@ internal class SettingsWindow : Window
             float btnPadding = 8 * fontScale;
             float mainBtnWidth = ImGui.CalcTextSize("Main Window").X + btnPadding * 2;
             float worklistBtnWidth = ImGui.CalcTextSize("Worklist Window").X + btnPadding * 2;
-            float gatherBtnWidth = ImGui.CalcTextSize("Gathering Window").X + btnPadding * 2;
+            float gatherBtnWidth = ImGui.CalcTextSize("Priority Leve Grind Window").X + btnPadding * 2;
             
             // Left-aligned buttons
             ImGui.BeginGroup();
@@ -86,7 +86,7 @@ internal class SettingsWindow : Window
             
             ImGui.SameLine();
             
-            if (ImGui.Button("Gathering Window", new Vector2(gatherBtnWidth, navButtonHeight)))
+            if (ImGui.Button("Priority Leve Grind Window", new Vector2(gatherBtnWidth, navButtonHeight)))
             {
                 P.gatherModeUi.IsOpen = true;
             }
@@ -113,7 +113,7 @@ internal class SettingsWindow : Window
             float btnPadding = 8 * fontScale;
             float mainBtnWidth = ImGui.CalcTextSize("Main Window").X + btnPadding * 2;
             float worklistBtnWidth = ImGui.CalcTextSize("Worklist Window").X + btnPadding * 2;
-            float gatherBtnWidth = ImGui.CalcTextSize("Gathering Window").X + btnPadding * 2;
+            float gatherBtnWidth = ImGui.CalcTextSize("Priority Leve Grind Window").X + btnPadding * 2;
             
             // Left-aligned buttons
             ImGui.BeginGroup();
@@ -131,7 +131,7 @@ internal class SettingsWindow : Window
             
             ImGui.SameLine();
             
-            if (ImGui.Button("Gathering Window", new Vector2(gatherBtnWidth, navButtonHeight)))
+            if (ImGui.Button("Priority Leve Grind Window", new Vector2(gatherBtnWidth, navButtonHeight)))
             {
                 P.gatherModeUi.IsOpen = true;
             }
