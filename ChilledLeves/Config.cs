@@ -60,6 +60,7 @@ public class Config : IEzConfig
     public List<uint> FavoriteLeves = [];
     public Dictionary<uint, int> LevePriority = new Dictionary<uint, int>();
     public bool IncreaseDelay = false;
+    public bool RepeatLastLeve = false;
     public void RefreshJobFilter()
     {
         jobFilter.Clear();

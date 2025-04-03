@@ -12,7 +12,19 @@
             #pragma warning disable CS8600
             LeveEntry foundEntry = C.workList.FirstOrDefault(entry => entry.LeveID == leveID);
 
-            if (foundEntry != null)
+            if (C.workList.Count == 1 && C.RepeatLastLeve)
+            {
+                LeveEntry OnlyEntry = C.workList.FirstOrDefault();
+                if (OnlyEntry.InputValue != 1)
+                {
+                    OnlyEntry.InputValue = OnlyEntry.InputValue - 1;
+                }
+                else
+                {
+                    OnlyEntry.InputValue = 1;
+                }
+            }
+            else if (foundEntry != null)
             {
                 foundEntry.InputValue = foundEntry.InputValue - 1;
                 PluginVerbos($"Updated {leveID} to now have {foundEntry.InputValue}");

@@ -11,9 +11,9 @@ public class PandoraIPC
     public PandoraIPC() => EzIPC.Init(this, Name, SafeWrapper.AnyException);
     public bool Installed => HasPlugin(Name);
 
-    [EzIPC] public Func<string, bool?> GetFeatureEnabled;
-    [EzIPC] public Func<string, string, bool?> GetConfigEnabled;
-    [EzIPC] public Func<string, bool?, object> SetFeatureEnabled;
-    [EzIPC] public Func<string, string, bool, object> SetConfigEnabled;
-    [EzIPC] public Func<string, int, object> PauseFeature;
+    [EzIPC] public readonly Func<string, bool?> GetFeatureEnabled;
+    [EzIPC] public readonly Func<string, string, bool?> GetConfigEnabled;
+    [EzIPC] public readonly Action<string, bool?> SetFeatureEnabled;
+    [EzIPC] public readonly Action<string, string, bool> SetConfigEnabled;
+    [EzIPC] public readonly Action<string, int> PauseFeature;
 }

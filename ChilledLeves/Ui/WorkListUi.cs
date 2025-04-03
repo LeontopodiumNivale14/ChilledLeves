@@ -666,6 +666,20 @@ namespace ChilledLeves.Ui
             ImGui.SameLine();
             ImGui.Text("Grab multiple leve's from vendor");
 
+            if (usingIceTheme)
+            {
+                int styleCount = ThemeHelper.PushControlStyle();
+                ImGui.Checkbox("###RepeatLastLeve", ref C.RepeatLastLeve);
+                ImGui.PopStyleColor(styleCount);
+            }
+            else
+            {
+                ImGui.Checkbox("###RepeatLastLeve", ref C.RepeatLastLeve);
+            }
+
+            ImGui.SameLine();
+            ImGui.Text("Repeat Last Leve");
+
             // Create a row of buttons for different actions
             float buttonSpacing = 10 * fontScale;
             float availWidth = ImGui.GetContentRegionAvail().X;

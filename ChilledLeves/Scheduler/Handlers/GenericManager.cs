@@ -1,4 +1,5 @@
 ﻿using ECommons.Automation.LegacyTaskManager;
+using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -49,11 +50,22 @@ namespace ChilledLeves.Scheduler.Handlers
             if (SchedulerMain.AreWeTicking)
             {
                 //by Taurenkey https://github.com/PunishXIV/PandorasBox/blob/24a4352f5b01751767c7ca7f1d4b48369be98711/PandorasBox/Features/UI/AutoSelectTurnin.cs
-                var isenabled = (P.pandora.GetFeatureEnabled("Auto-select Turn-ins") ?? false)
-                                    && (P.pandora.GetConfigEnabled("Auto-select Turn-ins", "AutoConfirm") ?? false);
+
+                var featureEnabled = (P.pandora.GetFeatureEnabled("Auto-select Turn-ins") ?? false);
+                var configEnabled = (P.pandora.GetConfigEnabled("Auto-select Turn-ins", "AutoSelect") ?? false);
+
+                var isenabled = featureEnabled && configEnabled;
 
                 if (!isenabled)
                 {
+                    if (featureEnabled && !configEnabled)
+                    {
+                        if (EzThrottler.Throttle("Enabling AutoSelect", 1000))
+                        {
+                            P.pandora.PauseFeature("Auto-select Turn-ins", 1100);
+                        }
+                    }
+
                     if (TryGetAddonByName<AddonRequest>("Request", out var addon3))
                     {
                         for (var i = 1; i <= addon3->EntryCount; i++)

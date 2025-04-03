@@ -18,13 +18,20 @@ namespace ChilledLeves.Scheduler.Tasks
         {
             P.taskManager.Enqueue(() => PluginLog.Information($"Leve Type is: {LeveDictionary[leveID].JobAssignmentType}"));
             TaskInteract.Enqueue(npcID);
-            if (LeveDictionary[leveID].JobAssignmentType == 4)
+            var jobType = LeveDictionary[leveID].JobAssignmentType;
+            P.taskManager.Enqueue(() => PluginLog.Information($"Job Type is: {jobType}"));
+
+            if (jobType == 4)
             {
+                P.taskManager.Enqueue(() => PluginLog.Information($"Fisher leve Detected"));
                 P.taskManager.Enqueue(() => UpdateFisherLeves());
                 P.taskManager.Enqueue(() => GrabFisher((ushort)leveID, npcID, classButton), DConfig);
             }
             else
+            {
+                P.taskManager.Enqueue(() => PluginLog.Information($"Non Fisher leve Detected"));
                 P.taskManager.Enqueue(() => GrabLeve((ushort)leveID, npcID, classButton), DConfig);
+            }
             P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), DConfig);
             P.taskManager.Enqueue(() => PlayerNotBusy(), DConfig);
         }
@@ -86,7 +93,7 @@ namespace ChilledLeves.Scheduler.Tasks
                             {
                                 if (EzThrottler.Throttle("Accepting leve"))
                                 {
-                                    GenericHandlers.FireCallback("JournalDetail", true, 3, (int)FishLeve);
+                                    GenericHandlers.FireCallback("JournalDetail", true, 3, leveID);
                                 }
                             }
                         }
