@@ -52,7 +52,7 @@ public static unsafe class Data
     // List of all of the Crafter Job ID's into a nice checklist for self
     #endregion
 
-    #region Leve Mist Information
+    #region Leve Misc Information
 
     public static HashSet<uint> CraftFisherJobs = new() {4, 5, 6, 7, 8, 9, 10, 11, 12 };
     public static HashSet<int> CrafterJobList = new() { 8, 9, 10, 11, 12, 13, 14, 15};
@@ -65,6 +65,29 @@ public static unsafe class Data
     public static HashSet<uint> TuliyoliTurnin = new() {  257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, };
     public static List<int> GreyIconList = new List<int>() { 91039, 91040, 91041, 91031, 91032, 91033, 91034, 91035, 91036, 91037, 91038 };
     public static List<int> LeveStatus = new List<int>() { 71041, 71045, 71055 };
+
+    // have these the way I do because I CBA to make it to where 
+    public static HashSet<uint> IshguardCrafterLeves = new() { 
+        // CRP
+        911, 912, 913, 917, 918, 919, 923, 924, 925, 929, 930, 931, 935, 936, 937, 
+        // LTW
+        941, 942, 943, 947, 948, 949, 953, 954, 955, 959, 960, 961, 965, 966, 967, 
+        // BSM
+        971, 972, 973, 977, 978, 979, 983, 984, 985, 989, 990, 991, 995, 996, 997, 
+        // ARM
+        1001, 1002, 1003, 1007, 1008, 1009, 1013, 1014, 1015, 1019, 1020, 1021, 1025, 1026, 1027, 
+        // CUL
+        1031, 1032, 1033, 1037, 1038, 1039, 1043, 1044, 1045, 1049, 1050, 1051, 1055, 1056, 1057, 
+        // ALC
+        1061, 1062, 1063, 1067, 1068, 1069, 1073, 1074, 1075, 1079, 1080, 1081, 1085, 1086, 1087, 
+        // WVR
+        1091, 1092, 1093, 1097, 1098, 1099, 1103, 1104, 1105, 1109, 1110, 1111, 1115, 1116, 1117, 
+        // GSM
+        1121, 1122, 1123, 1127, 1128, 1129, 1133, 1134, 1135, 1139, 1140, 1141, 1145, 1146, 1147 };
+
+    public static HashSet<uint> IshguardGathererLeves = new() { 
+        // FSH
+        1211, 1212, 1213, 1217, 1218, 1219, 1223, 1224, 1225, 1229, 1230, 1231, 1235, 1236, 1237 };
 
     public static HashSet<uint> SelectedLeves = new HashSet<uint>();
     public static uint IconSlot = 4;
@@ -90,6 +113,12 @@ public static unsafe class Data
     public static readonly uint SimplyTheHestLimsa = 65595;
     public static readonly uint SimplyTheHestGridania = 65596;
     public static readonly uint SimplyTheHestUldah = 65594;
+
+    public static uint ComingtoIshgard = 67116; // Heavensword
+    public static uint NotWithoutIncident = 68005; // Stormblood
+    public static uint CityoftheFirst = 68816; // Shadowbringers
+    public static uint TheNextShiptoSail = 69893; // Endwalker
+    public static uint ANewWorldtoExplore = 70396; // Endwalker
 
     // The 3 possible starting leves:
     public static bool LevesofBentbranch => IsMSQComplete(65756); // Gridania startpoint
@@ -175,6 +204,10 @@ public static unsafe class Data
         /// Name of the leve person
         /// </summary>
         public string LeveVendorName { get; set; }
+        /// <summary>
+        /// How many leves are required for this leve?
+        /// </summary>
+        public int AllowanceCost { get; set; }
 
         // Gathering Specific
         public int Priority { get; set; }
@@ -686,6 +719,7 @@ public static unsafe class Data
             CrafterButton = 2,
             LeaveButton = 4,
             Mount = true,
+            Fly = true,
             RequiredQuestId = LevesofSaintCoinachsFind,
             flagX = 415.98f, flagZ = -444.42f
         } },
@@ -865,7 +899,7 @@ public static unsafe class Data
             ZoneID = 156,
             Aetheryte = 24,
             NPCInteractZone = new Vector3 (443.09f, -4.79f, -455.26f),
-            NPCLocation = new Vector3(445f, -4.34f, -446.01f),
+            NPCLocation = new Vector3(445f, -4.49f, -453.03f),
             Mount = true,
             RequiredQuestId = LevesofSaintCoinachsFind,
             flagX = 415.98f, flagZ = -444.42f
@@ -972,7 +1006,7 @@ public static unsafe class Data
             LSCrafterButton = 5,
             LeaveButton = 7,
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = ComingtoIshgard,
             flagX = -53.54f, flagZ = -42.68f
         } },
         { 1011209, new LeveInfoVendor { // Fionnuala
@@ -982,7 +1016,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-56.18f, 15.14f, -41.45f),
             NPCLocation = new Vector3 (-54.31f, 15.19f, -44.51f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = ComingtoIshgard,
             flagX = -54.31f, flagZ = -44.51f
         } },
         { 1011210, new LeveInfoVendor // Cesteline
@@ -993,7 +1027,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-56.18f, 15.14f, -41.45f),
             NPCLocation = new Vector3(-52.69f, 15.23f, -40.82f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = ComingtoIshgard,
             flagX = -52.69f, flagZ = -40.82f,
         } },
 
@@ -1008,7 +1042,7 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = NotWithoutIncident,
             flagX = 20.49f, flagZ = -80.95f
         } },
         { 1018998, new LeveInfoVendor { // Chantine
@@ -1018,7 +1052,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (20.61f, 0.00f, -77.82f),
             NPCLocation = new Vector3(17.26f, -0f, -81.32f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = NotWithoutIncident,
             flagX = 17.26f, flagZ = -81.32f
         } },
         { 1018999, new LeveInfoVendor
@@ -1029,7 +1063,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-56.18f, 15.14f, -41.45f),
             NPCLocation = new Vector3(23.67f, -8.06f, -81.38f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = NotWithoutIncident,
             flagX = 23.666687f, flagZ = 81.3764f,
         } },
         // Shadowbringer
@@ -1043,7 +1077,7 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = CityoftheFirst,
             flagX = -76.34f, flagZ = -110.98f
         } },
         { 1027848, new LeveInfoVendor { // Moyce
@@ -1053,7 +1087,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-73.40f, 20.00f, -110.90f),
             NPCLocation = new Vector3(-76.19f, 20.05f, -113.88f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = CityoftheFirst,
             flagX = -76.49f, flagZ = -107.96f
         } },
         { 1027849, new LeveInfoVendor // Shue-Hann
@@ -1064,7 +1098,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-73.40f, 20.00f, -110.90f),
             NPCLocation = new Vector3(-76.49f, 20.05f, -107.96f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = CityoftheFirst,
             flagX = -76.49f, flagZ = -107.96f
         } },
         // Endwalker
@@ -1078,7 +1112,7 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = TheNextShiptoSail,
             flagX = 46.83f, flagZ = 107.87f,
         } },
         { 1037264, new LeveInfoVendor { // Ahldiyrn
@@ -1088,7 +1122,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (49.96f, -15.65f, 111.81f),
             NPCLocation = new Vector3(53.48f, -15.65f, 109.73f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = TheNextShiptoSail,
             flagX = 53.48f, flagZ = 109.73f,
         } },
         { 1037265, new LeveInfoVendor
@@ -1099,7 +1133,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (49.96f, -15.65f, 111.81f),
             NPCLocation = new Vector3(55.38f, -15.65f, 109.73f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = TheNextShiptoSail,
             flagX = 55.38f, flagZ = 109.73f,
         } },
         // Dawntrail
@@ -1107,33 +1141,33 @@ public static unsafe class Data
             Name = NPCName(1048390),
             ZoneID = 1185,
             Aetheryte = 216,
-            NPCInteractZone = new Vector3 (21.86f, -14f, 84.42f),
+            NPCInteractZone = new Vector3 (20.58f, -14f, 86.46f),
             NPCLocation = new Vector3(15.24f, -14f, 85.83f),
             GatheringButton = 0,
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = ANewWorldtoExplore,
             flagX = 15.24f, flagZ = 85.83f
         } },
         { 1048391, new LeveInfoVendor { // Ponawme
             Name = NPCName(1048391),
             ZoneID = 1185,
             Aetheryte = 216,
-            NPCInteractZone = new Vector3 (21.86f, -14f, 84.42f),
+            NPCInteractZone = new Vector3 (23.84f, -14f, 83.45f),
             NPCLocation = new Vector3(21.23f, -14f, 80.22f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = ANewWorldtoExplore,
             flagX = 21.23f, flagZ = 80.22f,
         } },
         { 1048392, new LeveInfoVendor { // Br'uk Ts'on
             Name = NPCName(1048392), 
             ZoneID = 1185,
             Aetheryte = 216,
-            NPCInteractZone = new Vector3 (21.86f, -14f, 84.42f),
+            NPCInteractZone = new Vector3 (23.84f, -14f, 83.45f),
             NPCLocation = new Vector3(23.09f, -14f, 78.39f),
             Mount = false,
-            RequiredQuestId = 0,
+            RequiredQuestId = ANewWorldtoExplore,
             flagX = 23.09f, flagZ = 78.39f
         } }
     };

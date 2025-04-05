@@ -29,9 +29,9 @@ public static unsafe class Utils
     #region Plugin/Ecoms stuff
 
     public static bool HasPlugin(string name) => DalamudReflector.TryGetDalamudPlugin(name, out _, false, true);
-    public static void PluginVerbos(string message) => Svc.Log.Verbose(message);
-    public static void PluginInfo(string message) => Svc.Log.Info(message);
-    public static void PluginDebug(string message) => Svc.Log.Debug(message);
+    public static void PluginVerbos(string message) => ECommons.Logging.PluginLog.Verbose(message);
+    public static void PluginInfo(string message) => ECommons.Logging.PluginLog.Information(message);
+    public static void PluginDebug(string message) => ECommons.Logging.PluginLog.Debug(message);
     internal static bool GenericThrottle => FrameThrottler.Throttle("AutoRetainerGenericThrottle", 10);
     public static TaskManagerConfiguration DConfig => new(timeLimitMS: 10 * 60 * 3000, abortOnTimeout: false);
 
@@ -304,6 +304,8 @@ public static unsafe class Utils
                 int expReward = row.ExpReward.ToInt();
                 int gilReward = row.GilReward.ToInt();
 
+                int AllowanceCost = row.AllowanceCost.ToInt();
+
                 // Amount to run, this is always 0 upon initializing
                 // Mainly there to be an input for users later
                 int amount = 0;
@@ -371,6 +373,7 @@ public static unsafe class Utils
                         GilReward = gilReward,
                         LeveVendorID = leveVendor,
                         LeveVendorName = vendorName,
+                        AllowanceCost = AllowanceCost,
 
                         // Gathering Specific, but can be applied to all
                         Priority = priority,

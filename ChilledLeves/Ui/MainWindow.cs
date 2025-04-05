@@ -106,13 +106,24 @@ namespace ChilledLeves.Ui
             // Middle panel header - dynamically sized based on font metrics
             float middlePanelWidth = Math.Max(350, textLineHeight * 22);
             ImGui.SetColumnWidth(1, middlePanelWidth);
+            string ShowingCount = "";
             if (C.OnlyFavorites)
             {
-                ImGui.Text($"Showing: {C.FavoriteLeves.Count} out of {LeveDictionary.Count}");
+                ShowingCount = $"Showing: {C.FavoriteLeves.Count} out of {LeveDictionary.Count}";
             }
             else
             {
-                ImGui.Text($"Showing: {VisibleLeves.Count} out of {LeveDictionary.Count}");
+                ShowingCount = $"Showing: {VisibleLeves.Count} out of {LeveDictionary.Count}";
+            }
+            if (usingIceTheme)
+            {
+                int styleCount = ThemeHelper.PushHeadingTextStyle();
+                ImGui.Text(ShowingCount);
+                ImGui.PopStyleColor(styleCount);
+            }
+            else
+            {
+                ImGui.Text(ShowingCount);
             }
             ImGui.NextColumn();
 
@@ -253,7 +264,7 @@ namespace ChilledLeves.Ui
 
             // Independent filter checkboxes (Favorites, Completed, Incomplete).
             ImGui.Spacing();
-            ImGui.Text("Filter Options:");
+            ImGui.Text("Filter Options");
             ImGui.Spacing();
 
             #region Favorites Checkbox
@@ -426,7 +437,7 @@ namespace ChilledLeves.Ui
 
             #region Job Filters
 
-            string JobFilterText = "Job Filters:";
+            string JobFilterText = "Job Filters";
 
             // Job Filters heading
             if (usingIceTheme)
@@ -504,7 +515,7 @@ namespace ChilledLeves.Ui
             // Additional Filters heading
             ImGui.Spacing();
             ImGui.Spacing();
-            string AdditionalFilterText = "Additional Filters:";
+            string AdditionalFilterText = "Additional Filters";
             if (usingIceTheme)
             {
                 int styleCount = ThemeHelper.PushHeadingTextStyle();
@@ -1170,8 +1181,34 @@ namespace ChilledLeves.Ui
                 ImGui.Text($"Showing: {state}");
                 ImGui.EndTooltip();
             }
+
+            if (ImGui.IsMouseClicked(ImGuiMouseButton.Right) && ImGui.IsItemHovered())
+            {
+                C.ShowCarpenter = false;
+                C.ShowBlacksmith = false;
+                C.ShowArmorer = false;
+                C.ShowGoldsmith = false;
+                C.ShowLeatherworker = false;
+                C.ShowWeaver = false;
+                C.ShowAlchemist = false;
+                C.ShowCulinarian = false;
+
+                C.ShowFisher = false;
+                C.ShowMiner = false;
+                C.ShowBotanist = false;
+
+                C.ShowBattleLeve = false;
+                C.ShowMaelstrom = false;
+                C.ShowImmortalFlames = false;
+
+                state = !state;
+                C.Save();
+            }
         }
 
+        /// <summary>
+        /// Helper to show that the buttons are disabled for the gatherers. Temporary measures
+        /// </summary>
         private void DrawJobDisable(uint row, ref bool state, string tooltip, bool usingIceTheme)
         {
             // If enabled, use original color icon, else grey texture

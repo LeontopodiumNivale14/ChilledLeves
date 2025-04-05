@@ -63,7 +63,7 @@ internal class GatherModeUi : Window
         .ToList();
 
     private static List<string> classSelectList = new List<string>() { LeveTypeDict[2].LeveClassType, LeveTypeDict[3].LeveClassType, LeveTypeDict[4].LeveClassType };
-    private static List<string> RunUntilList = new List<string>() { "Lv.", "All Leves Complete" };
+    private static List<string> RunUntilList = new List<string>() { "Lv.", "All Leves Complete", "Just Because" };
 
     private static void CenterTextV2(string text)
     {
@@ -400,6 +400,7 @@ internal class GatherModeUi : Window
             if (ImGui.Button("Start Gathering Leves", new Vector2(ImGui.GetContentRegionAvail().X, buttonHeight)))
             {
                 SchedulerMain.WorkListMode = false;
+                SchedulerMain.GatheringMode = true;
                 SchedulerMain.EnablePlugin();
             }
         }

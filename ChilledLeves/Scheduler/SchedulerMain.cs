@@ -2,6 +2,7 @@ using ChilledLeves.Scheduler.Tasks;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
+using ECommons.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
@@ -149,14 +150,17 @@ namespace ChilledLeves.Scheduler
                                             var templeve = entry.LeveID;
                                             var currentAmount = GetItemCount((int)CraftDictionary[templeve].ItemID);
                                             var necessaryAmount = CraftDictionary[templeve].TurninAmount;
-                                            if (currentAmount >= necessaryAmount)
+                                            bool isLevel = LeveDictionary[templeve].Level <= Player.GetUnsyncedLevel((Job)LeveDictionary[templeve].EcomJob);
+                                            bool canTurnin = currentAmount >= necessaryAmount;
+
+                                            if (canTurnin && isLevel)
                                             {
-                                                PluginVerbos("You have the necessary amount to run this leve. Grabbing/Turning In");
+                                                PluginVerbos("You have the necessary amount/is the proper level to run this leve. Grabbing/Turning In");
                                                 hasLeves = true;
                                                 leve = templeve;
                                                 break;
                                             }
-                                            else
+                                            else if (!canTurnin || !isLevel)
                                             {
                                                 PluginVerbos("You do not have the amount to complete this turnin, skipping leve");
                                                 if (!ListCycled.Any(e => e.LeveID == entry.LeveID))
@@ -171,6 +175,8 @@ namespace ChilledLeves.Scheduler
                                 }
                                 if (hasLeves || readyForTurnin)
                                 {
+                                    PluginLog.Information($"Cost: {LeveDictionary[leve].AllowanceCost} | Current Amount: {Allowances}");
+
                                     if (IsAccepted(leve))
                                     {
                                         var npc = CraftDictionary[leve].LeveTurninVendorID;
@@ -180,9 +186,11 @@ namespace ChilledLeves.Scheduler
 
                                         if (IsInZone(zoneID))
                                         {
-                                            if (Player.DistanceTo(NPCLocation) < InteractDistance)
+                                            P.taskManager.Enqueue(() => PluginInfo("Player is the correct zone, checking to see if they're in the right distance"));
+                                            P.taskManager.Enqueue(() => PluginInfo($"Distance to NPC: {Player.DistanceTo(NPCLocation)} Interact Distance: {InteractDistance}"));
+                                            if (Player.DistanceTo(NPCLocation) <= InteractDistance)
                                             {
-                                                P.taskManager.Enqueue(() => PluginVerbos("Close to the NPC, Starting Turnin Process"));
+                                                P.taskManager.Enqueue(() => PluginInfo("Close to the NPC, Starting Turnin Process"));
                                                 TaskTurninMulti.Enqueue(zoneID);
                                             }
                                             else 
@@ -195,8 +203,10 @@ namespace ChilledLeves.Scheduler
                                             TaskTeleport.Enqueue(aetheryte, zoneID);
                                         }
                                     }
-                                    else if (!IsAccepted(leve) && Allowances > 0)
+                                    else if (!IsAccepted(leve) && (LeveDictionary[leve].AllowanceCost <= Allowances))
                                     {
+                                        PluginLog.Information($"Leve Allowance is {Allowances}, Cost of the leve is: {LeveDictionary[leve].AllowanceCost}");
+
                                         var npc = LeveDictionary[leve].LeveVendorID;
                                         var zoneID = LeveNPCDict[npc].ZoneID;
                                         var aetheryte = LeveNPCDict[npc].Aetheryte;
@@ -204,7 +214,18 @@ namespace ChilledLeves.Scheduler
                                         var requiredLevel = LeveDictionary[leve].Level;
                                         var jobID = LeveDictionary[leve].EcomJob;
                                         var buttonSelected = 0;
-                                        if (GatheringJobList.Contains((int)jobID))
+                                        if (LeveDictionary[leve].AllowanceCost == 10)
+                                        {
+                                            if (CrafterJobList.Contains((int)jobID))
+                                            {
+                                                buttonSelected = LeveNPCDict[npc].LSCrafterButton;
+                                            }
+                                            else if (GatheringJobList.Contains((int)jobID))
+                                            {
+                                                buttonSelected = LeveNPCDict[npc].LSGatherButton;
+                                            }
+                                        }
+                                        else if (GatheringJobList.Contains((int)jobID))
                                         {
                                             buttonSelected = LeveNPCDict[npc].GatheringButton;
                                         }
@@ -350,7 +371,7 @@ namespace ChilledLeves.Scheduler
                                         TaskTeleport.Enqueue(aetheryte, zoneID);
                                     }
                                 }
-                                else if (canGrab && Allowances > 0)
+                                else if (canGrab && LeveDictionary[leveId].AllowanceCost <= Allowances)
                                 {
                                     var npc = LeveDictionary[leveId].LeveVendorID;
                                     var zoneID = LeveNPCDict[npc].ZoneID;
@@ -359,11 +380,27 @@ namespace ChilledLeves.Scheduler
                                     var NpcLocation = LeveNPCDict[npc].NPCLocation;
                                     var requiredLevel = LeveDictionary[leveId].Level;
                                     var jobID = LeveDictionary[leveId].EcomJob;
-                                    var buttonSelected = LeveNPCDict[npc].GatheringButton;
+                                    var buttonSelected = 0;
+
+                                    if (LeveDictionary[leveId].AllowanceCost == 10)
+                                    {
+                                        if (CrafterJobList.Contains((int)jobID))
+                                        {
+                                            buttonSelected = LeveNPCDict[npc].LSCrafterButton;
+                                        }
+                                        else if (GatheringJobList.Contains((int)jobID))
+                                        {
+                                            buttonSelected = LeveNPCDict[npc].LSGatherButton;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        buttonSelected = LeveNPCDict[npc].GatheringButton;
+                                    }
 
                                     if (IsInZone(zoneID))
                                     {
-                                        if (Player.DistanceTo(NpcLocation) < 6.8f)
+                                        if (Player.DistanceTo(NpcLocation) <= 6.8f)
                                         {
                                             TaskTarget.Enqueue(npc);
                                             TaskGrabPrioLeve.Enqueue(npc, buttonSelected);

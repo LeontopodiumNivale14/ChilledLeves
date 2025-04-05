@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace ChilledLeves.Ui;
 
+// This isn't currently wired up to anything. Can actually use this to place all the general settings for all the windows...
 internal class SettingsWindow : Window
 {
     public SettingsWindow() :

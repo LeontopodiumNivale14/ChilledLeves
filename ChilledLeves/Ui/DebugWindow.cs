@@ -4,6 +4,7 @@ using ChilledLeves.Utilities;
 using Dalamud.Interface.Utility.Raii;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
+using ECommons.Logging;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -314,9 +315,12 @@ internal class DebugWindow : Window
 
     private static string turninNPCResult = "";
     private static string LeveNPCResult = "";
+    private static string LeveNameSearch = "";
 
     private static int gilAmount = 0;
     private static int minLevel = 0;
+
+    private static HashSet<uint> visibleLeveIds = new();
 
     #nullable disable
     public void LeveItAloneTable()
@@ -345,21 +349,49 @@ internal class DebugWindow : Window
         LeveNPCResult = LeveNPCResult.Trim();
 
         ImGui.SetNextItemWidth(125);
+        ImGui.InputText("###LeveNameSearch", ref LeveNameSearch, 200);
+        if (string.IsNullOrEmpty(LeveNameSearch))
+        {
+            var cursorPos = ImGui.GetCursorPos();
+            ImGui.SetCursorPos(new System.Numerics.Vector2(cursorPos.X + 5, cursorPos.Y - ImGui.GetTextLineHeightWithSpacing()));
+            ImGui.TextDisabled("Leve Name Search");
+            ImGui.SetCursorPos(cursorPos); // Reset cursor to avoid overlap issues
+        }
+        LeveNameSearch = LeveNameSearch.Trim();
+
+        ImGui.SetNextItemWidth(125);
         ImGui.InputInt("Gil Input", ref gilAmount);
 
         ImGui.SetNextItemWidth(300);
         ImGui.SliderInt("Min Level", ref minLevel, 1, 98);
 
-        if (ImGui.BeginTable("NPC Info Table", 12, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
+        ImGui.SameLine();
+        if (ImGui.Button("Copy all leveIds"))
+        {
+            // You now have a HashSet of visible leve IDs
+            // You can store, print, or export them as needed
+            var copy = new HashSet<uint>(visibleLeveIds);
+
+            // Example: Print to console
+            foreach (var id in copy)
+                PluginLog.Log($"Visible Leve ID: {id}");
+
+            // Or copy to clipboard as CSV
+            ImGui.SetClipboardText(string.Join(", ", copy));
+            visibleLeveIds.Clear();
+        }
+
+        if (ImGui.BeginTable("NPC Info Table", 13, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
         {
             ImGui.TableSetupColumn("Amount", ImGuiTableColumnFlags.WidthFixed, col1Width);
+            ImGui.TableSetupColumn("LeveID", ImGuiTableColumnFlags.WidthFixed, 50);
             ImGui.TableSetupColumn("Leve Name", ImGuiTableColumnFlags.WidthFixed, col2Width);
             ImGui.TableSetupColumn("Level", ImGuiTableColumnFlags.WidthFixed, col3Width);
             ImGui.TableSetupColumn("Leve Vendor Name");
             ImGui.TableSetupColumn("Leve Turnin Vendor Name");
             ImGui.TableSetupColumn("Zone Start");
             ImGui.TableSetupColumn("Zone End");
-            ImGui.TableSetupColumn("QuestID");
+            ImGui.TableSetupColumn("Leve Cost");
             ImGui.TableSetupColumn("EXP Reward");
             ImGui.TableSetupColumn("Gil Reward");
             ImGui.TableSetupColumn("Item Name");
@@ -371,6 +403,7 @@ internal class DebugWindow : Window
             foreach (var entry in LeveDictionary)
             {
                 string itemAmountText = entry.Value.Amount.ToString();
+                uint LeveId = entry.Key;
                 string leveName = entry.Value.LeveName.ToString();
                 uint leveLevel = entry.Value.Level;
                 string leveVendorName = entry.Value.LeveVendorName.ToString();
@@ -379,6 +412,7 @@ internal class DebugWindow : Window
                 uint turninVendorId = CraftDictionary[entry.Key].LeveTurninVendorID;
                 string leveEndZoneName = ZoneName(LeveNPCDict[turninVendorId].ZoneID);
                 string turninVendorName = "";
+                int leveCost = entry.Value.AllowanceCost;
                 int gilReward = entry.Value.GilReward;
                 if (turninVendorId != 0)
                 {
@@ -400,6 +434,11 @@ internal class DebugWindow : Window
                     if (!leveVendorName.Contains(LeveNPCResult, StringComparison.OrdinalIgnoreCase))
                         continue;
                 }
+                if (!string.IsNullOrEmpty(LeveNameSearch))
+                {
+                    if (!leveName.Contains(LeveNameSearch, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                }
                 if (gilAmount > gilReward)
                 {
                     continue;
@@ -407,6 +446,11 @@ internal class DebugWindow : Window
                 if (minLevel > leveLevel)
                 {
                     continue;
+                }
+
+                if (!visibleLeveIds.Contains(LeveId))
+                {
+                    visibleLeveIds.Add(LeveId);
                 }
 
                 ImGui.TableNextRow();
@@ -424,7 +468,13 @@ internal class DebugWindow : Window
                     ImGui.EndTooltip();
                 }
 
-                // Leve Name/Class (Row 1)
+                // Leve ID (Row 1)
+                ImGui.TableNextColumn();
+                ImGui.AlignTextToFramePadding();
+                ImGui.Text($"{LeveId}");
+
+
+                // Leve Name/Class (Row 2)
                 ImGui.TableNextColumn();
 
                 ImGui.Image(LeveTypeDict[entry.Value.JobAssignmentType].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new(20, 20));
@@ -433,11 +483,11 @@ internal class DebugWindow : Window
                 ImGui.Text($"{leveName}");
                 col2Width = Math.Max(itemAmountText.Length + 30, col2Width);
 
-                // Level of the Leve (Row 2)
+                // Level of the Leve (Row 3)
                 ImGui.TableNextColumn();
                 ImGui.Text($"{leveLevel}");
 
-                // Leve Vendor Name/ID (Row 3)
+                // Leve Vendor Name/ID (Row 4)
                 ImGui.TableNextColumn();
                 if (ImGui.Selectable($"{leveVendorName}"))
                 {
@@ -452,7 +502,7 @@ internal class DebugWindow : Window
                     ImGui.EndTooltip();
                 }
 
-                // Leve Vendor Name/ID (Row 4)
+                // Leve Vendor Name/ID (Row 5)
                 ImGui.TableNextColumn();
                 if (ImGui.Selectable($"{turninVendorName}"))
                 {
@@ -467,21 +517,22 @@ internal class DebugWindow : Window
                     ImGui.EndTooltip();
                 }
 
-                // Leve Start Zone (Row 5)
+                // Leve Start Zone (Row 6)
                 ImGui.TableNextColumn();
                 ImGui.Text(leveStartName);
 
-                // Leve End Zone (Row 6)
+                // Leve End Zone (Row 7)
                 ImGui.TableNextColumn();
                 ImGui.Text(leveEndZoneName);
 
-                // Leve QuestID (Row 7)
+                // Leve Cost (Row 8)
+                ImGui.TableNextColumn();
+                ImGui.Text(leveCost.ToString());
+
+                // Leve XP Reward (Row 9)
                 ImGui.TableNextColumn();
 
-                // Leve XP Reward (Row 8)
-                ImGui.TableNextColumn();
-
-                // Gil Reward Amount
+                // Gil Reward Amount (Row 10)
                 ImGui.TableNextColumn();
                 ImGui.Text($"{gilReward}");
 

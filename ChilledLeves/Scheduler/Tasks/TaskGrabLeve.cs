@@ -72,13 +72,20 @@ namespace ChilledLeves.Scheduler.Tasks
                     GenericHandlers.FireCallback("SelectString", true, classButton);
                 }
             }
+            else if (TryGetAddonByName<AtkUnitBase>("SelectYesno", out var SelectYesno) && IsAddonReady(SelectYesno))
+            {
+                if (EzThrottler.Throttle("Accepting the leve", 100))
+                {
+                    GenericHandlers.FireCallback("SelectYesno", true, 0);
+                }
+            }
             else if (TryGetAddonMaster<GuildLeve>("GuildLeve", out var m) && m.IsAddonReady)
             {
                 bool hasLeve = false;
                 foreach (var l in m.Levequests)
                 {
                     if (l.Name != LeveName)
-                        { continue; }
+                    { continue; }
                     else if (l.Name == LeveName)
                     {
                         hasLeve = true;
