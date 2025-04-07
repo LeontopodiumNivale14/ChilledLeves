@@ -258,34 +258,11 @@ internal class DebugWindow : Window
                     if (ImGui.Button("Move to NPC"))
                     {
                         var NPCLocation = entry.Value.NPCInteractZone;
-                        bool mount = false;
-                        bool fly = false;
-                        if (entry.Value.Mount)
-                        {
-                            mount = entry.Value.Mount;
-                        }
-                        if (entry.Value.Fly.HasValue)
-                        {
-                            fly = entry.Value.Fly.Value;
-                        }
+                        var NPCId = entry.Key;
 
                         if (IsInZone(zoneID) && GetDistanceToPlayer(NPCLocation) > 0.5f)
                         {
-                            if (mount)
-                            {
-                                P.taskManager.Enqueue(() => PluginVerbos($"{zoneID} is on the mounting list of enabled"));
-                                TaskMountUp.Enqueue();
-                            }
-                            if (Player.DistanceTo(entry.Value.NPCLocation) > 35)
-                            {
-                                P.taskManager.Enqueue(() => PluginVerbos($"{zoneID} is on the fly zone. GO GO GO."));
-                                fly = true;
-                            }
-
-                            P.taskManager.Enqueue(() => PluginVerbos($"Flying: {fly}, moving to: {NPCLocation}"));
-                            TaskMoveTo.Enqueue(NPCLocation, "LeveNPC", fly, 0.5f);
-                            TaskDisMount.Enqueue();
-
+                            SchedulerMain.HandleMountAndMove(NPCLocation, NPCId);
                         }
                         else
                         {

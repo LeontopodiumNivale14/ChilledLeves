@@ -347,8 +347,8 @@ public static unsafe class Data
             Name = NPCName(1000101),
             ZoneID = 132, // Gridania
             Aetheryte = 2,
-            NPCInteractZone = new Vector3 (27.59f, -8.00f, 108.01f),
-            NPCLocation = new Vector3 (23.7f, -8.1f, 100.05f),
+            NPCInteractZone = new Vector3 (27.67f, -8f, 108f),
+            NPCLocation = new Vector3 (25.04f, -8f, 108.08f),
             BattlecraftButton = 0,
             GatheringButton = 1,
             CrafterButton = 2,

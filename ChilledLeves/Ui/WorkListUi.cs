@@ -697,7 +697,7 @@ namespace ChilledLeves.Ui
             
             // Calculate button widths to fit the row
             float totalBtnWidth = artisanBtnWidth + ieBtnWidth + buttonSpacing;
-            float leftPadding = (availWidth - totalBtnWidth) / 2; 
+            float leftPadding = (availWidth - totalBtnWidth) / 3; 
             
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + leftPadding);
             
@@ -711,7 +711,27 @@ namespace ChilledLeves.Ui
                 {
                     currentInstance.CopyToArtisan();
                 }
-                
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Text("Exports the items you need as a \"Final Items\" list. \n" +
+                               "Does not include Pre-Crafts");
+                    ImGui.EndTooltip();
+                }
+
+                ImGui.SameLine(0, buttonSpacing);
+
+                if (ImGui.Button("Teamcraft Link", new Vector2(artisanBtnWidth, buttonHeight)))
+                {
+                    ExportSelectedListToTC();
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Text("Copy Teamcraft Link");
+                    ImGui.EndTooltip();
+                }
+
                 ImGui.SameLine(0, buttonSpacing);
                 
                 // Import/Export toggle button

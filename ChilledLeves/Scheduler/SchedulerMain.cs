@@ -57,7 +57,7 @@ namespace ChilledLeves.Scheduler
         private static int MinMountDistance = 25;
         private static float InteractDistance = 6.8f;
 
-        private static void HandleMountAndMove(Vector3 NpcLocation, uint npcId)
+        internal static void HandleMountAndMove(Vector3 NpcLocation, uint npcId)
         {
             bool fly = false;
             bool mount = LeveNPCDict[npcId].Mount;

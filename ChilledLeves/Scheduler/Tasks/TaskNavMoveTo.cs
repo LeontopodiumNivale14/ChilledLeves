@@ -8,11 +8,6 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         internal unsafe static void Enqueue(Vector3 targetPosition, string destination, bool fly, float toleranceDistance = 3f)
         {
-            if (targetPosition == new Vector3(27.59f, -8.00f, 108.01f) && IsInZone(132))
-            {
-                P.taskManager.Enqueue(() => MoveTo(new Vector3(61.19f, -8.26f, 103.20f), false, 1), DConfig);
-            }
-
             P.taskManager.Enqueue(() => MoveTo(targetPosition, fly, toleranceDistance), destination, configuration: DConfig);
         }
         internal unsafe static bool? MoveTo(Vector3 targetPosition, bool fly, float toleranceDistance = 3f)

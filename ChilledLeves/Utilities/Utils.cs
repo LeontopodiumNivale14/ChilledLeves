@@ -1,6 +1,4 @@
-﻿using ChilledLeves.Scheduler.Handlers;
-using ChilledLeves.Scheduler.Tasks;
-using Dalamud.Game.ClientState.Conditions;
+﻿using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Textures;
@@ -19,8 +17,10 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using FFXIVClientStructs.Interop;
+using Lumina.Excel;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
+using System.Text;
 
 namespace ChilledLeves.Utilities;
 
@@ -806,6 +806,134 @@ public static unsafe class Utils
         }
 
         return allCompleted;
+    }
+
+    #endregion
+
+    #region Artisan Export
+
+    public static void ExportSelectedListToTC()
+    {
+        string baseUrl = "https://ffxivteamcraft.com/import/";
+        string exportItems = "";
+
+        foreach (var leveEntry in C.workList)
+        {
+            var LeveId = leveEntry.LeveID;
+
+            if (!CraftDictionary.ContainsKey(LeveId))
+                continue;
+
+            var itemAmount = CraftDictionary[LeveId].TurninAmount;
+
+            var InputAmount = leveEntry.InputValue;
+            var AmountNeeded = InputAmount * itemAmount;
+
+            var ItemId = CraftDictionary[LeveId].ItemID;
+
+            exportItems += $"{ItemId},null,{AmountNeeded};";
+        }
+
+        exportItems = exportItems.TrimEnd(';');
+
+        var plainTextBytes = Encoding.UTF8.GetBytes(exportItems);
+        string base64 = Convert.ToBase64String(plainTextBytes);
+
+        Svc.Log.Debug($"{baseUrl}{base64}");
+        ImGui.SetClipboardText($"{baseUrl}{base64}");
+        Notify.Success("Link copied to clipboard");
+    }
+
+    public static void ExportPreCrafts()
+    {
+        var LeveSheet = Svc.Data.GetExcelSheet<Leve>();
+        var RecipeSheet = Svc.Data.GetExcelSheet<Recipe>();
+
+        Dictionary<uint, int> AllItems = new();
+        Dictionary<uint, int> ArtisanPreCrafts = new();
+        Dictionary<uint, int> ArtisanFinalCrafts = new();
+
+        foreach (var LeveEntry in C.workList)
+        {
+            var LeveId = LeveEntry.LeveID;
+            if (!CraftDictionary.ContainsKey(LeveId))
+                continue;
+
+            var ItemId = CraftDictionary[LeveId].ItemID;
+            var RecipeRow = RecipeSheet.GetRow(ItemId).ItemResult.Value.RowId;
+
+            for (int i = 0; i < 6; i++)
+            {
+                var row = RecipeSheet.GetRow(RecipeRow);
+                var ingredientRow = row.Ingredient[i].Value;
+                if (ingredientRow.RowId == 0) continue;
+
+                var itemId = ingredientRow.RowId;
+                var amount = row.AmountIngredient[i].ToInt();
+
+                if (itemId == 0) continue;
+
+                if (AllItems.ContainsKey(itemId))
+                    AllItems[itemId] += amount;
+                else
+                    AllItems.Add(itemId, amount);
+            }
+
+            if (ArtisanFinalCrafts.ContainsKey(ItemId))
+                ArtisanFinalCrafts[ItemId] += LeveEntry.InputValue;
+            else
+                ArtisanFinalCrafts.Add(ItemId, LeveEntry.InputValue);
+        }
+
+        // Now break down all ingredients recursively
+        foreach (var kvp in AllItems)
+        {
+            AddPreCraftsRecursive(kvp.Key, kvp.Value, ArtisanPreCrafts, RecipeSheet);
+        }
+
+        string preCrafts = "Pre crafts :\n";
+
+        foreach (var kvp in ArtisanPreCrafts)
+        {
+            var itemId = kvp.Key;
+            var itemName = Svc.Data.GetExcelSheet<Item>().GetRow(itemId).Name.ToString();
+            var amount = kvp.Value;
+
+            string temp = $"{amount}x {itemName}\n";
+            preCrafts += temp;
+        }
+
+        ImGui.SetClipboardText(preCrafts);
+    }
+
+    private static void AddPreCraftsRecursive(uint itemId, int amountNeeded, Dictionary<uint, int> preCrafts, ExcelSheet<Recipe> RecipeSheet)
+    {
+        var recipe = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == itemId);
+        if (recipe.RowId == 0)
+            return; // Not a craftable item; likely a raw mat
+
+        for (int i = 0; i < 6; i++)
+        {
+            var ingredient = recipe.Ingredient[i].Value;
+            if (ingredient.RowId == 0) continue;
+
+            var ingredientId = ingredient.RowId;
+            var quantity = recipe.AmountIngredient[i].ToInt() * amountNeeded;
+
+            if (preCrafts.ContainsKey(ingredientId))
+                preCrafts[ingredientId] += quantity;
+            else
+            {
+                preCrafts.Add(ingredientId, quantity);
+            }
+
+            // A way for me to check recipies in recipies...
+            var subRecipe = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == ingredientId);
+            if (subRecipe.RowId != 0)
+            {
+                AddPreCraftsRecursive(ingredientId, quantity, preCrafts, RecipeSheet);
+            }
+        }
     }
 
     #endregion
