@@ -1,4 +1,5 @@
-﻿using Dalamud.Interface.Textures;
+﻿using Dalamud.Game.ClientState.Statuses;
+using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using ECommons;
 using ECommons.ExcelServices;
@@ -54,15 +55,15 @@ public static unsafe class Data
 
     #region Leve Misc Information
 
-    public static HashSet<uint> CraftFisherJobs = new() {4, 5, 6, 7, 8, 9, 10, 11, 12 };
-    public static HashSet<int> CrafterJobList = new() { 8, 9, 10, 11, 12, 13, 14, 15};
-    public static HashSet<int> GatheringJobList = new() { 16, 17, 18};
+    public static HashSet<uint> CraftFisherJobs = new() { 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+    public static HashSet<int> CrafterJobList = new() { 8, 9, 10, 11, 12, 13, 14, 15 };
+    public static HashSet<int> GatheringJobList = new() { 16, 17, 18 };
     public static List<uint> VisibleLeves = new List<uint>();
     public static HashSet<uint> IshgardTurnin = new() { 153, 151, 154, 156, 155, 152, 157 };
     public static HashSet<uint> KuganeTurnin = new() { 159, 161, 162, 171, 172, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194 };
     public static HashSet<uint> CrystariumTurnin = new() { 195, 196, 199, 200, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228 };
-    public static HashSet<uint> SharlayanTurnin = new() { 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 254, 255, 256};
-    public static HashSet<uint> TuliyoliTurnin = new() {  257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, };
+    public static HashSet<uint> SharlayanTurnin = new() { 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 254, 255, 256 };
+    public static HashSet<uint> TuliyoliTurnin = new() { 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, };
     public static List<int> GreyIconList = new List<int>() { 91039, 91040, 91041, 91031, 91032, 91033, 91034, 91035, 91036, 91037, 91038 };
     public static List<int> LeveStatus = new List<int>() { 71041, 71045, 71055 };
 
@@ -268,9 +269,9 @@ public static unsafe class Data
         /// <summary>
         /// Type of leve that is assigned to this. Quick and easy way to access this.
         /// </summary>
-        #nullable disable
+#nullable disable
         public string LeveClassType { get; set; }
-        #nullable enable
+#nullable enable
     }
 
     public static Dictionary<uint, LeveType> LeveTypeDict = new();
@@ -929,7 +930,7 @@ public static unsafe class Data
         { 1007062, new LeveInfoVendor // Fupepe
         {
             Name = NPCName(1007062),
-            ZoneID = 138, 
+            ZoneID = 138,
             Aetheryte = 14,
             NPCInteractZone = new Vector3 (291.06613f, -24.990849f, 237.48279f),
             NPCLocation = new Vector3(290.97f, -24.99f, 235.61f),
@@ -940,7 +941,7 @@ public static unsafe class Data
         { 1007063, new LeveInfoVendor // Daca Jinjahl
         {
             Name = NPCName(1007063),
-            ZoneID = 153, 
+            ZoneID = 153,
             Aetheryte = 5,
             NPCInteractZone = new Vector3 (168.63585f, 8.649968f, -48.859486f),
             NPCLocation = new Vector3(168.99f, 9.09f, -46.01f),
@@ -956,12 +957,12 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (454.03705f, 17.493235f, 475.09576f),
             NPCLocation = new Vector3(454.98f, 17.25f, 479.97f),
             Mount = false,
-            flagX = 489.15845f, flagZ = 468.80298f, 
+            flagX = 489.15845f, flagZ = 468.80298f,
         } },
         { 1007065, new LeveInfoVendor // F'abobji
         {
             Name = NPCName(1007065),
-            ZoneID = 155, 
+            ZoneID = 155,
             Aetheryte = 23,
             NPCInteractZone = new Vector3(241.34195f, 222.04169f, 329.3354f),
             NPCLocation = new Vector3(239.98f, 222.23f, 327.47f),
@@ -972,7 +973,7 @@ public static unsafe class Data
         { 1007066, new LeveInfoVendor // Drividot
         {
             Name = NPCName(1007066),
-            ZoneID = 155, 
+            ZoneID = 155,
             Aetheryte = 23,
             NPCInteractZone = new Vector3(-408.24942f, 210.78818f, -268.77814f),
             NPCLocation = new Vector3(-405.51f, 210.79f, -269f),
@@ -1161,7 +1162,7 @@ public static unsafe class Data
             flagX = 21.23f, flagZ = 80.22f,
         } },
         { 1048392, new LeveInfoVendor { // Br'uk Ts'on
-            Name = NPCName(1048392), 
+            Name = NPCName(1048392),
             ZoneID = 1185,
             Aetheryte = 216,
             NPCInteractZone = new Vector3 (23.84f, -14f, 83.45f),
@@ -3098,6 +3099,28 @@ public static unsafe class Data
         public int LevelFilter;
         public string NameFilter = "";
     }
+
+    #endregion
+
+    #endregion
+
+    #region Gathering
+
+    #region G.Actions
+
+    public class GatheringActions
+    {
+        public string ActionName { get; set; }
+        public string InternalName { get; set; }
+        public int StatusId { get; set; }
+        public string StatusName { get; set; }
+    }
+
+    public static Dictionary<int, GatheringActions> GatherActionDict = new()
+    {
+
+    };
+
 
     #endregion
 

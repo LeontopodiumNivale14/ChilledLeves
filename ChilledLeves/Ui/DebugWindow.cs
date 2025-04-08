@@ -1,6 +1,7 @@
 ﻿using ChilledLeves.Scheduler;
 using ChilledLeves.Scheduler.Tasks;
 using ChilledLeves.Utilities;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Interface.Utility.Raii;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
@@ -34,13 +35,7 @@ internal class DebugWindow : Window
     // variables that hold the "ref"s for ImGui
 
     public override void Draw()
-    {
-        // Check for Ice theme
-        bool usingIceTheme = C.UseIceTheme;
-        
-        // Begin theming this window only
-        int styleCount = ThemeHelper.BeginTheming(usingIceTheme);
-        
+    {        
         ImGuiEx.EzTabBar("ROR Debug Tabs",
                 ("Main Debug###LeaveItAloneMainDebug", MainDebug, null, true),
                 ("Targeting Debug ###LeveItAloneTargeting", TargetingDebug, null, true),
@@ -49,12 +44,12 @@ internal class DebugWindow : Window
                 ("Quest Checker", QuestChecker, null, true),
                 ("Star Test", StarTester, null, true),
                 ("Fish Peeps", FisherTurnin, null, true),
-                ("Leve Vendor Info", LeveVendor, null, true)
+                ("Leve Vendor Info", LeveVendor, null, true),
+                ("Gathering Debug", GatheringTest, null, true)
         );
-        
-        // End theming
-        ThemeHelper.EndTheming(usingIceTheme, styleCount);
     }
+
+    #region Main Debug
 
     private int ClassID = 1;
 
@@ -687,4 +682,39 @@ internal class DebugWindow : Window
             }
         }
     }
+
+    #endregion
+
+    #region Gathering Testing
+
+    public void GatheringTest()
+    {
+        ImGui.Text("Statuses");
+        ImGui.Text($"Gathering [Normal]: {Svc.Condition[ConditionFlag.Gathering]}");
+        ImGuiEx.HelpMarker("Interacting with Gathering Node", sameLine: true);
+
+        ImGui.Text($"Gathering [Gathering42] {Svc.Condition[ConditionFlag.Gathering42]}");
+        ImGuiEx.HelpMarker("Interacting with Gathering Node/Using Buffs", sameLine: true);
+
+        if (TryGetAddonMaster<AddonMaster.Gathering>("Gathering", out var m) && m.IsAddonReady)
+        {
+            ImGui.Text("Gathering Test");
+            ImGui.Text($"Current Integrity: {m.CurrentIntegrity}");
+            ImGui.Text($"Total Integrity: {m.TotalIntegrity}");
+            ImGui.Text($"Node ID: {Svc.Targets.Target.DataId}");
+
+            foreach (var item in m.GatheredItems)
+            {
+                if (item.ItemID == 0)
+                    continue;
+
+                ImGui.Text($"{item.ItemName} ID: ({item.ItemID})");
+                ImGui.Text($"Gathering Chance: {item.GatherChance} | Boon %%: {item.BoonChance}");
+                ImGui.SameLine();
+                if (ImGui.Button("Select##" + item.ItemName)) item.Gather();
+            }
+        }
+    }
+
+    #endregion
 }

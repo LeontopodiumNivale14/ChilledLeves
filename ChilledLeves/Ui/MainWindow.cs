@@ -174,7 +174,7 @@ namespace ChilledLeves.Ui
                     // Check if button is clicked
                     if (ImGui.Button(buttonText, new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f)))
                     {
-                        ImGui.SetClipboardText("Navmesh installation guide or link here");
+                        ImGui.SetClipboardText("https://puni.sh/api/repository/veyn");
                         buttonText = "Copied to Clipboard";
                         lastClickTime = (float)ImGui.GetTime(); // Store the current ImGui time
                     }

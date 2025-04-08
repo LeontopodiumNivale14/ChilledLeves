@@ -21,6 +21,8 @@ namespace ChilledLeves.Ui
 
     internal class WorkListUi : Window
     {
+        #region .json stuff (Ice don't touch this)
+
         // Fields for the WorkListUi class
         private string _worklistSearchFilter = "";
 
@@ -59,6 +61,8 @@ namespace ChilledLeves.Ui
 
         // Temporary clipboard imported worklist
         private SavedWorklist _clipboardWorklist = null;
+
+        #endregion
 
         public WorkListUi() : 
             base($"Worklist [ChilledLeves] {P.GetType().Assembly.GetName().Version} ###WorkListChilledLeves")
@@ -533,11 +537,18 @@ namespace ChilledLeves.Ui
 
         public static void WorklistMode(WorkListUi currentInstance)
         {
+            #region Main Menu Buttons
+
             // Get font scaling metrics
             float textLineHeight = ImGui.GetTextLineHeight();
             float fontScale = ImGui.GetIO().FontGlobalScale;
             float scaledSpacing = ImGui.GetStyle().ItemSpacing.Y * fontScale;
-            
+
+            void MainMenuButtons()
+            {
+
+            }
+
             // Get theme setting (but don't re-apply window styles - those are set by Draw method)
             bool usingIceTheme = C.UseIceTheme;
             
@@ -622,6 +633,8 @@ namespace ChilledLeves.Ui
             ImGui.Spacing();
             
             ImGui.Text($"Amount of Accepted Leves: {GetNumAcceptedLeveQuests()}");
+
+            #endregion
 
             // Apply control styling for checkboxes via scope to ensure cleanup
             if (usingIceTheme)
