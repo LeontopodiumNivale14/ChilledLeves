@@ -3116,9 +3116,55 @@ public static unsafe class Data
         public string StatusName { get; set; }
     }
 
-    public static Dictionary<int, GatheringActions> GatherActionDict = new()
+    public static Dictionary<string, GatheringActions> BtnActionDict = new()
     {
-
+        { "BoonIncrease1", new GatheringActions
+        {
+            ActionName = "Pioneer's Gift I",
+            InternalName = "",
+            StatusId = 2666,
+            StatusName = "Gift of the Land"
+        }},
+        { "BoonIncrease2", new GatheringActions
+        {
+            ActionName = "Pioneer's Gift II",
+            InternalName = "",
+            StatusId = 759,
+            StatusName = "Gift of the Land II"
+        }},
+        { "Tidings", new GatheringActions
+        {
+            ActionName = "Nophica's Tidings",
+            InternalName = "",
+            StatusId = 2667,
+            StatusName = "Gatherer's Bounty"
+        }},
+        { "YieldI", new GatheringActions
+        {
+            ActionName = "Blessed Harvest",
+            InternalName = "",
+            StatusId = 219,
+            StatusName = "Gathering Yield Up"
+        }},
+        { "YieldII", new GatheringActions
+        {
+            ActionName = "Blessed Harvest II",
+            InternalName = "",
+            StatusId = 219,
+            StatusName = "Gathering Yield Up"
+        }},
+        { "215", new GatheringActions
+        {
+            ActionName = "Ageless Words",
+            InternalName = "",
+        }},
+        { "26522", new GatheringActions
+        {
+            ActionName = "",
+            InternalName = "",
+            StatusId = 2765,
+            StatusName = ""
+        }},
     };
 
 

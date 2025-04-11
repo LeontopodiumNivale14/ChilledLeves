@@ -544,11 +544,6 @@ namespace ChilledLeves.Ui
             float fontScale = ImGui.GetIO().FontGlobalScale;
             float scaledSpacing = ImGui.GetStyle().ItemSpacing.Y * fontScale;
 
-            void MainMenuButtons()
-            {
-
-            }
-
             // Get theme setting (but don't re-apply window styles - those are set by Draw method)
             bool usingIceTheme = C.UseIceTheme;
             
@@ -697,30 +692,56 @@ namespace ChilledLeves.Ui
             float buttonSpacing = 10 * fontScale;
             float availWidth = ImGui.GetContentRegionAvail().X;
             float buttonHeight = textLineHeight * 1.5f;
-            
+
             // Artisan export button
-            string artisan = "Copy for Artisan";
-            var buttonSize = ImGui.CalcTextSize(artisan);
-            float artisanBtnWidth = buttonSize.X + ImGui.GetStyle().FramePadding.X * 2 * fontScale;
-            
+            string artisanPreCraft = "Artisan Pre-Crafts";
+            var artisanPCbuttonSize = ImGui.CalcTextSize(artisanPreCraft);
+            float artisanPCBtnWidth = artisanPCbuttonSize.X + ImGui.GetStyle().FramePadding.X * 2 * fontScale;
+
+            // Artisan export button
+            string artisanFinal = "Artisan Final Items";
+            var buttonSize = ImGui.CalcTextSize(artisanFinal);
+            float artisanFinalBtnWidth = buttonSize.X + ImGui.GetStyle().FramePadding.X * 2 * fontScale;
+
+            // Teamcraft List button
+            string teamcraftList = "Teamcraft Link";
+            var tcbuttonSize = ImGui.CalcTextSize(teamcraftList);
+            float tcBtnWidth = tcbuttonSize.X + ImGui.GetStyle().FramePadding.X * 2 * fontScale;
+
             // Import/Export button
             string importExport = "Import/Export Worklists";
             var ieBtnSize = ImGui.CalcTextSize(importExport);
             float ieBtnWidth = ieBtnSize.X + ImGui.GetStyle().FramePadding.X * 2 * fontScale;
             
             // Calculate button widths to fit the row
-            float totalBtnWidth = artisanBtnWidth + ieBtnWidth + buttonSpacing;
-            float leftPadding = (availWidth - totalBtnWidth) / 3; 
+            float totalBtnWidth = artisanPCBtnWidth + artisanFinalBtnWidth + tcBtnWidth + ieBtnWidth + buttonSpacing;
+            float leftPadding = (availWidth - totalBtnWidth) / 2; 
             
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + leftPadding);
-            
-            if (usingIceTheme)
+
+            void ExportButtons()
             {
-                int btnStyleCount = ThemeHelper.PushButtonStyle();
-                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
-                
+                // Artisan Pre-Crafts button
+                if (ImGui.Button(artisanPreCraft, new Vector2(artisanPCBtnWidth, buttonHeight)))
+                {
+                    AllItems.Clear();
+                    ArtisanPreCrafts.Clear();
+                    ArtisanFinalCrafts.Clear();
+
+                    ExportPreCrafts();
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.Text("Exports the items you need as a \"Pre-craft Items\" list. \n" +
+                               "Does not include Final Items");
+                    ImGui.EndTooltip();
+                }
+
+                ImGui.SameLine(0, buttonSpacing);
+
                 // Copy to Artisan button
-                if (ImGui.Button(artisan, new Vector2(artisanBtnWidth, buttonHeight)))
+                if (ImGui.Button(artisanFinal, new Vector2(artisanFinalBtnWidth, buttonHeight)))
                 {
                     currentInstance.CopyToArtisan();
                 }
@@ -734,7 +755,7 @@ namespace ChilledLeves.Ui
 
                 ImGui.SameLine(0, buttonSpacing);
 
-                if (ImGui.Button("Teamcraft Link", new Vector2(artisanBtnWidth, buttonHeight)))
+                if (ImGui.Button(teamcraftList, new Vector2(tcBtnWidth, buttonHeight)))
                 {
                     ExportSelectedListToTC();
                 }
@@ -746,18 +767,26 @@ namespace ChilledLeves.Ui
                 }
 
                 ImGui.SameLine(0, buttonSpacing);
-                
+
                 // Import/Export toggle button
                 if (ImGui.Button(importExport, new Vector2(ieBtnWidth, buttonHeight)))
                 {
                     currentInstance.showImportExport = !currentInstance.showImportExport;
-                    
+
                     // Load saved worklists when opening the section
                     if (currentInstance.showImportExport)
                     {
                         currentInstance.LoadSavedWorklists();
                     }
                 }
+            }
+            
+            if (usingIceTheme)
+            {
+                int btnStyleCount = ThemeHelper.PushButtonStyle();
+                ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
+
+                ExportButtons();
                 
                 // Pop button styling
                 ImGui.PopStyleVar();
@@ -766,26 +795,8 @@ namespace ChilledLeves.Ui
             else
             {
                 ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
-                
-                // Copy to Artisan button
-                if (ImGui.Button(artisan, new Vector2(artisanBtnWidth, buttonHeight)))
-            {
-                    currentInstance.CopyToArtisan();
-                }
-                
-                ImGui.SameLine(0, buttonSpacing);
-                
-                // Import/Export toggle button
-                if (ImGui.Button(importExport, new Vector2(ieBtnWidth, buttonHeight)))
-                {
-                    currentInstance.showImportExport = !currentInstance.showImportExport;
-                    
-                    // Load saved worklists when opening the section
-                    if (currentInstance.showImportExport)
-                    {
-                        currentInstance.LoadSavedWorklists();
-                    }
-                }
+
+                ExportButtons();
                 
                 // Pop button styling
                 ImGui.PopStyleVar();

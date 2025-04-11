@@ -2,6 +2,7 @@
 using ChilledLeves.Scheduler.Tasks;
 using ChilledLeves.Utilities;
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Interface.Utility.Raii;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
@@ -9,6 +10,7 @@ using ECommons.Logging;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using Lumina.Excel;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Globalization;
@@ -35,7 +37,7 @@ internal class DebugWindow : Window
     // variables that hold the "ref"s for ImGui
 
     public override void Draw()
-    {        
+    {
         ImGuiEx.EzTabBar("ROR Debug Tabs",
                 ("Main Debug###LeaveItAloneMainDebug", MainDebug, null, true),
                 ("Targeting Debug ###LeveItAloneTargeting", TargetingDebug, null, true),
@@ -45,7 +47,8 @@ internal class DebugWindow : Window
                 ("Star Test", StarTester, null, true),
                 ("Fish Peeps", FisherTurnin, null, true),
                 ("Leve Vendor Info", LeveVendor, null, true),
-                ("Gathering Debug", GatheringTest, null, true)
+                ("Gathering Debug", GatheringTest, null, true),
+                ("Crafting Debug", CraftingDebug, null, true)
         );
     }
 
@@ -294,7 +297,7 @@ internal class DebugWindow : Window
 
     private static HashSet<uint> visibleLeveIds = new();
 
-    #nullable disable
+#nullable disable
     public void LeveItAloneTable()
     {
         ImGui.SetNextItemWidth(125);
@@ -687,6 +690,8 @@ internal class DebugWindow : Window
 
     #region Gathering Testing
 
+    private static List<uint> NodeIds = new List<uint>();
+
     public void GatheringTest()
     {
         ImGui.Text("Statuses");
@@ -696,12 +701,27 @@ internal class DebugWindow : Window
         ImGui.Text($"Gathering [Gathering42] {Svc.Condition[ConditionFlag.Gathering42]}");
         ImGuiEx.HelpMarker("Interacting with Gathering Node/Using Buffs", sameLine: true);
 
+        foreach (var x in Svc.Objects)
+        {
+            if (x.ObjectKind == ObjectKind.GatheringPoint)
+            {
+                Vector3 rounded = new Vector3(
+                    MathF.Round(x.Position.X, 2),
+                    MathF.Round(x.Position.Y, 2),
+                    MathF.Round(x.Position.Z, 2)
+                    );
+
+                ImGuiEx.Text($"Gathering Point: {x.DataId} |  Location: {rounded} | Distance: {GetDistanceToPlayer(x):N2} |  Targetable: {x.IsTargetable}");
+            }
+        }
+
         if (TryGetAddonMaster<AddonMaster.Gathering>("Gathering", out var m) && m.IsAddonReady)
         {
             ImGui.Text("Gathering Test");
             ImGui.Text($"Current Integrity: {m.CurrentIntegrity}");
             ImGui.Text($"Total Integrity: {m.TotalIntegrity}");
             ImGui.Text($"Node ID: {Svc.Targets.Target.DataId}");
+            ImGui.Text($"Type: {Svc.Targets.Target.ObjectKind}");
 
             foreach (var item in m.GatheredItems)
             {
@@ -714,6 +734,133 @@ internal class DebugWindow : Window
                 if (ImGui.Button("Select##" + item.ItemName)) item.Gather();
             }
         }
+    }
+
+    #endregion
+
+    #region Crafting Testing
+
+    /// <summary>
+    /// Need to write this out so I can logic this out in case I don't finish this in the next 10 minutes
+    /// 1: Check the main craft for all required items
+    /// 2: Check to see if the items are a craftable item 
+    ///   -> If yes, check the recipe sheet for all required items
+    ///     -> Check all the items in that item to see if it's a craftable item
+    ///     -> Rince and repeat until I get down to the base items
+    ///     -> For each pre-craft it hits, make sure to add it to the "All Items List"
+    ///     -> As well as the base items as well to the "All Items List"
+    ///   -> If no, add it to the "All Items List"
+    /// 3: Once I have all the items, run a loop to check all the items, and see which ones are craftable
+    /// 4: Add each craftable once to the "Artisan Pre Crafts" list
+    /// </summary>
+
+    private static void CraftingDebug()
+    {
+        // quick references for the sheets that I'm using
+        var LeveSheet = Svc.Data.GetExcelSheet<Leve>();
+        var RecipeSheet = Svc.Data.GetExcelSheet<Recipe>();
+
+        if (ImGui.Button("Update Item List"))
+        {
+            AllItems.Clear();
+            ArtisanPreCrafts.Clear();
+            ArtisanFinalCrafts.Clear();
+
+            foreach (var LeveEntry in C.workList)
+            {
+                var LeveId = LeveEntry.LeveID;
+                if (!CraftDictionary.ContainsKey(LeveId))
+                    continue;
+
+                var ItemId = CraftDictionary[LeveId].ItemID;
+                CheckItems(ItemId, LeveEntry.InputValue, RecipeSheet);
+
+                var RecipeRow = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == ItemId);
+
+                if (ArtisanFinalCrafts.ContainsKey(ItemId))
+                    ArtisanFinalCrafts[ItemId] += LeveEntry.InputValue * RecipeRow.AmountResult.ToInt();
+                else
+                    ArtisanFinalCrafts.Add(ItemId, (LeveEntry.InputValue * RecipeRow.AmountResult.ToInt()));
+            }
+
+            // Now break down all ingredients recursively
+            foreach (var kvp in AllItems)
+            {
+                var itemSearch = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == kvp.Key);
+                if (itemSearch.RowId != 0)
+                {
+                    var itemId = kvp.Key;
+                    var amount = kvp.Value;
+
+                    if (!ArtisanPreCrafts.ContainsKey(itemId))
+                        ArtisanPreCrafts.Add(itemId, amount);
+                }
+            }
+        }
+
+        ImGui.Text("- - - All Items - - - ");
+        foreach (var item in AllItems)
+        {
+            var itemName = Svc.Data.GetExcelSheet<Item>().GetRow(item.Key).Name.ToString();
+
+            ImGui.Text($"Item ID [{item.Key}]: {itemName} | Amount: {item.Value}");
+        }
+
+        ImGui.Text("- - - Artisan Pre Crafts - - -");
+        foreach (var item in ArtisanPreCrafts)
+        {
+            var itemName = Svc.Data.GetExcelSheet<Item>().GetRow(item.Key).Name.ToString();
+
+            ImGui.Text($"Item ID: {itemName} | Amount: {item.Value}");
+        }
+
+        ImGui.Spacing();
+
+        ImGui.Text("- - - Artisan Final Crafts - - -");
+        foreach (var item in ArtisanFinalCrafts)
+        {
+            var itemName = Svc.Data.GetExcelSheet<Item>().GetRow(item.Key).Name.ToString();
+
+            ImGui.Text($"Item ID: {itemName} | Amount: {item.Value}");
+        }
+    }
+
+    private static void CheckItems(uint itemId, int runAmount, ExcelSheet<Recipe> RecipeSheet)
+    {
+        var recipe = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == itemId);
+        if (recipe.RowId == 0)
+            return; // Not a craftable item; likely a raw mat
+
+        for (int i = 0; i < 6; i++)
+        {
+            PluginDebug($"Ingrediant[{i}]");
+
+            // Checks to see if the ingrediant is valid
+            var ingrediant = recipe.Ingredient[i].Value.RowId;
+            if (ingrediant == 0)
+                continue;
+
+            var amount = recipe.AmountIngredient[i].ToInt() * runAmount;
+
+            if (AllItems.ContainsKey(ingrediant))
+            {
+                PluginDebug($"Ingrediant: {ingrediant} exist currently, updating amount");
+                AllItems[ingrediant] += amount;
+            }
+            else if (!AllItems.ContainsKey(ingrediant))
+            {
+                PluginDebug($"Ingrediant: {ingrediant} does not exist, adding to list");
+                AllItems.Add(ingrediant, amount);
+            }
+
+            var subRecipe = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == ingrediant);
+            if (subRecipe.RowId != 0)
+            {
+                // If the item is a recipe, check the recipe sheet for all ingredients
+                CheckItems(ingrediant, runAmount, RecipeSheet);
+            }
+        }
+
     }
 
     #endregion

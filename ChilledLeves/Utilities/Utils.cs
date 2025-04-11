@@ -844,14 +844,14 @@ public static unsafe class Utils
         Notify.Success("Link copied to clipboard");
     }
 
+    public static Dictionary<uint, int> AllItems = new();
+    public static Dictionary<uint, int> ArtisanPreCrafts = new();
+    public static Dictionary<uint, int> ArtisanFinalCrafts = new();
+
     public static void ExportPreCrafts()
     {
         var LeveSheet = Svc.Data.GetExcelSheet<Leve>();
         var RecipeSheet = Svc.Data.GetExcelSheet<Recipe>();
-
-        Dictionary<uint, int> AllItems = new();
-        Dictionary<uint, int> ArtisanPreCrafts = new();
-        Dictionary<uint, int> ArtisanFinalCrafts = new();
 
         foreach (var LeveEntry in C.workList)
         {
@@ -860,35 +860,28 @@ public static unsafe class Utils
                 continue;
 
             var ItemId = CraftDictionary[LeveId].ItemID;
-            var RecipeRow = RecipeSheet.GetRow(ItemId).ItemResult.Value.RowId;
+            CheckItems(ItemId, LeveEntry.InputValue, RecipeSheet);
 
-            for (int i = 0; i < 6; i++)
-            {
-                var row = RecipeSheet.GetRow(RecipeRow);
-                var ingredientRow = row.Ingredient[i].Value;
-                if (ingredientRow.RowId == 0) continue;
-
-                var itemId = ingredientRow.RowId;
-                var amount = row.AmountIngredient[i].ToInt();
-
-                if (itemId == 0) continue;
-
-                if (AllItems.ContainsKey(itemId))
-                    AllItems[itemId] += amount;
-                else
-                    AllItems.Add(itemId, amount);
-            }
+            var RecipeRow = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == ItemId);
 
             if (ArtisanFinalCrafts.ContainsKey(ItemId))
-                ArtisanFinalCrafts[ItemId] += LeveEntry.InputValue;
+                ArtisanFinalCrafts[ItemId] += LeveEntry.InputValue * RecipeRow.AmountResult.ToInt();
             else
-                ArtisanFinalCrafts.Add(ItemId, LeveEntry.InputValue);
+                ArtisanFinalCrafts.Add(ItemId, (LeveEntry.InputValue * RecipeRow.AmountResult.ToInt()));
         }
 
         // Now break down all ingredients recursively
         foreach (var kvp in AllItems)
         {
-            AddPreCraftsRecursive(kvp.Key, kvp.Value, ArtisanPreCrafts, RecipeSheet);
+            var itemSearch = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == kvp.Key);
+            if (itemSearch.RowId != 0)
+            {
+                var itemId = kvp.Key;
+                var amount = kvp.Value;
+
+                if (!ArtisanPreCrafts.ContainsKey(itemId))
+                    ArtisanPreCrafts.Add(itemId, amount);
+            }
         }
 
         string preCrafts = "Pre crafts :\n";
@@ -906,7 +899,7 @@ public static unsafe class Utils
         ImGui.SetClipboardText(preCrafts);
     }
 
-    private static void AddPreCraftsRecursive(uint itemId, int amountNeeded, Dictionary<uint, int> preCrafts, ExcelSheet<Recipe> RecipeSheet)
+    private static void CheckItems(uint itemId, int runAmount, ExcelSheet<Recipe> RecipeSheet)
     {
         var recipe = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == itemId);
         if (recipe.RowId == 0)
@@ -914,26 +907,34 @@ public static unsafe class Utils
 
         for (int i = 0; i < 6; i++)
         {
-            var ingredient = recipe.Ingredient[i].Value;
-            if (ingredient.RowId == 0) continue;
+            PluginDebug($"Ingrediant[{i}]");
 
-            var ingredientId = ingredient.RowId;
-            var quantity = recipe.AmountIngredient[i].ToInt() * amountNeeded;
+            // Checks to see if the ingrediant is valid
+            var ingrediant = recipe.Ingredient[i].Value.RowId;
+            if (ingrediant == 0)
+                continue;
 
-            if (preCrafts.ContainsKey(ingredientId))
-                preCrafts[ingredientId] += quantity;
-            else
+            var amount = recipe.AmountIngredient[i].ToInt() * runAmount;
+
+            if (AllItems.ContainsKey(ingrediant))
             {
-                preCrafts.Add(ingredientId, quantity);
+                PluginDebug($"Ingrediant: {ingrediant} exist currently, updating amount");
+                AllItems[ingrediant] += amount;
+            }
+            else if (!AllItems.ContainsKey(ingrediant))
+            {
+                PluginDebug($"Ingrediant: {ingrediant} does not exist, adding to list");
+                AllItems.Add(ingrediant, amount);
             }
 
-            // A way for me to check recipies in recipies...
-            var subRecipe = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == ingredientId);
+            var subRecipe = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == ingrediant);
             if (subRecipe.RowId != 0)
             {
-                AddPreCraftsRecursive(ingredientId, quantity, preCrafts, RecipeSheet);
+                // If the item is a recipe, check the recipe sheet for all ingredients
+                CheckItems(ingrediant, runAmount, RecipeSheet);
             }
         }
+
     }
 
     #endregion
