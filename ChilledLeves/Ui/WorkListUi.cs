@@ -1104,84 +1104,86 @@ namespace ChilledLeves.Ui
         private static void DrawWorklistRows(float textLineHeight, float fontScale, bool usingIceTheme)
         {
             foreach (var kdp in LeveDictionary)
+            {
+                var leveID = kdp.Key;
+                var leveLevel = kdp.Value.Level;
+                var leveName = kdp.Value.LeveName;
+                var jobAssignment = kdp.Value.JobAssignmentType;
+                var jobIcon = LeveTypeDict[jobAssignment].AssignmentIcon;
+
+                if (!C.workList.Any(x => x.LeveID == leveID))
                 {
-                    var leveID = kdp.Key;
-                    var leveLevel = kdp.Value.Level;
-                    var leveName = kdp.Value.LeveName;
-                    var jobAssignment = kdp.Value.JobAssignmentType;
-                    var jobIcon = LeveTypeDict[jobAssignment].AssignmentIcon;
+                    continue;
+                }
 
-                    var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
-                    var itemName = CraftDictionary[leveID].ItemName;
-                    var itemNeed = CraftDictionary[leveID].TurninAmount;
-                    var itemId = CraftDictionary[leveID].ItemID;
-
-                    if (!C.workList.Any(x => x.LeveID == leveID))
-                    {
-                        continue;
-                    }
-
-                    ImGui.TableNextRow();
+                ImGui.TableNextRow();
 
                 // Column 0 | Level Column
-                    ImGui.PushID((int)leveID);
-                    ImGui.TableSetColumnIndex(0);
-                    CenterText($"{leveLevel}");
+                ImGui.PushID((int)leveID);
+                ImGui.TableSetColumnIndex(0);
+                CenterText($"{leveLevel}");
 
-                    // Column 1 | JobIcon + Leve Name
-                    ImGui.TableNextColumn();
+                // Column 1 | JobIcon + Leve Name
+                ImGui.TableNextColumn();
                 // Scale icon size based on text line height
                 float iconSize = Math.Max(25, textLineHeight * 1.5f);
                 ImGui.Image(jobIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
-                ImGui.SameLine(0, 5 * fontScale); 
-                    ImGui.AlignTextToFramePadding();
-                    CenterTextInHeight($"{leveName}");
+                ImGui.SameLine(0, 5 * fontScale);
+                ImGui.AlignTextToFramePadding();
+                CenterTextInHeight($"{leveName}");
 
-                    // Column 2 | Amount to Run
-                    ImGui.TableNextColumn();
-                    var WorklistInput = C.workList.Where(x => x.LeveID == leveID).FirstOrDefault();
-                    var input = WorklistInput.InputValue;
+                // Column 2 | Amount to Run
+                ImGui.TableNextColumn();
+                var WorklistInput = C.workList.Where(x => x.LeveID == leveID).FirstOrDefault();
+                var input = WorklistInput.InputValue;
 
-                    float availableWidth = ImGui.GetContentRegionAvail().X;  
-                
+                float availableWidth = ImGui.GetContentRegionAvail().X;
+
                 // Apply slider styling for ice theme
                 if (usingIceTheme)
                 {
                     int sliderStyleCount = ThemeHelper.PushControlStyle();
                     ImGui.PushStyleColor(ImGuiCol.SliderGrab, ThemeHelper.IceBlue);
                     ImGui.PushStyleColor(ImGuiCol.SliderGrabActive, ThemeHelper.FrostWhite);
-                    
-                    ImGui.SetNextItemWidth(availableWidth); 
+
+                    ImGui.SetNextItemWidth(availableWidth);
                     ImGui.SliderInt("###RunAmountSlider", ref input, 1, 100);
-                    
-                    ImGui.PopStyleColor(sliderStyleCount + 2); 
+
+                    ImGui.PopStyleColor(sliderStyleCount + 2);
                 }
                 else
                 {
-                    ImGui.SetNextItemWidth(availableWidth);  
+                    ImGui.SetNextItemWidth(availableWidth);
                     ImGui.SliderInt("###RunAmountSlider", ref input, 1, 100);
                 }
-                
-                    if (input < 1)
-                        input = 1;
-                    else if (input > 100)
-                        input = 100;
-                    if (WorklistInput.InputValue != input)
-                    {
-                        WorklistInput.InputValue = input;
-                        C.Save();
-                    }
+
+                if (input < 1)
+                    input = 1;
+                else if (input > 100)
+                    input = 100;
+                if (WorklistInput.InputValue != input)
+                {
+                    WorklistInput.InputValue = input;
+                    C.Save();
+                }
+
+                if (CraftFisherJobs.Contains(jobAssignment))
+                {
+                    var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
+                    var itemName = CraftDictionary[leveID].ItemName;
+                    var itemNeed = CraftDictionary[leveID].TurninAmount;
+                    var itemId = CraftDictionary[leveID].ItemID;
 
                     // Column 3 | Item Turnin
                     ImGui.TableNextColumn();
-                ImGui.Image(ItemImage.ImGuiHandle, new Vector2(iconSize, iconSize));
+                    ImGui.Image(ItemImage.ImGuiHandle, new Vector2(iconSize, iconSize));
                     if (ImGui.IsItemHovered())
                     {
                         ImGui.BeginTooltip();
-                    ImGui.Image(ItemImage.ImGuiHandle, new Vector2(iconSize * 2, iconSize * 2));
+                        ImGui.Image(ItemImage.ImGuiHandle, new Vector2(iconSize * 2, iconSize * 2));
                         ImGui.EndTooltip();
                     }
-                ImGui.SameLine(0, 5 * fontScale); 
+                    ImGui.SameLine(0, 5 * fontScale);
                     ImGui.AlignTextToFramePadding();
                     CenterTextInHeight($"{itemName}");
                     if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
@@ -1204,31 +1206,32 @@ namespace ChilledLeves.Ui
 
                     // Column 5 | Have
                     ImGui.TableNextColumn();
-                var haveAmount = GetItemCount((int)itemId);
-                var isEnough = (haveAmount >= needAmount);
+                    var haveAmount = GetItemCount((int)itemId);
+                    var isEnough = (haveAmount >= needAmount);
 
-                FancyCheckmark(isEnough);
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.BeginTooltip();
-                    ImGui.Text($"Have: {haveAmount}");
-                    ImGui.EndTooltip();
+                    FancyCheckmark(isEnough);
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Text($"Have: {haveAmount}");
+                        ImGui.EndTooltip();
+                    }
                 }
 
                 // Column 6 | Remove Button
-                ImGui.TableNextColumn();
-                
+                ImGui.TableSetColumnIndex(6);
+
                 if (usingIceTheme)
                 {
                     int btnRemoveStyleCount = ThemeHelper.PushButtonStyle();
                     ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4.0f);
-                    
+
                     if (ImGuiEx.IconButton(FontAwesomeIcon.Trash, "Remove From LeveList"))
                     {
                         C.workList.Remove(C.workList.Where(x => x.LeveID == leveID).FirstOrDefault());
                         C.Save();
                     }
-                    
+
                     ImGui.PopStyleVar();
                     ImGui.PopStyleColor(btnRemoveStyleCount);
                 }

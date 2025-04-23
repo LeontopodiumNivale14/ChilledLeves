@@ -231,11 +231,25 @@ namespace ChilledLeves.Ui
             ImGui.Spacing();
             ImGui.Spacing();
 
-            bool useIceTheme = C.UseIceTheme;
-            if (ImGui.Checkbox("Use Ice Theme", ref useIceTheme))
+            if (usingIceTheme)
             {
-                C.UseIceTheme = useIceTheme;
-                C.Save();
+                int styleCount = ThemeHelper.PushControlStyle();
+                bool useIceTheme = C.UseIceTheme;
+                if (ImGui.Checkbox("Use Ice Theme", ref useIceTheme))
+                {
+                    C.UseIceTheme = useIceTheme;
+                    C.Save();
+                }
+                ImGui.PopStyleColor(styleCount);
+            }
+            else
+            {
+                bool useIceTheme = C.UseIceTheme;
+                if (ImGui.Checkbox("Use Ice Theme", ref useIceTheme))
+                {
+                    C.UseIceTheme = useIceTheme;
+                    C.Save();
+                }
             }
             ImGui.SameLine();
             ImGui.TextDisabled("(?)");
@@ -243,6 +257,35 @@ namespace ChilledLeves.Ui
             {
                 ImGui.BeginTooltip();
                 ImGui.Text("Toggle between custom ice theme and Dalamud's default theme");
+                ImGui.EndTooltip();
+            }
+            if (usingIceTheme)
+            {
+                int styleCount = ThemeHelper.PushControlStyle();
+                bool RapidImport = C.RapidImport;
+                if (ImGui.Checkbox("Rapid Import Leves", ref RapidImport))
+                {
+                    C.RapidImport = RapidImport;
+                    C.Save();
+                }
+                ImGui.PopStyleColor(styleCount);
+            }
+            else
+            {
+                bool RapidImport = C.RapidImport;
+                if (ImGui.Checkbox("Rapid Import Leves", ref RapidImport))
+                {
+                    C.RapidImport = RapidImport;
+                    C.Save();
+                }
+            }
+            ImGui.SameLine();
+            ImGui.TextDisabled("(?)");
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text("When you left click a leve, will immediately add it to your worklist");
+                ImGui.Text("While this is disabled, you can also double click to add a leve as well!");
                 ImGui.EndTooltip();
             }
 
@@ -646,7 +689,7 @@ namespace ChilledLeves.Ui
                         selectedLeve = id;
 
                     // Double-click to add leve to the WorkList
-                    if (ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                    if (ImGui.IsItemHovered() && (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left) || (ImGui.IsItemClicked(ImGuiMouseButton.Left) && C.RapidImport)))
                     {
                         if (!C.workList.Any(e => e.LeveID == id))
                         {
@@ -963,8 +1006,10 @@ namespace ChilledLeves.Ui
                 bool levesQuestUnlocked = QuestChecker(requiredQuestId);
 
                 // Gray out the add/remove from worklist if not unlocked
-                using (ImRaii.Disabled(!levesQuestUnlocked))
-                {
+
+                /* Disabling this until I can figure out why in the world it's bugging out/not working...
+                * using (ImRaii.Disabled(!levesQuestUnlocked))
+                { */
                     if (C.workList.Any(e => e.LeveID == leve))
                     {
                         if (ImGui.Button("Remove from WorkList", new Vector2(ImGui.GetContentRegionAvail().X, 0)))
@@ -981,7 +1026,7 @@ namespace ChilledLeves.Ui
                             C.Save();
                         }
                     }
-                }
+                // }
 
                 if (actionButtonColors > 0)
                 {
@@ -990,6 +1035,8 @@ namespace ChilledLeves.Ui
                 ImGui.PopStyleVar();
 
                 // If quest is locked, draw a red warning text
+                /* Disabling this for now until I can double check to see wtf is wrong with this
+                 * For some reason it's saying things aren't finished when they are...
                 if (!levesQuestUnlocked)
                 {
                     ImGui.TextColored(ImGuiColors.DalamudRed, "⚠ Required quest not completed");
@@ -1052,6 +1099,7 @@ namespace ChilledLeves.Ui
                         ImGui.EndTooltip();
                     }
                 }
+                */
                 ImGui.PopID();
             }
             else

@@ -92,7 +92,7 @@ internal class GatherModeUi : Window
             var leveVendorId = kdp.Value.LeveVendorID;
             var jobAssignment = kdp.Value.JobAssignmentType;
             
-            if (leveVendorId == C.SelectedNpcId && jobAssignment == IconSlot)
+            if (leveVendorId == C.SelectedNpcId && jobAssignment == C.ClassJobType)
             {
                 if (!SelectedLeves.Contains(leveID))
                 {
@@ -328,12 +328,7 @@ internal class GatherModeUi : Window
             var zoneId = LeveNPCDict[leveVendorId].ZoneID;
             var priority = kdp.Value.Priority;
             
-            var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
-            var itemName = CraftDictionary[leveID].ItemName;
-            var itemNeed = CraftDictionary[leveID].TurninAmount;
-            var itemId = CraftDictionary[leveID].ItemID;
-            
-            if (leveVendorId != C.SelectedNpcId || jobAssignment != IconSlot)
+            if (leveVendorId != C.SelectedNpcId || jobAssignment != C.ClassJobType)
             {
                 continue;
             }
@@ -372,22 +367,31 @@ internal class GatherModeUi : Window
             
             ImGui.TableNextColumn();
             ImGui.Text($"{leveName}");
+
+            if (CraftFisherJobs.Contains(jobAssignment))
+            {
+                var ItemImage = CraftDictionary[leveID].ItemIcon.GetWrapOrEmpty();
+                var itemName = CraftDictionary[leveID].ItemName;
+                var itemNeed = CraftDictionary[leveID].TurninAmount;
+                var itemId = CraftDictionary[leveID].ItemID;
+
+                ImGui.TableNextColumn();
+                ImGui.Image(ItemImage.ImGuiHandle, new Vector2(20, 20));
+                ImGui.SameLine(0, 5);
+                ImGui.Text($"{itemName}");
+
+                ImGui.TableNextColumn();
+                CenterTextV2($"{itemNeed}");
+
+                ImGui.TableNextColumn();
+                var itemHave = GetItemCount((int)CraftDictionary[leveID].ItemID);
+                CenterTextV2($"{itemHave}");
+
+                ImGui.TableNextColumn();
+                bool tripleTurnin = CraftDictionary[leveID].RepeatAmount > 1;
+                FancyCheckmark(tripleTurnin);
+            }
             
-            ImGui.TableNextColumn();
-            ImGui.Image(ItemImage.ImGuiHandle, new Vector2(20, 20));
-            ImGui.SameLine(0, 5);
-            ImGui.Text($"{itemName}");
-            
-            ImGui.TableNextColumn();
-            CenterTextV2($"{itemNeed}");
-            
-            ImGui.TableNextColumn();
-            var itemHave = GetItemCount((int)CraftDictionary[leveID].ItemID);
-            CenterTextV2($"{itemHave}");
-            
-            ImGui.TableNextColumn();
-            bool tripleTurnin = CraftDictionary[leveID].RepeatAmount > 1;
-            FancyCheckmark(tripleTurnin);
             ImGui.PopID();
         }
     }
@@ -417,6 +421,7 @@ internal class GatherModeUi : Window
 
     private static void DrawGatheringTableRows(float textLineHeight, float fontScale, bool usingIceTheme)
     {
+
         // Row 1 - NPC Selection
         ImGui.TableNextRow();
         ImGui.TableSetColumnIndex(0);
@@ -472,10 +477,11 @@ internal class GatherModeUi : Window
                               .PushColor(ImGuiCol.HeaderHovered, ThemeHelper.HeaderHovered)
                               .PushColor(ImGuiCol.HeaderActive, ThemeHelper.HeaderActive);
                     
-                    if (ImGui.BeginTable("NPC Table", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+                    if (ImGui.BeginTable("NPC Table", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
                     {
                         // Define column widths
                         ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, 200);
+                        ImGui.TableSetupColumn("Level", ImGuiTableColumnFlags.WidthFixed, 50);
                         ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, 200);
                         ImGui.TableHeadersRow();
                         
@@ -520,8 +526,24 @@ internal class GatherModeUi : Window
                                     ImGui.CloseCurrentPopup(); // Close the popup after selection
                                 }
                             }
-        
+
                             ImGui.TableSetColumnIndex(1);
+                            string leveLevels = "";
+                            if (C.ClassJobType == 4)
+                            {
+                                leveLevels = LeveNPCDict[npcId].FshLeveLevels;
+                            }
+                            else if (C.ClassJobType == 3)
+                            {
+                                leveLevels = LeveNPCDict[npcId].BtnLeveLevels;
+                            }
+                            else if (C.ClassJobType == 2)
+                            {
+                                leveLevels = LeveNPCDict[npcId].MinLeveLevels;
+                            }
+                            CenterTextV2(leveLevels);
+        
+                            ImGui.TableSetColumnIndex(2);
                             ImGui.Text(npcLocation); // Display NPC location in the second column
                         }
         
@@ -532,10 +554,11 @@ internal class GatherModeUi : Window
             else
             {
                 // Non-themed table
-                if (ImGui.BeginTable("NPC Table", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+                if (ImGui.BeginTable("NPC Table", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
                 {
                     // Define column widths
                     ImGui.TableSetupColumn("NPC Name", ImGuiTableColumnFlags.WidthFixed, 200);
+                    ImGui.TableSetupColumn("Level", ImGuiTableColumnFlags.WidthFixed, 50);
                     ImGui.TableSetupColumn("Location", ImGuiTableColumnFlags.WidthFixed, 200);
                     ImGui.TableHeadersRow();
     
@@ -556,8 +579,24 @@ internal class GatherModeUi : Window
                             C.Save();
                             ImGui.CloseCurrentPopup(); // Close the popup after selection
                         }
-    
+
                         ImGui.TableSetColumnIndex(1);
+                        string leveLevels = "";
+                        if (C.ClassJobType == 4)
+                        {
+                            leveLevels = LeveNPCDict[npcId].FshLeveLevels;
+                        }
+                        else if (C.ClassJobType == 3)
+                        {
+                            leveLevels = LeveNPCDict[npcId].BtnLeveLevels;
+                        }
+                        else if (C.ClassJobType == 2)
+                        {
+                            leveLevels = LeveNPCDict[npcId].MinLeveLevels;
+                        }
+                        CenterTextV2(leveLevels);
+
+                        ImGui.TableSetColumnIndex(2);
                         ImGui.Text(npcLocation); // Display NPC location in the second column
                     }
     
@@ -610,7 +649,7 @@ internal class GatherModeUi : Window
                             {
                                 SelectedLeves.Clear();
                                 C.ClassSelected = classSelectList[i];
-                                IconSlot = (uint)iconSlot;
+                                C.ClassJobType = (uint)iconSlot;
                                 C.Save();
                             }
 
@@ -647,7 +686,7 @@ internal class GatherModeUi : Window
                         {
                             SelectedLeves.Clear();
                             C.ClassSelected = classSelectList[i];
-                            IconSlot = (uint)iconSlot;
+                            C.ClassJobType = (uint)iconSlot;
                             C.Save();
                         }
 
@@ -677,7 +716,7 @@ internal class GatherModeUi : Window
         ImGui.SameLine();
         // Scale icon size based on font size
         float classIconSize = Math.Max(20, textLineHeight * 1.2f);
-        ImGui.Image(LeveTypeDict[IconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(classIconSize, classIconSize));
+        ImGui.Image(LeveTypeDict[C.ClassJobType].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(classIconSize, classIconSize));
 
         // Row 3 - Run Until option
         ImGui.TableNextRow();

@@ -48,6 +48,7 @@ public class Config : IEzConfig
     public bool ShowMaelstrom = true;
     public bool ShowTwinAdder = true;
     public bool ShowImmortalFlames = true;
+    public bool RapidImport = false;
     public int LevelFilter;
     public string NameFilter = "";
     public bool GrabMulti = true;
@@ -55,6 +56,7 @@ public class Config : IEzConfig
     public string SelectedNpcName = "Gontrant";
     public string LocationName = "New Gridania";
     public string ClassSelected = "Fisher";
+    public uint ClassJobType = 4;
     public string RunUntilSelected = "Lv.";
     public int LevelSliderInput = 1;
     public List<uint> FavoriteLeves = [];

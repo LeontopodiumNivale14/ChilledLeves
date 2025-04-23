@@ -64,6 +64,7 @@ public static unsafe class Utils
                && Player.Object.CastActionId == 0
                && !IsOccupied()
                && !Svc.Condition[ConditionFlag.Jumping]
+               && !Svc.Condition[ConditionFlag.Jumping61]
                && Player.Object.IsTargetable
                && !Player.IsAnimationLocked;
     }
@@ -312,42 +313,6 @@ public static unsafe class Utils
 
                 // The questID of the leve. Need this for another sheet but also, might be useful to check progress of other quest...
                 uint questID = row.DataId.RowId;
-                // Item Id of the items being turned in. This is only really useful for crafters right now
-                uint itemID = CraftLeveSheet.GetRow(questID).Item[0].Value.RowId;
-                // Item Name itself for the turnin. Ideally this is going to be language based... fingers crossed
-                string itemName = itemSheet.GetRow(itemID).Name.ToString();
-
-                // Item Icon, storing this because don't wanna have to draw the sheet every frame and then pull it from the sheet
-                ISharedImmediateTexture? itemIcon = null;
-                if (GetRow<Item>(itemID).Value.Icon is { } icon)
-                {
-                    int icon2 = icon;
-                    if (Svc.Texture.TryGetFromGameIcon(icon2, out var texture2))
-                        itemIcon = texture2;
-                }
-
-                // Amount of times you can turn the leve in (aka repeat amount)
-                // if it's 0, then it doesn't repeat at all (making it one to show you only do it once
-                // 2 = 3 because haha binary numbers
-                // +5 is the largescale leves in HW, need to confirm this later if this number is correct (things to do after)
-                int leveRepeat = CraftLeveSheet.GetRow(questID).Repeats.ToInt();
-                leveRepeat = leveRepeat + 1;
-
-                // Amount of items necessary for turnin
-                // Getting this by first getting the amount of possible amount of loops/repeats you do
-                int turninAmount = 0;
-                for (int x = 0; x < 3; x++)
-                {
-                    turninAmount = turninAmount + CraftLeveSheet.GetRow(questID).ItemCount[x].ToInt();
-                }
-                turninAmount = turninAmount * leveRepeat;
-
-                // Defaulting the necessary amount that you need to 0 here
-                // Moreso safety precaution than anything
-                int necessaryAmount = 0;
-
-                // Testing this to see if I can grab upon loading the sheet up to save frames...
-                int currentlyHave = GetItemCount(itemID.ToInt());
 
                 uint leveVendor = LeveVendor.FirstOrDefault(pair => pair.Value.Contains(leveNumber)).Key;
                 string vendorName = LeveNPCDict[leveVendor].Name;
@@ -355,6 +320,57 @@ public static unsafe class Utils
                 // Leve Turnin Vendor, I actually forgot to include this upon loading :catlay:
                 uint leveClientId = row.LeveClient.Value.RowId;
                 uint turninNpcId = TurninNpcId(leveClientId, JobType: leveJob);
+
+                if (CraftFisherJobs.Contains(leveJob))
+                {
+                    // Item Id of the items being turned in. This is only really useful for crafters right now
+                    uint itemID = CraftLeveSheet.GetRow(questID).Item[0].Value.RowId;
+                    // Item Name itself for the turnin. Ideally this is going to be language based... fingers crossed
+                    string itemName = itemSheet.GetRow(itemID).Name.ToString();
+
+                    // Item Icon, storing this because don't wanna have to draw the sheet every frame and then pull it from the sheet
+                    ISharedImmediateTexture? itemIcon = null;
+                    if (GetRow<Item>(itemID).Value.Icon is { } icon)
+                    {
+                        int icon2 = icon;
+                        if (Svc.Texture.TryGetFromGameIcon(icon2, out var texture2))
+                            itemIcon = texture2;
+                    }
+
+                    // Amount of times you can turn the leve in (aka repeat amount)
+                    // if it's 0, then it doesn't repeat at all (making it one to show you only do it once
+                    // 2 = 3 because haha binary numbers
+                    // +5 is the largescale leves in HW, need to confirm this later if this number is correct (things to do after)
+                    int leveRepeat = CraftLeveSheet.GetRow(questID).Repeats.ToInt();
+                    leveRepeat = leveRepeat + 1;
+
+                    // Amount of items necessary for turnin
+                    // Getting this by first getting the amount of possible amount of loops/repeats you do
+                    int turninAmount = 0;
+                    for (int x = 0; x < 3; x++)
+                    {
+                        turninAmount = turninAmount + CraftLeveSheet.GetRow(questID).ItemCount[x].ToInt();
+                    }
+                    turninAmount = turninAmount * leveRepeat;
+
+                    // Testing this to see if I can grab upon loading the sheet up to save frames...
+                    int currentlyHave = GetItemCount(itemID.ToInt());
+
+                    if (!CraftDictionary.ContainsKey(leveNumber) && CraftFisherJobs.Contains(leveJob))
+                    {
+                        CraftDictionary[leveNumber] = new CraftDataDict
+                        {
+                            // Crafting Specific
+                            LeveTurninVendorID = turninNpcId,
+                            RepeatAmount = leveRepeat,
+                            ItemID = itemID,
+                            ItemName = itemName,
+                            ItemIcon = itemIcon,
+                            TurninAmount = turninAmount,
+                            CurrentItemAmount = currentlyHave,
+                        };
+                    }
+                }
 
                 int priority = 0;
 
@@ -377,21 +393,6 @@ public static unsafe class Utils
 
                         // Gathering Specific, but can be applied to all
                         Priority = priority,
-                    };
-                }
-
-                if (!CraftDictionary.ContainsKey(leveNumber) && CraftFisherJobs.Contains(leveJob))
-                {
-                    CraftDictionary[leveNumber] = new CraftDataDict
-                    {
-                        // Crafting Specific
-                        LeveTurninVendorID = turninNpcId,
-                        RepeatAmount = leveRepeat,
-                        ItemID = itemID,
-                        ItemName = itemName,
-                        ItemIcon = itemIcon,
-                        TurninAmount = turninAmount,
-                        CurrentItemAmount = currentlyHave,
                     };
                 }
             }
@@ -739,10 +740,6 @@ public static unsafe class Utils
         else if (QuestRequired == 1)
         {
             quest = HeistLevesUnlocked();
-        }
-        else
-        {
-            quest = CanDoLeves(QuestRequired);
         }
 
         return quest;

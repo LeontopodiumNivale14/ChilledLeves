@@ -55,6 +55,7 @@ public static unsafe class Data
 
     #region Leve Misc Information
 
+    public static HashSet<uint> AllowedJobs = new() { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
     public static HashSet<uint> CraftFisherJobs = new() { 4, 5, 6, 7, 8, 9, 10, 11, 12 };
     public static HashSet<int> CrafterJobList = new() { 8, 9, 10, 11, 12, 13, 14, 15 };
     public static HashSet<int> GatheringJobList = new() { 16, 17, 18 };
@@ -91,7 +92,6 @@ public static unsafe class Data
         1211, 1212, 1213, 1217, 1218, 1219, 1223, 1224, 1225, 1229, 1230, 1231, 1235, 1236, 1237 };
 
     public static HashSet<uint> SelectedLeves = new HashSet<uint>();
-    public static uint IconSlot = 4;
 
     public static List<LeveEntry> ListCycled = new List<LeveEntry>();
     public static List<LeveEntry> TemporaryList = new List<LeveEntry>();
@@ -304,6 +304,19 @@ public static unsafe class Data
 
     #endregion
 
+    #region Npc Information
+
+    public class NpcData
+    {
+        public string NpcName { get; set; }
+        public string NpcLocation { get; set; }
+        public string NpcLevels { get; set; }
+    }
+
+    public static Dictionary<uint, NpcData> NpcLocationInfo = new Dictionary<uint, NpcData>();
+
+    #endregion
+
     #region NPC Leve Information
 
     public class LeveInfoVendor
@@ -311,6 +324,9 @@ public static unsafe class Data
         // NPC ID is the key here for accessing everything
         public required string Name { get; set; }
         public required uint ZoneID { get; set; }
+        public string FshLeveLevels { get; set; } = "";
+        public string MinLeveLevels { get; set; } = "";
+        public string BtnLeveLevels { get; set; } = "";
         public required uint Aetheryte { get; set; }
         public required Vector3 NPCInteractZone { get; set; }
         public Vector3 NPCLocation { get; set; }
@@ -333,6 +349,7 @@ public static unsafe class Data
         { 1000970, new LeveInfoVendor { // T'mokkri
             Name = NPCName(1000970),
             ZoneID = 128, // Upper Limsa
+            BtnLeveLevels = "30",
             Aetheryte = 8,
             NPCInteractZone = new Vector3 (-10.42f, 40.02f, -10.17f),
             NPCLocation = new Vector3(-12.38f, 40f, -12.16f),
@@ -347,6 +364,9 @@ public static unsafe class Data
         { 1000101, new LeveInfoVendor { // Gontrant
             Name = NPCName(1000101),
             ZoneID = 132, // Gridania
+            FshLeveLevels = "20-25",
+            MinLeveLevels = "20-25",
+            BtnLeveLevels = "1-25",
             Aetheryte = 2,
             NPCInteractZone = new Vector3 (27.67f, -8f, 108f),
             NPCLocation = new Vector3 (25.04f, -8f, 108.08f),
@@ -375,6 +395,7 @@ public static unsafe class Data
         { 1004342, new LeveInfoVendor { // Wyrkholsk
             Name = NPCName(1004342),
             ZoneID = 135, // Lower La Noscea, Red Rooster Stead
+            FshLeveLevels = "1-5",
             Aetheryte = 10,
             NPCInteractZone = new Vector3 (500.70f, 79.31f, -72.31f),
             NPCLocation = new Vector3(499.6f, 79.72f, -74.57f),
@@ -444,6 +465,7 @@ public static unsafe class Data
         { 1003888, new LeveInfoVendor { // Graceful Song
             Name = NPCName(1003888),
             ZoneID = 140, // Western Thanalan
+            MinLeveLevels = "1-5",
             Aetheryte = 17,
             NPCInteractZone = new Vector3 (226.83f, 52.04f, 153.97f),
             NPCLocation = new Vector3(229.88f, 52.04f, 153.98f),
@@ -458,6 +480,7 @@ public static unsafe class Data
         { 1001796, new LeveInfoVendor { // Totonowa
             Name = NPCName(1001796),
             ZoneID = 140, // Western Thanalan
+            MinLeveLevels = "10",
             Aetheryte = 17,
             NPCInteractZone = new Vector3 (83.07f, 46.00f, -243.82f),
             NPCLocation = new Vector3(85.16f, 46f, -245.84f),
@@ -472,6 +495,7 @@ public static unsafe class Data
         { 1001788, new LeveInfoVendor { // Swygskyf // MIGHT REQUIRE: "Simply the Hest" (yes it does)
             Name = NPCName(1001788),
             ZoneID = 138,
+            FshLeveLevels = "10",
             Aetheryte = 13,
             NPCInteractZone = new Vector3 (666.72f, 9.18f, 513.39f),
             NPCLocation = new Vector3(669.18f, 9.2f, 512.99f),
@@ -486,6 +510,7 @@ public static unsafe class Data
         { 1001791, new LeveInfoVendor { // Orwen, Locks leves behind quest
             Name = NPCName(1001791),
             ZoneID = 138,
+            FshLeveLevels = "15",
             Aetheryte = 14,
             NPCInteractZone = new Vector3 (309.51f, -31.90f, 283.59f),
             NPCLocation = new Vector3(312.58f, -31.9f, 283.96f),
@@ -525,6 +550,7 @@ public static unsafe class Data
         { 1001799, new LeveInfoVendor { // Poponagu 
             Name = NPCName(1001799),
             ZoneID = 145,
+            MinLeveLevels = "15",
             Aetheryte = 18,
             NPCInteractZone = new Vector3 (-376.29f, -57.08f, 127.11f),
             NPCLocation = new Vector3(-378.19f, -57.33f, 129.26f),
@@ -550,6 +576,8 @@ public static unsafe class Data
             Name = NPCName(1000823),
             ZoneID = 153,
             Aetheryte = 5,
+            MinLeveLevels = "20-25",
+            FshLeveLevels = "20-25",
             NPCInteractZone = new Vector3 (198.88f, 8.82f, -62.75f),
             NPCLocation = new Vector3(201.53f, 9.74f, -61.45f),
             BattlecraftButton = 0,
@@ -612,6 +640,8 @@ public static unsafe class Data
         { 1004344, new LeveInfoVendor { // Nahctahr (No, I can't make these up...)
             Name = NPCName(1004344),
             ZoneID = 137, // Eastern La Noscea
+            MinLeveLevels = "30",
+            FshLeveLevels = "30",
             Aetheryte = 11,
             NPCInteractZone = new Vector3 (454.62418f, 16.995407f, 467.68893f),
             NPCLocation = new Vector3(450.22f, 17.75f, 470.3f),
@@ -650,6 +680,9 @@ public static unsafe class Data
         { 1002384, new LeveInfoVendor { // Cimeautrant (man that's almost gibberish)
             Name = NPCName(1002384),
             ZoneID = 155,
+            MinLeveLevels = "35",
+            BtnLeveLevels = "35",
+            FshLeveLevels = "35",
             Aetheryte = 23,
             NPCInteractZone = new Vector3 (228.83f, 222.00f, 339.32f),
             NPCLocation = new Vector3(227.59f, 222f, 341.66f),
@@ -674,6 +707,9 @@ public static unsafe class Data
         { 1002401, new LeveInfoVendor { // Voilnaut (Almost astronaut..)
             Name = NPCName(1002401),
             ZoneID = 155,
+            MinLeveLevels = "40",
+            BtnLeveLevels = "40",
+            FshLeveLevels = "40",
             Aetheryte = 23,
             NPCInteractZone = new Vector3 (-443.83f, 211.00f, -234.07f),
             NPCLocation = new Vector3(-441.12f, 211f, -235.52f),
@@ -712,6 +748,9 @@ public static unsafe class Data
         { 1004348, new LeveInfoVendor { // K'leytai
             Name = NPCName(1004348),
             ZoneID = 156,
+            MinLeveLevels = "45",
+            BtnLeveLevels = "45",
+            FshLeveLevels = "45",
             Aetheryte = 24,
             NPCInteractZone = new Vector3 (418.62f, -5.81f, -447.56f),
             NPCLocation = new Vector3(415.98f, -6.06f, -444.42f),
@@ -997,6 +1036,9 @@ public static unsafe class Data
         { 1011208, new LeveInfoVendor { // Eloin
             Name = NPCName(1011208),
             ZoneID = 418,
+            MinLeveLevels = "50-58",
+            BtnLeveLevels = "50-58",
+            FshLeveLevels = "50-58",
             Aetheryte = 70,
             NPCInteractZone = new Vector3 (-56.18f, 15.14f, -41.45f),
             NPCLocation = new Vector3(-53.54f, 15.2f, -42.68f),
@@ -1007,7 +1049,7 @@ public static unsafe class Data
             LSCrafterButton = 5,
             LeaveButton = 7,
             Mount = false,
-            RequiredQuestId = ComingtoIshgard,
+            RequiredQuestId = 0,
             flagX = -53.54f, flagZ = -42.68f
         } },
         { 1011209, new LeveInfoVendor { // Fionnuala
@@ -1017,7 +1059,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-56.18f, 15.14f, -41.45f),
             NPCLocation = new Vector3 (-54.31f, 15.19f, -44.51f),
             Mount = false,
-            RequiredQuestId = ComingtoIshgard,
+            RequiredQuestId = 0,
             flagX = -54.31f, flagZ = -44.51f
         } },
         { 1011210, new LeveInfoVendor // Cesteline
@@ -1028,7 +1070,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-56.18f, 15.14f, -41.45f),
             NPCLocation = new Vector3(-52.69f, 15.23f, -40.82f),
             Mount = false,
-            RequiredQuestId = ComingtoIshgard,
+            RequiredQuestId = 0,
             flagX = -52.69f, flagZ = -40.82f,
         } },
 
@@ -1036,6 +1078,9 @@ public static unsafe class Data
         { 1018997, new LeveInfoVendor { // Keltraeng
             Name = NPCName(1018997),
             ZoneID = 628,
+            MinLeveLevels = "60-68",
+            BtnLeveLevels = "60-68",
+            FshLeveLevels = "60-68",
             Aetheryte = 111,
             NPCInteractZone = new Vector3 (20.61f, 0.00f, -77.82f),
             NPCLocation = new Vector3(20.49f, -0f, -80.95f),
@@ -1043,7 +1088,7 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
-            RequiredQuestId = NotWithoutIncident,
+            RequiredQuestId = 0,
             flagX = 20.49f, flagZ = -80.95f
         } },
         { 1018998, new LeveInfoVendor { // Chantine
@@ -1053,7 +1098,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (20.61f, 0.00f, -77.82f),
             NPCLocation = new Vector3(17.26f, -0f, -81.32f),
             Mount = false,
-            RequiredQuestId = NotWithoutIncident,
+            RequiredQuestId = 0,
             flagX = 17.26f, flagZ = -81.32f
         } },
         { 1018999, new LeveInfoVendor
@@ -1064,13 +1109,16 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-56.18f, 15.14f, -41.45f),
             NPCLocation = new Vector3(23.67f, -8.06f, -81.38f),
             Mount = false,
-            RequiredQuestId = NotWithoutIncident,
+            RequiredQuestId = 0,
             flagX = 23.666687f, flagZ = 81.3764f,
         } },
         // Shadowbringer
         { 1027847, new LeveInfoVendor { // Eirikur
             Name = NPCName(1027847),
             ZoneID = 819,
+            MinLeveLevels = "70-78",
+            BtnLeveLevels = "70-78",
+            FshLeveLevels = "70-78",
             Aetheryte = 133,
             NPCInteractZone = new Vector3 (-73.40f, 20.00f, -110.90f),
             NPCLocation = new Vector3(-76.34f, 20.05f, -110.98f),
@@ -1078,7 +1126,7 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
-            RequiredQuestId = CityoftheFirst,
+            RequiredQuestId = 0,
             flagX = -76.34f, flagZ = -110.98f
         } },
         { 1027848, new LeveInfoVendor { // Moyce
@@ -1088,7 +1136,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-73.40f, 20.00f, -110.90f),
             NPCLocation = new Vector3(-76.19f, 20.05f, -113.88f),
             Mount = false,
-            RequiredQuestId = CityoftheFirst,
+            RequiredQuestId = 0,
             flagX = -76.49f, flagZ = -107.96f
         } },
         { 1027849, new LeveInfoVendor // Shue-Hann
@@ -1099,13 +1147,16 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (-73.40f, 20.00f, -110.90f),
             NPCLocation = new Vector3(-76.49f, 20.05f, -107.96f),
             Mount = false,
-            RequiredQuestId = CityoftheFirst,
+            RequiredQuestId = 0,
             flagX = -76.49f, flagZ = -107.96f
         } },
         // Endwalker
         { 1037263, new LeveInfoVendor { // Grigge
             Name = NPCName(1037263),
             ZoneID = 962,
+            MinLeveLevels = "80-88",
+            BtnLeveLevels = "80-88",
+            FshLeveLevels = "80-88",
             Aetheryte = 182,
             NPCInteractZone = new Vector3 (49.96f, -15.65f, 111.81f),
             NPCLocation = new Vector3(46.83f, -15.65f, 107.87f),
@@ -1113,7 +1164,7 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
-            RequiredQuestId = TheNextShiptoSail,
+            RequiredQuestId = 0,
             flagX = 46.83f, flagZ = 107.87f,
         } },
         { 1037264, new LeveInfoVendor { // Ahldiyrn
@@ -1123,7 +1174,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (49.96f, -15.65f, 111.81f),
             NPCLocation = new Vector3(53.48f, -15.65f, 109.73f),
             Mount = false,
-            RequiredQuestId = TheNextShiptoSail,
+            RequiredQuestId = 0,
             flagX = 53.48f, flagZ = 109.73f,
         } },
         { 1037265, new LeveInfoVendor
@@ -1134,13 +1185,16 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (49.96f, -15.65f, 111.81f),
             NPCLocation = new Vector3(55.38f, -15.65f, 109.73f),
             Mount = false,
-            RequiredQuestId = TheNextShiptoSail,
+            RequiredQuestId = 0,
             flagX = 55.38f, flagZ = 109.73f,
         } },
         // Dawntrail
         { 1048390, new LeveInfoVendor { // Malihali
             Name = NPCName(1048390),
             ZoneID = 1185,
+            MinLeveLevels = "90-98",
+            BtnLeveLevels = "90-98",
+            FshLeveLevels = "90-98",
             Aetheryte = 216,
             NPCInteractZone = new Vector3 (20.58f, -14f, 86.46f),
             NPCLocation = new Vector3(15.24f, -14f, 85.83f),
@@ -1148,7 +1202,7 @@ public static unsafe class Data
             CrafterButton = 1,
             LeaveButton = 3,
             Mount = false,
-            RequiredQuestId = ANewWorldtoExplore,
+            RequiredQuestId = 0,
             flagX = 15.24f, flagZ = 85.83f
         } },
         { 1048391, new LeveInfoVendor { // Ponawme
@@ -1158,7 +1212,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (23.84f, -14f, 83.45f),
             NPCLocation = new Vector3(21.23f, -14f, 80.22f),
             Mount = false,
-            RequiredQuestId = ANewWorldtoExplore,
+            RequiredQuestId = 0,
             flagX = 21.23f, flagZ = 80.22f,
         } },
         { 1048392, new LeveInfoVendor { // Br'uk Ts'on
@@ -1168,7 +1222,7 @@ public static unsafe class Data
             NPCInteractZone = new Vector3 (23.84f, -14f, 83.45f),
             NPCLocation = new Vector3(23.09f, -14f, 78.39f),
             Mount = false,
-            RequiredQuestId = ANewWorldtoExplore,
+            RequiredQuestId = 0,
             flagX = 23.09f, flagZ = 78.39f
         } }
     };

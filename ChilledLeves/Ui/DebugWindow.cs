@@ -21,7 +21,7 @@ namespace ChilledLeves.Ui;
 internal class DebugWindow : Window
 {
     public DebugWindow() :
-        base($"Chilled Leves Debug {P.GetType().Assembly.GetName().Version} ###ChilledLevesDebug")
+        base($"Chilled Leves Debug {P.GetType().Assembly.GetName().Version} ###ChilledLevesDebug") //
     {
         Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse;
         SizeConstraints = new WindowSizeConstraints
@@ -356,12 +356,13 @@ internal class DebugWindow : Window
             visibleLeveIds.Clear();
         }
 
-        if (ImGui.BeginTable("NPC Info Table", 13, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
+        if (ImGui.BeginTable("NPC Info Table", 14, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
         {
             ImGui.TableSetupColumn("Amount", ImGuiTableColumnFlags.WidthFixed, col1Width);
             ImGui.TableSetupColumn("LeveID", ImGuiTableColumnFlags.WidthFixed, 50);
             ImGui.TableSetupColumn("Leve Name", ImGuiTableColumnFlags.WidthFixed, col2Width);
             ImGui.TableSetupColumn("Level", ImGuiTableColumnFlags.WidthFixed, col3Width);
+            ImGui.TableSetupColumn("JobType", ImGuiTableColumnFlags.WidthFixed, 50);
             ImGui.TableSetupColumn("Leve Vendor Name");
             ImGui.TableSetupColumn("Leve Turnin Vendor Name");
             ImGui.TableSetupColumn("Zone Start");
@@ -381,21 +382,25 @@ internal class DebugWindow : Window
                 uint LeveId = entry.Key;
                 string leveName = entry.Value.LeveName.ToString();
                 uint leveLevel = entry.Value.Level;
+                uint JobTypeNumber = entry.Value.JobAssignmentType;
                 string leveVendorName = entry.Value.LeveVendorName.ToString();
                 string leveVendorId = entry.Value.LeveVendorID.ToString();
                 string leveStartName = ZoneName(LeveNPCDict[entry.Value.LeveVendorID].ZoneID);
-                uint turninVendorId = CraftDictionary[entry.Key].LeveTurninVendorID;
-                string leveEndZoneName = ZoneName(LeveNPCDict[turninVendorId].ZoneID);
-                string turninVendorName = "";
                 int leveCost = entry.Value.AllowanceCost;
                 int gilReward = entry.Value.GilReward;
-                if (turninVendorId != 0)
+               
+                string turninVendorName = "Not a valid turnin vendor!";
+                uint turninVendorId = 0;
+                string leveEndZoneName = "";
+
+                if (CraftFisherJobs.Contains(JobTypeNumber))
                 {
-                    turninVendorName = LeveNPCDict[turninVendorId].Name;
-                }
-                else
-                {
-                    turninVendorName = "Not a valid turnin vendor!";
+                    turninVendorId = CraftDictionary[entry.Key].LeveTurninVendorID;
+                    if (turninVendorId != 0)
+                    {
+                        turninVendorName = LeveNPCDict[turninVendorId].Name;
+                        leveEndZoneName = ZoneName(LeveNPCDict[turninVendorId].ZoneID);
+                    }
                 }
 
                 // Search Filtering
@@ -462,6 +467,10 @@ internal class DebugWindow : Window
                 ImGui.TableNextColumn();
                 ImGui.Text($"{leveLevel}");
 
+                // Job Type 
+                ImGui.TableNextColumn();
+                ImGui.Text($"{JobTypeNumber}");
+
                 // Leve Vendor Name/ID (Row 4)
                 ImGui.TableNextColumn();
                 if (ImGui.Selectable($"{leveVendorName}"))
@@ -479,17 +488,20 @@ internal class DebugWindow : Window
 
                 // Leve Vendor Name/ID (Row 5)
                 ImGui.TableNextColumn();
-                if (ImGui.Selectable($"{turninVendorName}"))
+                if (CraftFisherJobs.Contains(JobTypeNumber))
                 {
-                    var flagX = LeveNPCDict[turninVendorId].flagX;
-                    var flagZ = LeveNPCDict[turninVendorId].flagZ;
-                    SetFlagForNPC(LeveNPCDict[turninVendorId].ZoneID, flagX, flagZ);
-                }
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.BeginTooltip();
-                    ImGui.Text($"ID: {turninVendorId}");
-                    ImGui.EndTooltip();
+                    if (ImGui.Selectable($"{turninVendorName}"))
+                    {
+                        var flagX = LeveNPCDict[turninVendorId].flagX;
+                        var flagZ = LeveNPCDict[turninVendorId].flagZ;
+                        SetFlagForNPC(LeveNPCDict[turninVendorId].ZoneID, flagX, flagZ);
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Text($"ID: {turninVendorId}");
+                        ImGui.EndTooltip();
+                    }
                 }
 
                 // Leve Start Zone (Row 6)

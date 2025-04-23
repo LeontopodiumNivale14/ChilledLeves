@@ -285,7 +285,7 @@ namespace ChilledLeves.Scheduler
                         }
                         else if (GatheringMode)
                         {
-                            Job ecomJob = EcomJobFinder(IconSlot);
+                            Job ecomJob = EcomJobFinder(C.ClassJobType);
                             TaskClassChange.Enqueue(ecomJob);
 
                             uint leveId = 0;
