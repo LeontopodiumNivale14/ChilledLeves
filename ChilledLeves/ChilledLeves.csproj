@@ -2,7 +2,7 @@
 <Project Sdk="Dalamud.NET.Sdk/12.0.2">
 
   <PropertyGroup>
-    <Version>1.0.1.9</Version>
+    <Version>1.0.1.10</Version>
     <Description>Bringing in automating the leve process, one leve at a time.</Description>
     <PackageProjectUrl>https://github.com/goatcorp/ChilledLeves</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>

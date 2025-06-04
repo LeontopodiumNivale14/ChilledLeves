@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using ChilledLeves.Utilities;
 using ECommons.Configuration;
 using Lumina.Excel.Sheets;
 namespace ChilledLeves;
@@ -8,6 +9,10 @@ public class Config : IEzConfig
     [JsonIgnore]
     public const int CurrentConfigVersion = 6;
     public uint CompleteFilter { get; set; } = 0;
+    public bool PlaySound { get; set; } = false;
+    public Sounds Sounds { get; set; } = Sounds.Sound01;
+    public bool SendChat { get; set; } = false;
+    public int LeveAlertAmount { get; set; } = 100;
     private List<uint> jobFilter = [];
     public List<LeveEntry> workList = new List<LeveEntry>();
 

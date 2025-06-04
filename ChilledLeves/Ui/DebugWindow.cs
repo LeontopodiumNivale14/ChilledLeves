@@ -15,6 +15,7 @@ using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using static ECommons.UIHelpers.AddonMasterImplementations.AddonMaster;
 
 namespace ChilledLeves.Ui;
 
@@ -297,7 +298,7 @@ internal class DebugWindow : Window
 
     private static HashSet<uint> visibleLeveIds = new();
 
-#nullable disable
+    #nullable disable
     public void LeveItAloneTable()
     {
         ImGui.SetNextItemWidth(125);

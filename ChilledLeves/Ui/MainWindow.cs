@@ -1,8 +1,10 @@
 ﻿using ChilledLeves.Scheduler;
+using ChilledLeves.Utilities;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Style;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility.Raii;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
@@ -53,6 +55,7 @@ namespace ChilledLeves.Ui
 
         public void Dispose()
         {
+
         }
 
         /// <summary>
@@ -645,6 +648,25 @@ namespace ChilledLeves.Ui
             }
             #endregion
 
+            // Additional Filters heading
+            ImGui.Spacing();
+            ImGui.Spacing();
+            string NotificationText = "Notifications";
+            if (usingIceTheme)
+            {
+                int styleCount = ThemeHelper.PushHeadingTextStyle();
+                ImGui.Text(NotificationText);
+                ImGui.PopStyleColor(styleCount);
+            }
+            else
+            {
+                ImGui.Text(NotificationText);
+            }
+            ImGui.Separator();
+            ImGui.Spacing();
+
+            NotificationAlerts();
+
             // End of left panel
             ImGui.EndChild();
             if (usingIceTheme)
@@ -673,7 +695,13 @@ namespace ChilledLeves.Ui
             }
 
             // Draw each leve entry if it passes the filter
-            foreach (var kdp in LeveDictionary)
+            var sortedLeves = LeveDictionary
+                                .OrderBy(x => x.Value.JobAssignmentType)
+                                .ThenBy(x => x.Key)
+                                .ToList();
+
+
+            foreach (var kdp in sortedLeves)
             {
                 if (FilterLeve(kdp.Key))
                 {
@@ -1392,9 +1420,71 @@ namespace ChilledLeves.Ui
             return showLeve;
         }
 
+        private Sounds selectedSound = C.Sounds;
+        private bool PlaySound = C.PlaySound;
+        private readonly Sounds[] soundValues = Enum.GetValues(typeof(Sounds)).Cast<Sounds>().ToArray();
+        private readonly string[] soundNames = Enum.GetValues(typeof(Sounds)).Cast<Sounds>().Select(s => s.ToName()).ToArray();
+
+        private bool SendChat = C.SendChat;
+        private int LeveNotificationAmount = C.LeveAlertAmount;
+
+        private void NotificationAlerts()
+        {
+            int currentIndex = Array.IndexOf(soundValues, selectedSound);
+            if (ImGui.Checkbox("###ShowSoundEffect", ref PlaySound))
+            {
+                if (C.PlaySound != PlaySound)
+                {
+                    C.PlaySound = PlaySound;
+                    C.Save();
+                }
+            }
+            ImGui.AlignTextToFramePadding();
+            ImGui.SameLine();
+            ImGui.Text("Sound Effect");
+            if (PlaySound)
+            {
+                if (ImGui.Combo("###Select Sound_LeveSE", ref currentIndex, soundNames, soundNames.Length))
+                {
+                    selectedSound = soundValues[currentIndex]; // Update your selected sound
+                    C.Sounds = selectedSound; // Set the variable in C
+                    UIGlobals.PlaySoundEffect((uint)selectedSound);
+                    C.Save();
+                }
+            }
+
+            if (ImGui.Checkbox("###ChatMessage", ref SendChat))
+            {
+                if (C.SendChat != SendChat)
+                {
+                    C.SendChat = SendChat;
+                    C.Save();
+                }
+            }
+            ImGui.SameLine();
+            ImGui.Text($"Chat Notification");
+
+            ImGui.Text("Leve Notification Amount");
+            ImGui.SameLine();
+            ImGui.TextDisabled("(?)");
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text("Amount that you want the notification to go off on.");
+                ImGui.Text("Will alert you when your current leves is at or above this amount.");
+                ImGui.EndTooltip();
+            }
+            if (ImGui.SliderInt("###LeveAmount", ref LeveNotificationAmount, 1, 100))
+            {
+                if (C.LeveAlertAmount != LeveNotificationAmount)
+                {
+                    C.LeveAlertAmount = LeveNotificationAmount;
+                    C.Save();
+                }
+            }
+        }
 
         /// Draws the header at the top of the window showing plugin name, allowances, etc.
-
         private void DrawSimpleHeader(bool usingIceTheme)
         {
             float fontScale = ImGui.GetIO().FontGlobalScale;

@@ -14,7 +14,7 @@ namespace ChilledLeves.IPC
         public const string Repo = "https://github.com/NightmareXIV/MyDalamudPlugins/raw/main/pluginmaster.json";
         public LifestreamIPC() => EzIPC.Init(this, Name, SafeWrapper.AnyException);
 
-        [EzIPC] public Func<string, bool> AethernetTeleport; //
+        [EzIPC] public Func<string, bool> AethernetTeleport;
         [EzIPC] public Func<uint, byte, bool> Teleport;
         [EzIPC] public Func<bool> TeleportToHome;
         [EzIPC] public Func<bool> TeleportToFC;

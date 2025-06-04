@@ -4,6 +4,7 @@ using ChilledLeves.Scheduler;
 using ChilledLeves.Ui;
 using ChilledLeves.IPC;
 using ChilledLeves.Scheduler.Handlers;
+using ChilledLeves.Utilities;
 
 namespace ChilledLeves;
 
@@ -29,6 +30,7 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal LifestreamIPC lifestream;
     internal NavmeshIPC navmesh;
     internal PandoraIPC pandora;
+    internal ArtisanIPC artisan;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public ChilledLeves(IDalamudPluginInterface pi)
@@ -49,6 +51,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         lifestream = new();
         navmesh = new();
         pandora = new();
+        artisan = new();
 
         // all the windows
         windowSystem = new();
@@ -89,6 +92,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         GenericManager.Tick();
         TextAdvancedManager.Tick();
         YesAlreadyManager.Tick();
+        SoundAlert.Tick();
     }
 
     public void Dispose()
