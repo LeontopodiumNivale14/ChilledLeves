@@ -13,6 +13,7 @@ public class Config : IEzConfig
     public Sounds Sounds { get; set; } = Sounds.Sound01;
     public bool SendChat { get; set; } = false;
     public int LeveAlertAmount { get; set; } = 100;
+    public bool ShowOverlayAlert { get; set; } = true;
     private List<uint> jobFilter = [];
     public List<LeveEntry> workList = new List<LeveEntry>();
 

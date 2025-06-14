@@ -1,5 +1,6 @@
 ﻿using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using System;
 using System.Collections.Generic;
@@ -59,14 +60,29 @@ internal static class SoundAlert
     }
 
     public static Sounds SoundEffect = C.Sounds;
+    public static ulong CID => Svc.ClientState.LocalContentId;
+    public static readonly ulong DefaultCID = 0000000000000000;
+    public static ulong CurrentId = 0000000000000000;
+    public static bool refreshOverlay = false;
 
     public static void Tick()
     {
-        if (Utils.Allowances >= C.LeveAlertAmount && !Player.IsInDuty)
+        if ((CID != CurrentId || CID == DefaultCID) && C.ShowOverlayAlert)
         {
-            // timer is set to 5 minutes ( 300000 )
-            if (EzThrottler.Throttle("PlaySoundEffect", 300000))
+            CurrentId = DefaultCID;
+            refreshOverlay = true;
+        }
+
+        if (Utils.Allowances >= C.LeveAlertAmount && !Player.IsInDuty && CurrentId != CID && CID != DefaultCID)
+        {
+            CurrentId = CID;
+            if (EzThrottler.Throttle("PlaySoundEffect", 100))
             {
+                if (refreshOverlay)
+                {
+                    P.alertUi.IsOpen = true;
+                }
+
                 if (C.SendChat)
                 {
                     ECommons.ChatMethods.ChatPrinter.Orange($"[Chilled Leves] Leve's are at: {Allowances}");

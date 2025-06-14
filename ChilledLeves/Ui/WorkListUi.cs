@@ -535,6 +535,11 @@ namespace ChilledLeves.Ui
 
         #region UI Components and Drawing
 
+        // Used for the navmesh button
+        private static string buttonText = "Need Navmesh Installed";
+        private static float lastClickTime = 0f;
+        private const float resetDelay = 2.0f; // 2 seconds delay
+
         public static void WorklistMode(WorkListUi currentInstance)
         {
             #region Main Menu Buttons
@@ -560,6 +565,51 @@ namespace ChilledLeves.Ui
                 
                 // Left-aligned buttons
                 ImGui.BeginGroup();
+
+                // Start and Stop buttons 
+                using (ImRaii.Disabled(SchedulerMain.AreWeTicking))
+                {
+                    if (!HasPlugin("vnavmesh"))
+                    {
+                        // Check if button is clicked
+                        if (ImGui.Button(buttonText, new Vector2(gatherBtnWidth / 2, navButtonHeight)))
+                        {
+                            ImGui.SetClipboardText("https://puni.sh/api/repository/veyn");
+                            buttonText = "Copied to Clipboard";
+                            lastClickTime = (float)ImGui.GetTime(); // Store the current ImGui time
+                        }
+
+                        if (ImGui.IsItemHovered())
+                        {
+                            ImGui.BeginTooltip();
+                            ImGui.Text("Press the button to copy the repo to your clipboard");
+                            ImGui.EndTooltip();
+                        }
+
+                        // Check if the delay has passed and revert the text
+                        if (buttonText == "Copied to Clipboard" && (ImGui.GetTime() - lastClickTime) >= resetDelay)
+                        {
+                            buttonText = "Need Navmesh Installed";
+                        }
+                    }
+                    else if (HasPlugin("vnavmesh"))
+                    {
+                        if (ImGui.Button("Start", new Vector2(gatherBtnWidth / 2, navButtonHeight)))
+                        {
+                            SchedulerMain.WorkListMode = true;
+                            SchedulerMain.EnablePlugin();
+                        }
+                    }
+                }
+                ImGui.SameLine();
+                using (ImRaii.Disabled(!SchedulerMain.AreWeTicking))
+                {
+                    if (ImGui.Button("Stop", new Vector2(gatherBtnWidth / 2, navButtonHeight)))
+                    {
+                        SchedulerMain.DisablePlugin();
+                    }
+                }
+
                 if (ImGui.Button("Main Window", new Vector2(mainBtnWidth, navButtonHeight)))
                 {
                     P.mainWindow.IsOpen = true;
@@ -571,6 +621,7 @@ namespace ChilledLeves.Ui
                 {
                     P.gatherModeUi.IsOpen = true;
                 }
+
                 ImGui.EndGroup();
                 
                 // Right-aligned allowances info
@@ -596,9 +647,53 @@ namespace ChilledLeves.Ui
                 float btnPadding = 8 * fontScale;
                 float mainBtnWidth = ImGui.CalcTextSize("Main Window").X + btnPadding * 2;
                 float gatherBtnWidth = ImGui.CalcTextSize("Priority Leve Grind Window").X + btnPadding * 2;
-                
+
                 // Left-aligned buttons
+
                 ImGui.BeginGroup();
+                // Start and Stop buttons 
+                using (ImRaii.Disabled(SchedulerMain.AreWeTicking))
+                {
+                    if (!HasPlugin("vnavmesh"))
+                    {
+                        // Check if button is clicked
+                        if (ImGui.Button(buttonText, new Vector2(gatherBtnWidth / 2, navButtonHeight)))
+                        {
+                            ImGui.SetClipboardText("https://puni.sh/api/repository/veyn");
+                            buttonText = "Copied to Clipboard";
+                            lastClickTime = (float)ImGui.GetTime(); // Store the current ImGui time
+                        }
+
+                        if (ImGui.IsItemHovered())
+                        {
+                            ImGui.BeginTooltip();
+                            ImGui.Text("Press the button to copy the repo to your clipboard");
+                            ImGui.EndTooltip();
+                        }
+
+                        // Check if the delay has passed and revert the text
+                        if (buttonText == "Copied to Clipboard" && (ImGui.GetTime() - lastClickTime) >= resetDelay)
+                        {
+                            buttonText = "Need Navmesh Installed";
+                        }
+                    }
+                    else if (HasPlugin("vnavmesh"))
+                    {
+                        if (ImGui.Button("Start", new Vector2(gatherBtnWidth / 2, navButtonHeight)))
+                        {
+                            SchedulerMain.WorkListMode = true;
+                            SchedulerMain.EnablePlugin();
+                        }
+                    }
+                }
+                ImGui.SameLine();
+                using (ImRaii.Disabled(!SchedulerMain.AreWeTicking))
+                {
+                    if (ImGui.Button("Stop", new Vector2(gatherBtnWidth / 2, navButtonHeight)))
+                    {
+                        SchedulerMain.DisablePlugin();
+                    }
+                }
                 if (ImGui.Button("Main Window", new Vector2(mainBtnWidth, navButtonHeight)))
                 {
                     P.mainWindow.IsOpen = true;
@@ -610,6 +705,7 @@ namespace ChilledLeves.Ui
                 {
                     P.gatherModeUi.IsOpen = true;
                 }
+
                 ImGui.EndGroup();
                 
                 // Right-aligned allowances info

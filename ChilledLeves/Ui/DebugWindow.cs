@@ -59,6 +59,12 @@ internal class DebugWindow : Window
 
     private void MainDebug()
     {
+        ImGui.Text($"CID: {SoundAlert.CID:X16}");
+        if (ImGui.Button("Copy CID"))
+        {
+            ImGui.SetClipboardText($"{SoundAlert.CID:X16}");
+        }
+
         ImGui.SetNextItemWidth(75);
         if (ImGui.InputInt("###ClassIDDebug", ref ClassID))
         {

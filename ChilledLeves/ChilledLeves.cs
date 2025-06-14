@@ -22,6 +22,7 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal DebugWindow debugWindow;
     internal WorkListUi workListUi;
     internal GatherModeUi gatherModeUi;
+    internal AlertWindow alertUi; 
 
     // Taskmanager from Ecommons
     internal TaskManager taskManager;
@@ -60,6 +61,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         debugWindow = new();
         workListUi = new();
         gatherModeUi = new();
+        alertUi = new();
 
         taskManager = new(new(abortOnTimeout: true, timeLimitMS: 20000, showDebug: true));
         Svc.PluginInterface.UiBuilder.Draw += windowSystem.Draw;
