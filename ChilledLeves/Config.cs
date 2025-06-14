@@ -74,6 +74,13 @@ public class Config : IEzConfig
         jobFilter.Clear();
         GetJobFilter();
     }
+
+    public Dictionary<ulong, string> whitelistCharacters { get; set; } = new Dictionary<ulong, string>();
+    public Dictionary<ulong, string> blacklistCharacters { get; set; } = new Dictionary<ulong, string>();
+
+    public bool whitelistFeature { get; set; } = false;
+    public bool blacklistFeature { get; set; } = true;
+
     public void Save()
     {
         RefreshJobFilter();

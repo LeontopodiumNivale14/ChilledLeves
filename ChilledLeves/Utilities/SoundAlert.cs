@@ -73,7 +73,11 @@ internal static class SoundAlert
             refreshOverlay = true;
         }
 
-        if (Utils.Allowances >= C.LeveAlertAmount && !Player.IsInDuty && CurrentId != CID && CID != DefaultCID)
+        if (Utils.Allowances >= C.LeveAlertAmount 
+        && !Player.IsInDuty 
+        && CurrentId != CID
+        && CID != DefaultCID
+        && ((C.whitelistFeature && C.whitelistCharacters.ContainsKey(CID)) || (C.blacklistFeature && !C.blacklistCharacters.ContainsKey(CID))))
         {
             CurrentId = CID;
             if (EzThrottler.Throttle("PlaySoundEffect", 100))

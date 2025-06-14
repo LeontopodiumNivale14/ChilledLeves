@@ -243,6 +243,10 @@ namespace ChilledLeves.Ui
                     ImGui.Text("While this is disabled, you can also double click to add a leve as well!");
                     ImGui.EndTooltip();
                 }
+                if (ImGui.Button("Alert Settings", new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f)))
+                {
+                    P.alertSettings.IsOpen = true;
+                }
 
                 ImGui.Spacing();
                 ImGui.Spacing();
@@ -487,13 +491,6 @@ namespace ChilledLeves.Ui
                 // Additional Filters heading
                 ImGui.Spacing();
                 ImGui.Spacing();
-
-                ImGui.Text("Notifications");
-
-                ImGui.Separator();
-                ImGui.Spacing();
-
-                NotificationAlerts();
 
                 ImGui.EndChild();
             }
@@ -1203,70 +1200,6 @@ namespace ChilledLeves.Ui
 
             // Add padding for the rest of the content
             ImGui.SetCursorPosY(headerSize.Y);
-        }
-
-        private Sounds selectedSound = C.Sounds;
-        private bool PlaySound = C.PlaySound;
-        private readonly Sounds[] soundValues = Enum.GetValues(typeof(Sounds)).Cast<Sounds>().ToArray();
-        private readonly string[] soundNames = Enum.GetValues(typeof(Sounds)).Cast<Sounds>().Select(s => s.ToName()).ToArray();
-
-        private bool SendChat = C.SendChat;
-        private int LeveNotificationAmount = C.LeveAlertAmount;
-
-        private void NotificationAlerts()
-        {
-            int currentIndex = Array.IndexOf(soundValues, selectedSound);
-            if (ImGui.Checkbox("###ShowSoundEffect", ref PlaySound))
-            {
-                if (C.PlaySound != PlaySound)
-                {
-                    C.PlaySound = PlaySound;
-                    C.Save();
-                }
-            }
-            ImGui.AlignTextToFramePadding();
-            ImGui.SameLine();
-            ImGui.Text("Sound Effect");
-            if (PlaySound)
-            {
-                if (ImGui.Combo("###Select Sound_LeveSE", ref currentIndex, soundNames, soundNames.Length))
-                {
-                    selectedSound = soundValues[currentIndex]; // Update your selected sound
-                    C.Sounds = selectedSound; // Set the variable in C
-                    UIGlobals.PlaySoundEffect((uint)selectedSound);
-                    C.Save();
-                }
-            }
-
-            if (ImGui.Checkbox("###ChatMessage", ref SendChat))
-            {
-                if (C.SendChat != SendChat)
-                {
-                    C.SendChat = SendChat;
-                    C.Save();
-                }
-            }
-            ImGui.SameLine();
-            ImGui.Text($"Chat Notification");
-
-            ImGui.Text("Leve Notification Amount");
-            ImGui.SameLine();
-            ImGui.TextDisabled("(?)");
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                ImGui.Text("Amount that you want the notification to go off on.");
-                ImGui.Text("Will alert you when your current leves is at or above this amount.");
-                ImGui.EndTooltip();
-            }
-            if (ImGui.SliderInt("###LeveAmount", ref LeveNotificationAmount, 1, 100))
-            {
-                if (C.LeveAlertAmount != LeveNotificationAmount)
-                {
-                    C.LeveAlertAmount = LeveNotificationAmount;
-                    C.Save();
-                }
-            }
         }
     }
 }
