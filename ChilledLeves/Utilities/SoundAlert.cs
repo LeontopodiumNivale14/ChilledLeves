@@ -2,6 +2,7 @@
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,25 +65,38 @@ internal static class SoundAlert
     public static readonly ulong DefaultCID = 0000000000000000;
     public static ulong CurrentId = 0000000000000000;
     public static bool refreshOverlay = false;
+    public static bool IsLeveThresholdMet() => Utils.Allowances >= C.LeveAlertAmount;
 
     public static void Tick()
     {
-        if ((CID != CurrentId || CID == DefaultCID) && C.ShowOverlayAlert)
+        bool IsLeveThresholdMet = false;
+        if (Player.Interactable)
+        {
+            IsLeveThresholdMet = Utils.Allowances >= C.LeveAlertAmount;
+            // Svc.Log.Information($"Allowance: {Utils.Allowances} | Alert Amount: {C.LeveAlertAmount}");
+        }
+
+        if ((CID != CurrentId || CID == DefaultCID) 
+            && C.ShowOverlayAlert 
+            && IsLeveThresholdMet
+            && ((C.whitelistFeature && C.whitelistCharacters.ContainsKey(CID)) 
+               || (C.blacklistFeature && !C.blacklistCharacters.ContainsKey(CID)))
+            && Player.Interactable)
         {
             CurrentId = DefaultCID;
             refreshOverlay = true;
         }
 
-        if (Utils.Allowances >= C.LeveAlertAmount 
-        && !Player.IsInDuty 
+        if (CID != DefaultCID
         && CurrentId != CID
-        && CID != DefaultCID
-        && ((C.whitelistFeature && C.whitelistCharacters.ContainsKey(CID)) || (C.blacklistFeature && !C.blacklistCharacters.ContainsKey(CID))))
+        && !Player.IsInDuty
+        && IsLeveThresholdMet
+        && ((C.whitelistFeature && C.whitelistCharacters.ContainsKey(CID)) || C.blacklistFeature && !C.blacklistCharacters.ContainsKey(CID)) )
         {
             CurrentId = CID;
             if (EzThrottler.Throttle("PlaySoundEffect", 100))
             {
-                if (refreshOverlay)
+                if (refreshOverlay && C.ShowOverlayAlert)
                 {
                     P.alertUi.IsOpen = true;
                 }

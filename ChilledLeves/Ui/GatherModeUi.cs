@@ -434,30 +434,24 @@ internal class GatherModeUi : Window
         if (usingIceTheme)
         {
             using var textStyle = new ThemeHelper.StyleScope();
-            textStyle.PushColor(ImGuiCol.Text, ThemeHelper.IceBlue);
-            
-            if (ImGui.Selectable(selectableText))
+            textStyle.PushColor(ImGuiCol.Text, ThemeHelper.FrostWhite);
+
+            if (ImGui.Button("Open NPC Selection"))
             {
                 ImGui.OpenPopup("NPC Selection Popup"); // Open the popup when the selectable is clicked
             }
+            ImGui.SameLine();
+            ImGui.Text(selectableText);
         }
         else
         {
-            using var textStyle = new ThemeHelper.StyleScope();
-            textStyle.PushColor(ImGuiCol.Text, EColor.Green);
-            
-            if (ImGui.Selectable(selectableText))
+            if (ImGui.Button("Open NPC Selection"))
             {
                 ImGui.OpenPopup("NPC Selection Popup"); // Open the popup when the selectable is clicked
             }
-        }
-        
-        // Add tooltip for NPC selection
-        if (ImGui.IsItemHovered())
-        {
-            ImGui.BeginTooltip();
-            ImGui.Text("Left click to select Leve NPC");
-            ImGui.EndTooltip();
+
+            ImGui.SameLine();
+            ImGui.Text(selectableText);
         }
 
         // NPC Selection Popup - NO ID SCOPE to avoid breaking popup behavior

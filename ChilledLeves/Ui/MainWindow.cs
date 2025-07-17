@@ -702,10 +702,6 @@ namespace ChilledLeves.Ui
                         ImGui.Separator();
                         HeaderText("Required Items");
 
-                        if (usingIceTheme)
-                        {
-                            ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(0.2f, 0.25f, 0.3f, 0.5f));
-                        }
                         ImGui.BeginChild("###ItemInfo", new Vector2(ImGui.GetContentRegionAvail().X, 50), true);
 
                         ImGui.Image(CraftDictionary[leve].ItemIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(32, 32));
