@@ -287,7 +287,7 @@ internal class SettingsWindow : Window
             ImGui.TableNextColumn();
             // Scale icon size based on text line height
             float iconSize = Math.Max(25, textLineHeight * 1.5f);
-            ImGui.Image(jobIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
+            ImGui.Image(jobIcon.GetWrapOrEmpty().Handle, new Vector2(iconSize, iconSize));
             ImGui.SameLine(0, 5 * fontScale); // Scale spacing
             ImGui.AlignTextToFramePadding();
             CenterTextInHeight($"{LeveName}");
@@ -388,7 +388,8 @@ internal class SettingsWindow : Window
         ImGui.SetCursorPosY(cursorY);
         // Scale the input field width based on font scale
         ImGui.SetNextItemWidth(75 * fontScale);
-        ImGui.InputText(label, ref input, maxLength);
+
+        ImGui.InputText(label, ref input, (int)maxLength, ImGuiInputTextFlags.None);
     }
 
     #endregion

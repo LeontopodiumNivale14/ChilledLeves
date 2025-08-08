@@ -540,7 +540,7 @@ namespace ChilledLeves.Ui
                         // Job Icon
                         if (LeveTypeDict[kdp.Value.JobAssignmentType].AssignmentIcon != null)
                         {
-                            ImGui.Image(LeveTypeDict[kdp.Value.JobAssignmentType].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(20, 20));
+                            ImGui.Image(LeveTypeDict[kdp.Value.JobAssignmentType].AssignmentIcon.GetWrapOrEmpty().Handle, new Vector2(20, 20));
                             ImGui.SameLine(0, 4);
                         }
 
@@ -550,7 +550,7 @@ namespace ChilledLeves.Ui
                             var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
                             Vector2 uvMin = new Vector2(0.027825013f, 0.04166667f);
                             Vector2 uvMax = new Vector2(0.305575f, 0.4583333f);
-                            ImGui.Image(starTex.ImGuiHandle, new Vector2(18, 18), uvMin, uvMax);
+                            ImGui.Image(starTex.Handle, new Vector2(18, 18), uvMin, uvMax);
                             ImGui.SameLine(0, 4);
                         }
 
@@ -558,7 +558,7 @@ namespace ChilledLeves.Ui
                         if (IsComplete(kdp.Key))
                         {
                             var CompleteTexture = LeveStatusDict[1].GetWrapOrEmpty();
-                            ImGui.Image(CompleteTexture.ImGuiHandle, new Vector2(18, 18));
+                            ImGui.Image(CompleteTexture.Handle, new Vector2(18, 18));
                             ImGui.SameLine(0, 4);
                         }
 
@@ -584,7 +584,7 @@ namespace ChilledLeves.Ui
                 {
                     if (LeveTypeDict[LeveDictionary[leve].JobAssignmentType].AssignmentIcon != null)
                     {
-                        ImGui.Image(LeveTypeDict[LeveDictionary[leve].JobAssignmentType].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(24, 24));
+                        ImGui.Image(LeveTypeDict[LeveDictionary[leve].JobAssignmentType].AssignmentIcon.GetWrapOrEmpty().Handle, new Vector2(24, 24));
                         ImGui.SameLine(0, 8);
                     }
 
@@ -677,12 +677,12 @@ namespace ChilledLeves.Ui
                     if (IsComplete(leve))
                     {
                         var CompleteTexture = LeveStatusDict[1].GetWrapOrEmpty();
-                        ImGui.Image(CompleteTexture.ImGuiHandle, new Vector2(24, 24));
+                        ImGui.Image(CompleteTexture.Handle, new Vector2(24, 24));
                     }
                     else
                     {
                         var CompleteTexture = LeveStatusDict[2].GetWrapOrEmpty();
-                        ImGui.Image(CompleteTexture.ImGuiHandle, new Vector2(24, 24));
+                        ImGui.Image(CompleteTexture.Handle, new Vector2(24, 24));
                     }
 
                     // If the quest is started, indicate that
@@ -704,7 +704,7 @@ namespace ChilledLeves.Ui
 
                         ImGui.BeginChild("###ItemInfo", new Vector2(ImGui.GetContentRegionAvail().X, 50), true);
 
-                        ImGui.Image(CraftDictionary[leve].ItemIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(32, 32));
+                        ImGui.Image(CraftDictionary[leve].ItemIcon.GetWrapOrEmpty().Handle, new Vector2(32, 32));
                         ImGui.SameLine(0, 10);
                         if (CraftDictionary[leve].RepeatAmount > 1)
                         {
@@ -933,7 +933,7 @@ namespace ChilledLeves.Ui
             Vector2 uv0 = state ? new Vector2(0, 0) : new Vector2(cropAmount, cropAmount);
             Vector2 uv1 = state ? new Vector2(1, 1) : new Vector2(1 - cropAmount, 1 - cropAmount);
 
-            if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, size, uv0, uv1))
+            if (ImGui.ImageButton(icon.GetWrapOrEmpty().Handle, size, uv0, uv1))
             {
                 state = !state;
                 C.Save();
@@ -1043,7 +1043,7 @@ namespace ChilledLeves.Ui
             Vector2 uv0 = state ? new Vector2(0, 0) : new Vector2(cropAmount, cropAmount);
             Vector2 uv1 = state ? new Vector2(1, 1) : new Vector2(1 - cropAmount, 1 - cropAmount);
 
-            if (ImGui.ImageButton(icon.GetWrapOrEmpty().ImGuiHandle, size, uv0, uv1))
+            if (ImGui.ImageButton(icon.GetWrapOrEmpty().Handle, size, uv0, uv1))
             {
                 state = false;
                 C.Save();

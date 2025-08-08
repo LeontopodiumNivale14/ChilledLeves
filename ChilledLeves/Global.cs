@@ -11,7 +11,7 @@ global using Dalamud.Plugin;
 global using ECommons.DalamudServices;
 global using ECommons.ImGuiMethods;
 global using ECommons;
-global using ImGuiNET;
+global using Dalamud.Bindings.ImGui;
 global using System.Linq;
 global using System.Numerics;
 global using System;

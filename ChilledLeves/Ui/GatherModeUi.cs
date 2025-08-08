@@ -355,11 +355,11 @@ internal class GatherModeUi : Window
             bool leveCompleted = IsComplete(leveID);
             if (leveCompleted)
             {
-                ImGui.Image(LeveStatusDict[1].GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
+                ImGui.Image(LeveStatusDict[1].GetWrapOrDefault().Handle, new Vector2(20, 20));
             }
             if (!leveCompleted)
             {
-                ImGui.Image(LeveStatusDict[2].GetWrapOrDefault().ImGuiHandle, new Vector2(20, 20));
+                ImGui.Image(LeveStatusDict[2].GetWrapOrDefault().Handle, new Vector2(20, 20));
             }
             
             ImGui.TableNextColumn();
@@ -376,7 +376,7 @@ internal class GatherModeUi : Window
                 var itemId = CraftDictionary[leveID].ItemID;
 
                 ImGui.TableNextColumn();
-                ImGui.Image(ItemImage.ImGuiHandle, new Vector2(20, 20));
+                ImGui.Image(ItemImage.Handle, new Vector2(20, 20));
                 ImGui.SameLine(0, 5);
                 ImGui.Text($"{itemName}");
 
@@ -651,7 +651,7 @@ internal class GatherModeUi : Window
 
                             // Scale icon size based on font size
                             float iconSize = Math.Max(20, textLineHeight * 1.2f);
-                            ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
+                            ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().Handle, new Vector2(iconSize, iconSize));
 
                             ImGui.SameLine();
                             ImGui.TextUnformatted(classSelectList[i]);
@@ -688,7 +688,7 @@ internal class GatherModeUi : Window
 
                         // Scale icon size based on font size
                         float iconSize = Math.Max(20, textLineHeight * 1.2f);
-                        ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
+                        ImGui.Image(LeveTypeDict[(uint)iconSlot].AssignmentIcon.GetWrapOrEmpty().Handle, new Vector2(iconSize, iconSize));
 
                         ImGui.SameLine();
                         ImGui.TextUnformatted(classSelectList[i]);
@@ -710,7 +710,7 @@ internal class GatherModeUi : Window
         ImGui.SameLine();
         // Scale icon size based on font size
         float classIconSize = Math.Max(20, textLineHeight * 1.2f);
-        ImGui.Image(LeveTypeDict[C.ClassJobType].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(classIconSize, classIconSize));
+        ImGui.Image(LeveTypeDict[C.ClassJobType].AssignmentIcon.GetWrapOrEmpty().Handle, new Vector2(classIconSize, classIconSize));
 
         // Row 3 - Run Until option
         ImGui.TableNextRow();

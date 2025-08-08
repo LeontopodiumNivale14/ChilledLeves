@@ -6,6 +6,7 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
+using Callback = ECommons.Automation.Callback;
 
 namespace ChilledLeves.Utilities;
 

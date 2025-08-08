@@ -464,7 +464,7 @@ internal class DebugWindow : Window
                 // Leve Name/Class (Row 2)
                 ImGui.TableNextColumn();
 
-                ImGui.Image(LeveTypeDict[entry.Value.JobAssignmentType].AssignmentIcon.GetWrapOrEmpty().ImGuiHandle, new(20, 20));
+                ImGui.Image(LeveTypeDict[entry.Value.JobAssignmentType].AssignmentIcon.GetWrapOrEmpty().Handle, new(20, 20));
                 ImGui.SameLine(0, 5);
                 ImGui.AlignTextToFramePadding();
                 ImGui.Text($"{leveName}");
@@ -611,7 +611,7 @@ internal class DebugWindow : Window
     public void StarTester()
     {
         var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
-        if (ImGui.ImageButton(starTex.ImGuiHandle, new Vector2(20), new Vector2(0.0000f, 0.0000f), new Vector2(0.3333f, 0.5000f)))
+        if (ImGui.ImageButton(starTex.Handle, new Vector2(20), new Vector2(0.0000f, 0.0000f), new Vector2(0.3333f, 0.5000f)))
         {
             PluginVerbos("Success");
         }
@@ -717,7 +717,7 @@ internal class DebugWindow : Window
         ImGui.Text($"Gathering [Normal]: {Svc.Condition[ConditionFlag.Gathering]}");
         ImGuiEx.HelpMarker("Interacting with Gathering Node", sameLine: true);
 
-        ImGui.Text($"Gathering [Gathering42] {Svc.Condition[ConditionFlag.Gathering42]}");
+        ImGui.Text($"Gathering [Gathering42] {Svc.Condition[ConditionFlag.ExecutingGatheringAction]}");
         ImGuiEx.HelpMarker("Interacting with Gathering Node/Using Buffs", sameLine: true);
 
         foreach (var x in Svc.Objects)

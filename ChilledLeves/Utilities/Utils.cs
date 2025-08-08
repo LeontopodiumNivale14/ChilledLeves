@@ -81,7 +81,7 @@ public static unsafe class Utils
 
         var agent = AgentMap.Instance();
 
-        agent->IsFlagMarkerSet = false;
+        agent->FlagMarkerCount = 0;
         agent->SetFlagMapMarker(teri, mapId, x, y);
         agent->OpenMapByMapId(mapId, territoryId: teri);
     }
@@ -142,7 +142,7 @@ public static unsafe class Utils
         if (ptr == nint.Zero)
             return false;
 
-        var addon = (AtkUnitBase*)ptr;
+        var addon = (AtkUnitBase*)ptr.Address;
         var node = GetNodeByIDChain(addon->GetRootNode(), ids);
         return node != null && node->IsVisible();
     }
@@ -160,7 +160,7 @@ public static unsafe class Utils
 
         var ptr = Svc.GameGui.GetAddonByName(addonName, 1);
 
-        var addon = (AtkUnitBase*)ptr;
+        var addon = (AtkUnitBase*)ptr.Address;
         var uld = addon->UldManager;
 
         AtkResNode* node = null;

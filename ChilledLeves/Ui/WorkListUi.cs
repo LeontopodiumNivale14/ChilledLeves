@@ -1223,7 +1223,7 @@ namespace ChilledLeves.Ui
                 ImGui.TableNextColumn();
                 // Scale icon size based on text line height
                 float iconSize = Math.Max(25, textLineHeight * 1.5f);
-                ImGui.Image(jobIcon.GetWrapOrEmpty().ImGuiHandle, new Vector2(iconSize, iconSize));
+                ImGui.Image(jobIcon.GetWrapOrEmpty().Handle, new Vector2(iconSize, iconSize));
                 ImGui.SameLine(0, 5 * fontScale);
                 ImGui.AlignTextToFramePadding();
                 CenterTextInHeight($"{leveName}");
@@ -1272,11 +1272,11 @@ namespace ChilledLeves.Ui
 
                     // Column 3 | Item Turnin
                     ImGui.TableNextColumn();
-                    ImGui.Image(ItemImage.ImGuiHandle, new Vector2(iconSize, iconSize));
+                    ImGui.Image(ItemImage.Handle, new Vector2(iconSize, iconSize));
                     if (ImGui.IsItemHovered())
                     {
                         ImGui.BeginTooltip();
-                        ImGui.Image(ItemImage.ImGuiHandle, new Vector2(iconSize * 2, iconSize * 2));
+                        ImGui.Image(ItemImage.Handle, new Vector2(iconSize * 2, iconSize * 2));
                         ImGui.EndTooltip();
                     }
                     ImGui.SameLine(0, 5 * fontScale);
