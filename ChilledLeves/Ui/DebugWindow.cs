@@ -685,6 +685,10 @@ internal class DebugWindow : Window
                 foreach (var l in m.Levequests)
                 {
                     ImGuiEx.Text($"{l.Name} ({l.Level})");
+                    if (ImGui.IsItemClicked())
+                    {
+                        ImGui.SetClipboardText(l.Name);
+                    }
                     ImGui.SameLine();
                     if (ImGui.SmallButton("Select##" + l.Name)) l.Select();
                 }

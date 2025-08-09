@@ -5,6 +5,7 @@ using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace ChilledLeves.Scheduler.Tasks
 {
@@ -24,16 +25,16 @@ namespace ChilledLeves.Scheduler.Tasks
             if (jobType == 4)
             {
                 P.taskManager.Enqueue(() => PluginLog.Information($"Fisher leve Detected"));
-                P.taskManager.Enqueue(() => UpdateFisherLeves());
-                P.taskManager.Enqueue(() => GrabFisher((ushort)leveID, npcID, classButton), DConfig);
+                P.taskManager.Enqueue(() => UpdateFisherLeves(), "Updating fisher Leves");
+                P.taskManager.Enqueue(() => GrabFisher((ushort)leveID, npcID, classButton), "Grabbing fisher leves", DConfig);
             }
             else
             {
                 P.taskManager.Enqueue(() => PluginLog.Information($"Non Fisher leve Detected"));
-                P.taskManager.Enqueue(() => GrabLeve((ushort)leveID, npcID, classButton), DConfig);
+                P.taskManager.Enqueue(() => GrabLeve((ushort)leveID, npcID, classButton), "Grab Leve Task", DConfig);
             }
-            P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), DConfig);
-            P.taskManager.Enqueue(() => PlayerNotBusy(), DConfig);
+            P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), "leaving Leve Vendor", DConfig);
+            P.taskManager.Enqueue(() => PlayerNotBusy(), "Leaving Leve Vendor", DConfig);
         }
 
         internal static void UpdateFisherLeves()
@@ -82,26 +83,28 @@ namespace ChilledLeves.Scheduler.Tasks
             else if (TryGetAddonMaster<GuildLeve>("GuildLeve", out var m) && m.IsAddonReady)
             {
                 bool hasLeve = false;
+                var compareInfo = CultureInfo.InvariantCulture.CompareInfo;
+                var compareOptions = CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
+
                 foreach (var l in m.Levequests)
                 {
-                    if (l.Name != LeveName)
-                    { continue; }
-                    else if (l.Name == LeveName)
+                    if (compareInfo.Compare(l.Name, LeveName, compareOptions) != 0)
+                        continue;
+
+                    hasLeve = true;
+                    if (TryGetAddonMaster<AddonMaster.JournalDetail>("JournalDetail", out var det) && det.IsAddonReady)
                     {
-                        hasLeve = true;
-                        if (TryGetAddonMaster<AddonMaster.JournalDetail>("JournalDetail", out var det) && det.IsAddonReady)
+                        var currentJournalName = GetNodeText("JournalDetail", 19);
+                        if (compareInfo.Compare(currentJournalName, LeveName, compareOptions) != 0)
                         {
-                            if (GetNodeText("JournalDetail", 19) != LeveName)
+                            if (EzThrottler.Throttle("Selecting the Leve"))
+                                l.Select();
+                        }
+                        else
+                        {
+                            if (EzThrottler.Throttle("Accepting leve"))
                             {
-                                if (EzThrottler.Throttle("Selecting the Leve"))
-                                    l.Select();
-                            }
-                            else if (GetNodeText("JournalDetail", 19) == LeveName)
-                            {
-                                if (EzThrottler.Throttle("Accepting leve"))
-                                {
-                                    GenericHandlers.FireCallback("JournalDetail", true, 3, leveID);
-                                }
+                                GenericHandlers.FireCallback("JournalDetail", true, 3, leveID);
                             }
                         }
                     }

@@ -5,6 +5,7 @@ using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,10 +21,10 @@ namespace ChilledLeves.Scheduler.Tasks
         internal static void Enqueue(uint npcID, int classButton)
         {
             TaskInteract.Enqueue(npcID);
-            P.taskManager.Enqueue(() => UpdateViableLeves());
-            P.taskManager.Enqueue(() => GrabLeveMulti(npcID, classButton), DConfig);
-            P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), DConfig);
-            P.taskManager.Enqueue(() => PlayerNotBusy(), DConfig);
+            P.taskManager.Enqueue(() => UpdateViableLeves(), "updating Viable Leves");
+            P.taskManager.Enqueue(() => GrabLeveMulti(npcID, classButton), "Grabbing multiple leves", DConfig);
+            P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), "Leaving Leve Vendor", DConfig);
+            P.taskManager.Enqueue(() => PlayerNotBusy(), "Waiting for player to not be busy", DConfig);
         }
 
         internal static void UpdateViableLeves()
@@ -70,7 +71,10 @@ namespace ChilledLeves.Scheduler.Tasks
 
                 foreach (var l in m.Levequests)
                 {
-                    var leveMatch = ViableLeves.FirstOrDefault(v => v.Value == l.Name); // Checking to see and make sure that the leve exist in the Dictionary
+                    var compareInfo = CultureInfo.InvariantCulture.CompareInfo;
+                    var compareOptions = CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
+                    var leveMatch = ViableLeves.FirstOrDefault(v =>
+                        compareInfo.Compare(v.Value, l.Name, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) == 0);
 
                     if (!leveMatch.Equals(default(KeyValuePair<uint, string>))) // If a match is found/that it didn't find one, and you haven't accepted the quest yet
                     {
@@ -92,15 +96,16 @@ namespace ChilledLeves.Scheduler.Tasks
                             foundLeve = true;
                             if (TryGetAddonMaster<AddonMaster.JournalDetail>("JournalDetail", out var det) && det.IsAddonReady)
                             {
-                                if (GetNodeText("JournalDetail", 19) != leveName)
+                                var currentJournalName = GetNodeText("JournalDetail", 19);
+                                if (compareInfo.Compare(currentJournalName, leveName, compareOptions) != 0)
                                 {
-                                    if (EzThrottler.Throttle("Selecting the Leve", 100))
+                                    if (EzThrottler.Throttle("Selecting the Leve"))
                                     {
                                         l.Select();
                                         PluginVerbos($"Selecting leve: {leveName}");
                                     }
                                 }
-                                else if (GetNodeText("JournalDetail", 19) == leveName)
+                                else
                                 {
                                     if (EzThrottler.Throttle("Accepting leve", 100))
                                     {

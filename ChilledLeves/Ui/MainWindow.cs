@@ -8,6 +8,7 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -590,6 +591,10 @@ namespace ChilledLeves.Ui
 
                     ImGui.AlignTextToFramePadding();
                     ImGui.Text($"[{LeveDictionary[leve].Level}] {LeveDictionary[leve].LeveName}");
+                    if (ImGui.IsItemClicked())
+                    {
+                        ImGui.SetClipboardText(LeveDictionary[leve].LeveName);
+                    }
                     ImGui.TextDisabled($"LeveID: {leve}");
                     ImGui.Separator();
 
@@ -1099,7 +1104,8 @@ namespace ChilledLeves.Ui
             // Name filter
             if (!string.IsNullOrEmpty(C.NameFilter))
             {
-                showLeve &= LeveDictionary[leveId].LeveName.Contains(C.NameFilter, StringComparison.OrdinalIgnoreCase);
+                var compareInfo = CultureInfo.InvariantCulture.CompareInfo;
+                showLeve &= compareInfo.IndexOf(LeveDictionary[leveId].LeveName, C.NameFilter, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace) >= 0;
             }
 
             // Filter out jobs that are not currently shown
