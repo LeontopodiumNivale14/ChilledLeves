@@ -60,7 +60,7 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (TryGetAddonByName<AtkUnitBase>("SelectYesno", out var SelectYesno) && IsAddonReady(SelectYesno))
             {
-                if (EzThrottler.Throttle("Accepting the leve", 100))
+                if (EzThrottler.Throttle("Accepting the leve", 500))
                 {
                     GenericHandlers.FireCallback("SelectYesno", true, 0);
                 }
@@ -107,7 +107,7 @@ namespace ChilledLeves.Scheduler.Tasks
                                 }
                                 else
                                 {
-                                    if (EzThrottler.Throttle("Accepting leve", 100))
+                                    if (EzThrottler.Throttle("Accepting leve", 500))
                                     {
                                         GenericHandlers.FireCallback("JournalDetail", true, 3, (int)leveId);
                                         PluginVerbos($"Accepting the leve: {leveName}");

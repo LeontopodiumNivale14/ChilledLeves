@@ -1,5 +1,6 @@
 ﻿using ChilledLeves.Scheduler.Handlers;
 using ECommons.ExcelServices;
+using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
@@ -17,30 +18,32 @@ namespace ChilledLeves.Scheduler.Tasks
             if (GetClassJobId() == (uint)jobID)
                 return true;
 
-            var gearsets = RaptureGearsetModule.Instance();
-            foreach (ref var gs in gearsets->Entries)
+            if (EzThrottler.Throttle("Equipping class"))
             {
-                if (!RaptureGearsetModule.Instance()->IsValidGearset(gs.Id)) continue;
-                if ((Job)gs.ClassJob == jobID)
+                var gearsets = RaptureGearsetModule.Instance();
+                foreach (ref var gs in gearsets->Entries)
                 {
-                    if (gs.Flags.HasFlag(RaptureGearsetModule.GearsetFlag.MainHandMissing))
+                    if (!RaptureGearsetModule.Instance()->IsValidGearset(gs.Id)) continue;
+                    if ((Job)gs.ClassJob == jobID)
                     {
-                        if (TryGetAddonByName<AtkUnitBase>("SelectYesno", out var selectYesno) && IsAddonActive("SelectYesno"))
+                        if (gs.Flags.HasFlag(RaptureGearsetModule.GearsetFlag.MainHandMissing))
                         {
-                            GenericHandlers.FireCallback("SelectYesno", true, 0);
+                            if (TryGetAddonByName<AtkUnitBase>("SelectYesno", out var selectYesno) && IsAddonActive("SelectYesno"))
+                            {
+                                GenericHandlers.FireCallback("SelectYesno", true, 0);
+                            }
+                            else
+                            {
+                                gearsets->EquipGearset(gs.Id);
+                            }
                         }
                         else
                         {
                             gearsets->EquipGearset(gs.Id);
                         }
                     }
-                    else
-                    {
-                        gearsets->EquipGearset(gs.Id);
-                    }
                 }
             }
-
 
             return false;
         }

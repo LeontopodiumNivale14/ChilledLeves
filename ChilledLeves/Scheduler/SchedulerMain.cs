@@ -294,7 +294,7 @@ namespace ChilledLeves.Scheduler
                             bool canGrab = false;
                             var classLevel = UIState.Instance()->PlayerState.ClassJobLevels;
 
-                            if (C.RunUntilSelected == "Lv." && Player.GetUnsyncedLevel(ecomJob) == C.LevelSliderInput)
+                            if (C.RunUntilSelected == "Lv." && Player.GetUnsyncedLevel(ecomJob) >= C.LevelSliderInput)
                             {
                                 string ChatText = "You have hit the level set, stopping the farming process";
                                 PluginVerbos(ChatText);

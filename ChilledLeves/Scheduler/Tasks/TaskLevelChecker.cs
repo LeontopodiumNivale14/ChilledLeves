@@ -1,4 +1,6 @@
-﻿namespace ChilledLeves.Scheduler.Tasks
+﻿using ECommons.GameHelpers;
+
+namespace ChilledLeves.Scheduler.Tasks
 {
     internal static class TaskLevelChecker
     {
@@ -9,7 +11,7 @@
 
         internal static bool? LevelChecker(uint leveLevel)
         {
-            if (leveLevel <= GetLevel())
+            if (leveLevel <= Player.Level)
             {
                 return true;
             }

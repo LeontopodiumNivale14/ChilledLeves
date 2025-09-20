@@ -1106,7 +1106,7 @@ public static unsafe class Data
             Name = NPCName(1018999), // Geimrael
             ZoneID = 628,
             Aetheryte = 111,
-            NPCInteractZone = new Vector3 (-56.18f, 15.14f, -41.45f),
+            NPCInteractZone = new Vector3 (20.61f, 0.00f, -77.82f),
             NPCLocation = new Vector3(23.67f, -8.06f, -81.38f),
             Mount = false,
             RequiredQuestId = 0,
