@@ -98,9 +98,9 @@ namespace ChilledLeves.Ui
 
                 if (blacklist && !C.blacklistCharacters.ContainsKey(id))
                     C.blacklistCharacters.Add(id, character);
+
+                C.Save();
             }
-
-
 
             if (ImGui.BeginChild("###ChildAlertChild", ImGui.GetContentRegionAvail(), true))
             {
