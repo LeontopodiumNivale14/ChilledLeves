@@ -4,7 +4,7 @@ using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
-namespace ChilledLeves.Scheduler.Tasks
+namespace ChilledLeves.Scheduler.Tasks.OldTask
 {
     internal static class TaskClassChange
     {

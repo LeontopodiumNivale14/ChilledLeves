@@ -2,7 +2,7 @@
 using FFXIVClientStructs.FFXIV.Client.Game;
 using ECommons.GameHelpers;
 
-namespace ChilledLeves.Scheduler.Tasks
+namespace ChilledLeves.Scheduler.Tasks.OldTask
 {
     internal static class TaskMountUp
     {

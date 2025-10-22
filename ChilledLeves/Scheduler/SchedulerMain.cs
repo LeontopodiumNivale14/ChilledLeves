@@ -1,4 +1,5 @@
-using ChilledLeves.Scheduler.Tasks;
+using ChilledLeves.Enums;
+using ChilledLeves.Scheduler.Tasks.OldTask;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
@@ -80,7 +81,26 @@ namespace ChilledLeves.Scheduler
             }
         }
 
+        // New Stuff Below Here
+        internal static SchedulerState State = SchedulerState.Idle;
+        internal static TurninMode Turnin = TurninMode.SingleTurnin;
+
         internal static void Tick()
+        {
+            if (P.taskManager.NumQueuedTasks == 0 && State != SchedulerState.Idle)
+            {
+                switch (State)
+                {
+                    default:
+                        {
+                            DisablePlugin();
+                            break;
+                        }
+                }
+            }
+        }
+
+        private static void OldTask()
         {
             if (AreWeTicking)
             {
@@ -150,7 +170,7 @@ namespace ChilledLeves.Scheduler
                                             var templeve = entry.LeveID;
                                             var currentAmount = GetItemCount((int)CraftDictionary[templeve].ItemID);
                                             var necessaryAmount = CraftDictionary[templeve].TurninAmount;
-                                            bool isLevel = LeveDictionary[templeve].Level <= Player.GetUnsyncedLevel((Job)LeveDictionary[templeve].EcomJob);
+                                            bool isLevel = LeveDictionary[templeve].Level <= Player.GetUnsyncedLevel((Job)LeveDictionary[templeve].JobId);
                                             bool canTurnin = currentAmount >= necessaryAmount;
 
                                             if (canTurnin && isLevel)
@@ -193,7 +213,7 @@ namespace ChilledLeves.Scheduler
                                                 P.taskManager.Enqueue(() => PluginInfo("Close to the NPC, Starting Turnin Process"));
                                                 TaskTurninMulti.Enqueue(zoneID);
                                             }
-                                            else 
+                                            else
                                             {
                                                 HandleMountAndMove(NPCLocation, npc);
                                             }
@@ -212,7 +232,7 @@ namespace ChilledLeves.Scheduler
                                         var aetheryte = LeveNPCDict[npc].Aetheryte;
                                         var NPCLocation = LeveNPCDict[npc].NPCLocation;
                                         var requiredLevel = LeveDictionary[leve].Level;
-                                        var jobID = LeveDictionary[leve].EcomJob;
+                                        var jobID = LeveDictionary[leve].JobId;
                                         var buttonSelected = 0;
                                         if (LeveDictionary[leve].AllowanceCost == 10)
                                         {
@@ -251,7 +271,7 @@ namespace ChilledLeves.Scheduler
                                                 if (C.IncreaseDelay)
                                                     P.taskManager.EnqueueDelay(1000);
                                             }
-                                            else 
+                                            else
                                             {
                                                 HandleMountAndMove(NPCLocation, npc);
                                             }
@@ -379,7 +399,7 @@ namespace ChilledLeves.Scheduler
                                     var NpcInteractZone = LeveNPCDict[npc].NPCInteractZone;
                                     var NpcLocation = LeveNPCDict[npc].NPCLocation;
                                     var requiredLevel = LeveDictionary[leveId].Level;
-                                    var jobID = LeveDictionary[leveId].EcomJob;
+                                    var jobID = LeveDictionary[leveId].JobId;
                                     var buttonSelected = 0;
 
                                     if (LeveDictionary[leveId].AllowanceCost == 10)

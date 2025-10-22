@@ -1,6 +1,6 @@
 ﻿using ChilledLeves.Scheduler.Handlers;
 
-namespace ChilledLeves.Scheduler.Tasks
+namespace ChilledLeves.Scheduler.Tasks.OldTask
 {
     internal static class TaskCallback
     {

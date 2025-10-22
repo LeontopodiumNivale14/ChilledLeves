@@ -2,7 +2,7 @@
 using ECommons.Automation.NeoTaskManager;
 using ECommons.GameHelpers;
 
-namespace ChilledLeves.Scheduler.Tasks
+namespace ChilledLeves.Scheduler.Tasks.OldTask
 {
     internal static class TaskMoveTo
     {

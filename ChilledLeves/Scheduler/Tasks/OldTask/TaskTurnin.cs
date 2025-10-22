@@ -1,7 +1,7 @@
 ﻿using ChilledLeves.Scheduler.Handlers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-namespace ChilledLeves.Scheduler.Tasks
+namespace ChilledLeves.Scheduler.Tasks.OldTask
 {
     internal static class TaskTurnin
     {

@@ -267,9 +267,9 @@ public static unsafe class Utils
 
                 // Checking the Jobtype, this is a very small number 
                 uint leveJob = row.LeveAssignmentType.Value.RowId;
-                Job ecomJob = 0;
+                Job JobId = 0;
 
-                ecomJob = EcomJobFinder(leveJob);
+                JobId = EcomJobFinder(leveJob);
 
                 if (!CraftFisherJobs.Contains(leveJob))
                 {
@@ -382,7 +382,7 @@ public static unsafe class Utils
                         Amount = amount,
                         LeveName = leveName,
                         JobAssignmentType = leveJob,
-                        EcomJob = ecomJob,
+                        JobId = JobId,
                         Level = leveLevel,
                         QuestID = questID,
                         ExpReward = expReward,

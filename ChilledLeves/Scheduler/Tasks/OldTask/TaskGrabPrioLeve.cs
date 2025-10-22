@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChilledLeves.Scheduler.Tasks
+namespace ChilledLeves.Scheduler.Tasks.OldTask
 {
     internal static class TaskGrabPrioLeve
     {
@@ -156,7 +156,7 @@ namespace ChilledLeves.Scheduler.Tasks
         private static string? GetLowestPriorityLeveName(HashSet<string> leveNames)
         {
             var leve = LeveDictionary
-                        .Where(kvp => leveNames.Contains(kvp.Value.LeveName) && (CraftDictionary[kvp.Key].TurninAmount <= CraftDictionary[kvp.Key].CurrentItemAmount)) // Filter by HashSet and check the TurninAmount
+                        .Where(kvp => leveNames.Contains(kvp.Value.LeveName) && CraftDictionary[kvp.Key].TurninAmount <= CraftDictionary[kvp.Key].CurrentItemAmount) // Filter by HashSet and check the TurninAmount
                         .OrderBy(kvp => kvp.Value.Priority) // Sort by Priority
                         .FirstOrDefault(); // Get the first (lowest priority) or null if none found
 

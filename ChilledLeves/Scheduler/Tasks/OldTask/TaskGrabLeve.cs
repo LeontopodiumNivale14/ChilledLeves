@@ -7,7 +7,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace ChilledLeves.Scheduler.Tasks
+namespace ChilledLeves.Scheduler.Tasks.OldTask
 {
     internal static class TaskGrabLeve
     {
@@ -235,7 +235,7 @@ namespace ChilledLeves.Scheduler.Tasks
         private static string? GetFirstLeve(HashSet<string> PotentionalLeves)
         {
             var leve = LeveDictionary
-                        .Where(kvp => PotentionalLeves.Contains(kvp.Value.LeveName) && (CraftDictionary[kvp.Key].TurninAmount <= CraftDictionary[kvp.Key].CurrentItemAmount))
+                        .Where(kvp => PotentionalLeves.Contains(kvp.Value.LeveName) && CraftDictionary[kvp.Key].TurninAmount <= CraftDictionary[kvp.Key].CurrentItemAmount)
                         .FirstOrDefault();
 
             if (!LeveDictionary.ContainsKey(leve.Key))

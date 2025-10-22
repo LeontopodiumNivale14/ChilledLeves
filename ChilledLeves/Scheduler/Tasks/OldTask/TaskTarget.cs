@@ -1,6 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
 
-namespace ChilledLeves.Scheduler.Tasks
+namespace ChilledLeves.Scheduler.Tasks.OldTask
 {
     internal static class TaskTarget
     {

@@ -178,7 +178,7 @@ public static unsafe class Data
         /// <summary>
         /// The value that the Ecom job is assigned to. Used for gear switching/class switching.
         /// </summary>
-        public Job EcomJob { get; set; }
+        public Job JobId { get; set; }
         /// <summary>
         /// #6 [Class Job Level] Level of the leve that you're undertaking, this is the *-minimum-* level you can be to do this leve
         /// </summary>

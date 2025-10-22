@@ -1,5 +1,5 @@
 ﻿using ChilledLeves.Scheduler;
-using ChilledLeves.Scheduler.Tasks;
+using ChilledLeves.Scheduler.Tasks.OldTask;
 using ChilledLeves.Utilities;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Enums;

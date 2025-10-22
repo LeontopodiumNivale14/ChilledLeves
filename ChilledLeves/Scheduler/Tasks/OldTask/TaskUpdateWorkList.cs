@@ -1,4 +1,4 @@
-﻿namespace ChilledLeves.Scheduler.Tasks
+﻿namespace ChilledLeves.Scheduler.Tasks.OldTask
 {
     internal static class TaskUpdateWorkList
     {
