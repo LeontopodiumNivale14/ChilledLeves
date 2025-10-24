@@ -2,7 +2,7 @@
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Lumina.Excel.Sheets;
 
-namespace ChilledLeves.Utilities.Utils
+namespace ChilledLeves.Utilities.UtilityClass
 {
     public static unsafe partial class Utils
     {

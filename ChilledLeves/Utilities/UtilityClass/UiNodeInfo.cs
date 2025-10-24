@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChilledLeves.Utilities.Utils
+namespace ChilledLeves.Utilities.UtilityClass
 {
     public static unsafe partial class Utils
     {

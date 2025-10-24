@@ -1,4 +1,5 @@
-﻿using Dalamud.Interface.Textures;
+﻿using ChilledLeves.Utilities.UtilityClass;
+using Dalamud.Interface.Textures;
 using ECommons.ExcelServices;
 using Lumina.Excel.Sheets;
 using System;
@@ -109,6 +110,9 @@ namespace ChilledLeves.Utilities.LeveUtilities
                     {
                         // All the crafters + fisher uses this sheet, so it's easier to just seperate it into it's own tracker of sorts. 
                         // Mainly so I can just grab what I need specifically from this sheet
+#if DEBUG
+                        Utils.PluginVerbos($"Loading up ID: {leveId}");
+#endif
 
                         string leveName = row.Name.ToString();
                         leveName = leveName.Replace("<nbsp>", " ");
@@ -126,7 +130,8 @@ namespace ChilledLeves.Utilities.LeveUtilities
                         uint leveClientId = row.LeveClient.Value.RowId;
                         uint turninNpcId = TurninNpcId(leveClientId, JobType: jobId);
 
-                        if (CraftLeveSheet.TryGetRow(leveId, out var craftLeveInfo))
+                        var craftLeveInfo = CraftLeveSheet.Where(x => x.Leve.RowId == leveId).FirstOrDefault();
+                        if (craftLeveInfo.RowId != 917504)
                         {
                             uint itemID = CraftLeveSheet.GetRow(questID).Item[0].Value.RowId;
                             var itemInfo = ItemSheet.GetRow(itemID);
@@ -166,10 +171,10 @@ namespace ChilledLeves.Utilities.LeveUtilities
                         }
                     }
                 }
+#if DEBUG
+                Utils.PluginInfo($"Total Dictionary Count: {LeveInfo.LeveDictionary.Count}");
+#endif
             }
-
-            // Little function to update/grab all the icons
-            UpdateIcons();
         }
 
         private static uint JobIdConverter(uint leveJob)

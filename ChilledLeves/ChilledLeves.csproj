@@ -18,7 +18,7 @@
     <EmbeddedResource Include="Images\ARM.png" />
     <EmbeddedResource Include="Images\BSM.png" />
     <EmbeddedResource Include="Images\BTN.png" />
-    <EmbeddedResource Include="Images\CRP.png" />
+    <EmbeddedResource Include="Resources\CRP.png" />
     <EmbeddedResource Include="Images\CUL.png" />
     <EmbeddedResource Include="Images\FSH.png" />
     <EmbeddedResource Include="Images\GSM.png" />

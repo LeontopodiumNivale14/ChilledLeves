@@ -2,7 +2,7 @@
 using ECommons.Reflection;
 using System.Reflection.Metadata;
 
-namespace ChilledLeves.Utilities.Utils
+namespace ChilledLeves.Utilities.UtilityClass
 {
     public static partial class Utils
     {

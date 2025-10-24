@@ -1,4 +1,4 @@
-﻿using ChilledLeves.Utilities.Utils;
+﻿using ChilledLeves.Utilities.UtilityClass;
 using ECommons.EzSharedDataManager;
 using System;
 using System.Collections.Generic;

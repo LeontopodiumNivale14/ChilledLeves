@@ -1,8 +1,10 @@
 ﻿using ChilledLeves.Utilities.LeveUtilities;
-using ChilledLeves.Utilities.Utils;
+using ChilledLeves.Utilities.UtilityClass;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,17 +32,16 @@ namespace ChilledLeves.Ui.DebugUi
                     ImGui.TableNextColumn();
                     ImGui.Text($"{job.Key}");
 
+                    var Size = new Vector2(26, 26);
                     ImGui.TableNextColumn();
-                    ImGui.Image(job.Value.ColorIcon.GetWrapOrEmpty().Handle, new Vector2(26, 26));
+                    Svc.Texture.TryGetFromGameIcon(job.Value.ColorIconId, out var colorIcon);
+                    ImGui.Image(colorIcon.GetWrapOrEmpty().Handle, Size);
 
                     ImGui.TableNextColumn();
-                    Vector2 size = new Vector2(26, 26);
-                    float zoomFactor = 0.30f; // 25% zoom-in
-                    float cropAmount = zoomFactor / 2; // Crop equally from all sides
 
-                    Vector2 uv0 = new Vector2(cropAmount, cropAmount);
-                    Vector2 uv1 = new Vector2(1 - cropAmount, 1 - cropAmount);
-                    ImGui.Image(job.Value.GreyIcon.Handle, new Vector2(26, 26));
+                    var location = job.Value.GreyPath;
+                    var greyIcon = Svc.Texture.GetFromManifestResource(Assembly.GetExecutingAssembly(), location).GetWrapOrEmpty();
+                    ImGui.Image(greyIcon.Handle, new Vector2(26, 26));
                 }
 
                 ImGui.EndTable();

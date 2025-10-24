@@ -4,7 +4,7 @@ using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 
-namespace ChilledLeves.Utilities.Utils
+namespace ChilledLeves.Utilities.UtilityClass
 {
     public static partial class Utils
     {

@@ -65,6 +65,7 @@ namespace ChilledLeves.Ui
                 {
                     switch (selectedDebugIndex)
                     {
+                        case 0: Table_LeveViewer.Draw(); break;
                         case 1: Ui_IconViewer.Draw(); break;
                         default: ImGui.Text("Debugger Window"); break;
                     }
