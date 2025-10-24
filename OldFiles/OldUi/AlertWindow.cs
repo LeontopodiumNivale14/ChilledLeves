@@ -1,9 +1,6 @@
 ﻿using ChilledLeves.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ChilledLeves.Utilities.LeveInfo;
+using ChilledLeves.Utilities.Utils;
 
 namespace ChilledLeves.Ui
 {
@@ -24,7 +21,7 @@ namespace ChilledLeves.Ui
             ImGui.Text($"HEY! You've hit the threshold for the alert on this character for leves! \n" +
                        $"This is just a nice little pop-up saying \" Hey, you should really turn these in before you cap out\"");
             ImGui.Dummy(new Vector2(0, 5));
-            ImGui.Text($"Current Leve Amount: {Utils.Allowances} / 100");
+            ImGui.Text($"Current Leve Amount: {PluginUtils.} / 100");
             if (ImGui.Button($"Hide Popup"))
             {
                 SoundAlert.refreshOverlay = false;

@@ -1,4 +1,5 @@
-﻿using ECommons.EzSharedDataManager;
+﻿using ChilledLeves.Utilities.Utils;
+using ECommons.EzSharedDataManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace ChilledLeves.Scheduler.Handlers
                 {
                     WasChanged = false;
                     UnlockTA();
-                    PluginDebug($"TextAdvance unlocked");
+                    Utils.PluginDebug($"TextAdvance unlocked");
                 }
             }
             else
@@ -27,7 +28,7 @@ namespace ChilledLeves.Scheduler.Handlers
                 {
                     WasChanged = true;
                     LockTA();
-                    PluginDebug($"TextAdvance locked");
+                    Utils.PluginDebug($"TextAdvance locked");
                 }
             }
         }

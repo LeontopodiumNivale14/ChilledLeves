@@ -14,9 +14,24 @@
 
   <ItemGroup>
     <Content Include="ChilledLeves.json" />
+    <EmbeddedResource Include="Images\ALC.png" />
+    <EmbeddedResource Include="Images\ARM.png" />
+    <EmbeddedResource Include="Images\BSM.png" />
+    <EmbeddedResource Include="Images\BTN.png" />
+    <EmbeddedResource Include="Images\CRP.png" />
+    <EmbeddedResource Include="Images\CUL.png" />
+    <EmbeddedResource Include="Images\FSH.png" />
+    <EmbeddedResource Include="Images\GSM.png" />
+    <EmbeddedResource Include="Images\LTW.png" />
+    <EmbeddedResource Include="Images\MIN.png" />
+    <EmbeddedResource Include="Images\WVR.png" />
   </ItemGroup>
 	
   <ItemGroup>
       <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Folder Include="Ui\MainUi\" />
   </ItemGroup>
 </Project>

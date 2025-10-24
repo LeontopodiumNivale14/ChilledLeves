@@ -12,9 +12,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
         private static bool? ChangeClass(uint jobId)
         {
-            Job ecomJob = EcomJobFinder(C.ClassJobType);
-
-            if (Player.Job == 
+            return true;
         }
     }
 }

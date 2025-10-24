@@ -1,12 +1,8 @@
 using ChilledLeves.Enums;
-using ChilledLeves.Scheduler.Tasks.OldTask;
-using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using Lumina.Excel.Sheets;
-using System.Collections.Generic;
 
 #nullable disable
 namespace ChilledLeves.Scheduler
@@ -58,29 +54,6 @@ namespace ChilledLeves.Scheduler
         private static int MinMountDistance = 25;
         private static float InteractDistance = 6.8f;
 
-        internal static void HandleMountAndMove(Vector3 NpcLocation, uint npcId)
-        {
-            bool fly = false;
-            bool mount = LeveNPCDict[npcId].Mount;
-            Vector3 NpcInteractZone = LeveNPCDict[npcId].NPCInteractZone;
-
-            // if mounting is required/is an option
-            if (mount && Player.DistanceTo(NpcLocation) > 25)
-            {
-                TaskMountUp.Enqueue();
-                if (LeveNPCDict[npcId].Fly.HasValue && Player.DistanceTo(NpcLocation) > 50)
-                {
-                    fly = true;
-                }
-            }
-
-            // if the player is too far away from the NPC
-            if (Player.DistanceTo(NpcLocation) >= InteractDistance)
-            {
-                TaskMoveTo.Enqueue(NpcInteractZone, "LeveNPC", fly, 0.5f);
-            }
-        }
-
         // New Stuff Below Here
         internal static SchedulerState State = SchedulerState.Idle;
         internal static TurninMode Turnin = TurninMode.SingleTurnin;
@@ -100,6 +73,7 @@ namespace ChilledLeves.Scheduler
             }
         }
 
+        /*
         private static void OldTask()
         {
             if (AreWeTicking)
@@ -453,5 +427,6 @@ namespace ChilledLeves.Scheduler
                 }
             }
         }
+        */
     }
 }

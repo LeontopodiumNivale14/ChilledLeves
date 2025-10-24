@@ -5,6 +5,7 @@ using ChilledLeves.Ui;
 using ChilledLeves.IPC;
 using ChilledLeves.Scheduler.Handlers;
 using ChilledLeves.Utilities;
+using ChilledLeves.Utilities.LeveUtilities;
 
 namespace ChilledLeves;
 
@@ -18,12 +19,7 @@ public sealed class ChilledLeves : IDalamudPlugin
     // Window's that I use, base window to the settings... need these to actually show shit 
     internal WindowSystem windowSystem;
     internal MainWindow mainWindow;
-    internal SettingsWindow settingWindow;
     internal DebugWindow debugWindow;
-    internal WorkListUi workListUi;
-    internal GatherModeUi gatherModeUi;
-    internal AlertWindow alertUi; 
-    internal AlertSettings alertSettings;
 
     // Taskmanager from Ecommons
     internal TaskManager taskManager;
@@ -34,9 +30,7 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal PandoraIPC pandora;
     internal ArtisanIPC artisan;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public ChilledLeves(IDalamudPluginInterface pi)
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     {
         P = this;
         ECommonsMain.Init(pi, P, ECommons.Module.DalamudReflector, ECommons.Module.ObjectFunctions);
@@ -58,22 +52,16 @@ public sealed class ChilledLeves : IDalamudPlugin
         // all the windows
         windowSystem = new();
         mainWindow = new();
-        settingWindow = new();
         debugWindow = new();
-        workListUi = new();
-        gatherModeUi = new();
-        alertUi = new();
-        alertSettings = new();
 
-        taskManager = new(new(abortOnTimeout: true, timeLimitMS: 20000, showDebug: true));
         Svc.PluginInterface.UiBuilder.Draw += windowSystem.Draw;
         Svc.PluginInterface.UiBuilder.OpenMainUi += () =>
         {
-            mainWindow.IsOpen = true;
+            // mainWindow.IsOpen = true;
         };
         Svc.PluginInterface.UiBuilder.OpenConfigUi += () =>
         {
-            workListUi.IsOpen = true;
+            // workListUi.IsOpen = true;
         };
         EzCmd.Add("/chilledleves", OnCommand, """
             Open plugin interface
@@ -85,6 +73,7 @@ public sealed class ChilledLeves : IDalamudPlugin
             """);
         EzCmd.Add("/leveitalone", OnCommand);
         Svc.Framework.Update += Tick;
+        LeveInfo.PopulateDictionary();
     }
 
     private void Tick(object _)
@@ -127,9 +116,10 @@ public sealed class ChilledLeves : IDalamudPlugin
         }
         else if (firstArg.ToLower() == "s" || firstArg.ToLower() == "settings")
         {
-            workListUi.IsOpen = true;
+            // workListUi.IsOpen = true;
             return;
         }
+        /*
         else if (firstArg.ToLower() == "add")
         {
             string secondCommand = subcommands[1];
@@ -151,7 +141,7 @@ public sealed class ChilledLeves : IDalamudPlugin
                 }
                 else
                 {
-                    PluginVerbos($"{repeat} is not a valud input for the amount that you would like to do. Please input between 1-100");
+                    Util($"{repeat} is not a valud input for the amount that you would like to do. Please input between 1-100");
                     return;
                 }
             }
@@ -186,5 +176,6 @@ public sealed class ChilledLeves : IDalamudPlugin
             PluginVerbos($"Command: -{command}- args?:-{args}-");
             return;
         }
+        */
     }
 }

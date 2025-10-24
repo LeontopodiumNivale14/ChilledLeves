@@ -18,7 +18,6 @@ global using System;
 global using static ECommons.GenericHelpers;
 
 global using static ChilledLeves.ChilledLeves;
-global using static ChilledLeves.Utilities.Utils;
 global using static ChilledLeves.Utilities.Data;
 
 // tables being used acrossed the plugin

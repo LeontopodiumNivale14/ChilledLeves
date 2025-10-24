@@ -1,4 +1,5 @@
-﻿using ECommons.EzSharedDataManager;
+﻿using ChilledLeves.Utilities.Utils;
+using ECommons.EzSharedDataManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace ChilledLeves.Scheduler.Handlers
                 {
                     WasChanged = false;
                     Unlock();
-                    PluginDebug($"YesAlready unlocked");
+                    Utils.PluginDebug($"YesAlready unlocked");
                 }
             }
             else
@@ -27,7 +28,7 @@ namespace ChilledLeves.Scheduler.Handlers
                 {
                     WasChanged = true;
                     Lock();
-                    PluginDebug($"YesAlready locked");
+                    Utils.PluginDebug($"YesAlready locked");
                 }
             }
         }

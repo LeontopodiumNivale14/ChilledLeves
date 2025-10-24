@@ -1,4 +1,5 @@
-﻿using ECommons.EzIpcManager;
+﻿using ChilledLeves.Utilities.Utils;
+using ECommons.EzIpcManager;
 
 namespace ChilledLeves.IPC;
 
@@ -9,7 +10,7 @@ public class PandoraIPC
     public const string Repo = "https://love.puni.sh/ment.json";
 
     public PandoraIPC() => EzIPC.Init(this, Name, SafeWrapper.AnyException);
-    public bool Installed => HasPlugin(Name);
+    public bool Installed => Utils.HasPlugin(Name);
 
     [EzIPC] public readonly Func<string, bool?> GetFeatureEnabled;
     [EzIPC] public readonly Func<string, string, bool?> GetConfigEnabled;
