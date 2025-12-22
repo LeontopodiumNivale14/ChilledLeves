@@ -150,7 +150,7 @@ namespace ChilledLeves.Scheduler
                                             var templeve = entry.LeveID;
                                             var currentAmount = GetItemCount((int)CraftDictionary[templeve].ItemID);
                                             var necessaryAmount = CraftDictionary[templeve].TurninAmount;
-                                            bool isLevel = LeveDictionary[templeve].Level <= Player.GetUnsyncedLevel((Job)LeveDictionary[templeve].EcomJob);
+                                            bool isLevel = LeveDictionary[templeve].Level <= Player.GetLevel((Job)LeveDictionary[templeve].EcomJob);
                                             bool canTurnin = currentAmount >= necessaryAmount;
 
                                             if (canTurnin && isLevel)
@@ -294,7 +294,7 @@ namespace ChilledLeves.Scheduler
                             bool canGrab = false;
                             var classLevel = UIState.Instance()->PlayerState.ClassJobLevels;
 
-                            if (C.RunUntilSelected == "Lv." && Player.GetUnsyncedLevel(ecomJob) >= C.LevelSliderInput)
+                            if (C.RunUntilSelected == "Lv." && Player.GetLevel(ecomJob) >= C.LevelSliderInput)
                             {
                                 string ChatText = "You have hit the level set, stopping the farming process";
                                 PluginVerbos(ChatText);
@@ -314,7 +314,7 @@ namespace ChilledLeves.Scheduler
                                 {
                                     leveId = leve;
 
-                                    if (LeveDictionary[leveId].Level <= Player.GetUnsyncedLevel(ecomJob))
+                                    if (LeveDictionary[leveId].Level <= Player.GetLevel(ecomJob))
                                     {
                                         if (!isHighEnough)
                                             isHighEnough = true;

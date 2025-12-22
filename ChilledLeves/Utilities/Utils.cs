@@ -41,17 +41,8 @@ public static unsafe class Utils
 
     internal static unsafe float GetDistanceToPlayer(Vector3 v3) => Vector3.Distance(v3, Player.GameObject->Position);
     internal static unsafe float GetDistanceToPlayer(IGameObject gameObject) => GetDistanceToPlayer(gameObject.Position);
-    public static uint GetClassJobId() => Svc.ClientState.LocalPlayer!.ClassJob.RowId;
-    public static unsafe int GetLevel(int expArrayIndex = -1)
-    {
-        if (expArrayIndex == -1) expArrayIndex = Svc.ClientState.LocalPlayer?.ClassJob.Value.ExpArrayIndex ?? 0;
-        return UIState.Instance()->PlayerState.ClassJobLevels[expArrayIndex];
-    }
-    internal static unsafe short GetCurrentLevelFromSheet(Job? job = null)
-    {
-        PlayerState* playerState = PlayerState.Instance();
-        return playerState->ClassJobLevels[Svc.Data.GetExcelSheet<ClassJob>().GetRowOrDefault((uint)(job ?? (Player.Available ? Player.Object.GetJob() : 0)))?.ExpArrayIndex ?? 0];
-    }
+    // public static uint GetClassJobId() => Svc.ClientState.LocalPlayer!.ClassJob.RowId;
+    public static uint GetClassJobId() => Player.ClassJob.RowId;
 
     public static unsafe float GetJobExp(uint classjob) => PlayerState.Instance()->ClassJobExperience[GetRow<ClassJob>(classjob)?.ExpArrayIndex ?? 0];
     public static bool IsInZone(uint zoneID) => Svc.ClientState.TerritoryType == zoneID;
