@@ -492,9 +492,8 @@ namespace ChilledLeves.Ui
                 // Additional Filters heading
                 ImGui.Spacing();
                 ImGui.Spacing();
-
-                ImGui.EndChild();
             }
+            ImGui.EndChild();
 
             ImGui.NextColumn();
 
@@ -569,8 +568,9 @@ namespace ChilledLeves.Ui
                     }
                 }
 
-                ImGui.EndChild();
             }
+            ImGui.EndChild();
+
             ImGui.NextColumn();
 
             // -----------------------------------------
@@ -863,9 +863,8 @@ namespace ChilledLeves.Ui
                     ImGui.SetCursorPosX((ImGui.GetWindowWidth() - hintWidth) * 0.5f);
                     ImGui.TextDisabled(hintText);
                 }
-
-                ImGui.EndChild();
             }
+            ImGui.EndChild();
 
             if (usingIceTheme)
             {
