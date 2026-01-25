@@ -187,7 +187,8 @@ namespace ChilledLeves.Scheduler
                                         if (IsInZone(zoneID))
                                         {
                                             P.taskManager.Enqueue(() => PluginInfo("Player is the correct zone, checking to see if they're in the right distance"));
-                                            P.taskManager.Enqueue(() => PluginInfo($"Distance to NPC: {Player.DistanceTo(NPCLocation)} Interact Distance: {InteractDistance}"));
+                                            P.taskManager.Enqueue(() => PluginInfo($"Distance to NPC: {Player.DistanceTo(NPCLocation)} Interact Distance: {InteractDistance} \n" +
+                                                                                   $"Npc Location: {NPCLocation:N2} | Player Location: {Player.Position:N2}"));
                                             if (Player.DistanceTo(NPCLocation) <= InteractDistance)
                                             {
                                                 P.taskManager.Enqueue(() => PluginInfo("Close to the NPC, Starting Turnin Process"));

@@ -162,7 +162,7 @@ internal class DebugWindow : Window
                     );
                 ImGui.SetClipboardText($"{roundedVector.X}f, {roundedVector.Y}f, {roundedVector.Z}f");
             }
-            ImGui.Text($"{GetDistanceToPlayer(Svc.Targets.Target)}");
+            ImGui.Text($"{Player.DistanceTo(Svc.Targets.Target.Position)}");
         }
         else
         {
