@@ -1,10 +1,13 @@
 using ECommons.Automation.NeoTaskManager;
 using ECommons.Configuration;
 using ChilledLeves.Scheduler;
-using ChilledLeves.Ui;
 using ChilledLeves.IPC;
 using ChilledLeves.Scheduler.Handlers;
 using ChilledLeves.Utilities;
+using ChilledLeves.Utilities.LeveData;
+using ChilledLeves.Config_Files;
+using ChilledLeves.Ui.Old_Ui;
+using ChilledLeves.Ui;
 
 namespace ChilledLeves;
 
@@ -24,6 +27,8 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal GatherModeUi gatherModeUi;
     internal AlertWindow alertUi; 
     internal AlertSettings alertSettings;
+
+    internal Window_Main window_Main;
 
     // Taskmanager from Ecommons
     internal TaskManager taskManager;
@@ -65,6 +70,8 @@ public sealed class ChilledLeves : IDalamudPlugin
         alertUi = new();
         alertSettings = new();
 
+        window_Main = new();
+
         taskManager = new(new(abortOnTimeout: true, timeLimitMS: 20000, showDebug: true));
         Svc.PluginInterface.UiBuilder.Draw += windowSystem.Draw;
         Svc.PluginInterface.UiBuilder.OpenMainUi += () =>
@@ -85,6 +92,8 @@ public sealed class ChilledLeves : IDalamudPlugin
             """);
         EzCmd.Add("/leveitalone", OnCommand);
         Svc.Framework.Update += Tick;
+
+        LeveInfo.PopulateLeveInfo();
     }
 
     private void Tick(object _)
@@ -179,6 +188,10 @@ public sealed class ChilledLeves : IDalamudPlugin
             SchedulerMain.DisablePlugin();
             PluginVerbos("Sopping the turnin process");
             return;
+        }
+        else if (firstArg.ToLower() == "test")
+        {
+            window_Main.IsOpen = true;
         }
         else
         {

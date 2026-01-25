@@ -14,6 +14,17 @@
 
   <ItemGroup>
     <Content Include="ChilledLeves.json" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\ALC.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\ARM.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\BSM.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\BTN.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\CRP.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\CUL.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\FSH.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\GSM.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\LTW.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\MIN.png" />
+    <EmbeddedResource Include="Resources\GreyscaleJobs\WVR.png" />
   </ItemGroup>
 	
   <ItemGroup>

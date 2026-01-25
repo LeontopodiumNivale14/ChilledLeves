@@ -7,27 +7,27 @@ public static partial class LeveInfo
 {
     public class VendorInfo
     {
-        public string Name { get; set; }
-        public uint TerritoryId { get; set; }
-        public Vector3 Npc_InteractZone { get; set; }
-        public Vector3 Npc_Location { get; set; }
-        public Vector2 Npc_Flag { get; set; }
-        public uint Aetheryte { get; set; }
+        public string Name { get; set; } = "";
+        public uint TerritoryId { get; set; } = 0;
+        public Vector3 Npc_InteractZone { get; set; } = Vector3.Zero;
+        public Vector3 Npc_Location { get; set; } = Vector3.Zero;
+        public Vector2 Npc_Flag { get; set; } = Vector2.Zero;
+        public uint Aetheryte { get; set; } = 0;
 
         // Button Selections
-        public int Button_BattleCraft { get; set; }
-        public int Button_Gatherers { get; set; }
-        public int Button_Crafters { get; set; }
-        public int Button_Leave { get; set; }
-        public int Button_LSGather { get; set; }
-        public int Button_LSCrafter { get; set; }
+        public int Button_BattleCraft { get; set; } = -1;
+        public int Button_Gatherers { get; set; } = -1;
+        public int Button_Crafters { get; set; } = -1;
+        public int Button_Leave { get; set; } = -1;
+        public int Button_LSGather { get; set; } = -1;
+        public int Button_LSCrafter { get; set; } = -1;
 
         // Movement Options
         public bool Mount { get; set; } = false;
         public bool Fly { get; set; } = false;
 
         // For Grabbing Leves
-        public List<uint> Leves { get; set; }
+        public List<uint> Leves { get; set; } = new();
     }
 
     public static Dictionary<uint, VendorInfo> LeveNpc_Info = new()
@@ -980,7 +980,7 @@ public static partial class LeveInfo
             Aetheryte = 111,
             Npc_InteractZone = new Vector3(20.61f, 0.00f, -77.82f),
             Npc_Location = new Vector3(23.67f, -8.06f, -81.38f),
-            Npc_Flag = new(23.666687f, 81.3764f),
+            Npc_Flag = new(23.67f, -81.38f),
             Mount = false,
         },
 
@@ -1236,11 +1236,11 @@ public static partial class LeveInfo
     // Expansion-specific turnin NPCs (post-ARR pattern: gatherer/crafter split)
     private static readonly Dictionary<string, (HashSet<uint> LeveClients, uint GathererNpc, uint CrafterNpc)> ExpansionTurnins = new()
     {
-        ["Ishgard"] = (IshgardTurnin, 1011209, 1011210),      // Fionnuala, Cesteline
-        ["Kugane"] = (KuganeTurnin, 1018998, 1018999),        // Chantine, Geimrael
+        ["Ishgard"] = (IshgardTurnin, 1011209, 1011210),       // Fionnuala, Cesteline
+        ["Kugane"] = (KuganeTurnin, 1018998, 1018999),         // Chantine, Geimrael
         ["Crystarium"] = (CrystariumTurnin, 1027848, 1027849), // Moyce, Shue-Hann
-        ["Sharlayan"] = (SharlayanTurnin, 1037264, 1037265),  // Ahldiyrn, Wurtwyb
-        ["Tuliyoli"] = (TuliyoliTurnin, 1048391, 1048392), 
+        ["Sharlayan"] = (SharlayanTurnin, 1037264, 1037265),   // Ahldiyrn, Wurtwyb
+        ["Tuliyoli"] = (TuliyoliTurnin, 1048391, 1048392),     // 
     };
 
     public static uint TurninNpcId(uint leveClient, uint JobType = 0)
