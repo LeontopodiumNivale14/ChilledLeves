@@ -353,14 +353,13 @@ internal class GatherModeUi : Window
             
             ImGui.TableNextColumn();
             bool leveCompleted = IsComplete(leveID);
-            if (leveCompleted)
-            {
-                ImGui.Image(LeveStatusDict[1].GetWrapOrDefault().Handle, new Vector2(20, 20));
-            }
-            if (!leveCompleted)
-            {
-                ImGui.Image(LeveStatusDict[2].GetWrapOrDefault().Handle, new Vector2(20, 20));
-            }
+
+            uint statusIndex = (uint)(leveCompleted ? 1 : 2);
+
+            // Default occurs on texture loading returning null, checks if non-null
+            var wrap = LeveStatusDict[statusIndex].GetWrapOrDefault();
+            if (wrap != null)
+                ImGui.Image(wrap.Handle, new Vector2(20, 20));
             
             ImGui.TableNextColumn();
             CenterTextV2($"{leveLevel}");
