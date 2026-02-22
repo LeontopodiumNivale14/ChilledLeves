@@ -10,7 +10,7 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         public static void Enqueue(Job jobID)
         {
-            P.taskManager.Enqueue(() => ChangeClass(jobID));
+            P.taskManager.Enqueue(() => ChangeClass(jobID), "Changing Class");
         }
 
         internal unsafe static bool? ChangeClass(Job jobID)

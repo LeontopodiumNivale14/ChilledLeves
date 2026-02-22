@@ -40,6 +40,7 @@ internal class DebugWindow : Window
     public override void Draw()
     {
         ImGuiEx.EzTabBar("ROR Debug Tabs",
+                ("Taskmanager", TaskManagerDebug, null, true),
                 ("Main Debug###LeaveItAloneMainDebug", MainDebug, null, true),
                 ("Targeting Debug ###LeveItAloneTargeting", TargetingDebug, null, true),
                 ("Leve Table Debug ###LeveItAloneTable", LeveItAloneTable, null, true),
@@ -887,4 +888,23 @@ internal class DebugWindow : Window
     }
 
     #endregion
+
+    private void TaskManagerDebug()
+    {
+        ImGui.Text("Current Task:");
+        ImGui.SameLine();
+
+        if (P.taskManager.CurrentTask != null)
+        {
+            ImGui.Text($"{P.taskManager.CurrentTask.Name}");
+        }
+        else
+        {
+            ImGui.Text($"None");
+        }
+
+        ImGui.Text($"Current Number of queued task: {P.taskManager.NumQueuedTasks}");
+        ImGui.Text($"Current number of active task: {P.taskManager.Tasks.Count()}");
+        ImGui.Text($"Is Taskmanager Busy? {P.taskManager.IsBusy}");
+    }
 }

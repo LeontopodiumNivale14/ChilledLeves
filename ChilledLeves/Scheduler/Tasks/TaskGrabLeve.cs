@@ -17,20 +17,20 @@ namespace ChilledLeves.Scheduler.Tasks
 
         internal static void Enqueue(uint leveID, uint npcID, int classButton)
         {
-            P.taskManager.Enqueue(() => PluginLog.Information($"Leve Type is: {LeveDictionary[leveID].JobAssignmentType}"));
+            P.taskManager.Enqueue(() => PluginLog.Information($"Leve Type is: {LeveDictionary[leveID].JobAssignmentType}"), "Log Message");
             TaskInteract.Enqueue(npcID);
             var jobType = LeveDictionary[leveID].JobAssignmentType;
-            P.taskManager.Enqueue(() => PluginLog.Information($"Job Type is: {jobType}"));
+            P.taskManager.Enqueue(() => PluginLog.Information($"Job Type is: {jobType}"), "Log Message");
 
             if (jobType == 4)
             {
-                P.taskManager.Enqueue(() => PluginLog.Information($"Fisher leve Detected"));
+                P.taskManager.Enqueue(() => PluginLog.Information($"Fisher leve Detected"), "Log Message");
                 P.taskManager.Enqueue(() => UpdateFisherLeves(), "Updating fisher Leves");
                 P.taskManager.Enqueue(() => GrabFisher((ushort)leveID, npcID, classButton), "Grabbing fisher leves", DConfig);
             }
             else
             {
-                P.taskManager.Enqueue(() => PluginLog.Information($"Non Fisher leve Detected"));
+                P.taskManager.Enqueue(() => PluginLog.Information($"Non Fisher leve Detected"), "Log Message");
                 P.taskManager.Enqueue(() => GrabLeve((ushort)leveID, npcID, classButton), "Grab Leve Task", DConfig);
             }
             P.taskManager.Enqueue(() => LeaveLeveVendor(npcID), "leaving Leve Vendor", DConfig);

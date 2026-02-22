@@ -21,15 +21,15 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (targetTerritoryId == 819 || targetTerritoryId == 130)
             {
-                P.taskManager.Enqueue(() => PluginVerbos($"Target Territory is: {targetTerritoryId}"));
-                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId));
-                P.taskManager.Enqueue(() => PluginVerbos($"Using the Aethernet"));
+                P.taskManager.Enqueue(() => PluginVerbos($"Target Territory is: {targetTerritoryId}"), "Log Message");
+                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId), "Teleporting to Aetheryte");
+                P.taskManager.Enqueue(() => PluginVerbos($"Using the Aethernet"), "Log Message");
                 TaskUseAethernet.Enqueue(targetTerritoryId);
             }
             else
             {
-                P.taskManager.Enqueue(() => PluginVerbos($"No special aethernet necessary, just teleporting to: {targetTerritoryId}"));
-                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId));
+                P.taskManager.Enqueue(() => PluginVerbos($"No special aethernet necessary, just teleporting to: {targetTerritoryId}"), "Log Message");
+                P.taskManager.Enqueue(() => TeleporttoAethery(aetherytID, targetTerritoryId), "Teleporting to Aetheryte");
             }
         }
 

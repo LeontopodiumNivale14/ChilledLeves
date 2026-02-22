@@ -8,8 +8,8 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         public static void Enqueue()
         {
-            P.taskManager.Enqueue(() => SchedulerMain.CurrentProcess = "Mounting up");
-            P.taskManager.Enqueue(() => MountUp());
+            P.taskManager.Enqueue(() => SchedulerMain.CurrentProcess = "Mounting up", "Chaning Process");
+            P.taskManager.Enqueue(() => MountUp(), "Mounting up");
         }
         // Mounting up on... well a mount. 
         internal unsafe static bool? MountUp()

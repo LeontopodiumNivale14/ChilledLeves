@@ -6,7 +6,7 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         internal static void Enqueue(uint leveLevel)
         {
-            P.taskManager.Enqueue(() => LevelChecker(leveLevel));
+            P.taskManager.Enqueue(() => LevelChecker(leveLevel), "Level Check Task");
         }
 
         internal static bool? LevelChecker(uint leveLevel)

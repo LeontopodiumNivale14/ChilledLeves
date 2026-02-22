@@ -19,7 +19,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
                 if (npcZone == zoneId && IsAccepted(leveId))
                 {
-                    P.taskManager.Enqueue(() => PluginInfo($"Starting the turnin process for LeveID: {leveId} | Levename: {leveName}"));
+                    P.taskManager.Enqueue(() => PluginInfo($"Starting the turnin process for LeveID: {leveId} | Levename: {leveName}"), "Log Message");
                     TaskTarget.Enqueue(turninNPC);
                     TaskInteract.Enqueue(turninNPC);
                     TaskTurnin.Enqueue(leveName, leveId);

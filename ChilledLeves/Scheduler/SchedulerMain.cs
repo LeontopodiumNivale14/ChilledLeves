@@ -86,15 +86,19 @@ namespace ChilledLeves.Scheduler
             {
                 if (GenericThrottle)
                 {
+                    PluginLog.Verbose("We are currently running");
                     if (!P.taskManager.IsBusy)
                     {
                         if (WorkListMode)
                         {
+                            PluginLog.Verbose("Plugin is running in worklist mode");
+
                             uint leve = 0;
                             bool readyForTurnin = false;
                             bool hasLeves = false;
                             if (C.workList.Count > 0)
                             {
+                                PluginLog.Verbose("Current Worklist Count is more than 0, seeing if we have any valid entries");
                                 // Checking initially to see if any leves can be turned in
                                 foreach (var entry in C.workList)
                                 {
@@ -130,6 +134,7 @@ namespace ChilledLeves.Scheduler
                                 }
                                 if (!readyForTurnin)
                                 {
+                                    PluginLog.Verbose("No items are ready for turnin/");
                                     foreach (var entry in C.workList)
                                     {
                                         if (entry.InputValue == 0)
@@ -186,12 +191,12 @@ namespace ChilledLeves.Scheduler
 
                                         if (IsInZone(zoneID))
                                         {
-                                            P.taskManager.Enqueue(() => PluginInfo("Player is the correct zone, checking to see if they're in the right distance"));
+                                            P.taskManager.Enqueue(() => PluginInfo("Player is the correct zone, checking to see if they're in the right distance"), "Log Message");
                                             P.taskManager.Enqueue(() => PluginInfo($"Distance to NPC: {Player.DistanceTo(NPCLocation)} Interact Distance: {InteractDistance} \n" +
-                                                                                   $"Npc Location: {NPCLocation:N2} | Player Location: {Player.Position:N2}"));
+                                                                                   $"Npc Location: {NPCLocation:N2} | Player Location: {Player.Position:N2}"), "Log Message");
                                             if (Player.DistanceTo(NPCLocation) <= InteractDistance)
                                             {
-                                                P.taskManager.Enqueue(() => PluginInfo("Close to the NPC, Starting Turnin Process"));
+                                                P.taskManager.Enqueue(() => PluginInfo("Close to the NPC, Starting Turnin Process"), "Log Message");
                                                 TaskTurninMulti.Enqueue(zoneID);
                                             }
                                             else 

@@ -8,7 +8,7 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         public static void Enqueue(uint ZoneID)
         {
-            P.taskManager.Enqueue(() => PlayerNotBusy());
+            P.taskManager.Enqueue(() => PlayerNotBusy(), "Waiting for player to not be busy");
             if (ZoneID == 129 || ZoneID == 128)
             {
                 TaskMoveTo.Enqueue(AethernetDict[ZoneID].CrystalLoc, "Aetheryte in the City", false, 5);
@@ -24,7 +24,7 @@ namespace ChilledLeves.Scheduler.Tasks
                 TaskMoveTo.Enqueue(MainCityAether, "Main Cities Aetheryte", false, 5);
                 TaskTarget.Enqueue(aetheryte);
                 TaskInteract.Enqueue(aetheryte);
-                P.taskManager.Enqueue(() => OtherAethernet(ZoneID));
+                P.taskManager.Enqueue(() => OtherAethernet(ZoneID), "Teleporting Via Other Aethernet");
             }
         }
 
