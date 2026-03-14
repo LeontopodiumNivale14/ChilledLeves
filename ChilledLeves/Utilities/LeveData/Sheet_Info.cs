@@ -23,6 +23,7 @@ public static partial class LeveInfo
         public int GilReward { get; set; } = -1;
         public int AllowanceCost { get; set; } = -1;
         public Material_Turnin MaterialInfo { get; set; } = new();
+        public Gathering_Turnin GatheringInfo { get; set; } = new();
     }
 
     public class Material_Turnin
@@ -32,6 +33,18 @@ public static partial class LeveInfo
         public ISharedImmediateTexture? Item_Icon { get; set; } = null;
         public int TurninAmount { get; set; } = -1;
         public int RepeatAmount { get; set; } = -1;
+    }
+
+    public class Gathering_Turnin
+    {
+        public List<uint> NodeIds { get; set; } = new();
+        public List<GatherItems> GatherItems { get; set; } = new();
+    }
+
+    public class GatherItems
+    {
+        public uint ItemId { get; set; } = 0;
+        public int Amount { get; set; } = 0;
     }
 
     public static Dictionary<uint, Leve_SheetData> Leve_SheetInfo = new();
@@ -76,6 +89,7 @@ public static partial class LeveInfo
                 var allowanceCost = row.AllowanceCost.ToInt();
 
                 Material_Turnin materialList = new();
+                Gathering_Turnin gatheringList = new();
                 if (Material_LeveJobs.Contains(assignmentType))
                 {
                     if (Svc.Data.GetExcelSheet<CraftLeve>().TryGetRow(questID, out var materialInfo))
@@ -104,6 +118,45 @@ public static partial class LeveInfo
                         PluginLog.Verbose($"No crafting info for: {id}");
                     }
                 }
+                else if (Gathering_LeveJobs.Contains(assignmentType))
+                {
+                    List<uint> gatherPoints = new();
+                    List<GatherItems> gatherItems = new();
+
+                    var gatherLeveId = row.DataId.RowId;
+                    if (Svc.Data.GetExcelSheet<GatheringLeve>().TryGetRow(gatherLeveId, out var gatheringLeve))
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (gatheringLeve.Route[i].RowId != 0)
+                            {
+                                var route = gatheringLeve.Route[i].Value;
+                                for (int x = 0; x < 12; x++)
+                                {
+                                    var gPointId = route.GatheringPoint[x].RowId;
+                                    PluginLog.Debug($"Currently viewing nodeID: {gPointId}");
+                                    if (!gatherPoints.Contains(gPointId) && gPointId != 0)
+                                        gatherPoints.Add(gPointId);
+                                }
+                            }
+
+                            if (gatheringLeve.RequiredItem[i].RowId != 0)
+                            {
+                                var itemId = gatheringLeve.RequiredItem[i].RowId;
+                                var amount = gatheringLeve.RequiredItemQuantity[i];
+
+                                GatherItems reqItems = new()
+                                {
+                                    ItemId = itemId,
+                                    Amount = amount,
+                                };
+                                gatherItems.Add(reqItems);
+                            }
+                        }
+                    }
+                    gatheringList.GatherItems = gatherItems;
+                    gatheringList.NodeIds = gatherPoints;
+                }
 
                 if (!Leve_SheetInfo.ContainsKey(id))
                 {
@@ -120,6 +173,7 @@ public static partial class LeveInfo
                         GilReward = gilReward,
                         AllowanceCost = allowanceCost,
                         MaterialInfo = materialList,
+                        GatheringInfo = gatheringList,
                     });
                 }
             }

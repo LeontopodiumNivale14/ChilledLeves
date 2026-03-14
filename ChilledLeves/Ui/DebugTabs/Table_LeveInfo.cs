@@ -123,6 +123,17 @@ namespace ChilledLeves.Ui.DebugTabs
                                 ImGui.EndTooltip();
                             }
                         }
+                        else if (LeveInfo.Gathering_LeveJobs.Contains(entry.Value.JobAssignmentType))
+                        {
+                            ImGuiEx.Icon(FontAwesomeIcon.ArrowUpRightFromSquare);
+                            if (ImGui.IsItemHovered())
+                            {
+                                ImGui.BeginTooltip();
+                                string gatherPointIds = string.Join(", ", entry.Value.GatheringInfo.NodeIds);
+                                ImGui.Text($"{gatherPointIds}");
+                                ImGui.EndTooltip();
+                            }
+                        }
 
                     }
 

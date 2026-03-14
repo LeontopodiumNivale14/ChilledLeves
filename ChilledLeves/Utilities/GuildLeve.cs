@@ -1,5 +1,4 @@
 ﻿using Dalamud.Memory;
-using ECommons.Automation;
 using ECommons.Logging;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;
