@@ -22,7 +22,7 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal WindowSystem windowSystem;
     internal MainWindow mainWindow;
     internal SettingsWindow settingWindow;
-    internal DebugWindow debugWindow;
+    internal Window_Debug debugWindow;
     internal WorkListUi workListUi;
     internal GatherModeUi gatherModeUi;
     internal AlertWindow alertUi; 

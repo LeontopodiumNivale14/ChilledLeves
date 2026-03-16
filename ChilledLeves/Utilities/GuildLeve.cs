@@ -25,6 +25,7 @@ public unsafe class GuildLeve : AddonMasterBase<AddonGuildLeve>
 
     public uint NumEntries => Addon->AtkValues[25].UInt;
     public string SelectedLeve => MemoryHelper.ReadSeStringNullTerminated((nint)Addon->AtkValues[1233].String.Value).GetText();
+    public uint SelectedLeveId => Addon->AtkValues[1489].UInt;
 
     public Levequest[] Levequests
     {
