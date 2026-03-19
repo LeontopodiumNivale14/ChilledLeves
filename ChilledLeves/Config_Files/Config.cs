@@ -11,4 +11,9 @@ public partial class Config
     {
         EzConfig.Save();
     }
+
+    public void SaveDebounced()
+    {
+        EzConfigExtensions.SaveDebounced();
+    }
 }

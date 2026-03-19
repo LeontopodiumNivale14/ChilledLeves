@@ -1,4 +1,5 @@
-﻿using Dalamud.Interface.Textures;
+﻿using ChilledLeves.Enums;
+using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using ECommons.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
@@ -15,25 +16,26 @@ public static partial class LeveInfo
     public static HashSet<uint> Assigned_LeveJobs = new() { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
     public static HashSet<uint> Material_LeveJobs = new() { 4, 5, 6, 7, 8, 9, 10, 11, 12 };
     public static HashSet<uint> Gathering_LeveJobs = new() { 2, 3};
+    public static HashSet<int> LeveStatus = new() { 71041, 71045, 71055 };
 
     public class Class_IconInfo
     {
         public ISharedImmediateTexture ColorIcon { get; set; } = null;
     }
 
-    public static Dictionary<uint, Class_IconInfo> Job_IconDict = new()
+    public static Dictionary<LeveClass, Class_IconInfo> Job_IconDict = new()
     {
-        [8] = new(),
-        [9] = new(),
-        [10] = new(),
-        [11] = new(),
-        [12] = new(),
-        [13] = new(),
-        [14] = new(),
-        [15] = new(),
-        [16] = new(),
-        [17] = new(),
-        [18] = new(),
+        [LeveClass.Crp] = new(),
+        [LeveClass.Bsm] = new(),
+        [LeveClass.Arm] = new(),
+        [LeveClass.Gsm] = new(),
+        [LeveClass.Ltw] = new(),
+        [LeveClass.Wvr] = new(),
+        [LeveClass.Alc] = new(),
+        [LeveClass.Cul] = new(),
+        [LeveClass.Min] = new(),
+        [LeveClass.Btn] = new(),
+        [LeveClass.Fsh] = new(),
     };
 
     public static void UpdateJobIcons()
@@ -41,7 +43,7 @@ public static partial class LeveInfo
         var LeveAssignmentSheet = Svc.Data.GetExcelSheet<LeveAssignmentType>();
         for (uint i = 5; i < 13; i++)
         {
-            uint jobId = i+3;
+            LeveClass jobId = (LeveClass)i+3;
             var iconId = LeveAssignmentSheet.GetRow(i).Icon;
             if (Svc.Texture.TryGetFromGameIcon(iconId, out var iconTexture))
             {
@@ -51,7 +53,7 @@ public static partial class LeveInfo
 
         for (uint i = 2; i < 5; i++)
         {
-            uint jobId = i+14;
+            LeveClass jobId = (LeveClass)i+14;
             var iconId = LeveAssignmentSheet.GetRow(i).Icon;
             if (Svc.Texture.TryGetFromGameIcon(iconId, out var iconTexture))
             {
@@ -60,21 +62,21 @@ public static partial class LeveInfo
         }
     }
 
-    public static IDalamudTextureWrap GreyJobIcon(uint jobId)
+    public static IDalamudTextureWrap GreyJobIcon(LeveClass jobId)
     {
         string greyJobIcon = jobId switch
         {
-            8 => "ChilledLeves.Resources.GreyscaleJobs.CRP.png",
-            9 => "ChilledLeves.Resources.GreyscaleJobs.BSM.png",
-            10 => "ChilledLeves.Resources.GreyscaleJobs.ARM.png",
-            11 => "ChilledLeves.Resources.GreyscaleJobs.GSM.png",
-            12 => "ChilledLeves.Resources.GreyscaleJobs.LTW.png",
-            13 => "ChilledLeves.Resources.GreyscaleJobs.WVR.png",
-            14 => "ChilledLeves.Resources.GreyscaleJobs.ALC.png",
-            15 => "ChilledLeves.Resources.GreyscaleJobs.CUL.png",
-            16 => "ChilledLeves.Resources.GreyscaleJobs.MIN.png",
-            17 => "ChilledLeves.Resources.GreyscaleJobs.BTN.png",
-            18 => "ChilledLeves.Resources.GreyscaleJobs.FSH.png",
+            LeveClass.Crp => "ChilledLeves.Resources.GreyscaleJobs.CRP.png",
+            LeveClass.Bsm => "ChilledLeves.Resources.GreyscaleJobs.BSM.png",
+            LeveClass.Arm => "ChilledLeves.Resources.GreyscaleJobs.ARM.png",
+            LeveClass.Gsm => "ChilledLeves.Resources.GreyscaleJobs.GSM.png",
+            LeveClass.Ltw => "ChilledLeves.Resources.GreyscaleJobs.LTW.png",
+            LeveClass.Wvr => "ChilledLeves.Resources.GreyscaleJobs.WVR.png",
+            LeveClass.Alc => "ChilledLeves.Resources.GreyscaleJobs.ALC.png",
+            LeveClass.Cul => "ChilledLeves.Resources.GreyscaleJobs.CUL.png",
+            LeveClass.Min => "ChilledLeves.Resources.GreyscaleJobs.MIN.png",
+            LeveClass.Btn => "ChilledLeves.Resources.GreyscaleJobs.BTN.png",
+            LeveClass.Fsh => "ChilledLeves.Resources.GreyscaleJobs.FSH.png",
             _ => "ChilledLeves.Resources.GreyscaleJobs.Default.png",
         };
 

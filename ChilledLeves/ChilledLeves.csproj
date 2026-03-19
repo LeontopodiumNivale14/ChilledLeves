@@ -30,8 +30,16 @@
   <ItemGroup>
       <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\Gather_Routes\**\*" />
+	</ItemGroup>
 	
   <ItemGroup>
     <PackageReference Update="DalamudPackager" Version="14.0.1" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Folder Include="Resources\Gather_Routes\" />
   </ItemGroup>
 </Project>

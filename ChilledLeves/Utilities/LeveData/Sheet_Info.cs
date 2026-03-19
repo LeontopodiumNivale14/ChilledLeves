@@ -1,4 +1,5 @@
-﻿using Dalamud.Interface.Textures;
+﻿using ChilledLeves.Enums;
+using Dalamud.Interface.Textures;
 using ECommons.ExcelServices;
 using ECommons.Logging;
 using Lumina.Excel.Sheets;
@@ -14,7 +15,7 @@ public static partial class LeveInfo
     {
         public string LeveName { get; set; } = "???";
         public uint JobAssignmentType { get; set; } = 0;
-        public uint Job { get; set; } = 0;
+        public LeveClass Job { get; set; } = LeveClass.All;
         public uint Level { get; set; } = 0;
         public uint Npc_Vendor { get; set; } = 0;
         public uint Npc_Turnin { get; set; } = 0;
@@ -22,6 +23,7 @@ public static partial class LeveInfo
         public int ExpReward { get; set; } = -1;
         public int GilReward { get; set; } = -1;
         public int AllowanceCost { get; set; } = -1;
+        public MapInfo Gather_Location { get; set; } = new();
         public Material_Turnin MaterialInfo { get; set; } = new();
         public Gathering_Turnin GatheringInfo { get; set; } = new();
     }
@@ -45,6 +47,12 @@ public static partial class LeveInfo
     {
         public uint ItemId { get; set; } = 0;
         public int Amount { get; set; } = 0;
+    }
+    public class MapInfo
+    {
+        public Vector3 Location { get; set; } = Vector3.Zero;
+        public uint TerritoryId { get; set; } = 0;
+        public int Radius { get; set; } = 0;
     }
 
     public static Dictionary<uint, Leve_SheetData> Leve_SheetInfo = new();
@@ -73,7 +81,7 @@ public static partial class LeveInfo
 
                 var leveClient = row.LeveClient.RowId;
 
-                var job = (uint)row.ClassJobCategory.RowId - 1;
+                var job = (LeveClass)row.ClassJobCategory.RowId - 1;
                 var level = row.ClassJobLevel;
                 var leveVendorEntry = LeveNpc_Info.Where(x => x.Value.Leves.Contains(id)).FirstOrDefault();
                 if (leveVendorEntry.Key == 0) // or check if leveVendorEntry.Value == null
@@ -85,11 +93,12 @@ public static partial class LeveInfo
                 var leve_Turnin = TurninNpcId(leveClient, assignmentType);
                 var questID = row.DataId.RowId;
                 var exp = row.ExpReward.ToInt();
-                var gilReward = row.ExpReward.ToInt();
+                var gilReward = row.GilReward.ToInt();
                 var allowanceCost = row.AllowanceCost.ToInt();
 
                 Material_Turnin materialList = new();
                 Gathering_Turnin gatheringList = new();
+                MapInfo mapInfo = new();
                 if (Material_LeveJobs.Contains(assignmentType))
                 {
                     if (Svc.Data.GetExcelSheet<CraftLeve>().TryGetRow(questID, out var materialInfo))
@@ -124,6 +133,7 @@ public static partial class LeveInfo
                     List<GatherItems> gatherItems = new();
 
                     var gatherLeveId = row.DataId.RowId;
+                    var levelData = row.LevelStart.Value;
                     if (Svc.Data.GetExcelSheet<GatheringLeve>().TryGetRow(gatherLeveId, out var gatheringLeve))
                     {
                         for (int i = 0; i < 4; i++)
@@ -154,6 +164,12 @@ public static partial class LeveInfo
                             }
                         }
                     }
+
+                    mapInfo.Location = new(levelData.X, levelData.Y, levelData.Z);
+                    mapInfo.TerritoryId = levelData.Territory.RowId;
+                    mapInfo.Radius = (int)levelData.Radius;
+
+
                     gatheringList.GatherItems = gatherItems;
                     gatheringList.NodeIds = gatherPoints;
                 }
@@ -174,6 +190,7 @@ public static partial class LeveInfo
                         AllowanceCost = allowanceCost,
                         MaterialInfo = materialList,
                         GatheringInfo = gatheringList,
+                        Gather_Location = mapInfo,
                     });
                 }
             }

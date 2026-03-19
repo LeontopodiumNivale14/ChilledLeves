@@ -10,8 +10,6 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
 {
     internal class Leve_Tab
     {
-        public static int Leve_MinLevel = 1;
-        public static int Leve_MaxLevel = 100;
         public static string Leve_Name = "";
         public static int LeveCount = 0;
         public static int Leve_Total = 0;
@@ -71,9 +69,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         ImGui.TableNextColumn();
                         if (IsComplete(leveId.Key))
                         {
-                            var CompleteTexture = LeveStatusDict[1].GetWrapOrEmpty();
-                            ImGui.Image(CompleteTexture.Handle, imageSize);
-                            ImGui.SameLine(0, 4);
+
                         }
 
                         ImGui.TableNextColumn();
@@ -97,8 +93,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 }
 
                 // Make sure that it's enabled
-                var jobName = Main_Tab.GetJobName(leve.Job);
-                showLeve &= C.Job_Filter[jobName];
+                showLeve &= C.Job_LeveFilter[leve.Job];
 
                 if (C.Leve_Filter["Completed"])
                     showLeve &= IsComplete(leveId);
@@ -113,7 +108,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 }
 
                 // Level comparison
-                showLeve &= Leve_MinLevel <= leve.Level && leve.Level <= Leve_MaxLevel;
+                showLeve &= C.MinLevel <= leve.Level && leve.Level <= C.MaxLevel;
 
                 if (showLeve)
                     LeveCount += 1;

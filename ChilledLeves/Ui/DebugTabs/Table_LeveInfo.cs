@@ -1,5 +1,8 @@
-﻿using ChilledLeves.Utilities.LeveData;
+﻿using ChilledLeves.Enums;
+using ChilledLeves.Utilities.LeveData;
+using ChilledLeves.Utilities.OldUtils;
 using Dalamud.Interface.Utility.Raii;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,14 +16,15 @@ namespace ChilledLeves.Ui.DebugTabs
         private static int MaxLevel = 100;
 
         private static int sliderIndex = 0;
-        public static uint SelectedJob
+
+        public static LeveClass SelectedJob
         {
-            get => sliderIndex == 0 ? 0u : (uint)(sliderIndex + 7);
+            get => sliderIndex == 0 ? LeveClass.All : (LeveClass)(sliderIndex + 7);
             set
             {
-                if (value == 0)
+                if (value == LeveClass.All)
                     sliderIndex = 0;
-                else if (value >= 8 && value <= 18)
+                else
                     sliderIndex = (int)value - 7;
             }
         }
@@ -30,6 +34,27 @@ namespace ChilledLeves.Ui.DebugTabs
 
         public static void Draw()
         {
+            uint JobId(LeveClass classId)
+            {
+                uint jobid = classId switch
+                {
+                    LeveClass.Crp => 8,
+                    LeveClass.Bsm => 9,
+                    LeveClass.Arm => 10,
+                    LeveClass.Gsm => 11,
+                    LeveClass.Ltw => 12,
+                    LeveClass.Wvr => 13,
+                    LeveClass.Alc => 14,
+                    LeveClass.Cul => 15,
+                    LeveClass.Min => 16,
+                    LeveClass.Btn => 17,
+                    LeveClass.Fsh => 18,
+                    _ => 0,
+                };
+
+                return jobid;
+            }
+
             ImGui.SetNextItemWidth(200);
             ImGui.InputText("Mission Name", ref missionName);
             ImGui.SetNextItemWidth(200);
@@ -41,7 +66,7 @@ namespace ChilledLeves.Ui.DebugTabs
 
             using (var tableInfo = ImRaii.Child("Table Info", new Vector2(0, 0)))
             {
-                if (ImGui.BeginTable("Leve Sheet Info", 11, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable))
+                if (ImGui.BeginTable("Leve Sheet Info", 12, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Reorderable))
                 {
                     ImGui.TableSetupColumn("ID");
                     ImGui.TableSetupColumn("Job");
@@ -54,12 +79,13 @@ namespace ChilledLeves.Ui.DebugTabs
                     ImGui.TableSetupColumn("Vendor");
                     ImGui.TableSetupColumn("Turnin");
                     ImGui.TableSetupColumn("Material");
+                    ImGui.TableSetupColumn("Gathering Location");
 
                     ImGui.TableHeadersRow();
 
                     foreach (var entry in LeveInfo.Leve_SheetInfo)
                     {
-                        if (!string.IsNullOrEmpty(missionName) && !entry.Value.LeveName.Contains(missionName.ToLower()))
+                        if (!Old_Utils.ContainsIgnoreSpacesAndCase(entry.Value.LeveName, missionName))
                             continue;
 
                         if (entry.Value.Level < MinLevel)
@@ -133,6 +159,12 @@ namespace ChilledLeves.Ui.DebugTabs
                                 ImGui.Text($"{gatherPointIds}");
                                 ImGui.EndTooltip();
                             }
+                        }
+
+                        ImGui.TableNextColumn();
+                        if (ImGui.Button("Test Ring"))
+                        {
+
                         }
 
                     }

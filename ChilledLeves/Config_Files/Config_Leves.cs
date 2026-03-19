@@ -12,6 +12,7 @@ public partial class Config
     public List<uint> FavoriteLeves { get; set; } = new();
     public bool IncreaseDelay { get; set; } = false;
     public bool RepeatLastLeve { get; set; } = false;
+    public bool AllowMultiTurnin { get; set; } = true;
     public Dictionary<uint, int> LeveList { get; set; } = new();
     public Dictionary<uint, List<uint>> Npc_LevePriority { get; set; } = new();
 }

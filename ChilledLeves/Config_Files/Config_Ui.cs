@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChilledLeves.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,19 +7,19 @@ namespace ChilledLeves.Config_Files;
 
 public partial class Config
 {
-    public Dictionary<string, bool> Job_Filter { get; set; } = new()
+    public Dictionary<LeveClass, bool> Job_LeveFilter { get; set; } = new()
     {
-        ["Carpenter"] = true,
-        ["Blacksmith"] = true,
-        ["Armorer"] = true,
-        ["Goldsmith"] = true,
-        ["Leatherworker"] = true,
-        ["Weaver"] = true,
-        ["Alchemist"] = true,
-        ["Culinarian"] = true,
-        ["Miner"] = true,
-        ["Botanist"] = true,
-        ["Fisher"] = true,
+        [LeveClass.Crp] = true,
+        [LeveClass.Bsm] = true,
+        [LeveClass.Arm] = true,
+        [LeveClass.Gsm] = true,
+        [LeveClass.Ltw] = true,
+        [LeveClass.Wvr] = true,
+        [LeveClass.Alc] = true,
+        [LeveClass.Cul] = true,
+        [LeveClass.Min] = true,
+        [LeveClass.Btn] = true,
+        [LeveClass.Fsh] = true,
     };
 
     public Dictionary<string, bool> Leve_Filter { get; set; } = new()

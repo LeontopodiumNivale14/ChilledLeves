@@ -20,11 +20,7 @@ public sealed class ChilledLeves : IDalamudPlugin
 
     // Window's that I use, base window to the settings... need these to actually show shit 
     internal WindowSystem windowSystem;
-    internal MainWindow mainWindow;
-    internal SettingsWindow settingWindow;
     internal Window_Debug debugWindow;
-    internal WorkListUi workListUi;
-    internal GatherModeUi gatherModeUi;
     internal AlertWindow alertUi; 
     internal AlertSettings alertSettings;
 
@@ -62,11 +58,7 @@ public sealed class ChilledLeves : IDalamudPlugin
 
         // all the windows
         windowSystem = new();
-        mainWindow = new();
-        settingWindow = new();
         debugWindow = new();
-        workListUi = new();
-        gatherModeUi = new();
         alertUi = new();
         alertSettings = new();
 
@@ -76,11 +68,11 @@ public sealed class ChilledLeves : IDalamudPlugin
         Svc.PluginInterface.UiBuilder.Draw += windowSystem.Draw;
         Svc.PluginInterface.UiBuilder.OpenMainUi += () =>
         {
-            mainWindow.IsOpen = true;
+            window_Main.IsOpen = true;
         };
         Svc.PluginInterface.UiBuilder.OpenConfigUi += () =>
         {
-            workListUi.IsOpen = true;
+
         };
         EzCmd.Add("/chilledleves", OnCommand, """
             Open plugin interface
@@ -93,6 +85,8 @@ public sealed class ChilledLeves : IDalamudPlugin
         EzCmd.Add("/leveitalone", OnCommand);
         Svc.Framework.Update += Tick;
 
+        ExcelHelper.Init();
+        Config_Migrate.UpdateConfig();
         LeveInfo.PopulateLeveInfo();
     }
 
@@ -123,7 +117,7 @@ public sealed class ChilledLeves : IDalamudPlugin
 
         if (subcommands.Length == 0 || args == "")
         {
-            mainWindow.IsOpen = !mainWindow.IsOpen;
+            window_Main.IsOpen = !window_Main.IsOpen;
             return;
         }
 
@@ -136,57 +130,26 @@ public sealed class ChilledLeves : IDalamudPlugin
         }
         else if (firstArg.ToLower() == "s" || firstArg.ToLower() == "settings")
         {
-            workListUi.IsOpen = true;
+
             return;
         }
         else if (firstArg.ToLower() == "add")
         {
-            string secondCommand = subcommands[1];
-            string thirdCommand = subcommands[2];
-            uint leveId = 0;
-            int repeatAmount = 0;
-            if (int.TryParse(secondCommand, out int value) && LeveDictionary.ContainsKey((uint)value))
-            {
-                leveId = (uint)value;
-                if (int.TryParse(thirdCommand, out int repeat) && (repeat > 0 && repeat <= 100))
-                {
-                    repeatAmount = repeat;
-                    if (!C.workList.Any(e => e.LeveID == leveId))
-                    {
-                        C.workList.Add(new LeveEntry { LeveID = leveId, InputValue = repeatAmount});
-                        C.Save();
-                        return;
-                    }
-                }
-                else
-                {
-                    PluginVerbos($"{repeat} is not a valud input for the amount that you would like to do. Please input between 1-100");
-                    return;
-                }
-            }
-            else
-            {
-                PluginVerbos($"The leve you tried adding isn't a valid leveID: {subcommands[1]}");
-                return;
-            }
+
         }
         else if (firstArg.ToLower() == "clear")
         {
-            C.workList.Clear();
-            C.Save();
-            PluginVerbos("Cleared the worklist of all leves");
+
             return;
         }
         else if (firstArg.ToLower() == "start")
         {
-            SchedulerMain.EnablePlugin();
-            PluginVerbos("Starting the turnin process");
+
             return;
         }
         else if (firstArg.ToLower() == "stop")
         {
-            SchedulerMain.DisablePlugin();
-            PluginVerbos("Sopping the turnin process");
+
             return;
         }
         else if (firstArg.ToLower() == "test")

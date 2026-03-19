@@ -18,8 +18,8 @@ global using System;
 global using static ECommons.GenericHelpers;
 
 global using static ChilledLeves.ChilledLeves;
-global using static ChilledLeves.Utilities.Utils;
-global using static ChilledLeves.Utilities.Data;
+global using static ChilledLeves.Utilities.OldUtils.Old_Utils;
+global using static ChilledLeves.Utilities.OldUtils.Old_Data;
 
 // tables being used acrossed the plugin
 global using Dalamud.Plugin.Services;

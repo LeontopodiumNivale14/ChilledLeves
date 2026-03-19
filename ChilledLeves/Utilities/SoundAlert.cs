@@ -1,4 +1,5 @@
-﻿using ECommons.GameHelpers;
+﻿using ChilledLeves.Utilities.OldUtils;
+using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -65,14 +66,14 @@ internal static class SoundAlert
     public static readonly ulong DefaultCID = 0000000000000000;
     public static ulong CurrentId = 0000000000000000;
     public static bool refreshOverlay = false;
-    public static bool IsLeveThresholdMet() => Utils.Allowances >= C.LeveAlertAmount;
+    public static bool IsLeveThresholdMet() => Old_Utils.Allowances >= C.LeveAlertAmount;
 
     public static void Tick()
     {
         bool IsLeveThresholdMet = false;
         if (Player.Interactable)
         {
-            IsLeveThresholdMet = Utils.Allowances >= C.LeveAlertAmount;
+            IsLeveThresholdMet = Old_Utils.Allowances >= C.LeveAlertAmount;
             // Svc.Log.Information($"Allowance: {Utils.Allowances} | Alert Amount: {C.LeveAlertAmount}");
         }
 

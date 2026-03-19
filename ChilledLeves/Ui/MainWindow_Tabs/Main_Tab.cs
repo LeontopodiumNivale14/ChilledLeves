@@ -1,4 +1,5 @@
-﻿using ChilledLeves.Ui.Old_Ui;
+﻿using ChilledLeves.Enums;
+using ChilledLeves.Ui.Old_Ui;
 using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
@@ -6,6 +7,7 @@ using Dalamud.Interface.Utility.Raii;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static FFXIVClientStructs.FFXIV.Client.Game.CurrencyManager;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs;
 
@@ -15,28 +17,6 @@ internal class Main_Tab
     {
         float textLineHeight = ImGui.GetTextLineHeight();
         Vector2 buttonSize = new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f);
-
-        if (ImGui.Button("Start", buttonSize))
-        {
-
-        }
-
-        if (ImGui.Button("Stop", buttonSize))
-        {
-
-        }
-
-        if (ImGui.Button("Open Worklist", buttonSize))
-        {
-
-        }
-
-        if (ImGui.Button("Open Priority Grind", buttonSize))
-        {
-
-        }
-
-        ImGui.Dummy(new(0, 5));
 
         bool useCustomTheme = C.UseIceTheme;
         if (ImGui.Checkbox("Use Ice Theme", ref useCustomTheme))
@@ -117,38 +97,41 @@ internal class Main_Tab
         float iconSpacing = 6;
 
         int itemsPerRow = 4;
-        int currentItem = 0;
+
+        LeveClass[] Crafters = { LeveClass.Crp, LeveClass.Bsm, LeveClass.Arm, LeveClass.Gsm, LeveClass.Ltw, LeveClass.Wvr, LeveClass.Alc, LeveClass.Cul };
+        LeveClass[] Gatherers = { LeveClass.Min, LeveClass.Btn, LeveClass.Fsh };
 
         // Crafters section
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + iconSpacing);
         Theme_Colors.BodyText("Crafters");
+        var currentItem = 0;
 
-        for (uint i = 8; i < 16; i++)
+        foreach (var job in Crafters)
         {
             if (currentItem % itemsPerRow == 0)
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + iconSpacing);
 
-            JobToggleButton(i);
+            JobToggleButton(job);
             currentItem++;
 
-            if (currentItem % itemsPerRow != 0 && i != 15)
+            if (currentItem % itemsPerRow != 0 && job != Crafters[^1])
                 ImGui.SameLine(0, iconSpacing);
         }
-
-        currentItem = 0;
 
         // Gatherers section
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + iconSpacing);
         Theme_Colors.BodyText("Gatherers");
-        for (uint i = 16; i < 19; i++)
+        currentItem = 0;
+
+        foreach (var job in Gatherers)
         {
             if (currentItem % itemsPerRow == 0)
                 ImGui.SetCursorPosX(ImGui.GetCursorPosX() + iconSpacing);
 
-            JobToggleButton(i);
+            JobToggleButton(job);
             currentItem++;
 
-            if (currentItem % itemsPerRow != 0 && i != 18)
+            if (currentItem % itemsPerRow != 0 && job != Gatherers[^1])
                 ImGui.SameLine(0, iconSpacing);
         }
 
@@ -158,22 +141,53 @@ internal class Main_Tab
         ImGui.Separator();
         ImGui.Dummy(new Vector2(0, 5));
 
-        ImGui.Text("Min Lv.");
-        ImGui.SameLine();
-        ImGui.SliderInt("##Min Level", ref Leve_Tab.Leve_MinLevel, 1, Leve_Tab.Leve_MaxLevel);
+        if (ImGui.BeginTable("Filter Settings", 2, ImGuiTableFlags.SizingFixedFit, ImGui.GetContentRegionAvail()))
+        {
+            ImGui.TableSetupColumn("Type");
+            ImGui.TableSetupColumn("Info", ImGuiTableColumnFlags.WidthStretch);
 
-        ImGui.Text("Max Lv.");
-        ImGui.SameLine();
-        ImGui.SliderInt("##Max Level", ref Leve_Tab.Leve_MaxLevel, Leve_Tab.Leve_MinLevel, 100);
-        ImGui.Text($"Leve Name");
-        ImGui.SameLine();
-        ImGui.InputText("##Name Search", ref Leve_Tab.Leve_Name, 1000);
+            var minLv = C.MinLevel;
+            var maxLv = C.MaxLevel;
+
+            ImGui.TableNextRow();
+            ImGui.TableSetColumnIndex(0);
+            Theme_Colors.BodyText($"Min Level");
+
+            ImGui.TableNextColumn();
+            if (ImGui.SliderInt("##Min Lv.", ref minLv, 1, maxLv))
+            {
+                C.MinLevel = minLv;
+                C.SaveDebounced();
+            }
+
+            ImGui.TableNextRow();
+            ImGui.TableSetColumnIndex(0);
+            ImGui.AlignTextToFramePadding();
+            Theme_Colors.BodyText($"Max Lv.");
+
+            ImGui.TableNextColumn();
+            ImGui.AlignTextToFramePadding();
+            if (ImGui.SliderInt("##Max Level", ref maxLv, minLv, 100))
+            {
+                C.MaxLevel = maxLv;
+                C.SaveDebounced();
+            }
+
+            ImGui.TableNextRow();
+            ImGui.TableSetColumnIndex(0);
+            ImGui.AlignTextToFramePadding();
+            Theme_Colors.BodyText("Leve Name");
+
+            ImGui.TableNextColumn();
+            ImGui.InputText("##Name Search", ref Leve_Tab.Leve_Name, 1000);
+
+            ImGui.EndTable();
+        }
     }
 
-    private static void JobToggleButton(uint jobId)
+    private static void JobToggleButton(LeveClass selectedClass)
     {
-        var jobButton_Name = GetJobName(jobId);
-        bool enabled = C.Job_Filter[jobButton_Name];
+        bool enabled = C.Job_LeveFilter[selectedClass];
 
         using var framePadding = ImRaii.PushStyle(ImGuiStyleVar.FramePadding, new Vector2(2, 2));
         using var colors = ImRaii.PushColor(ImGuiCol.Button, Vector4.Zero); // Initialize with dummy
@@ -214,38 +228,38 @@ internal class Main_Tab
 
         if (enabled)
         {
-            var image = LeveInfo.Job_IconDict[jobId].ColorIcon;
+            var image = LeveInfo.Job_IconDict[selectedClass].ColorIcon;
             if (ImGui.ImageButton(image.GetWrapOrEmpty().Handle, size))
             {
-                C.Job_Filter[jobButton_Name] = !C.Job_Filter[jobButton_Name];
+                C.Job_LeveFilter[selectedClass] = !C.Job_LeveFilter[selectedClass];
             }
             if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
             {
-                foreach (var jobName in C.Job_Filter)
+                foreach (var jobName in C.Job_LeveFilter)
                 {
-                    if (jobName.Key != jobButton_Name)
-                        C.Job_Filter[jobName.Key] = false;
+                    if (jobName.Key != selectedClass)
+                        C.Job_LeveFilter[jobName.Key] = false;
                     else
-                        C.Job_Filter[jobName.Key] = true;
+                        C.Job_LeveFilter[jobName.Key] = true;
                 }
                 C.Save();
             }
         }
         else
         {
-            var image = LeveInfo.GreyJobIcon(jobId);
+            var image = LeveInfo.GreyJobIcon(selectedClass);
             if (ImGui.ImageButton(image.Handle, size))
             {
-                C.Job_Filter[jobButton_Name] = !C.Job_Filter[jobButton_Name];
+                C.Job_LeveFilter[selectedClass] = !C.Job_LeveFilter[selectedClass];
             }
             if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
             {
-                foreach (var jobName in C.Job_Filter)
+                foreach (var jobName in C.Job_LeveFilter)
                 {
-                    if (jobName.Key != jobButton_Name)
-                        C.Job_Filter[jobName.Key] = false;
+                    if (jobName.Key != selectedClass)
+                        C.Job_LeveFilter[jobName.Key] = false;
                     else
-                        C.Job_Filter[jobName.Key] = true;
+                        C.Job_LeveFilter[jobName.Key] = true;
                 }
                 C.Save();
             }
@@ -271,22 +285,22 @@ internal class Main_Tab
         };
     }
 
-    public static string GetJobName(uint jobId)
+    public static string GetJobName(LeveClass @class)
     {
-        return jobId switch
+        return @class switch
         {
-            8 => "Carpenter",
-            9 => "Blacksmith",
-            10 => "Armorer",
-            11 => "Goldsmith",
-            12 => "Leatherworker",
-            13 => "Weaver",
-            14 => "Alchemist",
-            15 => "Culinarian",
-            16 => "Miner",
-            17 => "Botanist",
-            18 => "Fisher",
-            _ => throw new ArgumentException($"Unknown job ID: {jobId}")
+            LeveClass.Crp => "Carpenter",
+            LeveClass.Bsm => "Blacksmith",
+            LeveClass.Arm => "Armorer",
+            LeveClass.Gsm => "Goldsmith",
+            LeveClass.Ltw => "Leatherworker",
+            LeveClass.Wvr => "Weaver",
+            LeveClass.Alc => "Alchemist",
+            LeveClass.Cul => "Culinarian",
+            LeveClass.Min => "Miner",
+            LeveClass.Btn => "Botanist",
+            LeveClass.Fsh => "Fisher",
+            _ => throw new ArgumentException($"Unknown job ID: {@class}")
         };
     }
 }

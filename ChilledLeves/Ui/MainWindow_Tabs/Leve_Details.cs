@@ -1,4 +1,5 @@
-﻿using ChilledLeves.Utilities.LeveData;
+﻿using ChilledLeves.Utilities;
+using ChilledLeves.Utilities.LeveData;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -43,17 +44,24 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     ImGui.EndTable();
                 }
 
-                if (ImGui.BeginTable("Leve_Npc Info", 2, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Resizable))
+                if (ImGui.BeginTable("Leve_Npc Info", 2, ImGuiTableFlags.SizingFixedFit))
                 {
                     ImGui.TableSetupColumn("Info Kind");
                     ImGui.TableSetupColumn("Npc Name");
-                    ImGui.TableSetupColumn("External Link");
-
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    Theme_Colors.BodyText($"Leve Vendor");
+                    
                     if (LeveInfo.LeveNpc_Info.TryGetValue(leve.Npc_Vendor, out var vendor))
                     {
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        Theme_Colors.BodyText($"Start Location");
+
+                        ImGui.TableNextColumn();
+                        Theme_Colors.BodyText($"{ExcelHelper.Sheet_TerritoryType.GetRow(vendor.TerritoryId).PlaceName.Value.Name}");
+
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        Theme_Colors.BodyText($"Leve Vendor");
+
                         ImGui.TableNextColumn();
                         if (ImGui.Button($"{vendor.Name}"))
                         {

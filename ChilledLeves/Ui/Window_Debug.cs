@@ -30,7 +30,9 @@ namespace ChilledLeves.Ui
         private readonly Dictionary<string, Action> DebugTabs = new()
         {
             ["Table: Leve Details"] = () => Table_LeveInfo.Draw(),
-            ["Ui: PlayerInfo"] = () => Ui_PlayerInfo.Draw(),
+            ["Table: Npc Info"] = () => Table_NpcInfo.Draw(),
+            ["Ui: Player Info"] = () => Ui_PlayerInfo.Draw(),
+            ["Game: Leve Window"] = () => Game_GuildLeves.Draw(),
             ["Debug: Artisan Details"] = () => Debug_ArtisanItems.CraftingDebug(),
         };
 
