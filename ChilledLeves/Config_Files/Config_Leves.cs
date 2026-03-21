@@ -14,5 +14,15 @@ public partial class Config
     public bool RepeatLastLeve { get; set; } = false;
     public bool AllowMultiTurnin { get; set; } = true;
     public Dictionary<uint, int> LeveList { get; set; } = new();
+    public List<uint> LeveOrder { get; set; } = new();
     public Dictionary<uint, List<uint>> Npc_LevePriority { get; set; } = new();
+    public List<SavedList> Leve_Listing { get; set; } = new();
+    
+    public class SavedList
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public List<(uint leve, int amount)> LeveList { get; set; } = new();
+        public DateTime DateCreated { get; set; } = DateTime.Now;
+    }
 }

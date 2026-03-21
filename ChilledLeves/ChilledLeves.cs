@@ -88,6 +88,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         ExcelHelper.Init();
         Config_Migrate.UpdateConfig();
         LeveInfo.PopulateLeveInfo();
+        LeveInfo.UpdateLeves();
     }
 
     private void Tick(object _)

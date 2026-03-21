@@ -8,7 +8,7 @@ using System.Text;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs
 {
-    internal class Leve_Tab
+    internal class Leve_SelectionTab
     {
         public static string Leve_Name = "";
         public static int LeveCount = 0;
@@ -37,14 +37,19 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     {
                         ImGui.TableNextRow();
                         ImGui.TableSetColumnIndex(0);
-                        if (ImGui.Selectable($"##{leveId.Key}", Leve_Details.selectedLeve == leveId.Key, ImGuiSelectableFlags.SpanAllColumns))
+                        if (ImGui.Selectable($"##{leveId.Key}", Leve_DetailsTab.selectedLeve == leveId.Key, ImGuiSelectableFlags.SpanAllColumns))
                         {
-                            Leve_Details.selectedLeve = leveId.Key;
+                            Leve_DetailsTab.selectedLeve = leveId.Key;
                         }
                         if (ImGui.IsItemHovered() && (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left) || (ImGui.IsItemClicked(ImGuiMouseButton.Left) && C.RapidImport)))
                         {
+                            if (!C.LeveOrder.Contains(leveId.Key))
+                                C.LeveOrder.Add(leveId.Key);
+
                             if (C.LeveList[leveId.Key] == 0)
                                 C.LeveList[leveId.Key] = 1;
+
+                            C.SaveDebounced();
                         }
                         ImGui.SameLine();
                         Theme_Colors.BodyText($"{leveId.Key}");

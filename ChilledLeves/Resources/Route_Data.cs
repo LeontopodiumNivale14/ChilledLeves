@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ChilledLeves.Enums;
+using System.Collections.Generic;
 
 namespace ChilledLeves.Resources
 {
@@ -7,8 +8,8 @@ namespace ChilledLeves.Resources
         public uint LeveId { get; set; }
         public uint TerritoryId { get; set; }
         public string ZoneName { get; set; }
-        public uint ExpansionId { get; set; }
-        public uint GatheringJob { get; set; }
+        public ExpansionIds ExpansionId { get; set; }
+        public LeveClass GatheringJob { get; set; }
         public List<GatheringNode> NodeInfo { get; set; }
     }
 

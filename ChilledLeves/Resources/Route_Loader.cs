@@ -1,4 +1,5 @@
-﻿using ECommons.Logging;
+﻿using ChilledLeves.Enums;
+using ECommons.Logging;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -25,14 +26,14 @@ namespace ChilledLeves.Resources
             Converters = { new Vector3Converter() }
         };
 
-        private static readonly Dictionary<uint, string> ExpansionNames = new()
+        private static readonly Dictionary<ExpansionIds, string> ExpansionNames = new()
         {
-            { 0, "2.x - A Realm Reborn" },
-            { 1, "3.x - Heavensward" },
-            { 2, "4.x - Stormblood" },
-            { 3, "5.x - Shadowbringers" },
-            { 4, "6.x - Endwalker" },
-            { 5, "7.x - Dawntrail" }
+            { ExpansionIds.ARR, "2.x - A Realm Reborn" },
+            { ExpansionIds.HW, "3.x - Heavensward" },
+            { ExpansionIds.StB, "4.x - Stormblood" },
+            { ExpansionIds.ShB, "5.x - Shadowbringers" },
+            { ExpansionIds.EW, "6.x - Endwalker" },
+            { ExpansionIds.DT, "7.x - Dawntrail" }
         };
 
         // ── Load ──────────────────────────────────────────────────────────────
@@ -114,13 +115,13 @@ namespace ChilledLeves.Resources
         public static List<GatheringRoute> GetRoutesForTerritory(uint territoryId)
             => Leve_Routes.Values.Where(r => r.TerritoryId == territoryId).ToList();
 
-        public static List<GatheringRoute> GetRoutesForJob(uint jobId)
+        public static List<GatheringRoute> GetRoutesForJob(LeveClass jobId)
             => Leve_Routes.Values.Where(r => r.GatheringJob == jobId).ToList();
 
-        public static List<GatheringRoute> GetRoutesForExpansion(uint expansionId)
-            => Leve_Routes.Values.Where(r => r.ExpansionId == expansionId).ToList();
+        public static List<GatheringRoute> GetRoutesForExpansion(ExpansionIds expansion)
+            => Leve_Routes.Values.Where(r => r.ExpansionId == expansion).ToList();
 
-        public static string GetExpansionDisplayName(uint expansionId)
+        public static string GetExpansionDisplayName(ExpansionIds expansionId)
             => ExpansionNames.TryGetValue(expansionId, out var name) ? name : $"Unknown ({expansionId})";
 
         // ── Internals ─────────────────────────────────────────────────────────

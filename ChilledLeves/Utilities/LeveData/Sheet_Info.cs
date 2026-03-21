@@ -15,6 +15,7 @@ public static partial class LeveInfo
     {
         public string LeveName { get; set; } = "???";
         public uint JobAssignmentType { get; set; } = 0;
+        public ExpansionIds Expansion { get; set; } = ExpansionIds.ARR;
         public LeveClass Job { get; set; } = LeveClass.All;
         public uint Level { get; set; } = 0;
         public uint Npc_Vendor { get; set; } = 0;
@@ -23,9 +24,9 @@ public static partial class LeveInfo
         public int ExpReward { get; set; } = -1;
         public int GilReward { get; set; } = -1;
         public int AllowanceCost { get; set; } = -1;
-        public MapInfo Gather_Location { get; set; } = new();
+        public MapInfo Gather_MapInfo { get; set; } = new();
         public Material_Turnin MaterialInfo { get; set; } = new();
-        public Gathering_Turnin GatheringInfo { get; set; } = new();
+        public Gathering_Turnin Gather_NodeInfo { get; set; } = new();
     }
 
     public class Material_Turnin
@@ -95,6 +96,17 @@ public static partial class LeveInfo
                 var exp = row.ExpReward.ToInt();
                 var gilReward = row.GilReward.ToInt();
                 var allowanceCost = row.AllowanceCost.ToInt();
+
+                ExpansionIds expansion = level switch
+                {
+                    < 50 => ExpansionIds.ARR,
+                    < 60 => ExpansionIds.HW,
+                    < 70 => ExpansionIds.StB,
+                    < 80 => ExpansionIds.ShB,
+                    < 90 => ExpansionIds.EW,
+                    < 100 => ExpansionIds.DT,
+                    _ => ExpansionIds.Unk  // fallback for 100+
+                };
 
                 Material_Turnin materialList = new();
                 Gathering_Turnin gatheringList = new();
@@ -181,6 +193,7 @@ public static partial class LeveInfo
                         LeveName = leveName,
                         JobAssignmentType = assignmentType,
                         Job = job,
+                        Expansion = expansion,
                         Level = level,
                         Npc_Vendor = leve_Vendor,
                         Npc_Turnin = leve_Turnin,
@@ -189,13 +202,24 @@ public static partial class LeveInfo
                         GilReward = gilReward,
                         AllowanceCost = allowanceCost,
                         MaterialInfo = materialList,
-                        GatheringInfo = gatheringList,
-                        Gather_Location = mapInfo,
+                        Gather_NodeInfo = gatheringList,
+                        Gather_MapInfo = mapInfo,
                     });
                 }
             }
         }
 
         UpdateJobIcons();
+    }
+
+    public static void UpdateLeves()
+    {
+        foreach (var leve in Leve_SheetInfo)
+        {
+            if (!C.LeveList.ContainsKey(leve.Key))
+                C.LeveList[leve.Key] = 0;
+
+            C.SaveDebounced();
+        }
     }
 }

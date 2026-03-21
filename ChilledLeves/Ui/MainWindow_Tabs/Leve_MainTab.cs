@@ -11,7 +11,7 @@ using static FFXIVClientStructs.FFXIV.Client.Game.CurrencyManager;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs;
 
-internal class Main_Tab
+internal class Leve_MainTab
 {
     public static void Draw()
     {
@@ -179,7 +179,7 @@ internal class Main_Tab
             Theme_Colors.BodyText("Leve Name");
 
             ImGui.TableNextColumn();
-            ImGui.InputText("##Name Search", ref Leve_Tab.Leve_Name, 1000);
+            ImGui.InputText("##Name Search", ref Leve_SelectionTab.Leve_Name, 1000);
 
             ImGui.EndTable();
         }

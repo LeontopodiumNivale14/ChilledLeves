@@ -55,35 +55,71 @@ namespace ChilledLeves.Ui
             {
                 using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, ThemeHelper.ChildBg) : default;
 
-                if (ImGui.BeginTable("Main Window_Headers", 3, ImGuiTableFlags.None))
+                if (ImGui.BeginTabBar("Chilled Leves: Tab Bar"))
                 {
-                    ImGui.TableSetupColumn("Settings", ImGuiTableColumnFlags.WidthFixed, 250 * globalScale);
-                    ImGui.TableSetupColumn("Mission Selection", ImGuiTableColumnFlags.WidthFixed, 500 * globalScale);
-                    ImGui.TableSetupColumn("Details", ImGuiTableColumnFlags.WidthStretch);
-
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    Theme_Colors.HeaderText("Main Settings");
-                    using (var settings_Child = ImRaii.Child("Setting Child Window", new Vector2(-1, -1), true))
+                    if (ImGui.BeginTabItem("Leve Selection"))
                     {
-                        Main_Tab.Draw();
+                        if (ImGui.BeginTable("Main Window_Headers", 3, ImGuiTableFlags.None))
+                        {
+                            ImGui.TableSetupColumn("Settings", ImGuiTableColumnFlags.WidthFixed, 250 * globalScale);
+                            ImGui.TableSetupColumn("Mission Selection", ImGuiTableColumnFlags.WidthFixed, 500 * globalScale);
+                            ImGui.TableSetupColumn("Details", ImGuiTableColumnFlags.WidthStretch);
+
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            Theme_Colors.HeaderText("Main Settings");
+                            using (var settings_Child = ImRaii.Child("Setting Child Window", new Vector2(-1, -1), true))
+                            {
+                                Leve_MainTab.Draw();
+                            }
+
+                            ImGui.TableNextColumn();
+                            Theme_Colors.HeaderText($"Showing {Leve_SelectionTab.LeveCount} / {Leve_SelectionTab.Leve_Total}");
+                            using (var settings_Child = ImRaii.Child("Leve Details Window", new Vector2(-1, -1), true))
+                            {
+                                Leve_SelectionTab.Draw();
+                            }
+
+                            ImGui.TableNextColumn();
+                            Theme_Colors.HeaderText($"Leve Details");
+                            using (var settings_Child = ImRaii.Child("Leves Info Window", new Vector2(-1, -1), true))
+                            {
+                                Leve_DetailsTab.Draw();
+                            }
+
+                            ImGui.EndTable();
+                        }
+
+                        ImGui.EndTabItem();
                     }
 
-                    ImGui.TableNextColumn();
-                    Theme_Colors.HeaderText($"Showing {Leve_Tab.LeveCount} / {Leve_Tab.Leve_Total}");
-                    using (var settings_Child = ImRaii.Child("Leve Details Window", new Vector2(-1, -1), true))
+                    if (ImGui.BeginTabItem("Leve Worklist"))
                     {
-                        Leve_Tab.Draw();
+                        Leve_WorklistTab.Draw();
+
+                        ImGui.EndTabItem();
                     }
 
-                    ImGui.TableNextColumn();
-                    Theme_Colors.HeaderText($"Leve Details");
-                    using (var settings_Child = ImRaii.Child("Leves Info Window", new Vector2(-1, -1), true))
+                    if (ImGui.BeginTabItem("ARR Gathering Grind"))
                     {
-                        Leve_Details.Draw();
+                        ImGui.EndTabItem();
                     }
 
-                    ImGui.EndTable();
+                    if (ImGui.BeginTabItem("Settings"))
+                    {
+                        ImGui.EndTabItem();
+                    }
+
+#if DEBUG
+                    if (ImGui.BeginTabItem("Debug"))
+                    {
+                        Window_Debug.DrawDebugInfo();
+
+                        ImGui.EndTabItem();
+                    }
+#endif
+
+                    ImGui.EndTabBar();
                 }
             }
         }

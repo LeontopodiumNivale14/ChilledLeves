@@ -155,7 +155,7 @@ namespace ChilledLeves.Ui.DebugTabs
                             if (ImGui.IsItemHovered())
                             {
                                 ImGui.BeginTooltip();
-                                string gatherPointIds = string.Join(", ", entry.Value.GatheringInfo.NodeIds);
+                                string gatherPointIds = string.Join(", ", entry.Value.Gather_NodeInfo.NodeIds);
                                 ImGui.Text($"{gatherPointIds}");
                                 ImGui.EndTooltip();
                             }

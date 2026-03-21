@@ -25,18 +25,25 @@ namespace ChilledLeves.Ui
             P.windowSystem.RemoveWindow(this);
         }
 
-        private string SelectedTab = "Table: Leve Details";
+        private static string SelectedTab = "Table: Leve Details";
 
-        private readonly Dictionary<string, Action> DebugTabs = new()
+        private static readonly Dictionary<string, Action> DebugTabs = new()
         {
             ["Table: Leve Details"] = () => Table_LeveInfo.Draw(),
             ["Table: Npc Info"] = () => Table_NpcInfo.Draw(),
+            ["Table: Gathering Info"] = () => Table_GatherInfo.Draw(),
             ["Ui: Player Info"] = () => Ui_PlayerInfo.Draw(),
+            ["Ui: Gathering Route"] = () => Ui_GatherEditor.Draw(),
             ["Game: Leve Window"] = () => Game_GuildLeves.Draw(),
             ["Debug: Artisan Details"] = () => Debug_ArtisanItems.CraftingDebug(),
         };
 
         public override void Draw()
+        {
+            DrawDebugInfo();
+        }
+
+        public static void DrawDebugInfo()
         {
             using var colors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.Header, Theme_Colors.HeaderBg) : default;
             if (C.UseIceTheme)

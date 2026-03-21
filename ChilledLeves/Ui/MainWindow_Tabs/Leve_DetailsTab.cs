@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs
 {
-    internal class Leve_Details
+    internal class Leve_DetailsTab
     {
         public static uint selectedLeve = 0;
 
