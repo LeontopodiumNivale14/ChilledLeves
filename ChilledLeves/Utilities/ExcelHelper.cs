@@ -19,4 +19,9 @@ internal static class ExcelHelper
         Sheet_Leve = Svc.Data.GetExcelSheet<Leve>();
         Sheet_Recipe = Svc.Data.GetExcelSheet<Recipe>();
     }
+
+    public static string GetTerritoryName(uint territoryid)
+    {
+        return Sheet_TerritoryType.GetRow(territoryid).PlaceName.Value.Name.ToString();
+    }
 }

@@ -15,7 +15,7 @@ namespace ChilledLeves.Scheduler
         }
         internal static bool DisablePlugin()
         {
-            P.navmesh.Stop();
+            P.navmesh.PathStop();
             P.taskManager.Abort();
            
             return true;

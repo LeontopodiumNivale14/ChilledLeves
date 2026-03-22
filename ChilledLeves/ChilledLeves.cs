@@ -1,13 +1,16 @@
-using ECommons.Automation.NeoTaskManager;
-using ECommons.Configuration;
-using ChilledLeves.Scheduler;
+using ChilledLeves.Config_Files;
 using ChilledLeves.IPC;
+using ChilledLeves.Resources;
+using ChilledLeves.Scheduler;
 using ChilledLeves.Scheduler.Handlers;
+using ChilledLeves.Ui;
+using ChilledLeves.Ui.Old_Ui;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
-using ChilledLeves.Config_Files;
-using ChilledLeves.Ui.Old_Ui;
-using ChilledLeves.Ui;
+using ECommons.Automation.NeoTaskManager;
+using ECommons.Configuration;
+using ECommons.GameHelpers;
+using Pictomancy;
 
 namespace ChilledLeves;
 
@@ -42,6 +45,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         P = this;
         ECommonsMain.Init(pi, P, ECommons.Module.DalamudReflector, ECommons.Module.ObjectFunctions);
         new ECommons.Schedulers.TickScheduler(Load);
+        PictoService.Initialize(pi);
     }
 
     public void Load()
@@ -66,6 +70,7 @@ public sealed class ChilledLeves : IDalamudPlugin
 
         taskManager = new(new(abortOnTimeout: true, timeLimitMS: 20000, showDebug: true));
         Svc.PluginInterface.UiBuilder.Draw += windowSystem.Draw;
+        Svc.PluginInterface.UiBuilder.Draw += OnDraw;
         Svc.PluginInterface.UiBuilder.OpenMainUi += () =>
         {
             window_Main.IsOpen = true;
@@ -89,6 +94,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         Config_Migrate.UpdateConfig();
         LeveInfo.PopulateLeveInfo();
         LeveInfo.UpdateLeves();
+        RouteLoader.LoadAllRoutes();
     }
 
     private void Tick(object _)
@@ -103,13 +109,21 @@ public sealed class ChilledLeves : IDalamudPlugin
         SoundAlert.Tick();
     }
 
+    public void OnDraw()
+    {
+        if (Player.Available)
+            PictoManager.DrawPicto();
+    }
+
     public void Dispose()
     {
         Safe(() => Svc.Framework.Update -= Tick);
         Safe(() => Svc.PluginInterface.UiBuilder.Draw -= windowSystem.Draw);
+        Safe(() => Svc.PluginInterface.UiBuilder.Draw -= OnDraw);
         ECommonsMain.Dispose();
         Safe(TextAdvancedManager.UnlockTA);
         Safe(YesAlreadyManager.Unlock);
+        PictoService.Dispose();
     }
 
     private void OnCommand(string command, string args)

@@ -17,8 +17,8 @@ namespace ChilledLeves.Resources
     {
         public uint BaseId { get; set; }
         public Vector3 Position { get; set; }
-        public FanInfo Gathering_FanInfo { get; set; }
-        public FanInfo Flight_FanInfo { get; set; }
+        public FanInfo Gathering_FanInfo { get; set; } = new();
+        public FanInfo Flight_FanInfo { get; set; } = new();
     }
 
     public class FanInfo

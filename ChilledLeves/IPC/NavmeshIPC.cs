@@ -1,12 +1,6 @@
 ﻿using ECommons.EzIpcManager;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
-#nullable disable
 namespace ChilledLeves.IPC;
 
 public class NavmeshIPC
@@ -26,10 +20,15 @@ public class NavmeshIPC
     [EzIPC("SimpleMove.%m")] public readonly Func<bool> PathfindInProgress;
 
     [EzIPC("Path.%m")] public readonly Action<List<Vector3>, bool> MoveTo;
-    [EzIPC("Path.%m")] public readonly Action Stop;
+    [EzIPC("Path.Stop")] public readonly Action PathStop;
     [EzIPC("Path.%m")] public readonly Action<bool> SetAlignCamera;
     [EzIPC("Path.%m")] public readonly Func<bool> IsRunning;
 
     [EzIPC("Query.Mesh.%m")] public readonly Func<Vector3, float, float, Vector3?> NearestPoint;
     [EzIPC("Query.Mesh.%m")] public readonly Func<Vector3, bool, float, Vector3?> PointOnFloor;
+
+    [EzIPC("SmartNav.%m")] public readonly Action PathToFlag;
+    [EzIPC("SmartNav.Stop")] public readonly Action SmartNavStop;
+    [EzIPC("SmartNav.IsRunning")] public readonly Func<bool> SmartIsRunning;
+    [EzIPC("SmartNav.PathTo")] public readonly Action<uint, Vector3> SmartPathTo;
 }

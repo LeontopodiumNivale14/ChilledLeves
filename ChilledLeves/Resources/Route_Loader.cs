@@ -131,7 +131,6 @@ namespace ChilledLeves.Resources
             if (route.NodeInfo is null or { Count: 0 })
             {
                 PluginLog.Warning($"{source}: no nodes");
-                return false;
             }
 
             foreach (var node in route.NodeInfo)

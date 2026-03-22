@@ -78,4 +78,22 @@ public static partial class Utils
         return agent->CurrentMapId;
     }
 
+    public static uint ToUintABGR(Vector4 col)
+    {
+        byte a = (byte)(col.W * 255);
+        byte b = (byte)(col.Z * 255);
+        byte g = (byte)(col.Y * 255);
+        byte r = (byte)(col.X * 255);
+        return (uint)((a << 24) | (b << 16) | (g << 8) | r);
+    }
+
+    public static Vector4 FromUintABGR(uint color)
+    {
+        float a = ((color >> 24) & 0xFF) / 255f;
+        float b = ((color >> 16) & 0xFF) / 255f;
+        float g = ((color >> 8) & 0xFF) / 255f;
+        float r = (color & 0xFF) / 255f;
+        return new Vector4(r, g, b, a);
+    }
+
 }
