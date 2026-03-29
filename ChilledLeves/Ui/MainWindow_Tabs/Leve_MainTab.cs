@@ -4,6 +4,7 @@ using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
+using ECommons.ExcelServices;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -98,8 +99,8 @@ internal class Leve_MainTab
 
         int itemsPerRow = 4;
 
-        LeveClass[] Crafters = { LeveClass.Crp, LeveClass.Bsm, LeveClass.Arm, LeveClass.Gsm, LeveClass.Ltw, LeveClass.Wvr, LeveClass.Alc, LeveClass.Cul };
-        LeveClass[] Gatherers = { LeveClass.Min, LeveClass.Btn, LeveClass.Fsh };
+        Job[] Crafters = { Job.CRP, Job.BSM, Job.ARM, Job.GSM, Job.LTW, Job.WVR, Job.ALC, Job.CUL };
+        Job[] Gatherers = { Job.MIN, Job.BTN, Job.FSH };
 
         // Crafters section
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + iconSpacing);
@@ -185,7 +186,7 @@ internal class Leve_MainTab
         }
     }
 
-    private static void JobToggleButton(LeveClass selectedClass)
+    private static void JobToggleButton(Job selectedClass)
     {
         bool enabled = C.Job_LeveFilter[selectedClass];
 
@@ -285,21 +286,21 @@ internal class Leve_MainTab
         };
     }
 
-    public static string GetJobName(LeveClass @class)
+    public static string GetJobName(Job @class)
     {
         return @class switch
         {
-            LeveClass.Crp => "Carpenter",
-            LeveClass.Bsm => "Blacksmith",
-            LeveClass.Arm => "Armorer",
-            LeveClass.Gsm => "Goldsmith",
-            LeveClass.Ltw => "Leatherworker",
-            LeveClass.Wvr => "Weaver",
-            LeveClass.Alc => "Alchemist",
-            LeveClass.Cul => "Culinarian",
-            LeveClass.Min => "Miner",
-            LeveClass.Btn => "Botanist",
-            LeveClass.Fsh => "Fisher",
+            Job.CRP => "Carpenter",
+            Job.BSM => "Blacksmith",
+            Job.ARM => "Armorer",
+            Job.GSM => "Goldsmith",
+            Job.LTW => "Leatherworker",
+            Job.WVR => "Weaver",
+            Job.ALC => "Alchemist",
+            Job.CUL => "Culinarian",
+            Job.MIN => "Miner",
+            Job.BTN => "Botanist",
+            Job.FSH => "Fisher",
             _ => throw new ArgumentException($"Unknown job ID: {@class}")
         };
     }

@@ -1,4 +1,5 @@
-﻿using ChilledLeves.Utilities.LeveData;
+﻿using ChilledLeves.Utilities;
+using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Utility;
 using System;
 using System.Collections.Generic;
@@ -72,7 +73,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         }
 
                         ImGui.TableNextColumn();
-                        if (IsComplete(leveId.Key))
+                        if (Utils.Leve_IsComplete(leveId.Key))
                         {
 
                         }
@@ -101,9 +102,9 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 showLeve &= C.Job_LeveFilter[leve.Job];
 
                 if (C.Leve_Filter["Completed"])
-                    showLeve &= IsComplete(leveId);
+                    showLeve &= Utils.Leve_IsComplete(leveId);
                 else if (C.Leve_Filter["Incomplete"])
-                    showLeve &= !IsComplete(leveId);
+                    showLeve &= !Utils.Leve_IsComplete(leveId);
 
                 // Name comparison
                 if (!string.IsNullOrEmpty(Leve_Name))

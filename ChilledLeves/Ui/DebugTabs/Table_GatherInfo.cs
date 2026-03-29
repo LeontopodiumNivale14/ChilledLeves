@@ -1,6 +1,7 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
+using ECommons.ExcelServices;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ namespace ChilledLeves.Ui.DebugTabs
 {
     internal class Table_GatherInfo
     {
-        private static readonly List<LeveClass> gatherClasses = new() { LeveClass.Min, LeveClass.Btn };
+        private static readonly List<Job> gatherClasses = new() { Job.MIN, Job.BTN };
 
         public static void Draw()
         {

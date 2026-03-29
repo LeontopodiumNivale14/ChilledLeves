@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Utilities;
+using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using System;
 using System.Collections.Generic;
@@ -90,8 +91,8 @@ namespace ChilledLeves.Ui.Old_Ui
 
             if (ImGui.Button($"Add character to {list}"))
             {
-                var character = Svc.ClientState.LocalPlayer.Name.ToString();
-                var id = Svc.ClientState.LocalContentId;
+                var character = Svc.Objects.LocalPlayer.Name.ToString();
+                var id = Player.CID;
 
                 if (whitelist && !C.whitelistCharacters.ContainsKey(id))
                     C.whitelistCharacters.Add(id, character);

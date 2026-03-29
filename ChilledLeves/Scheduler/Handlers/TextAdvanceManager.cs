@@ -1,4 +1,5 @@
-﻿using ECommons.EzSharedDataManager;
+﻿using ChilledLeves.Utilities;
+using ECommons.EzSharedDataManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace ChilledLeves.Scheduler.Handlers
     internal static class TextAdvancedManager
     {
         private static bool WasChanged = false;
+        private static string Tag = "TextAdvance Manager";
         internal static void Tick()
         {
             if (WasChanged)
@@ -18,7 +20,7 @@ namespace ChilledLeves.Scheduler.Handlers
                 {
                     WasChanged = false;
                     UnlockTA();
-                    PluginDebug($"TextAdvance unlocked");
+                    IceLogging.Debug($"TextAdvance unlocked", Tag);
                 }
             }
             else
@@ -27,7 +29,7 @@ namespace ChilledLeves.Scheduler.Handlers
                 {
                     WasChanged = true;
                     LockTA();
-                    PluginDebug($"TextAdvance locked");
+                    IceLogging.Debug($"TextAdvance locked", Tag);
                 }
             }
         }

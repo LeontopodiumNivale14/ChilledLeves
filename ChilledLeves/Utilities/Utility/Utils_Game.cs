@@ -1,4 +1,5 @@
-﻿using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+﻿using ECommons.Reflection;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 namespace ChilledLeves.Utilities;
 
 public static partial class Utils
@@ -95,5 +96,14 @@ public static partial class Utils
         float r = (color & 0xFF) / 255f;
         return new Vector4(r, g, b, a);
     }
+
+    public static bool ContainsIgnoreSpacesAndCase(string source, string search)
+    {
+        var normalizedSource = source.Replace(" ", "").ToLowerInvariant();
+        var normalizedSearch = search.Replace(" ", "").ToLowerInvariant();
+        return normalizedSource.Contains(normalizedSearch);
+    }
+
+    public static bool HasPlugin(string name) => DalamudReflector.TryGetDalamudPlugin(name, out _, false, true);
 
 }

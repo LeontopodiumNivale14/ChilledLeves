@@ -1,4 +1,5 @@
-﻿using ECommons.EzSharedDataManager;
+﻿using ChilledLeves.Utilities;
+using ECommons.EzSharedDataManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace ChilledLeves.Scheduler.Handlers
     internal static class YesAlreadyManager
     {
         private static bool WasChanged = false;
+        private static string Tag = "YesAlready Manager";
         internal static void Tick()
         {
             if (WasChanged)
@@ -18,7 +20,7 @@ namespace ChilledLeves.Scheduler.Handlers
                 {
                     WasChanged = false;
                     Unlock();
-                    PluginDebug($"YesAlready unlocked");
+                    IceLogging.Debug($"YesAlready unlocked", Tag);
                 }
             }
             else
@@ -27,7 +29,7 @@ namespace ChilledLeves.Scheduler.Handlers
                 {
                     WasChanged = true;
                     Lock();
-                    PluginDebug($"YesAlready locked");
+                    IceLogging.Debug($"YesAlready locked", Tag);
                 }
             }
         }

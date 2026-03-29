@@ -32,20 +32,20 @@ internal static class IceLogging
         return string.Empty;
     }
 
-    private static string FormatMessage(string message, string prefix = null)
+    private static string FormatMessage(string message, string prefix)
     {
         var callerPrefix = prefix ?? GetCallerPrefix();
         return $"{callerPrefix} {message}";
     }
 
-    public static void Verbose(string message, string prefix = null, bool debugOnly = false)
+    public static void Verbose(string message, string prefix, bool debugOnly = false)
     {
         var formattedMessage = FormatMessage(message, prefix);
         PluginLog.Verbose(formattedMessage);
         LogSystem.Log(LogLevel.Verbose, message, prefix);
     }
 
-    public static void Debug(string message, string prefix = null, bool debugOnly = false)
+    public static void Debug(string message, string prefix, bool debugOnly = false)
     {
         LogSystem.Log(LogLevel.Debug, message, prefix);
         if (debugOnly)
@@ -62,7 +62,7 @@ internal static class IceLogging
         }
     }
 
-    public static void Info(string message, string prefix = null, bool debugOnly = false)
+    public static void Info(string message, string prefix, bool debugOnly = false)
     {
         LogSystem.Log(LogLevel.Info, message, prefix);
         if (debugOnly)
@@ -82,60 +82,38 @@ internal static class IceLogging
     public static void ChatInfo(string s, string prefix = null)
     {
         LogSystem.Log(LogLevel.Info, s, prefix);
-        if (prefix == null)
+        if (EzThrottler.Throttle($"Throttling chat message: {s}", 1000))
         {
-            if (EzThrottler.Throttle($"Throttling chat message: {s}", 1000))
-            {
-                Svc.Chat.Print(s);
-                PluginLog.Information(s);
-            }
-        }
-        else
-        {
-            if (EzThrottler.Throttle($"Throttling chat message: {s}", 1000))
-            {
-                Svc.Chat.Print($"{prefix} {s}");
-                PluginLog.Information($"{prefix} {s}");
-            }
+            Svc.Chat.Print($"{prefix} {s}");
+            PluginLog.Information($"{prefix} {s}");
         }
     }
 
-    public static void ChatError(string s, string prefix = null)
+    public static void ChatError(string s, string prefix)
     {
         LogSystem.Log(LogLevel.Error, s, prefix);
-        if (prefix == null)
+        if (EzThrottler.Throttle($"Throttling chat message: {s}", 60000))
         {
-            if (EzThrottler.Throttle($"Throttling chat message: {s}", 60000))
-            {
-                ECommons.ChatMethods.ChatPrinter.Red($"{s}");
-                PluginLog.Error(s);
-            }
-        }
-        else
-        {
-            if (EzThrottler.Throttle($"Throttling chat message: {s}", 60000))
-            {
-                ECommons.ChatMethods.ChatPrinter.Red($"{prefix} {s}");
-                PluginLog.Error($"{prefix} {s}");
-            }
+            ECommons.ChatMethods.ChatPrinter.Red($"{prefix} {s}");
+            PluginLog.Error($"{prefix} {s}");
         }
     }
 
-    public static void Warning(string message, string prefix = null)
+    public static void Warning(string message, string prefix)
     {
         LogSystem.Log(LogLevel.Warning, message, prefix);
         var formattedMessage = FormatMessage(message, prefix);
         PluginLog.Warning(formattedMessage);
     }
 
-    public static void Error(string message, string prefix = null)
+    public static void Error(string message, string prefix)
     {
         LogSystem.Log(LogLevel.Error, message, prefix);
         var formattedMessage = FormatMessage(message, prefix);
         PluginLog.Error(formattedMessage);
     }
 
-    public static void Fatal(string message, string prefix = null)
+    public static void Fatal(string message, string prefix)
     {
         LogSystem.Log(LogLevel.Verbose, message, prefix);
         var formattedMessage = FormatMessage(message, prefix);

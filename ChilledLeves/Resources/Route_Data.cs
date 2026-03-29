@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Enums;
+using ECommons.ExcelServices;
 using System.Collections.Generic;
 
 namespace ChilledLeves.Resources
@@ -9,7 +10,7 @@ namespace ChilledLeves.Resources
         public uint TerritoryId { get; set; }
         public string ZoneName { get; set; }
         public ExpansionIds ExpansionId { get; set; }
-        public LeveClass GatheringJob { get; set; }
+        public Job GatheringJob { get; set; }
         public List<GatheringNode> NodeInfo { get; set; }
     }
 

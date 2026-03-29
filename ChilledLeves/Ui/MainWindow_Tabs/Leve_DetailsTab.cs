@@ -1,5 +1,7 @@
 ﻿using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
+using Dalamud.Interface.Utility;
+using SharpDX.Direct2D1.Effects;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,9 +11,12 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
     internal class Leve_DetailsTab
     {
         public static uint selectedLeve = 0;
+        public static bool ShowMultiTurnin = true;
 
         public static void Draw()
         {
+            var globalScale = ImGuiHelpers.GlobalScale;
+
             if (LeveInfo.Leve_SheetInfo.TryGetValue(selectedLeve, out var leve))
             {
                 var jobImage = LeveInfo.Job_IconDict[leve.Job].ColorIcon;
@@ -23,11 +28,17 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 ImGui.TextDisabled($"ID: {selectedLeve}");
 
                 ImGui.Separator();
-                Theme_Colors.HeaderText($"Rewards");
+                Theme_Colors.HeaderText($"Leve Info/Rewards");
                 if (ImGui.BeginTable("Rewards Table", 2, ImGuiTableFlags.SizingFixedFit))
                 {
                     ImGui.TableSetupColumn("Type");
                     ImGui.TableSetupColumn("Reward");
+
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    Theme_Colors.BodyText($"Level");
+                    ImGui.TableNextColumn();
+                    Theme_Colors.BodyText($"{leve.Level}");
 
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
@@ -44,6 +55,8 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     ImGui.EndTable();
                 }
 
+                ImGui.Separator();
+                Theme_Colors.HeaderText("Npc Info");
                 if (ImGui.BeginTable("Leve_Npc Info", 2, ImGuiTableFlags.SizingFixedFit))
                 {
                     ImGui.TableSetupColumn("Info Kind");
@@ -65,7 +78,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         ImGui.TableNextColumn();
                         if (ImGui.Button($"{vendor.Name}"))
                         {
-                            SetFlagForNPC(vendor.TerritoryId, vendor.Npc_Flag.X, vendor.Npc_Flag.Y);
+                            Utils.SetFlagForNPC(vendor.TerritoryId, vendor.Npc_Flag.X, vendor.Npc_Flag.Y);
                         }
                     }
 
@@ -77,13 +90,61 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         ImGui.TableNextColumn();
                         if (ImGui.Button($"{turninNpc.Name}"))
                         {
-                            SetFlagForNPC(turninNpc.TerritoryId, turninNpc.Npc_Flag.X, turninNpc.Npc_Flag.Y);
+                            Utils.SetFlagForNPC(turninNpc.TerritoryId, turninNpc.Npc_Flag.X, turninNpc.Npc_Flag.Y);
                         }
                     }
 
                     ImGui.EndTable();
                 }
 
+                if (LeveInfo.LeveJobs_Material.Contains(leve.Job))
+                {
+                    var materialInfo = leve.MaterialInfo;
+                    var turninAmount = materialInfo.TurninAmount;
+                    var repeatAmount = materialInfo.RepeatAmount;
+
+                    if (repeatAmount > 1)
+                    {
+                        ImGui.Checkbox("Show for multiple turnins", ref ShowMultiTurnin);
+                        if (ShowMultiTurnin)
+                            turninAmount *= repeatAmount;
+                    }
+
+                    Vector2 imageSize = new(30 * globalScale, 30 * globalScale);
+                    ImGui.Image(materialInfo.Item_Icon.GetWrapOrEmpty().Handle, imageSize);
+                    ImGui.SameLine();
+                    ImGui.AlignTextToFramePadding();
+                    ImGui.Text($"{materialInfo.Item_Name} | Required: {turninAmount}");
+                }
+
+                float textLineHeight = ImGui.GetTextLineHeight();
+                Vector2 buttonSize = new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f);
+                string worklist = C.LeveOrder.Contains(selectedLeve) ? "Remove Leve from Manifest" : "Add Leve to Manifest";
+
+                if (ImGui.Button(worklist, buttonSize))
+                {
+                    if (C.LeveOrder.Contains(selectedLeve))
+                        C.LeveOrder.Remove(selectedLeve);
+                    else
+                    {
+                        C.LeveOrder.Add(selectedLeve);
+
+                        if (C.LeveList[selectedLeve] == 0)
+                            C.LeveList[selectedLeve] = 1;
+                    }
+
+                    C.Save();
+                }
+
+                string favorite = C.FavoriteLeves.Contains(selectedLeve) ? "Remove Leve from Favorites" : "Add Leve to Favorites";
+
+                if (ImGui.Button(favorite, buttonSize))
+                {
+                    if (C.FavoriteLeves.Contains(selectedLeve))
+                        C.FavoriteLeves.Remove(selectedLeve);
+                    else
+                        C.FavoriteLeves.Add(selectedLeve);
+                }
             }
             else
             {

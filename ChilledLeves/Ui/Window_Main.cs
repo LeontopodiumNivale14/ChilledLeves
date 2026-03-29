@@ -1,5 +1,6 @@
 ﻿using ChilledLeves.Ui.MainWindow_Tabs;
 using ChilledLeves.Ui.Old_Ui;
+using ChilledLeves.Utilities;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
@@ -45,7 +46,7 @@ namespace ChilledLeves.Ui
 
             using var style = C.UseIceTheme ? ImRaii.PushStyle(ImGuiStyleVar.FrameRounding, 4.0f) : default;
 
-            string allowance = $"Allowances: {Allowances}/100 | Next in: {NextAllowances:hh':'mm':'ss}";
+            string allowance = $"Allowances: {Utils.Allowances}/100 | Next in: {Utils.NextAllowances:hh':'mm':'ss}";
             Theme_Colors.CustomHeader(allowance, ImGui.GetContentRegionAvail().X);
 
             var globalScale = ImGuiHelpers.GlobalScale;
@@ -93,7 +94,7 @@ namespace ChilledLeves.Ui
                         ImGui.EndTabItem();
                     }
 
-                    if (ImGui.BeginTabItem("Leve Worklist"))
+                    if (ImGui.BeginTabItem("Leve Manifest"))
                     {
                         Leve_WorklistTab.Draw();
 

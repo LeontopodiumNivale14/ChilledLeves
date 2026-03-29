@@ -95,11 +95,12 @@ public sealed class ChilledLeves : IDalamudPlugin
         LeveInfo.PopulateLeveInfo();
         LeveInfo.UpdateLeves();
         RouteLoader.LoadAllRoutes();
+        LeveInfo.UpdateSelectString();
     }
 
     private void Tick(object _)
     {
-        if (SchedulerMain.AreWeTicking && Svc.ClientState.LocalPlayer != null)
+        if (SchedulerMain.AreWeTicking && Svc.Objects.LocalPlayer != null)
         {
             SchedulerMain.Tick();
         }
@@ -128,6 +129,8 @@ public sealed class ChilledLeves : IDalamudPlugin
 
     private void OnCommand(string command, string args)
     {
+        string tag = "ChilledLeves: Command";
+
         var subcommands = args.Split(' ');
 
         if (subcommands.Length == 0 || args == "")
@@ -173,8 +176,8 @@ public sealed class ChilledLeves : IDalamudPlugin
         }
         else
         {
-            PluginVerbos($"Length of array is: {subcommands.Length} & no matching description. Can't do command");
-            PluginVerbos($"Command: -{command}- args?:-{args}-");
+            IceLogging.Verbose($"Length of array is: {subcommands.Length} & no matching description. Can't do command", tag);
+            IceLogging.Verbose($"Command: -{command}- args?:-{args}-", tag);
             return;
         }
     }

@@ -1,7 +1,6 @@
 ﻿using ChilledLeves.Utilities.LeveData;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -105,13 +104,15 @@ public static partial class Utils
 
     private static void CheckItems(uint itemId, int runAmount, ExcelSheet<Recipe> RecipeSheet)
     {
+        string tag = "Check Artisan Items";
+
         var recipe = RecipeSheet.FirstOrDefault(r => r.ItemResult.Value.RowId == itemId);
         if (recipe.RowId == 0)
             return; // Not a craftable item; likely a raw mat
 
         for (int i = 0; i < 6; i++)
         {
-            PluginDebug($"Ingrediant[{i}]");
+            IceLogging.Verbose($"Ingrediant[{i}]", tag);
 
             // Checks to see if the ingrediant is valid
             var ingrediant = recipe.Ingredient[i].Value.RowId;
@@ -122,12 +123,12 @@ public static partial class Utils
 
             if (AllItems.ContainsKey(ingrediant))
             {
-                PluginDebug($"Ingrediant: {ingrediant} exist currently, updating amount");
+                IceLogging.Verbose($"Ingrediant: {ingrediant} exist currently, updating amount", tag);
                 AllItems[ingrediant] += amount;
             }
             else if (!AllItems.ContainsKey(ingrediant))
             {
-                PluginDebug($"Ingrediant: {ingrediant} does not exist, adding to list");
+                IceLogging.Verbose($"Ingrediant: {ingrediant} does not exist, adding to list", tag);
                 AllItems.Add(ingrediant, amount);
             }
 

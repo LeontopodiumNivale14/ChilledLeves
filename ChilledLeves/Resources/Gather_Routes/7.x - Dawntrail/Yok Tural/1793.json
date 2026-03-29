@@ -4,5 +4,94 @@
   "zoneName": "Yok Tural",
   "expansionId": 5,
   "gatheringJob": 16,
-  "nodeInfo": []
+  "nodeInfo": [
+    {
+      "baseId": 34717,
+      "position": {
+        "x": -44.53579,
+        "y": -212.603,
+        "z": 508.9851
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 345,
+        "fan_EndAngle": 55,
+        "fan_DistanceMin": 2,
+        "fan_DistanceMax": 3.2,
+        "fan_Height": -1
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 345,
+        "fan_EndAngle": 55,
+        "fan_DistanceMin": 3.4,
+        "fan_DistanceMax": 4,
+        "fan_Height": -1
+      }
+    },
+    {
+      "baseId": 34718,
+      "position": {
+        "x": -26.92303,
+        "y": -211.9622,
+        "z": 553.5405
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 171,
+        "fan_EndAngle": 245,
+        "fan_DistanceMin": 1.2,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 171,
+        "fan_EndAngle": 245,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      }
+    },
+    {
+      "baseId": 34719,
+      "position": {
+        "x": -1.483353,
+        "y": -212.6366,
+        "z": 540.9709
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 45,
+        "fan_EndAngle": 186,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0.56
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 45,
+        "fan_EndAngle": 186,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 1.65
+      }
+    },
+    {
+      "baseId": 34720,
+      "position": {
+        "x": 2.123393,
+        "y": -212.2127,
+        "z": 528.1388
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 108,
+        "fan_EndAngle": 194,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0.21
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 141,
+        "fan_EndAngle": 195,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0.66
+      }
+    }
+  ]
 }

@@ -778,7 +778,7 @@ public static partial class LeveInfo
             Name = NPCName(1007060),
             TerritoryId = 128,
             Aetheryte = 8,
-            Npc_InteractZone = new Vector3(-62.886135f, 42.023273f, -132.9867f),
+            Npc_InteractZone = new Vector3(-63.17f, 42.03f, -132.91f),
             Npc_Location = new Vector3(-61.54f, 42f, -134.94f),
             Npc_Flag = new(-61.54f, -134.94f),
             Mount = false,
@@ -1267,5 +1267,10 @@ public static partial class LeveInfo
     {
         var NPCSheet = Svc.Data.GetExcelSheet<ENpcResident>();
         return NPCSheet.GetRow(NpcID).Singular.ToString();
+    }
+
+    private static void Test()
+    {
+
     }
 }

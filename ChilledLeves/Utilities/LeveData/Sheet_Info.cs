@@ -16,7 +16,7 @@ public static partial class LeveInfo
         public string LeveName { get; set; } = "???";
         public uint JobAssignmentType { get; set; } = 0;
         public ExpansionIds Expansion { get; set; } = ExpansionIds.ARR;
-        public LeveClass Job { get; set; } = LeveClass.All;
+        public Job Job { get; set; } = Job.ADV;
         public uint Level { get; set; } = 0;
         public uint Npc_Vendor { get; set; } = 0;
         public uint Npc_Turnin { get; set; } = 0;
@@ -24,6 +24,7 @@ public static partial class LeveInfo
         public int ExpReward { get; set; } = -1;
         public int GilReward { get; set; } = -1;
         public int AllowanceCost { get; set; } = -1;
+        public LeveKind Stringtype { get; set; } = LeveKind.Battlecraft;
         public MapInfo Gather_MapInfo { get; set; } = new();
         public Material_Turnin MaterialInfo { get; set; } = new();
         public Gathering_Turnin Gather_NodeInfo { get; set; } = new();
@@ -58,6 +59,27 @@ public static partial class LeveInfo
 
     public static Dictionary<uint, Leve_SheetData> Leve_SheetInfo = new();
 
+    public static Dictionary<LeveKind, string> Leve_SelectText = new();
+
+    public static void UpdateSelectString()
+    {
+        List<(LeveKind type, uint value)> leveList = new()
+        {
+            new() {type = LeveKind.Battlecraft, value = 1},
+            new() {type = LeveKind.Fieldcraft, value = 2},
+            new() {type = LeveKind.Tradecraft, value = 3},
+            new() {type = LeveKind.LS_Battlecraft, value = 14},
+            new() {type = LeveKind.LS_Fieldcraft, value = 15},
+            new() {type = LeveKind.LS_Tradecraft, value = 16},
+            new() {type = LeveKind.TurninLeve, value = 13},
+        };
+
+        foreach (var kind in leveList)
+        {
+            Leve_SelectText[kind.type] = ExcelHelper.Sheet_leveText.GetRow(kind.value).Text1.ExtractText();
+        }
+    }
+
     public static void PopulateLeveInfo()
     {
         var leve_Sheet = Svc.Data.GetExcelSheet<Leve>();
@@ -82,7 +104,7 @@ public static partial class LeveInfo
 
                 var leveClient = row.LeveClient.RowId;
 
-                var job = (LeveClass)row.ClassJobCategory.RowId - 1;
+                var job = (Job)row.ClassJobCategory.RowId - 1;
                 var level = row.ClassJobLevel;
                 var leveVendorEntry = LeveNpc_Info.Where(x => x.Value.Leves.Contains(id)).FirstOrDefault();
                 if (leveVendorEntry.Key == 0) // or check if leveVendorEntry.Value == null
@@ -107,6 +129,26 @@ public static partial class LeveInfo
                     < 100 => ExpansionIds.DT,
                     _ => ExpansionIds.Unk  // fallback for 100+
                 };
+
+                var type = LeveKind.Battlecraft;
+                if (allowanceCost == 1)
+                {
+                    type = (int)job switch
+                    {
+                        < 16 => LeveKind.Tradecraft,
+                        < 19 => LeveKind.Fieldcraft,
+                        _ => LeveKind.Battlecraft,
+                    };
+                }
+                else if (allowanceCost == 10)
+                {
+                    type = (int)job switch
+                    {
+                        < 16 => LeveKind.LS_Tradecraft,
+                        < 19 => LeveKind.LS_Fieldcraft,
+                        _ => LeveKind.LS_Battlecraft,
+                    };
+                }
 
                 Material_Turnin materialList = new();
                 Gathering_Turnin gatheringList = new();
@@ -202,6 +244,7 @@ public static partial class LeveInfo
                         GilReward = gilReward,
                         AllowanceCost = allowanceCost,
                         MaterialInfo = materialList,
+                        Stringtype = type,
                         Gather_NodeInfo = gatheringList,
                         Gather_MapInfo = mapInfo,
                     });

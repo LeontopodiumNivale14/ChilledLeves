@@ -1,14 +1,6 @@
-﻿using ChilledLeves.Utilities.OldUtils;
-using ECommons.GameHelpers;
+﻿using ECommons.GameHelpers;
 using ECommons.Throttlers;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using Lumina.Excel.Sheets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChilledLeves.Utilities;
 
@@ -62,18 +54,18 @@ internal static class SoundAlert
     }
 
     public static Sounds SoundEffect = C.Sounds;
-    public static ulong CID => Svc.ClientState.LocalContentId;
+    public static ulong CID => Player.CID;
     public static readonly ulong DefaultCID = 0000000000000000;
     public static ulong CurrentId = 0000000000000000;
     public static bool refreshOverlay = false;
-    public static bool IsLeveThresholdMet() => Old_Utils.Allowances >= C.LeveAlertAmount;
+    public static bool IsLeveThresholdMet() => Utils.Allowances >= C.LeveAlertAmount;
 
     public static void Tick()
     {
         bool IsLeveThresholdMet = false;
         if (Player.Interactable)
         {
-            IsLeveThresholdMet = Old_Utils.Allowances >= C.LeveAlertAmount;
+            IsLeveThresholdMet = Utils.Allowances >= C.LeveAlertAmount;
             // Svc.Log.Information($"Allowance: {Utils.Allowances} | Alert Amount: {C.LeveAlertAmount}");
         }
 
@@ -104,7 +96,7 @@ internal static class SoundAlert
 
                 if (C.SendChat)
                 {
-                    ECommons.ChatMethods.ChatPrinter.Orange($"[Chilled Leves] Leve's are at: {Allowances}");
+                    ECommons.ChatMethods.ChatPrinter.Orange($"[Chilled Leves] Leve's are at: {Utils.Allowances}");
                 }
                 if (C.PlaySound)
                 {

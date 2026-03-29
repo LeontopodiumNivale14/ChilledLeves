@@ -32,9 +32,14 @@ namespace ChilledLeves.Ui
             ["Table: Leve Details"] = () => Table_LeveInfo.Draw(),
             ["Table: Npc Info"] = () => Table_NpcInfo.Draw(),
             ["Table: Gathering Info"] = () => Table_GatherInfo.Draw(),
+            ["Table: Raw Info"] = () => Table_RawInfo.Draw(),
             ["Ui: Player Info"] = () => Ui_PlayerInfo.Draw(),
             ["Ui: Gathering Route"] = () => Ui_GatherEditor.Draw(),
+            ["Ui: Deep Dungeon?"] = () => Ui_DeepDungeonTeset.Draw(),
+            ["Ui: Select String"] = () => Ui_SelectString.Draw(),
             ["Game: Leve Window"] = () => Game_GuildLeves.Draw(),
+            ["Game: Active Leve Info"] = () => Game_LeveInfo.Draw(),
+            ["Game: Map Info"] = () => Game_MapInfo.Draw(),
             ["Debug: Artisan Details"] = () => Debug_ArtisanItems.CraftingDebug(),
         };
 

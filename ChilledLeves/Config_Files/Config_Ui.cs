@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Enums;
+using ECommons.ExcelServices;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,19 +8,19 @@ namespace ChilledLeves.Config_Files;
 
 public partial class Config
 {
-    public Dictionary<LeveClass, bool> Job_LeveFilter { get; set; } = new()
+    public Dictionary<Job, bool> Job_LeveFilter { get; set; } = new()
     {
-        [LeveClass.Crp] = true,
-        [LeveClass.Bsm] = true,
-        [LeveClass.Arm] = true,
-        [LeveClass.Gsm] = true,
-        [LeveClass.Ltw] = true,
-        [LeveClass.Wvr] = true,
-        [LeveClass.Alc] = true,
-        [LeveClass.Cul] = true,
-        [LeveClass.Min] = true,
-        [LeveClass.Btn] = true,
-        [LeveClass.Fsh] = true,
+        [Job.CRP] = true,
+        [Job.BSM] = true,
+        [Job.ARM] = true,
+        [Job.GSM] = true,
+        [Job.LTW] = true,
+        [Job.WVR] = true,
+        [Job.ALC] = true,
+        [Job.CUL] = true,
+        [Job.MIN] = true,
+        [Job.BTN] = true,
+        [Job.FSH] = true,
     };
 
     public Dictionary<string, bool> Leve_Filter { get; set; } = new()

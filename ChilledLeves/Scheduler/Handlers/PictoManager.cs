@@ -2,6 +2,7 @@
 using ChilledLeves.Utilities;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using InteropGenerator.Runtime;
 using Pictomancy;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ namespace ChilledLeves.Scheduler.Handlers;
 
 internal static class PictoManager
 {
+    private static string Tag = "PictoManager";
+
     // Storage for draw commands - initialize inline to avoid any timing issues
     private static readonly List<Action<PctDrawList>> drawCommands = new();
     private static readonly object lockObject = new();
@@ -52,7 +55,7 @@ internal static class PictoManager
                         }
                         catch (Exception ex)
                         {
-                            IceLogging.Error($"Error executing draw command: {ex}");
+                            IceLogging.Error($"Error executing draw command: {ex}", Tag);
                         }
                     }
 
@@ -63,7 +66,7 @@ internal static class PictoManager
         }
         catch (Exception ex)
         {
-            IceLogging.Error($"Error in DrawPicto: {ex}");
+            IceLogging.Error($"Error in DrawPicto: {ex}", Tag);
         }
     }
 
@@ -89,16 +92,36 @@ internal static class PictoManager
     {
         AddDrawCommand(pictoDraw =>
         {
-            // PictoService.VfxRenderer.AddCircle(id, origin, 3, color);
-            PictoService.VfxRenderer.AddOmen($"{id}", "gl_circle1609_o0g", origin, new(3, 1, 3), color:color);
+            PictoService.VfxRenderer.AddCircle(id, origin, 3, color);
+            // PictoService.VfxRenderer.AddOmen($"{id}", "gl_circle1609_o0g", origin, new(3, 1, 3), color:color);
         });
     }
 
-    public static void TestVfxCircle(string id, Vector3 origin, Vector4 color, string vfx = "general01bf")
+    public static void TestVfxCircle(string id, Vector3 origin, Vector4 color, string vfx)
+    {
+        // color = new Vector4(0, 0, 1, 0); // what color shows?
+        AddDrawCommand(pictoDraw =>
+        {
+            PictoService.VfxRenderer.AddOmen($"{id}", vfx, origin, new(3, 7, 3), color: color);
+        });
+    }
+
+    public static void TestCustomVfx(string id, string path, Vector3 origin, Vector3? scale = null, float rotation = 0, Vector4? color = null)
     {
         AddDrawCommand(pictoDraw =>
         {
-            PictoService.VfxRenderer.AddOmen($"{id}", vfx, origin, new(3, 1, 3), color: color);
+            PictoService.VfxRenderer.AddCustom(id, path, origin, scale, rotation, color);
+        });
+    }
+
+    public static void TestVfxCircle(string id, Vector3 origin, bool isSelected, string vfx)
+    {
+        Vector4 color = isSelected ? C.Picto_SelectedGatherBase : C.Picto_GatherBase;
+
+
+        AddDrawCommand(pictoDraw =>
+        {
+            PictoService.VfxRenderer.AddOmen($"{id}", vfx, origin, new(3, 7, 3), color: color);
         });
     }
 

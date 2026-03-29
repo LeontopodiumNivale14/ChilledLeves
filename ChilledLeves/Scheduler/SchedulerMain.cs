@@ -21,13 +21,6 @@ namespace ChilledLeves.Scheduler
             return true;
         }
 
-        internal static string CurrentProcess = "";
-        internal static bool KeepLeves = false;
-        internal static bool GatheringMode = false;
-        internal static bool WorkListMode = false;
-        private static int MinMountDistance = 25;
-        private static float InteractDistance = 6.8f;
-
         internal static void Tick()
         {
             if (AreWeTicking)

@@ -4,5 +4,270 @@
   "zoneName": "Yok Tural",
   "expansionId": 5,
   "gatheringJob": 16,
-  "nodeInfo": []
+  "nodeInfo": [
+    {
+      "baseId": 34716,
+      "position": {
+        "x": -674.5012,
+        "y": -176.6608,
+        "z": 351.3412
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 0,
+        "fan_EndAngle": 92,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2.2,
+        "fan_Height": -1
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 0,
+        "fan_EndAngle": 92,
+        "fan_DistanceMin": 2.4,
+        "fan_DistanceMax": 4,
+        "fan_Height": -1
+      }
+    },
+    {
+      "baseId": 34715,
+      "position": {
+        "x": -682.1088,
+        "y": -180.8657,
+        "z": 335.8223
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 0,
+        "fan_EndAngle": 131,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 0,
+        "fan_EndAngle": 131,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      }
+    },
+    {
+      "baseId": 34705,
+      "position": {
+        "x": -604.2816,
+        "y": -172.1229,
+        "z": 331.2363
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 152,
+        "fan_EndAngle": 277,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 152,
+        "fan_EndAngle": 277,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": -0.23
+      }
+    },
+    {
+      "baseId": 34706,
+      "position": {
+        "x": -618.0099,
+        "y": -175.1004,
+        "z": 318.3187
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 179,
+        "fan_EndAngle": 286,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 179,
+        "fan_EndAngle": 286,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": -0.25
+      }
+    },
+    {
+      "baseId": 34714,
+      "position": {
+        "x": -712.4408,
+        "y": -180.8843,
+        "z": 316.5244
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 334,
+        "fan_EndAngle": 95,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 334,
+        "fan_EndAngle": 95,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      }
+    },
+    {
+      "baseId": 34707,
+      "position": {
+        "x": -625.6381,
+        "y": -177.5953,
+        "z": 302.8762
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 186,
+        "fan_EndAngle": 308,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 186,
+        "fan_EndAngle": 308,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      }
+    },
+    {
+      "baseId": 34713,
+      "position": {
+        "x": -723.699,
+        "y": -181.4019,
+        "z": 281.4786
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 30,
+        "fan_EndAngle": 163,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 30,
+        "fan_EndAngle": 163,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      }
+    },
+    {
+      "baseId": 34708,
+      "position": {
+        "x": -632.7812,
+        "y": -181.1954,
+        "z": 283.1174
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 205,
+        "fan_EndAngle": 341,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 205,
+        "fan_EndAngle": 341,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": -0.5
+      }
+    },
+    {
+      "baseId": 34712,
+      "position": {
+        "x": -705.9423,
+        "y": -180.5104,
+        "z": 260.6379
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 126,
+        "fan_EndAngle": 234,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 126,
+        "fan_EndAngle": 234,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": -0.5
+      }
+    },
+    {
+      "baseId": 34709,
+      "position": {
+        "x": -640.2783,
+        "y": -182.434,
+        "z": 264.6982
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 146,
+        "fan_EndAngle": 268,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 146,
+        "fan_EndAngle": 268,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      }
+    },
+    {
+      "baseId": 34711,
+      "position": {
+        "x": -676.566,
+        "y": -178.0579,
+        "z": 249.2713
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 142,
+        "fan_EndAngle": 240,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 142,
+        "fan_EndAngle": 240,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": -0.5
+      }
+    },
+    {
+      "baseId": 34710,
+      "position": {
+        "x": -650.5165,
+        "y": -179.3017,
+        "z": 253.5363
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 156,
+        "fan_EndAngle": 280,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 156,
+        "fan_EndAngle": 280,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 4,
+        "fan_Height": -0.5
+      }
+    }
+  ]
 }

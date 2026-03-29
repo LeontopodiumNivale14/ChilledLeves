@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Enums;
+using ECommons.ExcelServices;
 using ECommons.Logging;
 using System.Collections.Generic;
 using System.IO;
@@ -115,7 +116,7 @@ namespace ChilledLeves.Resources
         public static List<GatheringRoute> GetRoutesForTerritory(uint territoryId)
             => Leve_Routes.Values.Where(r => r.TerritoryId == territoryId).ToList();
 
-        public static List<GatheringRoute> GetRoutesForJob(LeveClass jobId)
+        public static List<GatheringRoute> GetRoutesForJob(Job jobId)
             => Leve_Routes.Values.Where(r => r.GatheringJob == jobId).ToList();
 
         public static List<GatheringRoute> GetRoutesForExpansion(ExpansionIds expansion)
