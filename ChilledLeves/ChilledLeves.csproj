@@ -14,6 +14,9 @@
 
   <ItemGroup>
     <Content Include="ChilledLeves.json" />
+    <EmbeddedResource Include="images\icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\GreyscaleJobs\ALC.png" />
     <EmbeddedResource Include="Resources\GreyscaleJobs\ARM.png" />
     <EmbeddedResource Include="Resources\GreyscaleJobs\BSM.png" />

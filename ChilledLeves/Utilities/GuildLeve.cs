@@ -1,11 +1,13 @@
 ﻿using Dalamud.Memory;
+using ECommons.ExcelServices;
 using ECommons.Logging;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.Sheets;
 using System.Collections.Generic;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 using Callback = ECommons.Automation.Callback;
+using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace ChilledLeves.Utilities;
 
@@ -26,6 +28,45 @@ public unsafe class GuildLeve : AddonMasterBase<AddonGuildLeve>
     public uint NumEntries => Addon->AtkValues[25].UInt;
     public string SelectedLeve => MemoryHelper.ReadSeStringNullTerminated((nint)Addon->AtkValues[1233].String.Value).GetText();
     public uint SelectedLeveId => Addon->AtkValues[1489].UInt;
+    public uint JobAmount => Addon->AtkValues[6].UInt;
+    public AtkComponentRadioButton* Carpenter_MinerButton => Addon->GetComponentNodeById(15)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* Blacksmith_BotanistButton => Addon->GetComponentNodeById(16)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* Armourer_FisherButton => Addon->GetComponentNodeById(17)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* GoldsmithButton => Addon->GetComponentNodeById(18)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* LeatherworkerButton => Addon->GetComponentNodeById(19)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* WeaverButton => Addon->GetComponentNodeById(20)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* AlchemistButton => Addon->GetComponentNodeById(21)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* CulinarianButton => Addon->GetComponentNodeById(22)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* FieldCraftButton => Addon->GetComponentNodeById(12)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* TradeCraftButton => Addon->GetComponentNodeById(13)->GetAsAtkComponentRadioButton();
+    public bool SelectJob(Job job)
+    {
+        if (JobAmount == 3 && (uint)job < 16)
+        {
+            ClickButtonIfEnabled(TradeCraftButton);
+            return false;
+        }
+        else if (JobAmount == 8 && (uint)job > 15)
+        {
+            ClickButtonIfEnabled(FieldCraftButton);
+            return false;
+        }
+
+        if ((uint)job < 16)
+        {
+            ClickButtonIfEnabled(Addon->GetComponentNodeById((uint)job + 7)->GetAsAtkComponentRadioButton());
+            return true;
+        }
+        else if ((uint)job < 19)
+        {
+            ClickButtonIfEnabled(Addon->GetComponentNodeById((uint)job - 1)->GetAsAtkComponentRadioButton());
+            return true;
+        }
+        else
+        {
+            throw new ArgumentOutOfRangeException(nameof(job));
+        }
+    }
 
     public Levequest[] Levequests
     {

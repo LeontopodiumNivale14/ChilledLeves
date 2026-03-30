@@ -24,7 +24,7 @@ public static partial class LeveInfo
         public int ExpReward { get; set; } = -1;
         public int GilReward { get; set; } = -1;
         public int AllowanceCost { get; set; } = -1;
-        public LeveKind Stringtype { get; set; } = LeveKind.Battlecraft;
+        public LeveKind LeveType { get; set; } = LeveKind.Battlecraft;
         public MapInfo Gather_MapInfo { get; set; } = new();
         public Material_Turnin MaterialInfo { get; set; } = new();
         public Gathering_Turnin Gather_NodeInfo { get; set; } = new();
@@ -244,7 +244,7 @@ public static partial class LeveInfo
                         GilReward = gilReward,
                         AllowanceCost = allowanceCost,
                         MaterialInfo = materialList,
-                        Stringtype = type,
+                        LeveType = type,
                         Gather_NodeInfo = gatheringList,
                         Gather_MapInfo = mapInfo,
                     });

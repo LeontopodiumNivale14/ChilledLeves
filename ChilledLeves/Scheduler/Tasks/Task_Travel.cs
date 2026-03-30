@@ -1,8 +1,12 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
+using Dalamud.Game.ClientState.Conditions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
+using Lumina.Excel.Sheets;
+using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,7 +28,7 @@ namespace ChilledLeves.Scheduler.Tasks
                     (
                         new(() => ZoneCheck(vendorInfo), "Checking Zone Requirements"),
                         new(() => DistanceCheck(vendorInfo), "Distance check to npc"),
-                        new(() => GrabLeve(vendorInfo), "Grabbing the leve f")
+                        new(() => OpenLeveWindow(vendorInfo, sheetInfo.Npc_Vendor))
                     );
                 }
                 else
@@ -88,15 +92,18 @@ namespace ChilledLeves.Scheduler.Tasks
 
         private static int talkCooldown = 0;
 
-        private static bool OpenLeveWindow(LeveInfo.VendorInfo npcInfo)
+        private static bool OpenLeveWindow(LeveInfo.VendorInfo npcInfo, uint npcId)
         {
+            string tag = "Open Leve Window";
+
             if (GenericHelpers.TryGetAddonMaster<GuildLeve>("GuildLeve", out var guildLeve) && guildLeve.IsAddonReady)
             {
-
+                IceLogging.Debug("We should be in the journal tab now! So we're going to collect our leve", tag);
+                return true;
             }
             else if (GenericHelpers.TryGetAddonMaster<Talk>("Talk", out var talk) && talk.IsAddonReady)
             {
-                if (EzThrottler.Throttle("Talk Window Visibility", 100))
+                if (EzThrottler.Throttle("Talk Window Visibility", 10))
                     talkCooldown += 1;
 
                 if (talkCooldown > 1)
@@ -107,17 +114,74 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (GenericHelpers.TryGetAddonMaster<SelectString>("SelectString", out var selectString) && selectString.IsAddonReady)
             {
-
+                if (EzThrottler.Throttle("Selecting Addon Button", 1000))
+                    SelectLeveKind(selectString);
+            }
+            else
+            {
+                if (!Svc.Condition[ConditionFlag.OccupiedInQuestEvent])
+                {
+                    if (Utils.TryGetObjectByDataId(npcId, out var gameObject))
+                    {
+                        if (EzThrottler.Throttle("Interact/Target NPC"))
+                        {
+                            Utils.TargetgameObject(gameObject);
+                            Utils.InteractWithObject(gameObject);
+                        }
+                    }
+                    else
+                    {
+                        if (EzThrottler.Throttle("Npc doesn't exist log", 2000))
+                            IceLogging.Error($"NPC: {npcId} doesn't seem to exist in [{Player.Territory.RowId}].\n" +
+                                             $"Player Position: {Player.Position:N2}", tag);
+                    }
+                }
             }
 
             return false;
         }
 
-        private static bool GrabLeve(LeveInfo.VendorInfo npcInfo)
+        public static void SelectLeveKind(SelectString addon)
         {
+            string tag = "Select Leve: Addon";
+            if (LeveInfo.Leve_SheetInfo.TryGetValue(Leve_Helper.LeveToGrab, out var sheetInfo))
+            {
+                var kind = sheetInfo.LeveType;
 
+                string NormalizeForComparison(string input)
+                {
+                    return System.Text.RegularExpressions.Regex.Replace(input, @"\d+", "").Trim();
+                }
 
-            return false;
+                if (!LeveInfo.Leve_SelectText.TryGetValue(kind, out var targetText))
+                {
+                    if (EzThrottler.Throttle("Error Message Dictionary: LeveKind", 2000))
+                        IceLogging.Error($"No text was found to match up in the dictionary. Please report this. {kind}", tag);
+                    return;
+                }
+
+                var normalizedTarget = NormalizeForComparison(targetText);
+
+                SelectString.Entry? match = addon.Entries.Cast<AddonMaster.SelectString.Entry?>()
+                        .FirstOrDefault(e => NormalizeForComparison(e!.Value.Text)
+                        .Equals(normalizedTarget, StringComparison.OrdinalIgnoreCase));
+
+                if (match is null)
+                {
+                    if (EzThrottler.Throttle("Error Message: LeveKind", 2000))
+                        IceLogging.Error($"No text was found to match up in the addon itself. Please report this. {kind}", tag);
+                    return;
+                }
+
+                if (EzThrottler.Throttle("Positive Kind Message", 2000))
+                    IceLogging.Verbose($"We managed to find a kind to match up! Selecting it now [{match.Value.Text}] {kind}", tag);
+                match.Value.Select();
+            }
+            else
+            {
+                if (EzThrottler.Throttle("Error Message: Sheet Info", 2000))
+                    IceLogging.Error($"Hey! We've somehow gotten an invalid leve that doesn't exist in the sheets... {Leve_Helper.LeveToGrab}", tag);
+            }
         }
     }
 }

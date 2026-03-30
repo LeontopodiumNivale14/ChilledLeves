@@ -41,6 +41,7 @@ namespace ChilledLeves.Ui
             ["Game: Active Leve Info"] = () => Game_LeveInfo.Draw(),
             ["Game: Map Info"] = () => Game_MapInfo.Draw(),
             ["Debug: Artisan Details"] = () => Debug_ArtisanItems.CraftingDebug(),
+            ["Debug: Task Check"] = () => Debug_TaskTest.Draw(),
         };
 
         public override void Draw()

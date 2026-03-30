@@ -138,7 +138,7 @@ namespace ChilledLeves.Ui.DebugTabs
                         }
 
                         ImGui.TableNextColumn();
-                        ImGui.Text($"{entry.Value.Stringtype}");
+                        ImGui.Text($"{entry.Value.LeveType}");
 
                     }
 

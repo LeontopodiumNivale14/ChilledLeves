@@ -1,4 +1,10 @@
-﻿using ECommons.Reflection;
+﻿using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.DalamudServices.Legacy;
+using ECommons.GameHelpers;
+using ECommons.Reflection;
+using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 namespace ChilledLeves.Utilities;
 
@@ -105,5 +111,40 @@ public static partial class Utils
     }
 
     public static bool HasPlugin(string name) => DalamudReflector.TryGetDalamudPlugin(name, out _, false, true);
+
+    public static bool TryGetObjectByDataId(ulong dataId, out IGameObject? gameObject) => (gameObject = Svc.Objects.OrderBy(x => Player.DistanceTo(x.Position)).FirstOrDefault(x => x.BaseId == dataId)) != null;
+    public static void TargetgameObject(IGameObject? gameObject)
+    {
+        var x = gameObject;
+        var currentTarget = Svc.Targets.Target;
+        if (currentTarget != null && currentTarget.BaseId == x.BaseId)
+            return;
+
+        if (!GenericHelpers.IsOccupied())
+        {
+            if (x != null)
+            {
+                if (EzThrottler.Throttle($"Throttle targeting: {x.BaseId}"))
+                {
+                    IceLogging.Info($"Attempting to set the target to: {x.BaseId} | {x.Name}", "Util: Target w/ Object");
+                    Svc.Targets.SetTarget(x);
+                }
+            }
+        }
+    }
+    public static unsafe void InteractWithObject(IGameObject? gameObject)
+    {
+        try
+        {
+            if (gameObject == null || !gameObject.IsTargetable)
+                return;
+            var gameObjectPointer = (GameObject*)gameObject.Address;
+            TargetSystem.Instance()->InteractWithObject(gameObjectPointer, false);
+        }
+        catch (Exception ex)
+        {
+            IceLogging.Error($"InteractWithObject: Exception: {ex}", "Util: Interact w/ Object");
+        }
+    }
 
 }

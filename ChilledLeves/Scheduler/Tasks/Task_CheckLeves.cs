@@ -142,39 +142,5 @@ namespace ChilledLeves.Scheduler.Tasks
 
             return false;
         }
-
-        public static void SelectLeveKind(SelectString addon, LeveKind kind)
-        {
-            string tag = "Select Leve: Addon";
-
-            string NormalizeForComparison(string input)
-            {
-                return System.Text.RegularExpressions.Regex.Replace(input, @"\d+", "").Trim();
-            }
-
-            if (!LeveInfo.Leve_SelectText.TryGetValue(kind, out var targetText))
-            {
-                if (EzThrottler.Throttle("Error Message Dictionary: LeveKind"))
-                    IceLogging.Error($"No text was found to match up in the dictionary. Please report this. {kind}", tag);
-                return;
-            }
-
-            var normalizedTarget = NormalizeForComparison(targetText);
-
-            SelectString.Entry? match = addon.Entries.Cast<AddonMaster.SelectString.Entry?>()
-                    .FirstOrDefault(e => NormalizeForComparison(e!.Value.Text)
-                    .Equals(normalizedTarget, StringComparison.OrdinalIgnoreCase));
-
-            if (match is null)
-            {
-                if (EzThrottler.Throttle("Error Message: LeveKind"))
-                    IceLogging.Error($"No text was found to match up in the addon itself. Please report this. {kind}", tag);
-                return;
-            }
-
-            if (EzThrottler.Throttle("Positive Kind Message"))
-                IceLogging.Error($"We managed to find a kind to match up! Selecting it now [{match.Value.Text}] {kind}", tag);
-            match.Value.Select();
-        }
     }
 }
