@@ -28,7 +28,12 @@ namespace ChilledLeves.Scheduler.Tasks
                     (
                         new(() => ZoneCheck(vendorInfo), "Checking Zone Requirements"),
                         new(() => DistanceCheck(vendorInfo), "Distance check to npc"),
-                        new(() => OpenLeveWindow(vendorInfo, sheetInfo.Npc_Vendor))
+                        new(() => OpenLeveWindow(vendorInfo, sheetInfo.Npc_Vendor)),
+                        new(() => 
+                        {
+                            Leve_Helper.State = Leve_State.Grab_StandardLeve;
+                            return true;
+                        }, "Changing state to grab leve")
                     );
                 }
                 else
