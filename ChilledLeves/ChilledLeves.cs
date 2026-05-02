@@ -89,7 +89,7 @@ public sealed class ChilledLeves : IDalamudPlugin
 
     private void Tick(object _)
     {
-        if (SchedulerMain.AreWeTicking && Svc.ClientState.LocalPlayer != null)
+        if (SchedulerMain.AreWeTicking && Svc.Objects.LocalPlayer != null)
         {
             SchedulerMain.Tick();
         }

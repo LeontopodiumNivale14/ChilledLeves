@@ -1,4 +1,5 @@
-﻿using ECommons.GameHelpers;
+﻿using ECommons.DalamudServices.Legacy;
+using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -67,7 +68,7 @@ internal static class SoundAlert
     public static bool refreshOverlay = false;
     public static bool IsLeveThresholdMet() => Utils.Allowances >= C.LeveAlertAmount;
 
-    public static void Tick()
+    public static unsafe void Tick()
     {
         bool IsLeveThresholdMet = false;
         if (Player.Interactable)

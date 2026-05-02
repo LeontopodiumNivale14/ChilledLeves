@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Utilities;
+using ECommons.DalamudServices.Legacy;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using System;
 using System.Collections.Generic;
@@ -90,7 +91,7 @@ namespace ChilledLeves.Ui
 
             if (ImGui.Button($"Add character to {list}"))
             {
-                var character = Svc.ClientState.LocalPlayer.Name.ToString();
+                var character = Svc.Objects.LocalPlayer.Name.ToString();
                 var id = Svc.ClientState.LocalContentId;
 
                 if (whitelist && !C.whitelistCharacters.ContainsKey(id))
@@ -151,7 +152,7 @@ namespace ChilledLeves.Ui
         private bool SendChat = C.SendChat;
         private int LeveNotificationAmount = C.LeveAlertAmount;
 
-        private void NotificationAlerts()
+        private unsafe void NotificationAlerts()
         {
             int currentIndex = Array.IndexOf(soundValues, selectedSound);
             if (ImGui.Checkbox("###ShowSoundEffect", ref PlaySound))
