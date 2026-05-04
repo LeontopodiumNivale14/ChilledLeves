@@ -38,6 +38,9 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal PandoraIPC pandora;
     internal ArtisanIPC artisan;
 
+    // Pictoservice dependency
+    public static PctContext PictoService;
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public ChilledLeves(IDalamudPluginInterface pi)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
@@ -45,7 +48,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         P = this;
         ECommonsMain.Init(pi, P, ECommons.Module.DalamudReflector, ECommons.Module.ObjectFunctions);
         new ECommons.Schedulers.TickScheduler(Load);
-        PictoService.Initialize(pi);
+        PictoService = PctService.Initialize(pi);
     }
 
     public void Load()

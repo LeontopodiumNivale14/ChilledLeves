@@ -173,7 +173,7 @@ namespace ChilledLeves.Ui.Old_Ui
                 {
                     selectedSound = soundValues[currentIndex]; // Update your selected sound
                     C.Sounds = selectedSound; // Set the variable in C
-                    UIGlobals.PlaySoundEffect((uint)selectedSound);
+                    PlaySoundEffect(selectedSound);
                     C.Save();
                 }
             }
@@ -222,6 +222,11 @@ namespace ChilledLeves.Ui.Old_Ui
                     C.Save();
                 }
             }
+        }
+
+        public static unsafe void PlaySoundEffect(Sounds efx)
+        {
+            UIGlobals.PlaySoundEffect((uint)efx);
         }
     }
 }

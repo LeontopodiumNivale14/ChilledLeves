@@ -39,7 +39,7 @@ internal static class PictoManager
     {
         try
         {
-            using (var pictoDraw = PictoService.Draw())
+            using (var pictoDraw = PctService.Draw())
             {
                 if (pictoDraw == null)
                     return;
@@ -92,7 +92,7 @@ internal static class PictoManager
     {
         AddDrawCommand(pictoDraw =>
         {
-            PictoService.VfxRenderer.AddCircle(id, origin, 3, color);
+            PctService.VfxRenderer.AddCircle(id, origin, 3, color);
             // PictoService.VfxRenderer.AddOmen($"{id}", "gl_circle1609_o0g", origin, new(3, 1, 3), color:color);
         });
     }
@@ -102,7 +102,7 @@ internal static class PictoManager
         // color = new Vector4(0, 0, 1, 0); // what color shows?
         AddDrawCommand(pictoDraw =>
         {
-            PictoService.VfxRenderer.AddOmen($"{id}", vfx, origin, new(3, 7, 3), color: color);
+            PctService.VfxRenderer.AddOmen($"{id}", vfx, origin, new(3, 7, 3), color: color);
         });
     }
 
@@ -110,7 +110,7 @@ internal static class PictoManager
     {
         AddDrawCommand(pictoDraw =>
         {
-            PictoService.VfxRenderer.AddCustom(id, path, origin, scale, rotation, color);
+            PctService.VfxRenderer.AddCustom(id, path, origin, scale, rotation, color);
         });
     }
 
@@ -121,7 +121,7 @@ internal static class PictoManager
 
         AddDrawCommand(pictoDraw =>
         {
-            PictoService.VfxRenderer.AddOmen($"{id}", vfx, origin, new(3, 7, 3), color: color);
+            PctService.VfxRenderer.AddOmen($"{id}", vfx, origin, new(3, 7, 3), color: color);
         });
     }
 
@@ -311,10 +311,11 @@ internal static class PictoManager
         AddDrawCommand(_ =>
         {
             var iconSize = size ?? new Vector2(24, 24);
-            if (!PictoService.GameGui.WorldToScreen(worldPos, out var screenPos)) return;
+            // if (!PictoService.GameGui.WorldToScreen(worldPos, out var screenPos)) 
+                return;
 
-            var topLeft = screenPos - iconSize / 2;
-            ImGui.GetForegroundDrawList().AddImage(textureHandle, topLeft, topLeft + iconSize);
+            // var topLeft = screenPos - iconSize / 2;
+            // ImGui.GetForegroundDrawList().AddImage(textureHandle, topLeft, topLeft + iconSize);
         });
     }
 
@@ -322,7 +323,8 @@ internal static class PictoManager
     {
         AddDrawCommand(_ =>
         {
-            if (!PictoService.GameGui.WorldToScreen(worldPos, out var screenPos)) return;
+            // if (!PictoService.GameGui.WorldToScreen(worldPos, out var screenPos)) 
+                return;
 
             var iconSize = size ?? new Vector2(24, 24);
 
@@ -340,8 +342,8 @@ internal static class PictoManager
             uint alpha = (uint)(Math.Clamp(opacity, 0f, 1f) * 255) << 24;
             uint tintColor = alpha | 0x00FFFFFF; // full white RGB, variable alpha
 
-            var topLeft = screenPos - iconSize / 2;
-            ImGui.GetForegroundDrawList().AddImage(textureHandle, topLeft, topLeft + iconSize, Vector2.Zero, Vector2.One, tintColor);
+            // var topLeft = screenPos - iconSize / 2;
+            // ImGui.GetForegroundDrawList().AddImage(textureHandle, topLeft, topLeft + iconSize, Vector2.Zero, Vector2.One, tintColor);
         });
     }
 

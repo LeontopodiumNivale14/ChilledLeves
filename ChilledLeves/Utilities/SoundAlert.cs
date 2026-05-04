@@ -1,4 +1,5 @@
-﻿using ECommons.GameHelpers;
+﻿using ChilledLeves.Ui.Old_Ui;
+using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 
@@ -100,7 +101,7 @@ internal static class SoundAlert
                 }
                 if (C.PlaySound)
                 {
-                    UIGlobals.PlaySoundEffect((uint)SoundEffect);
+                    AlertSettings.PlaySoundEffect(SoundEffect);
                 }
             }
         }
