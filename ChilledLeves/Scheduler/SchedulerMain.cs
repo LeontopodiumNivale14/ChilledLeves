@@ -20,6 +20,7 @@ namespace ChilledLeves.Scheduler
         }
         internal static bool EnablePlugin()
         {
+            WorkListMode = true;
             EnableTicking = true;
             return true;
         }
