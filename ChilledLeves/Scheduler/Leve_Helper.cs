@@ -12,5 +12,7 @@ namespace ChilledLeves.Scheduler
 
         internal static Leve_State State = Leve_State.Idle;
         internal static Leve_Mode SelectedMode = Leve_Mode.Standard;
+
+        internal static bool IsIdle => State == Leve_State.Idle;
     }
 }

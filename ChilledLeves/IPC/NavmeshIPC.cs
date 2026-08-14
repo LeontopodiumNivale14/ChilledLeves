@@ -1,6 +1,7 @@
 ﻿using ChilledLeves.Utilities;
 using ECommons.EzIpcManager;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ChilledLeves.IPC;
 
@@ -15,7 +16,7 @@ public class NavmeshIPC
     [EzIPC("Nav.%m")] public readonly Func<float> BuildProgress;
     [EzIPC("Nav.%m")] public readonly Func<bool> Reload;
     [EzIPC("Nav.%m")] public readonly Func<bool> Rebuild;
-    [EzIPC("Nav.%m")] public readonly Func<Vector3, Vector3, bool, Vector3> Pathfind;
+    [EzIPC("Nav.%m")] public readonly Func<Vector3, Vector3, bool, Task<List<Vector3>>> Pathfind;
 
     /// <summary>
     /// Pathfind then move across the path it gives <br></br>
@@ -35,15 +36,25 @@ public class NavmeshIPC
     [EzIPC("Query.Mesh.%m")] public readonly Func<Vector3, bool, float, Vector3?> PointOnFloor;
     [EzIPC("Query.Mesh.%m")] public readonly Func<Vector3, float, float, Vector3?> NearestPointReachable;
 
+    // Don't use these rn
     [EzIPC("SmartNav.%m")] public readonly Action PathToFlag;
     [EzIPC("SmartNav.Stop")] public readonly Action SmartNavStop;
     [EzIPC("SmartNav.IsRunning")] public readonly Func<bool> SmartIsRunning;
     [EzIPC("SmartNav.PathToPoint")] public readonly Action<uint, Vector3> Smart_PathToPoint;
     [EzIPC("SmartNav.PathToTerritory")] public readonly Action<uint> Smart_PathToTerritory;
 
+    public void Stop()
+    {
+        if (Installed)
+        {
+            if (IsRunning())
+                PathStop();
+        }
+    }
+
     public bool NavRunning()
     {
-        return SmartIsRunning() || IsRunning();
+        return IsRunning();
     }
 
     public void SmartPath(uint territory, Vector3? position = null)

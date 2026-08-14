@@ -1,3 +1,6 @@
+using ChilledLeves.Enums;
+using ChilledLeves.Scheduler.Tasks;
+
 namespace ChilledLeves.Scheduler
 {
     internal static unsafe class SchedulerMain
@@ -15,7 +18,8 @@ namespace ChilledLeves.Scheduler
         }
         internal static bool DisablePlugin()
         {
-            P.navmesh.PathStop();
+            P.navmesh.Stop();
+            P.taskManager.Tasks.Clear();
             P.taskManager.Abort();
            
             return true;
@@ -23,9 +27,14 @@ namespace ChilledLeves.Scheduler
 
         internal static void Tick()
         {
-            if (AreWeTicking)
+            if (P.taskManager.NumQueuedTasks == 0 && !Leve_Helper.IsIdle)
             {
-
+                switch (Leve_Helper.State)
+                {
+                    case Leve_State.CheckLeves: Task_CheckLeves.Enqueue(); break;
+                    // case Leve_State.Travel: Task_Travel.
+                    default: DisablePlugin(); break;
+                }
             }
         }
     }

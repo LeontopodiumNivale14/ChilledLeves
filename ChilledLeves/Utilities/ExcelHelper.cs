@@ -12,6 +12,7 @@ internal static class ExcelHelper
     internal static ExcelSheet<Omen> Sheet_Omen;
     internal static ExcelSheet<Map> Sheet_Map;
     internal static ExcelSheet<LeveGuildleveAssignment> Sheet_leveText;
+    internal static ExcelSheet<Aetheryte> Sheet_Aetheryte;
 
     public static void Init()
     {
@@ -22,6 +23,7 @@ internal static class ExcelHelper
         Sheet_Omen = Svc.Data.GetExcelSheet<Omen>();
         Sheet_Map = Svc.Data.GetExcelSheet<Map>();
         Sheet_leveText = Svc.Data.Excel.GetSheet<LeveGuildleveAssignment>(name: "leve/GuildleveAssignment");
+        Sheet_Aetheryte = Svc.Data.GetExcelSheet<Aetheryte>();
     }
 
     public static string GetTerritoryName(uint territoryid)

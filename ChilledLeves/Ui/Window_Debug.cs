@@ -42,6 +42,8 @@ namespace ChilledLeves.Ui
             ["Game: Map Info"] = () => Game_MapInfo.Draw(),
             ["Debug: Artisan Details"] = () => Debug_ArtisanItems.CraftingDebug(),
             ["Debug: Task Check"] = () => Debug_TaskTest.Draw(),
+            ["Debug: Callbacks"] = () => AddonDebugTab.Draw(),
+            ["Debug: Teleport"] = () => Debug_Teleport.Draw(),
         };
 
         public override void Draw()

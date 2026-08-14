@@ -4,6 +4,7 @@ using ChilledLeves.Resources;
 using ChilledLeves.Scheduler;
 using ChilledLeves.Scheduler.Handlers;
 using ChilledLeves.Ui;
+using ChilledLeves.Ui.DebugTabs;
 using ChilledLeves.Ui.Old_Ui;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
@@ -31,6 +32,7 @@ public sealed class ChilledLeves : IDalamudPlugin
 
     // Taskmanager from Ecommons
     internal TaskManager taskManager;
+    internal TaskManager navTask;
 
     // Internal IPC's that I use for... well plugins. 
     internal LifestreamIPC lifestream;
@@ -58,6 +60,8 @@ public sealed class ChilledLeves : IDalamudPlugin
 
         //IPC's that are used
         taskManager = new();
+        navTask = new();
+
         lifestream = new();
         navmesh = new();
         pandora = new();
@@ -103,7 +107,7 @@ public sealed class ChilledLeves : IDalamudPlugin
 
     private void Tick(object _)
     {
-        if (SchedulerMain.AreWeTicking && Svc.Objects.LocalPlayer != null)
+        if (Svc.Objects.LocalPlayer != null)
         {
             SchedulerMain.Tick();
         }
@@ -124,6 +128,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         Safe(() => Svc.Framework.Update -= Tick);
         Safe(() => Svc.PluginInterface.UiBuilder.Draw -= windowSystem.Draw);
         Safe(() => Svc.PluginInterface.UiBuilder.Draw -= OnDraw);
+        AddonDebugTab.DisposeInstance();
         ECommonsMain.Dispose();
         Safe(TextAdvancedManager.UnlockTA);
         Safe(YesAlreadyManager.Unlock);

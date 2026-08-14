@@ -13,14 +13,7 @@ public static partial class LeveInfo
         public Vector3 Npc_Location { get; set; } = Vector3.Zero;
         public Vector2 Npc_Flag { get; set; } = Vector2.Zero;
         public uint Aetheryte { get; set; } = 0;
-
-        // Button Selections
-        public int Button_BattleCraft { get; set; } = -1;
-        public int Button_Gatherers { get; set; } = -1;
-        public int Button_Crafters { get; set; } = -1;
-        public int Button_Leave { get; set; } = -1;
-        public int Button_LSGather { get; set; } = -1;
-        public int Button_LSCrafter { get; set; } = -1;
+        public uint ClosestShard { get; set; } = 0;
 
         // Movement Options
         public bool Mount { get; set; } = false;
@@ -39,13 +32,10 @@ public static partial class LeveInfo
             Name = NPCName(1000970),
             TerritoryId = 128, // Upper Limsa
             Aetheryte = 8,
+            ClosestShard = 41,
             Npc_InteractZone = new Vector3(-10.42f, 40.02f, -10.17f),
             Npc_Location = new Vector3(-12.38f, 40f, -12.16f),
             Npc_Flag = new(-12.38f, -12.16f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Leves = new()
             {
                 141, 142, 143, 147, 148, 149, 153, 154, 155, 159, 160, 161, 165, 166, 167,
@@ -65,10 +55,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(27.67f, -8f, 108f),
             Npc_Location = new Vector3(25.04f, -8f, 108.08f),
             Npc_Flag = new(25.04f, 108.08f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Leves = new()
             {
                 21, 22, 23, 27, 28, 29, 33, 34, 35, 39, 40, 41, 45, 46, 47, 51, 52, 53,
@@ -87,10 +73,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(40.17f, 8.01f, -106.55f),
             Npc_Location = new Vector3(42.01f, 8.01f, -107.59f),
             Npc_Flag = new(42.01f, -107.59f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Leves = new()
             {
                 321, 322, 323, 327, 328, 329, 333, 334, 335, 339, 340, 341, 345, 346, 347,
@@ -109,10 +91,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(500.70f, 79.31f, -72.31f),
             Npc_Location = new Vector3(499.6f, 79.72f, -74.57f),
             Npc_Flag = new(499.60f, -74.57f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -144,10 +122,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(121.90f, 23.00f, 581.59f),
             Npc_Location = new Vector3(122.33f, 23f, 578.27f),
             Npc_Flag = new(122.33f, 578.27f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Fly = true,
             Leves = new()
@@ -163,10 +137,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(52.00f, -6.00f, 40.91f),
             Npc_Location = new Vector3(54.98f, -6f, 40.79f),
             Npc_Flag = new(54.98f, 40.79f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Fly = true,
             Leves = new()
@@ -183,10 +153,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(120.64f, -6.99f, -94.16f),
             Npc_Location = new Vector3(120.13f, -6.78f, -97.18f),
             Npc_Flag = new(120.13f, -97.18f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -202,10 +168,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(226.83f, 52.04f, 153.97f),
             Npc_Location = new Vector3(229.88f, 52.04f, 153.98f),
             Npc_Flag = new(229.88f, 153.98f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -222,10 +184,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(83.07f, 46.00f, -243.82f),
             Npc_Location = new Vector3(85.16f, 46f, -245.84f),
             Npc_Flag = new(85.16f, -245.84f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -241,10 +199,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(666.72f, 9.18f, 513.39f),
             Npc_Location = new Vector3(669.18f, 9.2f, 512.99f),
             Npc_Flag = new(669.18f, 512.99f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -260,10 +214,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(309.51f, -31.90f, 283.59f),
             Npc_Location = new Vector3(312.58f, -31.9f, 283.96f),
             Npc_Flag = new(312.58f, 283.96f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -279,10 +229,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(-211.93f, 1.09f, 287.70f),
             Npc_Location = new Vector3(-212.7f, 1.04f, 285.6f),
             Npc_Flag = new(-212.70f, 285.60f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -312,10 +258,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(-376.29f, -57.08f, 127.11f),
             Npc_Location = new Vector3(-378.19f, -57.33f, 129.26f),
             Npc_Flag = new(-378.19f, 129.26f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -345,10 +287,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(198.88f, 8.82f, -62.75f),
             Npc_Location = new Vector3(201.53f, 9.74f, -61.45f),
             Npc_Flag = new(201.53f, -61.45f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -368,10 +306,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(-236.37f, 21.58f, 346.52f),
             Npc_Location = new Vector3(-238.97f, 22.02f, 344.38f),
             Npc_Flag = new(-238.97f, 344.38f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -401,10 +335,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(-166.31f, 27.25f, -396.98f),
             Npc_Location = new Vector3(-167.28f, 27.44f, -395.44f),
             Npc_Flag = new(-167.28f, -395.44f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -433,10 +363,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(454.62418f, 16.995407f, 467.68893f),
             Npc_Location = new Vector3(450.22f, 17.75f, 470.3f),
             Npc_Flag = new(450.22f, 470.30f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -467,10 +393,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(5.55f, 71.19f, -2.65f),
             Npc_Location = new Vector3(5.75f, 71.19f, 0.69f),
             Npc_Flag = new(5.75f, 0.69f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -485,10 +407,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(228.83f, 222.00f, 339.32f),
             Npc_Location = new Vector3(227.59f, 222f, 341.66f),
             Npc_Flag = new(227.59f, 341.66f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -519,10 +437,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(-443.83f, 211.00f, -234.07f),
             Npc_Location = new Vector3(-441.12f, 211f, -235.52f),
             Npc_Flag = new(-441.12f, -235.52f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -553,10 +467,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(33.48f, 4.53f, 400.60f),
             Npc_Location = new Vector3(34.9f, 4.94f, 396.72f),
             Npc_Flag = new(34.90f, 396.72f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Leves = new()
             {
@@ -571,10 +481,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(418.62f, -5.81f, -447.56f),
             Npc_Location = new Vector3(415.98f, -6.06f, -444.42f),
             Npc_Flag = new(415.98f, -444.42f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_Leave = 4,
             Mount = true,
             Fly = true,
             Leves = new()
@@ -869,12 +775,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(-56.18f, 15.14f, -41.45f),
             Npc_Location = new Vector3(-53.54f, 15.2f, -42.68f),
             Npc_Flag = new(-53.54f, -42.68f),
-            Button_BattleCraft = 0,
-            Button_Gatherers = 1,
-            Button_Crafters = 2,
-            Button_LSGather = 4,
-            Button_LSCrafter = 5,
-            Button_Leave = 7,
             Mount = false,
             Leves = new()
             {
@@ -941,9 +841,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(20.61f, 0.00f, -77.82f),
             Npc_Location = new Vector3(20.49f, -0f, -80.95f),
             Npc_Flag = new(20.49f, -80.95f),
-            Button_Gatherers = 0,
-            Button_Crafters = 1,
-            Button_Leave = 3,
             Mount = false,
             Leves = new()
             {
@@ -996,9 +893,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(-73.40f, 20.00f, -110.90f),
             Npc_Location = new Vector3(-76.34f, 20.05f, -110.98f),
             Npc_Flag = new(-76.34f, -110.98f),
-            Button_Gatherers = 0,
-            Button_Crafters = 1,
-            Button_Leave = 3,
             Mount = false,
             Leves = new()
             {
@@ -1051,9 +945,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(49.96f, -15.65f, 111.81f),
             Npc_Location = new Vector3(46.83f, -15.65f, 107.87f),
             Npc_Flag = new(46.83f, 107.87f),
-            Button_Gatherers = 0,
-            Button_Crafters = 1,
-            Button_Leave = 3,
             Mount = false,
             Leves = new()
             {
@@ -1102,9 +993,6 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(20.58f, -14f, 86.46f),
             Npc_Location = new Vector3(15.24f, -14f, 85.83f),
             Npc_Flag = new(15.24f, 85.83f),
-            Button_Gatherers = 0,
-            Button_Crafters = 1,
-            Button_Leave = 3,
             Mount = false,
             Leves = new()
             {
@@ -1143,6 +1031,12 @@ public static partial class LeveInfo
 
         #endregion
     };
+
+    #region NPC Info Population
+
+    // Place to populate all the information for all the npcs / tie them to the leves in turn
+    // This exist here moreso I can just... source all of them together instead of going through x20 different functions
+    // If needed, use the dictionary above to get said npc info
 
     public static HashSet<uint> IshgardTurnin = new() 
     { 
@@ -1269,8 +1163,5 @@ public static partial class LeveInfo
         return NPCSheet.GetRow(NpcID).Singular.ToString();
     }
 
-    private static void Test()
-    {
-
-    }
+    #endregion
 }

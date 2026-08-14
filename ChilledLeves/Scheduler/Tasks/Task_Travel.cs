@@ -27,7 +27,7 @@ namespace ChilledLeves.Scheduler.Tasks
                     P.taskManager.EnqueueMulti
                     (
                         new(() => ZoneCheck(vendorInfo), "Checking Zone Requirements"),
-                        new(() => DistanceCheck(vendorInfo), "Distance check to npc"),
+                        // new(() => DistanceCheck(vendorInfo), "Distance check to npc"),
                         new(() => OpenLeveWindow(vendorInfo, sheetInfo.Npc_Vendor)),
                         new(() => 
                         {
@@ -49,47 +49,116 @@ namespace ChilledLeves.Scheduler.Tasks
             }
         }
 
-        private static bool ZoneCheck(LeveInfo.VendorInfo npcInfo)
+        private static bool ZoneCheck(LeveInfo.VendorInfo vendorInfo)
         {
-            string tag = "Task Travel: Zone Check";
+            const string tag = "Travel: Zone Check";
 
-            var currentTerritory = Player.Territory.RowId;
-
-            if (!P.navmesh.NavRunning())
+            if (Player.Available)
             {
-                if (currentTerritory == npcInfo.TerritoryId)
+                var territoryId = Player.Territory.RowId;
+                if (vendorInfo.TerritoryId == territoryId)
                 {
-                    IceLogging.Debug("We're in the correct zone, going to find the closest way to get to the npc", tag);
-                    return true;
+                    IceLogging.Verbose("We're currently in our designated zone, so going to check for distance to leve vendor", tag);
+                    P.taskManager.Insert(() => AethernetTask(vendorInfo), "Starting Travel Segment");
                 }
                 else
                 {
-                    if (EzThrottler.Throttle("Telling smartnav to path us to our destination"))
+                    // Add Foundation to this
+                    HashSet<uint> Limsa = new() { 128, 129 };
+                    HashSet<uint> UlDah = new() { 132, 133 };
+                    HashSet<uint> Gridania = new() { 130, 131 };
+                    HashSet<uint> Foundation = new() { };
+
+                    uint LimsaUpperId = 128;
+
+                    if (Limsa.Contains(territoryId))
                     {
-                        IceLogging.Verbose($"Kicking off smartnav for traveling to: [{npcInfo.TerritoryId}] -> [{npcInfo.Npc_InteractZone:N2}]", tag);
-                        P.navmesh.SmartPath(npcInfo.TerritoryId, npcInfo.Npc_InteractZone);
+                        IceLogging.Verbose("We're in limsa, but just on the wrong floor. Using the aethernet to get us to the right space", tag);
                     }
-                }
-            }
-            else
-            {
-                if (EzThrottler.Throttle("Navmesh throttle message", 2000))
-                {
-                    IceLogging.Verbose($"Smartnav/Navmesh is currently running. Waiting for it to finish pathing", tag);
+                    else if (UlDah.Contains(territoryId))
+                    {
+                        IceLogging.Verbose("We're in Ul' Dah, but just on the wrong section. Using the aethernet to get us to the right space", tag);
+                    }
+                    else if (Gridania.Contains(territoryId))
+                    {
+                        IceLogging.Verbose("We're in Gridania, but just on the wrong section. Using the aethernet to get us to the right space", tag);
+                    }
+                    else if (Foundation.Contains(territoryId))
+                    {
+                        IceLogging.Verbose("We're in Foundation [Somewhere], but just on the wrong section. Using the aethernet to get us to the right space", tag);
+                    }
+                    else
+                    {
+                        IceLogging.Verbose("We're just not in the right area. Going to queue up a teleport task, then check for anything post", tag);
+                        if (vendorInfo.TerritoryId == LimsaUpperId)
+                        {
+                            // Special case, since we're teleporting to lower and need to get to upper. Need to teleport -> force use the cross city aethernet
+
+                        }
+                        else
+                        {
+                            // Just a normal teleport -> check to see if we can even use the aethernet
+                        }
+                    }
+
+                    if (MainCityMulti.Contains(territoryId))
+                    {
+                        IceLogging.Verbose("We're in a main city where there's multiple areas within (woo). Going to use the aethernet to travel to the closest point", tag);
+                        P.taskManager.Insert(() => AethernetTask(vendorInfo), "Travel: Aethernet City Travel");
+                        return true;
+                    }
+                    else
+                    {
+                        IceLogging.Verbose("We just need to directly teleport. Then we need to check for post aethernet travel.", tag);
+                        P.taskManager.Insert(() => TeleportTask(vendorInfo), "Travel: Teleporting");
+                        return true;
+                    }
                 }
             }
 
             return false;
         }
-
-        private static bool DistanceCheck(LeveInfo.VendorInfo npcInfo)
+        private static bool TeleportTask(LeveInfo.VendorInfo vendorInfo)
         {
-            string tag = "Task Travel: Distance Check";
+            string tag = "Travel: Teleport Task";
 
-            if (Task_Navmesh.Task_GroundTo(npcInfo.Npc_InteractZone, false, 1))
+            // Grab the vendor TerritoryId / Aetheryte
+            // Have it initiate the task to teleport
+            // Have... some sanity check on attempting to teleport. This is going to be a minor pita
+            // Once it sucessfully teleports to said aetheryte, check to see if it needs to travel to the other zone via aethernet (Limsa Upper)
+            // If yes, use aethernet to travel up north
+            // If no, we JUST need to travel via navmesh. 
+            // - If in city, no mount flying
+            // - If outside of city (ARR areas) use mount / flying version of the task
+
+            return false;
+        }
+
+        private static bool AethernetTask(LeveInfo.VendorInfo vendorInfo)
+        {
+            const string tag = "Travel: Navmesh Check";
+
+            // IDEALLY... this will be just for teleporting to the floor that the npc is at. 
+            // Which in other words, is used to get to limsa upper and limsa lower. 
+            // Will need to check the paths to see which is closer to the goal ones, and have it travel to those...
+
+            var navTask = P.navTask;
+            if (!navTask.IsBusy)
             {
-                IceLogging.Debug("We're close enough to the npc to interact w/ them. So we're going to do so", tag);
-                return true;
+                if (Player.DistanceTo(vendorInfo.Npc_InteractZone) < 2)
+                {
+                    IceLogging.Verbose("We're close enough to the interact zone we don't need to queue up anything. Continuing to grab leve", tag);
+                    return true;
+                }
+                else
+                {
+                    IceLogging.Verbose("Queueing up navigation task", tag);
+                    navTask.Enqueue(() => Task_Navmesh.QueueCityAethernet(vendorInfo));
+                }
+            }
+            else
+            {
+                
             }
 
             return false;

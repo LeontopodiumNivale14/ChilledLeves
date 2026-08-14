@@ -1,14 +1,7 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
-using ECommons.Throttlers;
-using ECommons.UIHelpers.AddonMasterImplementations;
-using SharpDX.Direct3D11;
-using System;
 using System.Collections.Generic;
-using System.Formats.Asn1;
-using System.Text;
-using static ECommons.UIHelpers.AddonMasterImplementations.AddonMaster;
 
 namespace ChilledLeves.Scheduler.Tasks
 {
@@ -16,7 +9,7 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         public static void Enqueue()
         {
-            
+            P.taskManager.Enqueue(() => Check_CurrentLeves(), "Checking Active Leves");
         }
 
         private static bool Check_CurrentLeves()
@@ -70,13 +63,30 @@ namespace ChilledLeves.Scheduler.Tasks
             if (Leve_Helper.LeveToGrab == 0)
             {
                 IceLogging.Debug("No active leves were found that were in our list, so we're going to instead find one to complete", tag);
-                P.taskManager.Enqueue(() => Check_StandardLeves(), "Checking Standard Leves");
+                if (Leve_Helper.SelectedMode is Leve_Mode.Standard)
+                {
+                    IceLogging.Debug("Mode is currently in standard, going to check our listing for leves", tag);
+                    P.taskManager.Enqueue(() => Check_StandardLeves(), "Checking Standard Leves");
+                    return true;
+                }
+                else if (Leve_Helper.SelectedMode is Leve_Mode.ARR_Grind)
+                {
+                    IceLogging.Debug("Mode is in the ARR Grind mode [Priority Leves], going to check to see if we have those items atleast", tag);
+                    P.taskManager.Enqueue(() => Check_PriorityLeves(), "Checking Priority Leves");
+                    return true;
+                }
+                else
+                {
+                    IceLogging.Error($"We've ran into an invalid state for our mode selection? Current mode is: {Leve_Helper.SelectedMode}. Stopping the process", tag);
+                    Leve_Helper.State = Leve_State.Idle;
+                    P.taskManager.Tasks.Clear();
+                    return true;
+                }
             }
 
             return false;
         }
-
-        private static bool? Check_StandardLeves()
+        private static bool Check_StandardLeves()
         {
             string tag = "Check_StandardLeves";
 
@@ -140,6 +150,10 @@ namespace ChilledLeves.Scheduler.Tasks
                 Leve_Helper.State = Leve_State.Travel;
             }
 
+            return false;
+        }
+        private static bool Check_PriorityLeves()
+        {
             return false;
         }
     }
