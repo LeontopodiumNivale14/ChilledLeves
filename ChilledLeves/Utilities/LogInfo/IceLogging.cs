@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace ChilledLeves.Utilities;
+namespace ChilledLeves.Utilities.LogInfo;
 
 internal static class IceLogging
 {
@@ -122,11 +122,11 @@ internal static class IceLogging
 
     public enum LogLevel
     {
-        Verbose,
-        Debug,
-        Info,
-        Warning,
-        Error
+        Verbose = 1 << 0,
+        Debug = 1 << 1,
+        Info = 1 << 2,
+        Warning = 1 << 3,
+        Error = 1 << 4
     }
 
     public class LogEntry

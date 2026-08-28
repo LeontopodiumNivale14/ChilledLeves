@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Enums;
+using ChilledLeves.Gui;
 using ChilledLeves.Scheduler;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
@@ -18,20 +19,20 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
             List<uint> levesToRemove = new();
             _leveDragDrop.Begin();
 
-            using (ImRaii.Disabled(Leve_Helper.State != Leve_State.Idle))
+            using (ImRaii.Disabled(Leve_Helper.State != LeveState.Idle))
             {
                 if (ImGui.Button("Start Leves"))
                 {
-                    Leve_Helper.SelectedMode = Leve_Mode.Standard;
-                    Leve_Helper.State = Leve_State.CheckLeves;
+                    Leve_Helper.SelectedMode = ModeSelection.Standard;
+                    Leve_Helper.State = LeveState.CheckLeves;
                 }
             }
 
-            using (ImRaii.Disabled(Leve_Helper.State == Leve_State.Idle))
+            using (ImRaii.Disabled(Leve_Helper.State == LeveState.Idle))
             {
                 if (ImGui.Button("Stop Leves"))
                 {
-                    Leve_Helper.State = Leve_State.Idle;
+                    SchedulerMain.DisablePlugin();
                 }
             }
 

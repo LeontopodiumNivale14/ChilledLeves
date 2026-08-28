@@ -1,4 +1,5 @@
 using ChilledLeves.Config_Files;
+using ChilledLeves.Gui;
 using ChilledLeves.IPC;
 using ChilledLeves.Resources;
 using ChilledLeves.Scheduler;
@@ -7,7 +8,9 @@ using ChilledLeves.Ui;
 using ChilledLeves.Ui.DebugTabs;
 using ChilledLeves.Ui.Old_Ui;
 using ChilledLeves.Utilities;
+using ChilledLeves.Utilities.GatheringHelper;
 using ChilledLeves.Utilities.LeveData;
+using ChilledLeves.Utilities.LogInfo;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.Configuration;
 using ECommons.GameHelpers;
@@ -29,6 +32,7 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal AlertSettings alertSettings;
 
     internal Window_Main window_Main;
+    internal Window_Overlay window_Overlay;
 
     // Taskmanager from Ecommons
     internal TaskManager taskManager;
@@ -74,6 +78,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         alertSettings = new();
 
         window_Main = new();
+        window_Overlay = new();
 
         taskManager = new(new(abortOnTimeout: true, timeLimitMS: 20000, showDebug: true));
         Svc.PluginInterface.UiBuilder.Draw += windowSystem.Draw;
@@ -102,7 +107,9 @@ public sealed class ChilledLeves : IDalamudPlugin
         LeveInfo.PopulateLeveInfo();
         LeveInfo.UpdateLeves();
         RouteLoader.LoadAllRoutes();
+        RouteLoader.LoadExternalRoutes();
         LeveInfo.UpdateSelectString();
+        Gather_Util.Update_GatheringDetails();
     }
 
     private void Tick(object _)
@@ -128,6 +135,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         Safe(() => Svc.Framework.Update -= Tick);
         Safe(() => Svc.PluginInterface.UiBuilder.Draw -= windowSystem.Draw);
         Safe(() => Svc.PluginInterface.UiBuilder.Draw -= OnDraw);
+        GameIcons.ClearAll();
         AddonDebugTab.DisposeInstance();
         ECommonsMain.Dispose();
         Safe(TextAdvancedManager.UnlockTA);
@@ -158,6 +166,10 @@ public sealed class ChilledLeves : IDalamudPlugin
         {
 
             return;
+        }
+        else if (firstArg.ToLower() == "overlay")
+        {
+            window_Overlay.Toggle();
         }
         else if (firstArg.ToLower() == "add")
         {

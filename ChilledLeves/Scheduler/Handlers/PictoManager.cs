@@ -1,5 +1,6 @@
 ﻿using ChilledLeves.Resources;
 using ChilledLeves.Utilities;
+using ChilledLeves.Utilities.LogInfo;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using InteropGenerator.Runtime;

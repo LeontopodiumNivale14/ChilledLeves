@@ -3,10 +3,6 @@ using ChilledLeves.Ui.Old_Ui;
 using ChilledLeves.Utilities;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ChilledLeves.Ui
 {
@@ -103,6 +99,12 @@ namespace ChilledLeves.Ui
 
                     if (ImGui.BeginTabItem("ARR Gathering Grind"))
                     {
+                        ImGui.EndTabItem();
+                    }
+
+                    if (ImGui.BeginTabItem("Gather Profiles"))
+                    {
+                        Gathering_Profiles.Draw();
                         ImGui.EndTabItem();
                     }
 

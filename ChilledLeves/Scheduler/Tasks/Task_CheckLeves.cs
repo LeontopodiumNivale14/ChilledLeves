@@ -1,6 +1,7 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
+using ChilledLeves.Utilities.LogInfo;
 using System.Collections.Generic;
 
 namespace ChilledLeves.Scheduler.Tasks
@@ -34,7 +35,7 @@ namespace ChilledLeves.Scheduler.Tasks
                             {
                                 IceLogging.Debug($"Found a leve that we have enough for a turnin. Going to go do so {leve}", tag);
                                 Leve_Helper.LeveToGrab = leve;
-                                Leve_Helper.State = Leve_State.Turnin_Leve;
+                                Leve_Helper.State = LeveState.Travel_Turnin;
                                 return true;
                             }
                         }
@@ -46,13 +47,13 @@ namespace ChilledLeves.Scheduler.Tasks
                             {
                                 IceLogging.Debug($"Leve [{leve}] still needs to be completed/redone. So going to go do so", tag);
                                 Leve_Helper.LeveToGrab = leve;
-                                Leve_Helper.State = Leve_State.Start_GatheringLeve;
+                                Leve_Helper.State = LeveState.Start_GatheringLeve;
                             }
                             else if (currentSeq is 255)
                             {
                                 IceLogging.Debug($"Leve [{leve}] is completed/ready to be turned in. Going to do so", tag);
                                 Leve_Helper.LeveToGrab = leve;
-                                Leve_Helper.State = Leve_State.Turnin_Leve;
+                                Leve_Helper.State = LeveState.Travel_Turnin;
                                 return true;
                             }
                         }
@@ -63,13 +64,13 @@ namespace ChilledLeves.Scheduler.Tasks
             if (Leve_Helper.LeveToGrab == 0)
             {
                 IceLogging.Debug("No active leves were found that were in our list, so we're going to instead find one to complete", tag);
-                if (Leve_Helper.SelectedMode is Leve_Mode.Standard)
+                if (Leve_Helper.SelectedMode is ModeSelection.Standard)
                 {
                     IceLogging.Debug("Mode is currently in standard, going to check our listing for leves", tag);
                     P.taskManager.Enqueue(() => Check_StandardLeves(), "Checking Standard Leves");
                     return true;
                 }
-                else if (Leve_Helper.SelectedMode is Leve_Mode.ARR_Grind)
+                else if (Leve_Helper.SelectedMode is ModeSelection.ARR_Grind)
                 {
                     IceLogging.Debug("Mode is in the ARR Grind mode [Priority Leves], going to check to see if we have those items atleast", tag);
                     P.taskManager.Enqueue(() => Check_PriorityLeves(), "Checking Priority Leves");
@@ -78,7 +79,7 @@ namespace ChilledLeves.Scheduler.Tasks
                 else
                 {
                     IceLogging.Error($"We've ran into an invalid state for our mode selection? Current mode is: {Leve_Helper.SelectedMode}. Stopping the process", tag);
-                    Leve_Helper.State = Leve_State.Idle;
+                    Leve_Helper.State = LeveState.Idle;
                     P.taskManager.Tasks.Clear();
                     return true;
                 }
@@ -86,6 +87,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
             return false;
         }
+
         private static bool Check_StandardLeves()
         {
             string tag = "Check_StandardLeves";
@@ -99,24 +101,15 @@ namespace ChilledLeves.Scheduler.Tasks
                 {
                     if (C.LeveList[leve] > 0)
                     {
-                        IceLogging.Verbose($"Found a leve that isn't at a count of 0! Checking to see what requirements are needed", tag);
-                        if (LeveInfo.LeveJobs_Material.Contains(sheetInfo.Job))
+                        if (!Utils.EnoughAllowance(leve))
                         {
-                            var materialInfo = sheetInfo.MaterialInfo;
-                            var neededAmount = Utils.Leve_RequiredAmount(materialInfo);
-
-                            if (Utils.GetItemCount(materialInfo.Item_Id) >= neededAmount)
-                            {
-                                IceLogging.Debug($"Found a leve that we have enough for a turnin. Going to go do grab {leve}", tag);
-                                Leve_Helper.LeveToGrab = leve;
-                                break;
-                            }
+                            IceLogging.Verbose($"Skipping the leve because we don't have enough currency for it: {leve}", tag);
                         }
-                        else
-                        {
-                            IceLogging.Verbose($"We're doing a gathering mission! Hopefully it's one where we can actually grab it (Post ARR)", tag);
-                            IceLogging.Debug($"Goal: LeveID {leve}", tag);
 
+                        if (Utils.PotentionalLeve(leve, tag))
+                        {
+                            IceLogging.Verbose($"Found a leve that isnt' at a count of 0! And hopefully it's one we can actually grab...", tag);
+                            IceLogging.Verbose($"Queueing up the following leve: [{leve}] | Name: {sheetInfo.LeveName}", tag);
                             Leve_Helper.LeveToGrab = leve;
                             break;
                         }
@@ -137,20 +130,23 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 C.LeveOrder.Remove(leve);
             }
+            if (levesToRemove.Count > 0)
+            {
+                C.Save();
+            }
 
             if (Leve_Helper.LeveToGrab == 0)
             {
                 IceLogging.Debug("We've found no leves that we're able to complete, so we're just going to stop the process", tag);
-                Leve_Helper.State = Leve_State.Idle;
+                Leve_Helper.State = LeveState.Idle;
                 return true;
             }
             else
             {
                 IceLogging.Verbose("Swapping to traveling to grab said leve", tag);
-                Leve_Helper.State = Leve_State.Travel;
+                Leve_Helper.State = LeveState.Travel_Grab;
+                return true;
             }
-
-            return false;
         }
         private static bool Check_PriorityLeves()
         {

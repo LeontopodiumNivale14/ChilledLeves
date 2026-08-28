@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.Types;
+﻿using ChilledLeves.Utilities.LogInfo;
+using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.DalamudServices.Legacy;
 using ECommons.GameHelpers;
 using ECommons.Reflection;

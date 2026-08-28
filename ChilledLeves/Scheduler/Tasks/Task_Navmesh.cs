@@ -1,14 +1,12 @@
-﻿using ChilledLeves.Scheduler.Handlers;
-using ChilledLeves.Utilities;
+﻿using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
+using ChilledLeves.Utilities.LogInfo;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.GameHelpers;
-using ECommons.Logging;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using FFXIVClientStructs.FFXIV.Component.GUI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using static ChilledLeves.Utilities.LeveData.LeveInfo;
@@ -74,12 +72,86 @@ namespace ChilledLeves.Scheduler.Tasks
             [TravelTypes.Direct] = new(),
             [TravelTypes.Aethernet] = new(),
         };
+
+        private static Task? _PathCalculations = null;
+
+        private static List<Utils.AethershardInfo> _CalcCandidatesQueue;
+        private static List<CandidatePathResult> _CalcCandidateResults;
+        private static Task<List<Vector3>> _CalcCurrentTask;
+        private static Utils.AethershardInfo _CalcCurrentCandidate;
+        private static Task<List<Vector3>> _CalcDestinationTask;
+        private static List<Vector3> _CalcDestinationPath;
+        private static List<Utils.AethershardInfo> _ClosestCandidatesQueue;
+        private static List<CandidatePathResult> _ClosestResults;
+        private static Task<List<Vector3>> _ClosestCurrentTask;
+        private static Utils.AethershardInfo _ClosestCurrentCandidate;
+
         private readonly record struct CandidatePathResult(Utils.AethershardInfo Candidate, List<Vector3> PathTo);
 
         // - - - Navmesh Task Themselves... - - - //
 
-        private static Task? _PathCalculations = null;
+        public static bool TeleportCheck(VendorInfo vendorInfo)
+        {
+            const string tag = "Navmesh: Teleport";
 
+            if (!Player.Available)
+                return false;
+
+            IceLogging.Verbose("- - - Starting Teleport Check - - -", tag);
+
+            var territoryId = Player.Territory.RowId;
+
+            if (vendorInfo.TerritoryId == territoryId)
+            {
+                IceLogging.Info("Nice and simple. We just need to check to see how to travel to our npc", tag);
+                QueueCityAethernet(vendorInfo);
+                return true;
+            }
+
+            if (InSameCity(territoryId, vendorInfo.TerritoryId))
+            {
+                IceLogging.Info("We're just in the wrong part of the city, so going to use the aethernet to get to the proper side", tag);
+                Queue_TeleportAethernet(vendorInfo);
+                return true;
+            }
+
+            IceLogging.Debug("We're not in the correct area... at all. So going to queue up a teleport task, then use the travel system post", tag);
+            var vendorAetheryte = vendorInfo.Aetheryte;
+            IceLogging.Verbose($"Teleporting to: {vendorAetheryte}", tag);
+
+            P.navTask.Enqueue(() => TeleportToArea(vendorAetheryte), "Teleporting to aethernet");
+            if (Utils.Aethernet.Any(x => x.Value.TerritoryId == vendorInfo.TerritoryId))
+            {
+                IceLogging.Info("Teleport has been queue'd up, and it seems like we're traveling to a city. So also queueing up the aethernet system", tag);
+                QueueCityAethernet(vendorInfo);
+                return true;
+            }
+            else
+            {
+                IceLogging.Info($"Teleporting to a vendor outside the city, using normal navmesh travel system. Destination: [{vendorInfo.TerritoryId}]", tag);
+                // TODO: Actually put navmesh navigation here... need to check for flying available vs not (and being able to set mount distance and the hoozah)
+            }
+            return true;
+        }
+
+        private static readonly HashSet<uint>[] MultiZoneCities =
+        {
+            new() { 128, 129 },       // Limsa
+            new() { 130, 131 },       // Gridania
+            new() { 132, 133 },       // Ul'dah
+            new() { 418, 419 },       // Foundation
+        };
+
+        private static bool InSameCity(uint territoryId, uint vendorTerritoryId)
+        {
+            foreach (var city in MultiZoneCities)
+            {
+                if (city.Contains(territoryId) && city.Contains(vendorTerritoryId))
+                    return true;
+            }
+
+            return false;
+        }
         private static bool Paths_Clear()
         {
             const string tag = "Navmesh: Resetting Dictionaries";
@@ -92,9 +164,6 @@ namespace ChilledLeves.Scheduler.Tasks
                 path.Value.Aethernet_TravelTo = 0;
                 path.Value.Aethernet_TravelFrom = 0;
             }
-
-            _CandidatePathCalculations = null;
-            _DestinationPathCalculation = null;
 
             IceLogging.Verbose("Resetting dictionaries has been completed, all are default", tag);
             return true;
@@ -181,37 +250,86 @@ namespace ChilledLeves.Scheduler.Tasks
             var aethernet = TravelMethods[TravelTypes.Aethernet];
             var playerPosition = Player.Position;
 
-            // Kick off all candidate + destination path calculations together
-            if (_CandidatePathCalculations == null)
+            // Phase 1 setup: build candidate queue
+            if (_CalcCandidatesQueue == null)
             {
-                _CandidatePathCalculations = validShards
-                    .Select(candidate => Task.Run(async () => new CandidatePathResult(candidate, await FindPath(playerPosition, candidate.MoveTo))))
-                    .ToList();
-
-                _DestinationPathCalculation = Task.Run(async () => await FindPath(destinationShard.MoveTo, destination));
+                _CalcCandidatesQueue = new List<Utils.AethershardInfo>(validShards);
+                _CalcCandidateResults = new List<CandidatePathResult>();
 
                 if (EzThrottler.Throttle("Started candidate task"))
                     IceLogging.Verbose($"Started calculating paths for {validShards.Count} candidate shards", tag);
 
-                return false; // Keep checking
+                return false;
             }
 
-            // Wait for all of them
-            if (!_CandidatePathCalculations.All(t => t.IsCompleted) || !_DestinationPathCalculation.IsCompleted)
+            // Phase 1: work through candidates one at a time
+            if (_CalcCandidateResults.Count < validShards.Count)
             {
-                if (EzThrottler.Throttle("Calculating path message", 1000))
-                    IceLogging.Verbose("Still calculating candidate shard paths", tag);
+                if (_CalcCurrentTask == null)
+                {
+                    _CalcCurrentCandidate = _CalcCandidatesQueue[0];
+                    _CalcCandidatesQueue.RemoveAt(0);
+                    _CalcCurrentTask = FindPath(playerPosition, _CalcCurrentCandidate.MoveTo);
+                    return false;
+                }
 
-                return false; // Still calculating
+                if (!_CalcCurrentTask.IsCompleted)
+                {
+                    if (EzThrottler.Throttle("Calculating path message", 1000))
+                        IceLogging.Verbose("Still calculating candidate shard paths", tag);
+                    return false;
+                }
+
+                List<Vector3> path = null;
+                try
+                {
+                    path = _CalcCurrentTask.Result;
+                }
+                catch (Exception ex)
+                {
+                    IceLogging.Error($"Path calc failed for shard {_CalcCurrentCandidate.ShardId}: {ex}", tag);
+                }
+
+                _CalcCandidateResults.Add(new CandidatePathResult(_CalcCurrentCandidate, path));
+                _CalcCurrentTask = null;
+                return false;
             }
 
-            // Done - cache results before resetting state
-            var destinationPath = _DestinationPathCalculation.Result;
-            var destinationLegDistance = PathDistance(destinationPath);
-            var candidateResults = _CandidatePathCalculations.Select(t => t.Result).ToList();
+            // Phase 2: destination leg, only starts once the queue is free
+            if (_CalcDestinationTask == null)
+            {
+                _CalcDestinationTask = FindPath(destinationShard.MoveTo, destination);
+                return false;
+            }
 
-            _CandidatePathCalculations = null;
-            _DestinationPathCalculation = null;
+            if (!_CalcDestinationTask.IsCompleted)
+            {
+                if (EzThrottler.Throttle("Calculating destination path message", 1000))
+                    IceLogging.Verbose("Still calculating destination leg", tag);
+                return false;
+            }
+
+            try
+            {
+                _CalcDestinationPath = _CalcDestinationTask.Result;
+            }
+            catch (Exception ex)
+            {
+                IceLogging.Error($"Destination path calc failed: {ex}", tag);
+                _CalcDestinationPath = null;
+            }
+
+            // Done - pick the best
+            var destinationLegDistance = PathDistance(_CalcDestinationPath);
+            var candidateResults = _CalcCandidateResults;
+            var destinationPath = _CalcDestinationPath;
+
+            _CalcCandidatesQueue = null;
+            _CalcCandidateResults = null;
+            _CalcCurrentTask = null;
+            _CalcCurrentCandidate = default;
+            _CalcDestinationTask = null;
+            _CalcDestinationPath = null;
 
             var best = candidateResults
                 .Where(r => r.PathTo != null)
@@ -265,13 +383,11 @@ namespace ChilledLeves.Scheduler.Tasks
             var aethernet = TravelMethods[TravelTypes.Aethernet];
             var playerPosition = Player.Position;
 
-            // Kick off all candidate path calculations together
-            if (_ClosestPathCalculations == null)
+            // First tick: set up the queue
+            if (_ClosestCandidatesQueue == null)
             {
-                _ClosestPathCalculations = validShards
-                    .Select(candidate => Task.Run(async () =>
-                        new CandidatePathResult(candidate, await FindPath(playerPosition, candidate.MoveTo))))
-                    .ToList();
+                _ClosestCandidatesQueue = new List<Utils.AethershardInfo>(validShards);
+                _ClosestResults = new List<CandidatePathResult>();
 
                 if (EzThrottler.Throttle("Started closest task"))
                     IceLogging.Verbose($"Started calculating paths for {validShards.Count} candidate shards", tag);
@@ -279,8 +395,50 @@ namespace ChilledLeves.Scheduler.Tasks
                 return false; // Keep checking
             }
 
-            // Wait for all of them
-            if (!_ClosestPathCalculations.All(t => t.IsCompleted))
+            // No task running - kick off the next candidate in the queue
+            if (_ClosestCurrentTask == null)
+            {
+                if (_ClosestCandidatesQueue.Count == 0)
+                {
+                    // All candidates processed - pick the best
+                    var best = _ClosestResults
+                        .Where(r => r.PathTo != null)
+                        .Select(r => new
+                        {
+                            r.Candidate,
+                            r.PathTo,
+                            Distance = PathDistance(r.PathTo),
+                        })
+                        .OrderBy(r => r.Distance)
+                        .FirstOrDefault();
+
+                    _ClosestCandidatesQueue = null;
+                    _ClosestResults = null;
+
+                    if (best == null)
+                    {
+                        IceLogging.Info("None of the candidate shards had a valid path, continuing", tag);
+                        return true;
+                    }
+
+                    aethernet.PathTo = best.PathTo;
+                    aethernet.PathFrom = null;
+                    aethernet.Distance = best.Distance;
+                    aethernet.Aethernet_TravelTo = best.Candidate.ShardId;
+                    aethernet.Aethernet_TravelFrom = 0;
+
+                    return true;
+                }
+
+                _ClosestCurrentCandidate = _ClosestCandidatesQueue[0];
+                _ClosestCandidatesQueue.RemoveAt(0);
+                _ClosestCurrentTask = FindPath(playerPosition, _ClosestCurrentCandidate.MoveTo);
+
+                return false; // Keep checking
+            }
+
+            // Task running - wait for it
+            if (!_ClosestCurrentTask.IsCompleted)
             {
                 if (EzThrottler.Throttle("Calculating closest path message", 1000))
                     IceLogging.Verbose("Still calculating candidate shard paths", tag);
@@ -288,41 +446,29 @@ namespace ChilledLeves.Scheduler.Tasks
                 return false; // Still calculating
             }
 
-            // Done - cache results before resetting state
-            var candidateResults = _ClosestPathCalculations.Select(t => t.Result).ToList();
-            _ClosestPathCalculations = null;
-
-            var best = candidateResults
-                .Where(r => r.PathTo != null)
-                .Select(r => new
-                {
-                    r.Candidate,
-                    r.PathTo,
-                    Distance = PathDistance(r.PathTo),
-                })
-                .OrderBy(r => r.Distance)
-                .FirstOrDefault();
-
-            if (best == null)
+            // This candidate's task finished - record result and clear for next tick
+            List<Vector3> path = new();
+            try
             {
-                IceLogging.Info("None of the candidate shards had a valid path, continuing", tag);
-                return true;
+                path = _ClosestCurrentTask.Result;
+            }
+            catch (Exception ex)
+            {
+                IceLogging.Error($"Path calc failed for shard {_ClosestCurrentCandidate.ShardId}: {ex}", tag);
             }
 
-            aethernet.PathTo = best.PathTo;
-            aethernet.PathFrom = null;
-            aethernet.Distance = best.Distance;
-            aethernet.Aethernet_TravelTo = best.Candidate.ShardId;
-            aethernet.Aethernet_TravelFrom = 0;
+            _ClosestResults.Add(new CandidatePathResult(_ClosestCurrentCandidate, path));
+            _ClosestCurrentTask = null;
 
-            return true;
+            return false; // Keep checking, more candidates (or the final pick) to go
         }
-
         private static bool City_BestTravel(VendorInfo vendorInfo)
         {
             const string tag = "Navmesh: City Best Travel";
 
-            var bestTravel = TravelMethods.Where(x => x.Value.Distance != 0).FirstOrDefault();
+            var bestTravel = TravelMethods.Where(x => x.Value.Distance != 0)
+                                          .OrderBy(x => x.Value.Distance)
+                                          .FirstOrDefault();
 
             IceLogging.Verbose("Reporting back all travel methods and the distance for them", tag);
             foreach (var travelKind in TravelMethods)
@@ -333,7 +479,7 @@ namespace ChilledLeves.Scheduler.Tasks
             if (bestTravel.Key == TravelTypes.Direct)
             {
                 IceLogging.Verbose("Best travel kind was directly to our destination. So we're just going to run there", tag);
-                // Insert a task for direct travel to the npc from here to the spot
+                P.navTask.Enqueue(() => Task_GroundTo(vendorInfo.Npc_InteractZone), "Moving to Npc");
             }
             else if (bestTravel.Key is TravelTypes.Aethernet)
             {
@@ -341,15 +487,14 @@ namespace ChilledLeves.Scheduler.Tasks
                 var shardInfo = Utils.Aethernet[bestTravel.Value.Aethernet_TravelTo];
                 P.navTask.EnqueueMulti
                 (
-                    new(() => Task_GroundTo(shardInfo.MoveTo, distance: 1), "Moving to Aethershard"),
-                    new(() => UseAethernet(bestTravel.Value.Aethernet_TravelTo, vendorInfo)),
-                    new(() => Task_GroundTo(vendorInfo.Npc_InteractZone))
+                    new(() => Task_GroundToAetheryte(shardInfo.MoveTo, shardInfo.Position, false, shardInfo.InteractDistance), "Moving to Aethershard"),
+                    new(() => UseAethernet(bestTravel.Value.Aethernet_TravelTo, vendorInfo), "Using the aethernet"),
+                    new(() => Task_GroundTo(vendorInfo.Npc_InteractZone), "Moving to npc")
                 );
             }
 
             return true;
         }
-
         private static bool TeleportToArea(uint aetheryteId)
         {
             const string tag = "Navmesh: Teleporting";
@@ -381,6 +526,11 @@ namespace ChilledLeves.Scheduler.Tasks
                         }
                     }
                 }
+            }
+            else
+            {
+                if (EzThrottler.Throttle("Aethernet Teleport Error", 2000))
+                    IceLogging.Error($"No aetheryte was found under ID: [{aetheryteId}]", tag);
             }
 
             return false;
@@ -430,7 +580,10 @@ namespace ChilledLeves.Scheduler.Tasks
                 else
                 {
                     var aethernet = Svc.Objects.Where(x => x.BaseId == aetherShard).FirstOrDefault();
-                    if (aethernet != null && aethernet.CurrentDistance <= goalShard.InteractDistance)
+                    bool validShard = aethernet != null;
+                    bool interactable = validShard && Player.DistanceTo(aethernet.Position) <= goalShard.InteractDistance;
+
+                    if (aethernet != null && Player.DistanceTo(aethernet) <= goalShard.InteractDistance)
                     {
                         if (Player.Mounted || Player.IsJumping)
                         {
@@ -446,6 +599,17 @@ namespace ChilledLeves.Scheduler.Tasks
                             Utils.InteractWithObject(aethernet);
                         }
                     }
+                    else
+                    {
+                        if (EzThrottler.Throttle("Targeting aethershard"))
+                        {
+                            IceLogging.Debug($"Waiting... Shard Valid? {validShard} | Interact Distance? {interactable}", tag);
+                            if (aethernet != null)
+                            {
+                                IceLogging.Debug($"{Player.DistanceTo(aethernet)} <= {goalShard.InteractDistance}", tag);
+                            }
+                        }
+                    }
                 }
             }
             else
@@ -459,9 +623,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
             return false;
         }
-
-
-        private static float PathDistance(List<Vector3> path)
+        public static float PathDistance(List<Vector3> path)
         {
             if (path == null || path.Count < 2)
                 return 0f;
@@ -481,13 +643,10 @@ namespace ChilledLeves.Scheduler.Tasks
             }
         }
 
-        public static async Task<List<Vector3>> FindPath(Vector3 position, Vector3 destination)
+        private static async Task<List<Vector3>> FindPath(Vector3 position, Vector3 destination)
         {
             return await P.navmesh.Pathfind(position, destination, false);
         }
-        private static Task<List<Vector3>> _DestinationPathCalculation;
-        private static List<Task<CandidatePathResult>> _CandidatePathCalculations;
-        private static List<Task<CandidatePathResult>> _ClosestPathCalculations;
 
         // - - - Old code to sort through - - - //
 
@@ -597,7 +756,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
             if (!P.navmesh.Installed)
             {
-                IceLogging.Information("We seem to be missing navmesh... so we're just going to exit here", tag);
+                IceLogging.Info("We seem to be missing navmesh... so we're just going to exit here", tag);
                 return true;
             }
             else if (P.navmesh.IsRunning())
@@ -656,6 +815,62 @@ namespace ChilledLeves.Scheduler.Tasks
                         ResetInfo();
                         return true;
                     }
+                }
+                else
+                {
+                    if (EzThrottler.Throttle("Telling navmesh to start"))
+                    {
+                        P.navmesh.SetTolerance(0.25f);
+                        IceLogging.Verbose("We're setting the tolerance to 0.25f here", tag);
+                        P.navmesh.PathfindAndMoveTo(pos, false);
+                    }
+                }
+            }
+
+            return false;
+        }
+        public static bool Task_GroundToAetheryte(Vector3 pos, Vector3 aetheryte, bool waitForBusy = true, float distance = 2.0f)
+        {
+            const string tag = "Navmesh: Ground Move";
+
+            if (!P.navmesh.Installed)
+            {
+                IceLogging.Info("We seem to be missing navmesh... so we're just going to exit here", tag);
+                return true;
+            }
+            else if (P.navmesh.IsRunning())
+            {
+                if (Player.IsMoving && waitForBusy)
+                {
+                    if (EzThrottler.Throttle("Throttle message tehe"))
+                        IceLogging.Verbose("We're currently moving, and we were told to wait for us to NOT be moving so... yeah, we waiting", tag);
+
+                    return false;
+                }
+                else if (!waitForBusy && (Player.DistanceTo(aetheryte) <= distance) )
+                {
+                    if (EzThrottler.Throttle("Telling navmesh to stop"))
+                    {
+                        IceLogging.Verbose("We're within stopping distance, so stopping navmesh", tag);
+                        P.navmesh.PathStop();
+                    }
+                }
+            }
+            else if (!P.navmesh.IsReady())
+            {
+                if (EzThrottler.Throttle("Waiting on navmesh", 1000))
+                {
+                    var navProgress = P.navmesh.BuildProgress();
+                    IceLogging.Debug($"Waiting for navmesh to finish building. Currently at: {navProgress:N2}", tag);
+                }
+            }
+            else if (!P.navmesh.IsRunning())
+            {
+                if (Player.DistanceTo(aetheryte) <= distance)
+                {
+                    IceLogging.Verbose("We've met the distance threshold, continuing on", tag);
+                    ResetInfo();
+                    return true;
                 }
                 else
                 {

@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Enums;
+using ChilledLeves.Utilities.LogInfo;
 using Dalamud.Interface.Textures;
 using ECommons.ExcelServices;
 using ECommons.Logging;
@@ -18,13 +19,17 @@ public static partial class LeveInfo
         public ExpansionIds Expansion { get; set; } = ExpansionIds.ARR;
         public Job Job { get; set; } = Job.ADV;
         public uint Level { get; set; } = 0;
-        public uint Npc_Vendor { get; set; } = 0;
+        public List<uint> Npc_Vendors { get; set; } = new();
+        // TODO: Change this to use the above ^ There isn't to many npcs that have multi (it's really... just a handful)
         public uint Npc_Turnin { get; set; } = 0;
+
+        public uint Npc_Vendor { get; set; } = 0;
         public uint QuestID { get; set; } = 0;
         public int ExpReward { get; set; } = -1;
         public int GilReward { get; set; } = -1;
         public int AllowanceCost { get; set; } = -1;
         public LeveKind LeveType { get; set; } = LeveKind.Battlecraft;
+        public GatheringRule GatheringRule { get; set; } = GatheringRule.None;
         public MapInfo Gather_MapInfo { get; set; } = new();
         public Material_Turnin MaterialInfo { get; set; } = new();
         public Gathering_Turnin Gather_NodeInfo { get; set; } = new();
@@ -102,20 +107,49 @@ public static partial class LeveInfo
 
                 PluginLog.Debug($"Leve: {id} being checked");
 
-                var leveClient = row.LeveClient.RowId;
-
                 var job = (Job)row.ClassJobCategory.RowId - 1;
                 var level = row.ClassJobLevel;
+
+                var potentionalClients = LeveNpc_Info.Where(x => x.Value.Leves.Contains(id));
+                List<uint> leveVendors = new();
+                foreach (var client in potentionalClients)
+                {
+                    leveVendors.Add(client.Key);
+                }
+
+                // - - - TODO: Need to remove this once i finish re-wiring - - - // 
+
+                var leveClient = row.LeveClient.RowId;
                 var leveVendorEntry = LeveNpc_Info.Where(x => x.Value.Leves.Contains(id)).FirstOrDefault();
                 if (leveVendorEntry.Key == 0) // or check if leveVendorEntry.Value == null
                 {
                     PluginLog.Warning($"Leve {id} ({leveName}) has no vendor in LeveNpc_Info, skipping");
-                    continue;
                 }
                 var leve_Vendor = leveVendorEntry.Key;
-                var leve_Turnin = TurninNpcId(leveClient, assignmentType);
+
+                // - - - End TODO - - - //
+
+                uint leve_Turnin = 0;
+
+                var levelRow = row.LevelLevemete.ValueNullable;
+                if (levelRow == null)
+                {
+                    IceLogging.Verbose($"Level info for this leve wasn't valid: {id}", "Sheet Building");
+                }
+                else
+                {
+                    leve_Turnin = levelRow.Value.Object.RowId;
+                }
                 var questID = row.DataId.RowId;
                 var exp = row.ExpReward.ToInt();
+                if (exp == 0 && job is Job.MIN or Job.BTN)
+                {
+                    var gatheringExp = ExcelHelper.Sheet_GatheringExp.GetRow((uint)level).Exp;
+                    var multiplier = row.ExpFactor;
+
+                    exp = (int)(multiplier * gatheringExp);
+                }
+
                 var gilReward = row.GilReward.ToInt();
                 var allowanceCost = row.AllowanceCost.ToInt();
 
@@ -153,6 +187,8 @@ public static partial class LeveInfo
                 Material_Turnin materialList = new();
                 Gathering_Turnin gatheringList = new();
                 MapInfo mapInfo = new();
+                GatheringRule rule = GatheringRule.None;
+
                 if (Material_LeveJobs.Contains(assignmentType))
                 {
                     if (Svc.Data.GetExcelSheet<CraftLeve>().TryGetRow(questID, out var materialInfo))
@@ -190,6 +226,15 @@ public static partial class LeveInfo
                     var levelData = row.LevelStart.Value;
                     if (Svc.Data.GetExcelSheet<GatheringLeve>().TryGetRow(gatherLeveId, out var gatheringLeve))
                     {
+                        rule = gatheringLeve.Rule.RowId switch
+                        {
+                            1 => GatheringRule.Search,
+                            2 => GatheringRule.Procurance,
+                            3 => GatheringRule.Search_Procurance,
+                            4 => GatheringRule.Execution,
+                            _ => GatheringRule.None,
+                        };
+
                         for (int i = 0; i < 4; i++)
                         {
                             if (gatheringLeve.Route[i].RowId != 0)
@@ -238,6 +283,7 @@ public static partial class LeveInfo
                         Expansion = expansion,
                         Level = level,
                         Npc_Vendor = leve_Vendor,
+                        Npc_Vendors = leveVendors,
                         Npc_Turnin = leve_Turnin,
                         QuestID = questID,
                         ExpReward = exp,
@@ -247,6 +293,8 @@ public static partial class LeveInfo
                         LeveType = type,
                         Gather_NodeInfo = gatheringList,
                         Gather_MapInfo = mapInfo,
+
+                        GatheringRule = rule,
                     });
                 }
             }

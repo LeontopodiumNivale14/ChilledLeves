@@ -1,26 +1,24 @@
 using ChilledLeves.Enums;
 using ChilledLeves.Scheduler.Tasks;
+using ChilledLeves.Utilities.LogInfo;
 
 namespace ChilledLeves.Scheduler
 {
     internal static unsafe class SchedulerMain
     {
-        internal static bool AreWeTicking;
-        internal static bool EnableTicking
-        {
-            get => AreWeTicking;
-            private set => AreWeTicking = value;
-        }
-        internal static bool EnablePlugin()
-        {
-            EnableTicking = true;
-            return true;
-        }
+        internal static bool AreWeTicking => !Leve_Helper.IsIdle;
+
         internal static bool DisablePlugin()
         {
+            IceLogging.Verbose($"We were told to stop. So we stopping. Previous state: {Leve_Helper.State}", "Schedular: Disable Plugin");
+
+            Leve_Helper.State = LeveState.Idle;
+
             P.navmesh.Stop();
             P.taskManager.Tasks.Clear();
+            P.navTask.Tasks.Clear();
             P.taskManager.Abort();
+            P.navTask.Abort();
            
             return true;
         }
@@ -31,8 +29,14 @@ namespace ChilledLeves.Scheduler
             {
                 switch (Leve_Helper.State)
                 {
-                    case Leve_State.CheckLeves: Task_CheckLeves.Enqueue(); break;
-                    // case Leve_State.Travel: Task_Travel.
+                    case LeveState.CheckLeves: Task_CheckLeves.Enqueue(); break;
+
+                    case LeveState.Travel_Grab: Task_Travel.Grab_TravelEnqueue(); break;
+                    case LeveState.Travel_Turnin: Task_Travel.Turnin_Enqueue(); break;
+
+                    case LeveState.Grab_StandardLeve: Task_GrabLeve.Enqueue_Standard(); break;
+
+                    case LeveState.Turnin_Leve: Task_Turnin.Enqueue(); break;
                     default: DisablePlugin(); break;
                 }
             }

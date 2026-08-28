@@ -1,4 +1,7 @@
-﻿using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
+﻿using ChilledLeves.Utilities.LeveData;
+using ChilledLeves.Utilities.LogInfo;
+using ECommons.GameHelpers;
+using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.Interop;
 using System.Collections.Generic;
@@ -71,5 +74,50 @@ public static partial class Utils
         }
 
         return leveIds;
+    }
+
+    public static bool PotentionalLeve(uint leveId, string tag)
+    {
+        if (LeveInfo.Leve_SheetInfo.TryGetValue(leveId, out var sheetInfo))
+        {
+            bool properLv = Player.GetLevel(sheetInfo.Job) >= sheetInfo.Level;
+
+            if (LeveInfo.LeveJobs_Material.Contains(sheetInfo.Job))
+            {
+                var materialInfo = sheetInfo.MaterialInfo;
+                var neededAmount = Utils.Leve_RequiredAmount(materialInfo);
+
+                bool enoughItems = Utils.GetItemCount(materialInfo.Item_Id) >= neededAmount;
+
+                if (!properLv || !enoughItems)
+                {
+                    IceLogging.Verbose($"Skipping Crafting Leve: [{leveId}] due to: Proper Level? [{properLv}] | Not enough items? {enoughItems}", tag);
+                }
+
+                return enoughItems && properLv;
+            }
+            else if (LeveInfo.LeveJobs_Gathering.Contains(sheetInfo.Job))
+            {
+                if (!properLv)
+                {
+                    IceLogging.Verbose($"Skipping Gathering Leve: [{leveId}] due to not high enough lv", tag);
+                }
+                return properLv;
+            }
+            else
+                return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public static bool EnoughAllowance(uint leveId)
+    {
+        if (LeveInfo.Leve_SheetInfo.TryGetValue(leveId, out var sheetInfo))
+            return sheetInfo.AllowanceCost >= Utils.Allowances;
+        else
+            return false;
     }
 }

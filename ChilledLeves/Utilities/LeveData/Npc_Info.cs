@@ -52,6 +52,7 @@ public static partial class LeveInfo
             Name = NPCName(1000101),
             TerritoryId = 132, // Gridania
             Aetheryte = 2,
+            ClosestShard = 2,
             Npc_InteractZone = new Vector3(27.67f, -8f, 108f),
             Npc_Location = new Vector3(25.04f, -8f, 108.08f),
             Npc_Flag = new(25.04f, 108.08f),
@@ -70,6 +71,7 @@ public static partial class LeveInfo
             Name = NPCName(1001794),
             TerritoryId = 130, // Ul'dah
             Aetheryte = 9,
+            ClosestShard = 33,
             Npc_InteractZone = new Vector3(40.17f, 8.01f, -106.55f),
             Npc_Location = new Vector3(42.01f, 8.01f, -107.59f),
             Npc_Flag = new(42.01f, -107.59f),
@@ -554,6 +556,7 @@ public static partial class LeveInfo
             Name = NPCName(1001276),
             TerritoryId = 132, // New Gridania
             Aetheryte = 2,
+            ClosestShard = 2,
             Npc_InteractZone = new Vector3(10.81f, 0.12f, 2.32f),
             Npc_Location = new Vector3(13.96f, 0.14f, 2.09f),
             Npc_Flag = new(13.96f, 2.09f),
@@ -574,6 +577,7 @@ public static partial class LeveInfo
             Name = NPCName(1001787),
             TerritoryId = 129,
             Aetheryte = 8,
+            ClosestShard = 8,
             Npc_InteractZone = new Vector3(-64.87f, 18.00f, 8.23f),
             Npc_Location = new Vector3(-62.12f, 18f, 9.41f),
             Npc_Flag = new(-62.12f, 9.41f),
@@ -614,6 +618,7 @@ public static partial class LeveInfo
             Name = NPCName(1004417),
             TerritoryId = 130,
             Aetheryte = 9,
+            ClosestShard = 33,
             Npc_InteractZone = new Vector3(-30.76f, 9.00f, -85.04f),
             Npc_Location = new Vector3(-33.62f, 9.11f, -84.28f),
             Npc_Flag = new(-33.62f, -84.28f),
@@ -838,6 +843,7 @@ public static partial class LeveInfo
             Name = NPCName(1018997),
             TerritoryId = 628,
             Aetheryte = 111,
+            ClosestShard = 111,
             Npc_InteractZone = new Vector3(20.61f, 0.00f, -77.82f),
             Npc_Location = new Vector3(20.49f, -0f, -80.95f),
             Npc_Flag = new(20.49f, -80.95f),
@@ -865,6 +871,7 @@ public static partial class LeveInfo
             Name = NPCName(1018998),
             TerritoryId = 628,
             Aetheryte = 111,
+            ClosestShard = 111,
             Npc_InteractZone = new Vector3(20.61f, 0.00f, -77.82f),
             Npc_Location = new Vector3(17.26f, -0f, -81.32f),
             Npc_Flag = new(17.26f, -81.32f),
@@ -875,6 +882,7 @@ public static partial class LeveInfo
             Name = NPCName(1018999),
             TerritoryId = 628,
             Aetheryte = 111,
+            ClosestShard = 111,
             Npc_InteractZone = new Vector3(20.61f, 0.00f, -77.82f),
             Npc_Location = new Vector3(23.67f, -8.06f, -81.38f),
             Npc_Flag = new(23.67f, -81.38f),
@@ -890,6 +898,7 @@ public static partial class LeveInfo
             Name = NPCName(1027847),
             TerritoryId = 819,
             Aetheryte = 133,
+            ClosestShard = 154,
             Npc_InteractZone = new Vector3(-73.40f, 20.00f, -110.90f),
             Npc_Location = new Vector3(-76.34f, 20.05f, -110.98f),
             Npc_Flag = new(-76.34f, -110.98f),
@@ -917,6 +926,7 @@ public static partial class LeveInfo
             Name = NPCName(1027848),
             TerritoryId = 819,
             Aetheryte = 133,
+            ClosestShard = 154,
             Npc_InteractZone = new Vector3(-73.40f, 20.00f, -110.90f),
             Npc_Location = new Vector3(-76.19f, 20.05f, -113.88f),
             Npc_Flag = new(-76.49f, -107.96f),
@@ -927,6 +937,7 @@ public static partial class LeveInfo
             Name = NPCName(1027849),
             TerritoryId = 819,
             Aetheryte = 133,
+            ClosestShard = 154,
             Npc_InteractZone = new Vector3(-73.40f, 20.00f, -110.90f),
             Npc_Location = new Vector3(-76.49f, 20.05f, -107.96f),
             Npc_Flag = new(-76.49f, -107.96f),
@@ -942,6 +953,7 @@ public static partial class LeveInfo
             Name = NPCName(1037263),
             TerritoryId = 962,
             Aetheryte = 182,
+            ClosestShard = 189,
             Npc_InteractZone = new Vector3(49.96f, -15.65f, 111.81f),
             Npc_Location = new Vector3(46.83f, -15.65f, 107.87f),
             Npc_Flag = new(46.83f, 107.87f),
@@ -965,6 +977,7 @@ public static partial class LeveInfo
             Name = NPCName(1037264),
             TerritoryId = 962,
             Aetheryte = 182,
+            ClosestShard = 189,
             Npc_InteractZone = new Vector3(49.96f, -15.65f, 111.81f),
             Npc_Location = new Vector3(53.48f, -15.65f, 109.73f),
             Npc_Flag = new(53.48f, 109.73f),
@@ -975,6 +988,7 @@ public static partial class LeveInfo
             Name = NPCName(1037265),
             TerritoryId = 962,
             Aetheryte = 182,
+            ClosestShard = 189,
             Npc_InteractZone = new Vector3(49.96f, -15.65f, 111.81f),
             Npc_Location = new Vector3(55.38f, -15.65f, 109.73f),
             Npc_Flag = new(55.38f, 109.73f),
@@ -993,6 +1007,7 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(20.58f, -14f, 86.46f),
             Npc_Location = new Vector3(15.24f, -14f, 85.83f),
             Npc_Flag = new(15.24f, 85.83f),
+            ClosestShard = 221,
             Mount = false,
             Leves = new()
             {
@@ -1013,6 +1028,7 @@ public static partial class LeveInfo
             Name = NPCName(1048391),
             TerritoryId = 1185,
             Aetheryte = 216,
+            ClosestShard = 221,
             Npc_InteractZone = new Vector3(23.84f, -14f, 83.45f),
             Npc_Location = new Vector3(21.23f, -14f, 80.22f),
             Npc_Flag = new(21.23f, 80.22f),
@@ -1023,6 +1039,7 @@ public static partial class LeveInfo
             Name = NPCName(1048392),
             TerritoryId = 1185,
             Aetheryte = 216,
+            ClosestShard = 221,
             Npc_InteractZone = new Vector3(23.84f, -14f, 83.45f),
             Npc_Location = new Vector3(23.09f, -14f, 78.39f),
             Npc_Flag = new(23.09f, 78.39f),
@@ -1032,136 +1049,9 @@ public static partial class LeveInfo
         #endregion
     };
 
-    #region NPC Info Population
-
-    // Place to populate all the information for all the npcs / tie them to the leves in turn
-    // This exist here moreso I can just... source all of them together instead of going through x20 different functions
-    // If needed, use the dictionary above to get said npc info
-
-    public static HashSet<uint> IshgardTurnin = new() 
-    { 
-        153, 151, 154, 156, 155, 152, 157 
-    };
-    public static HashSet<uint> KuganeTurnin = new() 
-    { 
-        159, 161, 162, 171, 172, 174, 
-        175, 176, 177, 178, 179, 180, 
-        181, 182, 183, 184, 185, 186, 
-        187, 188, 189, 190, 191, 192, 
-        193, 194 
-    };
-    public static HashSet<uint> CrystariumTurnin = new() 
-    { 
-        195, 196, 199, 200, 205, 206, 
-        207, 208, 209, 210, 211, 212, 
-        213, 214, 215, 216, 217, 218, 
-        219, 220, 221, 222, 223, 224, 
-        225, 226, 227, 228 
-    };
-    public static HashSet<uint> SharlayanTurnin = new() 
-    { 
-        229, 230, 231, 232, 233, 234, 
-        235, 236, 237, 238, 239, 240, 
-        241, 242, 243, 244, 245, 246, 
-        247, 248, 254, 255, 256 
-    };
-    public static HashSet<uint> TuliyoliTurnin = new() 
-    { 
-        257, 258, 259, 260, 261, 262, 
-        263, 264, 265, 266, 267, 268, 
-        269, 270, 271, 272, 273, 274, 
-        275, 276, 277, 278, 279, 280, 
-        281, 282, 
-    };
-
-    private static readonly Dictionary<uint, uint> LeveClientToTurninNpc = new()
-    {
-        // Central Shroud, Audrie
-        [5] = 1001218,
-        // East Shroud, Ayled
-        [7] = 1001219,
-        // New Gridania, Maisenta
-        [9] = 1001276,
-        // South Shroud, Juliembert
-        [13] = 1001220,
-        // Central Shroud, Lanverlais
-        [19] = 1001868,
-        // Eastern La Noscea, Ririphon
-        [113] = 1004345,
-        // Limsa Lominsa Lower Decks, Bango Zango
-        [114] = 1001787,
-        // Lower La Noscea, Zwynwyda
-        [115] = 1004343,
-        // Western La Noscea, Fewon Bulion
-        [116] = 1001790,
-        // Western La Noscea, H'rhanbolo
-        [117] = 1001793,
-        // Ul'dah - Steps of Nald, Roarich
-        [118] = 1004417,
-        // Western Thanalan, Gigiyon
-        [119] = 1003889,
-        // Western Thanalan, Mimina
-        [120] = 1001798,
-        // Eastern Thanalan, Frediswitha
-        [121] = 1001801,
-        // Coerthas Central Highlands, Vivenne
-        [122] = 1002385,
-        // Coerthas Central Highlands, Lanquairt
-        [123] = 1002402,
-        // Mor Dhona, Syele
-        [124] = 1004349,
-        // Unsynwilf, Upper Limsa
-        [141] = 1007060,
-        // Q'molosi, Western La Noscea, Swiftperch
-        [142] = 1007061,
-        // Fupepe, Western La Noscea, Aleport
-        [143] = 1007062,
-        // Daca Jinjahl
-        [144] = 1007063,
-        // F'abodji, Eastern La Noscea
-        [145] = 1007064,
-        // Coerthas Central Highlands, SE corner
-        [146] = 1007065,
-        // Louviaune, Coerthas Central Highlands, NW corner
-        [147] = 1007066,
-        [148] = 1007067,
-    };
-
-    // Expansion-specific turnin NPCs (post-ARR pattern: gatherer/crafter split)
-    private static readonly Dictionary<string, (HashSet<uint> LeveClients, uint GathererNpc, uint CrafterNpc)> ExpansionTurnins = new()
-    {
-        ["Ishgard"] = (IshgardTurnin, 1011209, 1011210),       // Fionnuala, Cesteline
-        ["Kugane"] = (KuganeTurnin, 1018998, 1018999),         // Chantine, Geimrael
-        ["Crystarium"] = (CrystariumTurnin, 1027848, 1027849), // Moyce, Shue-Hann
-        ["Sharlayan"] = (SharlayanTurnin, 1037264, 1037265),   // Ahldiyrn, Wurtwyb
-        ["Tuliyoli"] = (TuliyoliTurnin, 1048391, 1048392),     // 
-    };
-
-    public static uint TurninNpcId(uint leveClient, uint JobType = 0)
-    {
-        // Check ARR direct mapping first
-        if (LeveClientToTurninNpc.TryGetValue(leveClient, out uint npcId))
-        {
-            return npcId;
-        }
-
-        // Check expansion-specific NPCs (post-ARR)
-        foreach (var (leveClients, gathererNpc, crafterNpc) in ExpansionTurnins.Values)
-        {
-            if (leveClients.Contains(leveClient))
-            {
-                return JobType == 4 ? crafterNpc : gathererNpc;
-            }
-        }
-
-        return 0; // No match found
-    }
-
     public static string NPCName(uint NpcID)
     {
         var NPCSheet = Svc.Data.GetExcelSheet<ENpcResident>();
         return NPCSheet.GetRow(NpcID).Singular.ToString();
     }
-
-    #endregion
 }

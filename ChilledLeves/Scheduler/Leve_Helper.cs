@@ -1,8 +1,4 @@
 ﻿using ChilledLeves.Enums;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ChilledLeves.Scheduler
 {
@@ -10,9 +6,9 @@ namespace ChilledLeves.Scheduler
     {
         internal static uint LeveToGrab = 0;
 
-        internal static Leve_State State = Leve_State.Idle;
-        internal static Leve_Mode SelectedMode = Leve_Mode.Standard;
+        internal static LeveState State = LeveState.Idle;
+        internal static ModeSelection SelectedMode = ModeSelection.Standard;
 
-        internal static bool IsIdle => State == Leve_State.Idle;
+        internal static bool IsIdle => State == LeveState.Idle;
     }
 }

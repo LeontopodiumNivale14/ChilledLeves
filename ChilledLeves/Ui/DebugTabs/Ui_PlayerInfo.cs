@@ -24,6 +24,11 @@ namespace ChilledLeves.Ui.DebugTabs
             {
                 if (Svc.Objects.LocalPlayer.TargetObject != null)
                 {
+                    if (ImGui.Button("Copy Aethershard"))
+                    {
+                        ImGui.SetClipboardText(CopyAethernet());
+                    }
+
                     var lastTarget = Svc.Objects.LocalPlayer.TargetObject;
                     LastTarget = new()
                     {
@@ -104,6 +109,31 @@ namespace ChilledLeves.Ui.DebugTabs
 
                 ImGui.EndTable();
             }
+        }
+
+        public static string CopyAethernet()
+        {
+            var sb = new StringBuilder();
+            if (Player.Available)
+            {
+                if (Svc.Objects.LocalPlayer.TargetObject != null)
+                {
+                    var lastTarget = Svc.Objects.LocalPlayer.TargetObject;
+                    var territory = Player.Territory.RowId;
+                    var position = Player.Position;
+
+                    sb.AppendLine($"[{lastTarget.BaseId}] = new()");
+                    sb.AppendLine("{");
+                    sb.AppendLine($"\tShardId = {lastTarget.BaseId},");
+                    sb.AppendLine($"\tTerritoryId = {territory},");
+                    sb.AppendLine($"\tValidTerritories = new() {{{territory}}},");
+                    sb.AppendLine($"\tPosition = new({lastTarget.Position.X:N2}f, {lastTarget.Position.Y:N2}f, {lastTarget.Position.Z:N2}f),");
+                    sb.AppendLine($"\tMoveTo = new({position.X:N2}f, {position.Y:N2}f, {position.Z:N2}f),");
+                    sb.AppendLine("},");
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }

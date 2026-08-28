@@ -35,4 +35,5 @@ public partial class Config
     public int MaxLevel { get; set; } = 100;
     public string NameSearch { get; set; } = "";
     public bool UseIceTheme { get; set; } = true;
+    public bool ShowActiveOverlay { get; set; } = true;
 }

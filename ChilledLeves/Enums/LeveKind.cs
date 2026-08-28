@@ -11,4 +11,14 @@
 
         TurninLeve = 10,
     }
+
+    public enum GatheringRule
+    {
+        Search = 1 << 0,
+        Procurance = 1 << 1,
+        Search_Procurance = 1 << 2,
+        Execution = 1 << 3,
+
+        None = 1 << 10,
+    }
 }

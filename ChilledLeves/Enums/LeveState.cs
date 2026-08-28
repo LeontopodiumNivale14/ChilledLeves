@@ -1,12 +1,13 @@
 ﻿namespace ChilledLeves.Enums
 {
-    public enum Leve_State
+    public enum LeveState
     {
         Idle,
 
         CheckLeves,
 
-        Travel,
+        Travel_Grab,
+        Travel_Turnin,
 
         Grab_StandardLeve,
         Grab_ARRLeve,
@@ -15,7 +16,7 @@
         Turnin_Leve,
     }
 
-    public enum Leve_Mode
+    public enum ModeSelection
     {
         Standard,
         ARR_Grind,

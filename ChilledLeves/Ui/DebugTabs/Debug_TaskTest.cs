@@ -30,7 +30,7 @@ namespace ChilledLeves.Ui.DebugTabs
             if (ImGui.Button("Test Interact w/ Npc"))
             {
                 Leve_Helper.LeveToGrab = selectedLeve;
-                Task_Travel.Grab_Enqueue();
+                Task_Travel.Grab_TravelEnqueue();
             }
 
             if (ImGui.Button("Test Grab Leve"))

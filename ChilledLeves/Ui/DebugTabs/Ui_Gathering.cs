@@ -9,27 +9,30 @@ using Dalamud.Interface.Utility.Raii;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.Logging;
+using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ChilledLeves.Ui.DebugTabs
 {
-    internal class Ui_GatherEditor
+    internal class Ui_Gathering
     {
         private static FileDialogManager fileDialogManager = new FileDialogManager();
         private static readonly List<Job> gatherClasses = new() { Job.MIN, Job.BTN };
 
-        private static uint LeveSelected = 0;
         private static bool AddNodesPassively = true;
+
+        private static uint LeveSelected = 0;
         private static uint SelectedNodeId = 0;
 
-        private static List<string> OmenNames = new();
-        private static int OmenPage = 0;
-        private static int OmenIndex = 0;
-
-        private static string VfxPath = "k5d1_omen_o01pg";
-
         public static void Draw()
+        {
+            Gathering_Header();
+            Gathering_TableEditor();
+        }
+
+        private static void Gathering_Header()
         {
             var AllRoutes = RouteLoader.Leve_Routes;
 
@@ -79,316 +82,219 @@ namespace ChilledLeves.Ui.DebugTabs
                 RouteLoader.LoadExternalRoutes();
             }
 
-            if (ImGui.BeginTable("ChilledLeves: Route Editors", 2, ImGuiTableFlags.SizingFixedFit))
+            fileDialogManager.Draw();
+        }
+
+        private static void Gathering_TableEditor()
+        {
+            using (var table = ImRaii.Table("ChilledLeves: Route Editor", 2, ImGuiTableFlags.SizingFixedFit))
             {
+                if (!table.Success)
+                    return;
+
                 ImGui.TableSetupColumn("Selector Window");
                 ImGui.TableSetupColumn("Detailed View", ImGuiTableColumnFlags.WidthStretch);
 
                 ImGui.TableNextRow();
                 ImGui.TableSetColumnIndex(0);
-                var height = ImGui.GetContentRegionAvail().Y - 20;
-
-                if (ImGui.BeginChild("Debug: Route Selector", new(200, height), true))
-                {
-                    var gatherRoutes = RouteLoader.Leve_Routes.OrderBy(x => x.Value.ExpansionId)
-                                          .ThenBy(x => x.Value.TerritoryId)
-                                          .ThenBy(x => x.Value.GatheringJob);
-
-                    uint previousTer = 0;
-                    var expansion = ExpansionIds.Unk;
-
-                    foreach (var route in gatherRoutes)
-                    {
-                        if (expansion != route.Value.ExpansionId)
-                        {
-                            ImGui.Text($"- - {route.Value.ExpansionId} - - ");
-                            expansion = route.Value.ExpansionId;
-                        }
-
-                        var territoryId = route.Value.TerritoryId;
-                        if (territoryId != previousTer)
-                        {
-                            string territoryName = ExcelHelper.GetTerritoryName(territoryId);
-
-                            ImGui.Text($"{territoryName}");
-                            previousTer = territoryId;
-                        }
-                        bool isSelected = LeveSelected == route.Key;
-                        var label = isSelected ? $"→ [{route.Key}] {route.Value.GatheringJob}" : $"[{route.Key}] {route.Value.GatheringJob}";
-                        ;
-                        if (ImGui.Selectable(label, isSelected))
-                        {
-                            LeveSelected = route.Key;
-                        }
-                    }
-                }
-                ImGui.EndChild();
+                RouteSelector();
 
                 ImGui.TableNextColumn();
-                var remainingSpace = ImGui.GetContentRegionAvail().X;
-                if (ImGui.BeginChild("Debug: Route Editor itself", new(remainingSpace, height), true))
+                RouteEditor();
+            }
+        }
+
+        private static void RouteSelector()
+        {
+            var height = ImGui.GetContentRegionAvail().Y - 20;
+            using (var child = ImRaii.Child("Debug: route Selector", new(200, height), true))
+            {
+                if (!child.Success)
+                    return;
+            }
+
+            var gatherRoutes = RouteLoader.Leve_Routes.OrderBy(x => x.Value.ExpansionId)
+                      .ThenBy(x => x.Value.TerritoryId)
+                      .ThenBy(x => x.Value.GatheringJob);
+
+            uint previousTer = 0;
+            var expansion = ExpansionIds.Unk;
+
+            foreach (var route in gatherRoutes)
+            {
+                if (expansion != route.Value.ExpansionId)
                 {
-                    if (LeveInfo.Leve_SheetInfo.TryGetValue(LeveSelected, out var sheetInfo))
+                    ImGui.Text($"- - {route.Value.ExpansionId} - - ");
+                    expansion = route.Value.ExpansionId;
+                }
+
+                var territoryId = route.Value.TerritoryId;
+                if (territoryId != previousTer)
+                {
+                    string territoryName = ExcelHelper.GetTerritoryName(territoryId);
+
+                    ImGui.Text($"{territoryName}");
+                    previousTer = territoryId;
+                }
+                bool isSelected = LeveSelected == route.Key;
+                var label = isSelected ? $"→ [{route.Key}] {route.Value.GatheringJob}" : $"[{route.Key}] {route.Value.GatheringJob}";
+                ;
+                if (ImGui.Selectable(label, isSelected))
+                {
+                    LeveSelected = route.Key;
+                }
+            }
+        }
+
+        private static void RouteEditor()
+        {
+            var remainingSpace = ImGui.GetContentRegionAvail().X;
+            var height = ImGui.GetContentRegionAvail().Y - 20;
+
+            using (var child = ImRaii.Child("Gathering: Route Editor Itself", new(remainingSpace, height), true))
+            {
+                if (!child.Success)
+                    return;
+
+                if (LeveInfo.Leve_SheetInfo.TryGetValue(LeveSelected, out var sheetInfo))
+                {
+                    var routeInfo = RouteLoader.GetRoute(LeveSelected);
+
+                    var mapInfo = sheetInfo.Gather_MapInfo;
+                    var leveName = sheetInfo.LeveName;
+
+                    #region Name + Buttons
+
+                    Theme_Colors.BodyText($"[{LeveSelected}] → {leveName}");
+                    if (ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"{leveName}_Location"))
                     {
-                        var routeInfo = RouteLoader.GetRoute(LeveSelected);
+                        Utils.SetGatheringRingFromWorld(mapInfo.TerritoryId, mapInfo.Location, mapInfo.Radius, $"{leveName}");
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.SetTooltip("Leve Flag");
+                    }
 
-                        var mapInfo = sheetInfo.Gather_MapInfo;
-                        var leveName = sheetInfo.LeveName;
+                    ImGui.SameLine();
 
-                        #region Name + Buttons
+                    if (ImGuiEx.IconButton(FontAwesomeIcon.TrainTram, $"{leveName}_Teleport"))
+                    {
+                        P.navmesh.PathToFlag();
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.SetTooltip("SmartNav PathTo");
+                    }
 
-                        Theme_Colors.BodyText($"[{LeveSelected}] → {leveName}");
-                        if (ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"{leveName}_Location"))
+                    ImGui.SameLine();
+                    if (ImGuiEx.IconButton(FontAwesomeIcon.Square, $"{leveName}_Stop"))
+                    {
+                        if (P.navmesh.SmartIsRunning())
+                            P.navmesh.SmartNavStop();
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.SetTooltip("Stop SmartNav");
+                    }
+
+                    ImGui.SameLine();
+                    if (ImGuiEx.IconButton(FontAwesomeIcon.Save, $"{leveName}_Save"))
+                    {
+                        RouteLoader.SaveRoute(routeInfo, C.RouteSaveLocation);
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.SetTooltip("Save Route");
+                    }
+
+                    ImGui.SameLine();
+                    ImGuiEx.Icon(FontAwesomeIcon.QuestionCircle);
+                    if (ImGui.IsItemHovered())
+                    {
+                        var nodeIds = sheetInfo.Gather_NodeInfo.NodeIds.OrderBy(x => x);
+                        string gatherPointIds = string.Join(", ", nodeIds);
+                        ImGui.SetTooltip($"[{nodeIds.Count()}] {gatherPointIds}");
+                    }
+                    ImGui.Text("");
+
+                    ImGui.SameLine();
+                    if (ImGui.Button("Sort nodes by position"))
+                    {
+                        var position = Player.Position;
+                        routeInfo.NodeInfo = ReOrganizeNodes(routeInfo.NodeInfo, position);
+                    }
+
+                    #endregion
+
+                    PictoEditor();
+
+                    using (var table = ImRaii.Table("Route Details: Editor Stuff", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
+                    {
+                        if (!table.Success)
+                            return;
+
+                        ImGui.TableSetupColumn("NodeIds");
+                        ImGui.TableSetupColumn("Node Editor", ImGuiTableColumnFlags.WidthStretch);
+
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        #region Node Selection
+
+                        ImGui.Checkbox("Passively Add Nodes", ref AddNodesPassively);
+
+                        if (AddNodesPassively)
                         {
-                            Utils.SetGatheringRingFromWorld(mapInfo.TerritoryId, mapInfo.Location, mapInfo.Radius, $"{leveName}");
-                        }
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip("Leve Flag");
+                            foreach (var node in Svc.Objects
+                                .Where(x => sheetInfo.Gather_NodeInfo.NodeIds.Contains(x.BaseId))
+                                .Where(x => x.ObjectKind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.GatheringPoint))
+                            {
+                                if (!routeInfo.NodeInfo.Any(x => x.BaseId == node.BaseId))
+                                {
+                                    routeInfo.NodeInfo.Add(new()
+                                    {
+                                        BaseId = node.BaseId,
+                                        Position = node.Position,
+                                        Gathering_FanInfo = new(),
+                                        Flight_FanInfo = new(),
+                                    });
+                                }
+                            }
                         }
 
-                        ImGui.SameLine();
+                        ImGui.Text($"Count: {routeInfo.NodeInfo.Count()}");
+                        if (routeInfo.NodeInfo.Count() == sheetInfo.Gather_NodeInfo.NodeIds.Count())
+                        {
+                            ImGui.SameLine();
+                            ImGuiEx.Icon(FontAwesomeIcon.Check);
+                            ImGui.Text($"");
+                        }
+                        foreach (var node in routeInfo.NodeInfo)
+                        {
+                            bool isSelected = node.BaseId == SelectedNodeId;
+                            var label = isSelected ? $"→ [{node.BaseId}]" : $"[{node.BaseId}]";
+                            if (ImGui.Selectable(label, isSelected))
+                            {
+                                SelectedNodeId = node.BaseId;
+                            }
 
-                        if (ImGuiEx.IconButton(FontAwesomeIcon.TrainTram, $"{leveName}_Teleport"))
-                        {
-                            P.navmesh.PathToFlag();
-                        }
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip("SmartNav PathTo");
-                        }
-
-                        ImGui.SameLine();
-                        if (ImGuiEx.IconButton(FontAwesomeIcon.Square, $"{leveName}_Stop"))
-                        {
-                            if (P.navmesh.SmartIsRunning())
-                                P.navmesh.SmartNavStop();
-                        }
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip("Stop SmartNav");
-                        }
-
-                        ImGui.SameLine();
-                        if (ImGuiEx.IconButton(FontAwesomeIcon.Save, $"{leveName}_Save"))
-                        {
-                            RouteLoader.SaveRoute(routeInfo, C.RouteSaveLocation);
-                        }
-                        if (ImGui.IsItemHovered())
-                        {
-                            ImGui.SetTooltip("Save Route");
-                        }
-
-                        ImGui.SameLine();
-                        ImGuiEx.Icon(FontAwesomeIcon.QuestionCircle);
-                        if (ImGui.IsItemHovered())
-                        {
-                            var nodeIds = sheetInfo.Gather_NodeInfo.NodeIds.OrderBy(x => x);
-                            string gatherPointIds = string.Join(", ", nodeIds);
-                            ImGui.SetTooltip($"[{nodeIds.Count()}] {gatherPointIds}");
-                        }
-                        ImGui.Text("");
-
-                        ImGui.SameLine();
-                        if (ImGui.Button("Sort nodes by position"))
-                        {
-                            var position = Player.Position;
-                            routeInfo.NodeInfo = ReOrganizeNodes(routeInfo.NodeInfo, position);
+                            PictoManager.DrawGatheringFan(node, isSelected);
+                            PictoManager.TestVfxCircle($"{node.BaseId}", node.Position, isSelected, VfxPath);
                         }
 
                         #endregion
 
-                        PictoEditor();
-
-                        if (ImGui.BeginTable("Route Details: Editor Stuff", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
-                        {
-                            ImGui.TableSetupColumn("NodeIds");
-                            ImGui.TableSetupColumn("Node Editor", ImGuiTableColumnFlags.WidthStretch);
-
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(0);
-                            #region Node Selection
-
-                            ImGui.Checkbox("Passively Add Nodes", ref AddNodesPassively);
-
-                            if (AddNodesPassively)
-                            {
-                                foreach (var node in Svc.Objects
-                                    .Where(x => sheetInfo.Gather_NodeInfo.NodeIds.Contains(x.BaseId))
-                                    .Where(x => x.ObjectKind == Dalamud.Game.ClientState.Objects.Enums.ObjectKind.GatheringPoint))
-                                {
-                                    if (!routeInfo.NodeInfo.Any(x => x.BaseId == node.BaseId))
-                                    {
-                                        routeInfo.NodeInfo.Add(new()
-                                        {
-                                            BaseId = node.BaseId,
-                                            Position = node.Position,
-                                            Gathering_FanInfo = new(),
-                                            Flight_FanInfo = new(),
-                                        });
-                                    }
-                                }
-                            }
-
-                            ImGui.Text($"Count: {routeInfo.NodeInfo.Count()}");
-                            if (routeInfo.NodeInfo.Count() == sheetInfo.Gather_NodeInfo.NodeIds.Count())
-                            {
-                                ImGui.SameLine();
-                                ImGuiEx.Icon(FontAwesomeIcon.Check);
-                                ImGui.Text($"");
-                            }
-                            foreach (var node in routeInfo.NodeInfo)
-                            {
-                                bool isSelected = node.BaseId == SelectedNodeId;
-                                var label = isSelected ? $"→ [{node.BaseId}]" : $"[{node.BaseId}]";
-                                if (ImGui.Selectable(label, isSelected))
-                                {
-                                    SelectedNodeId = node.BaseId;
-                                }
-
-                                PictoManager.DrawGatheringFan(node, isSelected);
-                                PictoManager.TestVfxCircle($"{node.BaseId}", node.Position, isSelected, VfxPath);
-                            }
-
-                            #endregion
-
-                            ImGui.TableNextColumn();
-                            NodeEditor(routeInfo);
-
-                            ImGui.EndTable();
-                        }
-
-                    }
-                    else
-                    {
-                        ImGui.Text($"Leve not in here? {LeveSelected}");
+                        ImGui.TableNextColumn();
+                        NodeEditor(routeInfo);
                     }
                 }
-                ImGui.EndChild();
-
-                ImGui.EndTable();
-            }
-
-            fileDialogManager.Draw();
-        }
-
-        public static void PictoEditor()
-        {
-            if (ImGui.CollapsingHeader("Picto"))
-            {
-                var selectedColor = C.Picto_SelectedGatherBase;
-                if (ImGui.ColorEdit4("Selected Color", ref selectedColor, ImGuiColorEditFlags.PickerHueWheel))
+                else
                 {
-                    C.Picto_SelectedGatherBase = selectedColor;
-                    C.SaveDebounced();
+                    ImGui.Text($"Leve not in here? {LeveSelected}");
                 }
-
-                var gatherBase = C.Picto_GatherBase;
-                if (ImGui.ColorEdit4("Non-Selected Color", ref gatherBase, ImGuiColorEditFlags.PickerHueWheel))
-                {
-                    C.Picto_GatherBase = gatherBase;
-                    C.SaveDebounced();
-                }
-
-
-
-                // Ensure populated
-                if (OmenNames.Count == 0)
-                    foreach (var omen in ExcelHelper.Sheet_Omen)
-                        OmenNames.Add(omen.Path.ToString());
-
-                if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.ArrowLeft, "##PreviousOmen_Debug"))
-                {
-                    OmenIndex = OmenIndex <= 0 ? OmenNames.Count - 1 : OmenIndex - 1;
-                    VfxPath = OmenNames[OmenIndex];
-                    OmenPage = OmenIndex / 20;
-                }
-
-                ImGui.SameLine();
-                ImGui.Text($"[{OmenIndex}]");
-                ImGui.SameLine();
-                if (ImGui.Button("Select Vfx"))
-                    ImGui.OpenPopup("Debug: Vfx Selector");
-
-                ImGui.SameLine();
-                if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.ArrowRight, "##NextOmen_Debug"))
-                {
-                    OmenIndex = OmenIndex >= OmenNames.Count - 1 ? 0 : OmenIndex + 1;
-                    VfxPath = OmenNames[OmenIndex];
-                    OmenPage = OmenIndex / 20;
-                }
-
-                if (ImGui.BeginPopup("Debug: Vfx Selector"))
-                {
-                    if (OmenNames.Count == 0)
-                    {
-                        foreach (var omen in ExcelHelper.Sheet_Omen)
-                            OmenNames.Add(omen.Path.ToString());
-                    }
-
-                    const int pageSize = 20;
-                    var totalPages = (OmenNames.Count + pageSize - 1) / pageSize; // ceiling division
-
-                    // Page controls
-                    ImGui.BeginDisabled(OmenPage <= 0);
-                    if (ImGui.Button("##prev")) OmenPage--;
-                    ImGui.EndDisabled();
-
-                    ImGui.SameLine();
-                    ImGui.Text($"Page {OmenPage + 1} / {totalPages}");
-                    ImGui.SameLine();
-
-                    ImGui.BeginDisabled(OmenPage >= totalPages - 1);
-                    if (ImGui.Button("##next")) OmenPage++;
-                    ImGui.EndDisabled();
-
-                    // Optional: jump to page input
-                    ImGui.SameLine();
-                    var pageInput = OmenPage + 1;
-                    ImGui.SetNextItemWidth(50);
-                    if (ImGui.InputInt("##page", ref pageInput, 0))
-                        OmenPage = Math.Clamp(pageInput - 1, 0, totalPages - 1);
-
-                    if (ImGui.BeginTable("Debug: Omen Selector", 2,
-                        ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
-                    {
-                        ImGui.TableSetupColumn("#", ImGuiTableColumnFlags.WidthFixed, 50);
-                        ImGui.TableSetupColumn("Path", ImGuiTableColumnFlags.WidthStretch);
-                        ImGui.TableHeadersRow();
-
-                        var start = OmenPage * pageSize;
-                        var end = Math.Min(start + pageSize, OmenNames.Count);
-
-                        for (var i = start; i < end; i++)
-                        {
-                            ImGui.TableNextRow();
-
-                            // Column 1: index
-                            ImGui.TableSetColumnIndex(0);
-                            ImGui.Text($"{i}");
-
-                            // Column 2: selectable spanning full row
-                            ImGui.TableSetColumnIndex(1);
-                            var isSelected = VfxPath == OmenNames[i];
-                            if (ImGui.Selectable(OmenNames[i] + $"##{i}", isSelected, ImGuiSelectableFlags.SpanAllColumns))
-                            {
-                                OmenIndex = i;
-                                VfxPath = OmenNames[i];
-                                ImGui.CloseCurrentPopup();
-                            }
-                        }
-
-                        ImGui.EndTable();
-                    }
-
-                    ImGui.EndPopup();
-                }
-
-                ImGui.Text($"{VfxPath}");
             }
         }
 
-        public static void NodeEditor(GatheringRoute routeInfo)
+        private static void NodeEditor(GatheringRoute routeInfo)
         {
             if (routeInfo.NodeInfo.TryGetFirst(x => x.BaseId == SelectedNodeId, out var nodeInfo))
             {
@@ -549,6 +455,127 @@ namespace ChilledLeves.Ui.DebugTabs
 
 
                 #endregion
+            }
+        }
+
+        private static List<string> OmenNames = new();
+        private static int OmenPage = 0;
+        private static int OmenIndex = 0;
+
+        private static string VfxPath = "k5d1_omen_o01pg";
+        private static void PictoEditor()
+        {
+            if (ImGui.CollapsingHeader("Picto"))
+            {
+                var selectedColor = C.Picto_SelectedGatherBase;
+                if (ImGui.ColorEdit4("Selected Color", ref selectedColor, ImGuiColorEditFlags.PickerHueWheel))
+                {
+                    C.Picto_SelectedGatherBase = selectedColor;
+                    C.SaveDebounced();
+                }
+
+                var gatherBase = C.Picto_GatherBase;
+                if (ImGui.ColorEdit4("Non-Selected Color", ref gatherBase, ImGuiColorEditFlags.PickerHueWheel))
+                {
+                    C.Picto_GatherBase = gatherBase;
+                    C.SaveDebounced();
+                }
+
+
+
+                // Ensure populated
+                if (OmenNames.Count == 0)
+                    foreach (var omen in ExcelHelper.Sheet_Omen)
+                        OmenNames.Add(omen.Path.ToString());
+
+                if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.ArrowLeft, "##PreviousOmen_Debug"))
+                {
+                    OmenIndex = OmenIndex <= 0 ? OmenNames.Count - 1 : OmenIndex - 1;
+                    VfxPath = OmenNames[OmenIndex];
+                    OmenPage = OmenIndex / 20;
+                }
+
+                ImGui.SameLine();
+                ImGui.Text($"[{OmenIndex}]");
+                ImGui.SameLine();
+                if (ImGui.Button("Select Vfx"))
+                    ImGui.OpenPopup("Debug: Vfx Selector");
+
+                ImGui.SameLine();
+                if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.ArrowRight, "##NextOmen_Debug"))
+                {
+                    OmenIndex = OmenIndex >= OmenNames.Count - 1 ? 0 : OmenIndex + 1;
+                    VfxPath = OmenNames[OmenIndex];
+                    OmenPage = OmenIndex / 20;
+                }
+
+                if (ImGui.BeginPopup("Debug: Vfx Selector"))
+                {
+                    if (OmenNames.Count == 0)
+                    {
+                        foreach (var omen in ExcelHelper.Sheet_Omen)
+                            OmenNames.Add(omen.Path.ToString());
+                    }
+
+                    const int pageSize = 20;
+                    var totalPages = (OmenNames.Count + pageSize - 1) / pageSize; // ceiling division
+
+                    // Page controls
+                    ImGui.BeginDisabled(OmenPage <= 0);
+                    if (ImGui.Button("##prev")) OmenPage--;
+                    ImGui.EndDisabled();
+
+                    ImGui.SameLine();
+                    ImGui.Text($"Page {OmenPage + 1} / {totalPages}");
+                    ImGui.SameLine();
+
+                    ImGui.BeginDisabled(OmenPage >= totalPages - 1);
+                    if (ImGui.Button("##next")) OmenPage++;
+                    ImGui.EndDisabled();
+
+                    // Optional: jump to page input
+                    ImGui.SameLine();
+                    var pageInput = OmenPage + 1;
+                    ImGui.SetNextItemWidth(50);
+                    if (ImGui.InputInt("##page", ref pageInput, 0))
+                        OmenPage = Math.Clamp(pageInput - 1, 0, totalPages - 1);
+
+                    if (ImGui.BeginTable("Debug: Omen Selector", 2,
+                        ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+                    {
+                        ImGui.TableSetupColumn("#", ImGuiTableColumnFlags.WidthFixed, 50);
+                        ImGui.TableSetupColumn("Path", ImGuiTableColumnFlags.WidthStretch);
+                        ImGui.TableHeadersRow();
+
+                        var start = OmenPage * pageSize;
+                        var end = Math.Min(start + pageSize, OmenNames.Count);
+
+                        for (var i = start; i < end; i++)
+                        {
+                            ImGui.TableNextRow();
+
+                            // Column 1: index
+                            ImGui.TableSetColumnIndex(0);
+                            ImGui.Text($"{i}");
+
+                            // Column 2: selectable spanning full row
+                            ImGui.TableSetColumnIndex(1);
+                            var isSelected = VfxPath == OmenNames[i];
+                            if (ImGui.Selectable(OmenNames[i] + $"##{i}", isSelected, ImGuiSelectableFlags.SpanAllColumns))
+                            {
+                                OmenIndex = i;
+                                VfxPath = OmenNames[i];
+                                ImGui.CloseCurrentPopup();
+                            }
+                        }
+
+                        ImGui.EndTable();
+                    }
+
+                    ImGui.EndPopup();
+                }
+
+                ImGui.Text($"{VfxPath}");
             }
         }
 

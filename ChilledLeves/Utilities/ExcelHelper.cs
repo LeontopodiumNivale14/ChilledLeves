@@ -14,6 +14,13 @@ internal static class ExcelHelper
     internal static ExcelSheet<LeveGuildleveAssignment> Sheet_leveText;
     internal static ExcelSheet<Aetheryte> Sheet_Aetheryte;
 
+    internal static ExcelSheet<Item> Sheet_Item;
+    internal static ExcelSheet<EventItem> Sheet_EventItem;
+
+    internal static ExcelSheet<Lumina.Excel.Sheets.Action> Sheet_Action;
+    internal static ExcelSheet<Level> Sheet_Level;
+    internal static ExcelSheet<GatheringExp> Sheet_GatheringExp;
+
     public static void Init()
     {
         Svc.Data.GameData.Options.PanicOnSheetChecksumMismatch = false;
@@ -24,6 +31,13 @@ internal static class ExcelHelper
         Sheet_Map = Svc.Data.GetExcelSheet<Map>();
         Sheet_leveText = Svc.Data.Excel.GetSheet<LeveGuildleveAssignment>(name: "leve/GuildleveAssignment");
         Sheet_Aetheryte = Svc.Data.GetExcelSheet<Aetheryte>();
+
+        Sheet_Item = Svc.Data.GetExcelSheet<Item>();
+        Sheet_EventItem = Svc.Data.GetExcelSheet<EventItem>();
+
+        Sheet_Action = Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.Action>();
+        Sheet_Level = Svc.Data.GetExcelSheet<Level>();
+        Sheet_GatheringExp = Svc.Data.GetExcelSheet<GatheringExp>();
     }
 
     public static string GetTerritoryName(uint territoryid)

@@ -77,13 +77,13 @@ public unsafe class GuildLeve : AddonMasterBase<AddonGuildLeve>
             {
                 var leveName = Addon->AtkValues[626 + i * 2];
                 var leveLevel = Addon->AtkValues[627 + i * 2];
-                if (leveName.Type.EqualsAny(ValueType.String, ValueType.ManagedString, ValueType.String8))
+                if (leveName.Type.EqualsAny(ValueType.String, ValueType.ManagedString, ValueType.ConstString))
                 {
                     var leve = new Levequest(this, i)
                     {
                         Name = MemoryHelper.ReadSeStringNullTerminated((nint)leveName.String.Value).GetText()
                     };
-                    if (leveLevel.Type.EqualsAny(ValueType.String, ValueType.ManagedString, ValueType.String8))
+                    if (leveLevel.Type.EqualsAny(ValueType.String, ValueType.ManagedString, ValueType.ConstString))
                     {
                         leve.Level = MemoryHelper.ReadSeStringNullTerminated((nint)leveLevel.String.Value).GetText();
                     }
@@ -117,5 +117,10 @@ public unsafe class GuildLeve : AddonMasterBase<AddonGuildLeve>
                 Callback.Fire(master.Base, true, 13, index, (int)quest?.RowId);
             }
         }
+    }
+
+    public void Close(GuildLeve master)
+    {
+        Callback.Fire(master.Base, true, -1);
     }
 }

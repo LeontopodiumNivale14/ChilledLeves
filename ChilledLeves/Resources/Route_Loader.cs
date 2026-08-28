@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Enums;
+using ChilledLeves.Utilities.LogInfo;
 using ECommons.ExcelServices;
 using ECommons.Logging;
 using System.Collections.Generic;
@@ -37,8 +38,6 @@ namespace ChilledLeves.Resources
             { ExpansionIds.DT, "7.x - Dawntrail" }
         };
 
-        // ── Load ──────────────────────────────────────────────────────────────
-
         public static void LoadAllRoutes()
         {
             Leve_Routes.Clear();
@@ -76,7 +75,41 @@ namespace ChilledLeves.Resources
             PluginLog.Information($"Loaded {Leve_Routes.Count} leve gathering routes");
         }
 
-        // ── Save ──────────────────────────────────────────────────────────────
+        public static void LoadExternalRoutes()
+        {
+            string tag = "Route Loader: Loading External";
+
+            if (string.IsNullOrEmpty(C.RouteSaveLocation) || !Directory.Exists(C.RouteSaveLocation))
+                return;
+
+            var files = Directory.EnumerateFiles(C.RouteSaveLocation, "*.json", SearchOption.AllDirectories);
+
+            int overwritten = 0, added = 0;
+
+            foreach (var path in files)
+            {
+                try
+                {
+                    var route = JsonSerializer.Deserialize<GatheringRoute>(File.ReadAllText(path), _readOptions);
+
+                    if (route == null || !ValidateRoute(route, path)) continue;
+
+                    if (Leve_Routes.ContainsKey(route.LeveId))
+                        overwritten++;
+                    else
+                        added++;
+
+                    Leve_Routes[route.LeveId] = route;
+                }
+                catch (Exception ex)
+                {
+                    IceLogging.Error($"Failed to load external route {path}: {ex.Message}", tag);
+                }
+            }
+
+            if (overwritten > 0 || added > 0)
+                IceLogging.Verbose($"External routes: {overwritten} overwritten, {added} added from {C.RouteSaveLocation}", tag);
+        }
 
         public static void SaveRoute(GatheringRoute route, string outputDirectory)
         {
@@ -108,8 +141,6 @@ namespace ChilledLeves.Resources
                 SaveRoute(route, outputDirectory);
         }
 
-        // ── Queries ───────────────────────────────────────────────────────────
-
         public static GatheringRoute? GetRoute(uint leveId)
             => Leve_Routes.TryGetValue(leveId, out var route) ? route : null;
 
@@ -124,8 +155,6 @@ namespace ChilledLeves.Resources
 
         public static string GetExpansionDisplayName(ExpansionIds expansionId)
             => ExpansionNames.TryGetValue(expansionId, out var name) ? name : $"Unknown ({expansionId})";
-
-        // ── Internals ─────────────────────────────────────────────────────────
 
         private static bool ValidateRoute(GatheringRoute route, string source)
         {
