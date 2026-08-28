@@ -27,12 +27,6 @@ namespace ChilledLeves.Ui.DebugTabs
                 P.taskManager.Tasks.Clear();
                 P.taskManager.Abort();
             }
-            if (ImGui.Button("Test Interact w/ Npc"))
-            {
-                Leve_Helper.LeveToGrab = selectedLeve;
-                Task_Travel.Grab_TravelEnqueue();
-            }
-
             if (ImGui.Button("Test Grab Leve"))
             {
                 Leve_Helper.LeveToGrab = selectedLeve;

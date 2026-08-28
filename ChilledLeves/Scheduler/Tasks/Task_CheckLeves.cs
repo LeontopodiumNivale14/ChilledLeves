@@ -53,7 +53,7 @@ namespace ChilledLeves.Scheduler.Tasks
                             {
                                 IceLogging.Debug($"Leve [{leve}] is completed/ready to be turned in. Going to do so", tag);
                                 Leve_Helper.LeveToGrab = leve;
-                                Leve_Helper.State = LeveState.Travel_Turnin;
+                                Leve_Helper.State = LeveState.Turnin_Leve;
                                 return true;
                             }
                         }
@@ -87,7 +87,6 @@ namespace ChilledLeves.Scheduler.Tasks
 
             return false;
         }
-
         private static bool Check_StandardLeves()
         {
             string tag = "Check_StandardLeves";
@@ -144,7 +143,11 @@ namespace ChilledLeves.Scheduler.Tasks
             else
             {
                 IceLogging.Verbose("Swapping to traveling to grab said leve", tag);
-                Leve_Helper.State = LeveState.Travel_Grab;
+                if (Leve_Helper.SelectedMode is ModeSelection.ARR_Grind)
+                    Leve_Helper.State = LeveState.Grab_ARRLeve;
+                else if (Leve_Helper.SelectedMode is ModeSelection.Standard)
+                    Leve_Helper.State = LeveState.Grab_StandardLeve;
+
                 return true;
             }
         }

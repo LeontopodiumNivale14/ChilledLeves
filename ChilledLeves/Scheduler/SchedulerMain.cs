@@ -31,9 +31,6 @@ namespace ChilledLeves.Scheduler
                 {
                     case LeveState.CheckLeves: Task_CheckLeves.Enqueue(); break;
 
-                    case LeveState.Travel_Grab: Task_Travel.Grab_TravelEnqueue(); break;
-                    case LeveState.Travel_Turnin: Task_Travel.Turnin_Enqueue(); break;
-
                     case LeveState.Grab_StandardLeve: Task_GrabLeve.Enqueue_Standard(); break;
 
                     case LeveState.Turnin_Leve: Task_Turnin.Enqueue(); break;

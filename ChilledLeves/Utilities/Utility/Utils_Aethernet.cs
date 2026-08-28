@@ -13,7 +13,6 @@ public static partial class Utils
         public Vector3 Position { get; set; } = Vector3.Zero;
         public Vector3 MoveTo { get; set; } = Vector3.Zero;
         public float InteractDistance { get; set; } = 5f;
-
         public float DistanceTo => Task_Navmesh.PathDistance(PathList);
         public List<Vector3> PathList { get; set; } = new();
     }
@@ -881,6 +880,186 @@ public static partial class Utils
         },
 
 
+
+        #region Urqopacha
+
+        [201] = new()
+        {
+            ShardId = 201,
+            TerritoryId = 1187,
+            ValidTerritories = new() { 1187 },
+            Position = new(465.63f, 114.95f, 634.91f),
+            MoveTo = new(474.05f, 115.68f, 632.58f),
+        },
+
+        [200] = new()
+        {
+            ShardId = 200,
+            TerritoryId = 1187,
+            ValidTerritories = new() { 1187 },
+            Position = new(332.97f, -160.11f, -416.22f),
+            MoveTo = new(339.46f, -159.47f, -419.02f),
+        },
+
+
+        #endregion
+
+        #region Kozama'uka
+
+        [202] = new()
+        {
+            ShardId = 202,
+            TerritoryId = 1188,
+            ValidTerritories = new() { 1188 },
+            Position = new(-169.51f, 6.58f, -479.42f),
+            MoveTo = new(-172.20f, 6.28f, -489.70f),
+        },
+
+        [204] = new()
+        {
+            ShardId = 204,
+            TerritoryId = 1188,
+            ValidTerritories = new() { 1188 },
+            Position = new(-477.53f, 124.04f, 311.33f),
+            MoveTo = new(-483.36f, 122.74f, 304.36f),
+        },
+
+        [203] = new()
+        {
+            ShardId = 203,
+            TerritoryId = 1188,
+            ValidTerritories = new() { 1188 },
+            Position = new(541.16f, 117.42f, 203.60f),
+            MoveTo = new(547.98f, 116.92f, 202.74f),
+        },
+
+        [238] = new() // Don't use this one, it's beast tribe locked
+        {
+            ShardId = 238,
+            TerritoryId = 1188,
+            ValidTerritories = new() { 1188 },
+            Position = new(787.59f, 14.18f, -236.22f),
+            MoveTo = new(779.71f, 13.61f, -236.00f),
+        },
+
+        #endregion
+
+        #region Yak'Tel
+
+        [205] = new()
+        {
+            ShardId = 205,
+            TerritoryId = 1189,
+            ValidTerritories = new() { 1189 },
+            Position = new(-397.06f, 23.51f, -431.94f),
+            MoveTo = new(-404.51f, 24.08f, -432.71f),
+        },
+
+        [206] = new()
+        {
+            ShardId = 206,
+            TerritoryId = 1189,
+            ValidTerritories = new() { 1189 },
+            Position = new(721.40f, -132.31f, 526.18f),
+            MoveTo = new(719.54f, -132.74f, 531.61f),
+        },
+
+
+        #endregion
+
+        #region Shaaloani
+
+        [207] = new()
+        {
+            ShardId = 207,
+            TerritoryId = 1190,
+            ValidTerritories = new() { 1190 },
+            Position = new(386.40f, -0.20f, 467.61f),
+            MoveTo = new(381.32f, -0.04f, 467.42f),
+        },
+        [208] = new()
+        {
+            ShardId = 208,
+            TerritoryId = 1190,
+            ValidTerritories = new() { 1190 },
+            Position = new(-291.71f, 19.09f, -114.55f),
+            MoveTo = new(-292.42f, 19.46f, -108.76f),
+        },
+        [209] = new()
+        {
+            ShardId = 209,
+            TerritoryId = 1190,
+            ValidTerritories = new() { 1190 },
+            Position = new(311.36f, -14.18f, -567.74f),
+            MoveTo = new(317.01f, -13.79f, -568.60f),
+        },
+
+
+        #endregion
+
+        #region Heritage Found
+
+        [210] = new()
+        {
+            ShardId = 210,
+            TerritoryId = 1191,
+            ValidTerritories = new() { 1191 },
+            Position = new(514.61f, 145.86f, 207.57f),
+            MoveTo = new(509.79f, 146.16f, 212.50f),
+        },
+
+        [211] = new()
+        {
+            ShardId = 211,
+            TerritoryId = 1191,
+            ValidTerritories = new() { 1191 },
+            Position = new(-223.04f, 31.94f, -584.04f),
+            MoveTo = new(-230.76f, 30.20f, -579.17f),
+        },
+
+        [212] = new()
+        {
+            ShardId = 212,
+            TerritoryId = 1191,
+            ValidTerritories = new() { 1191 },
+            Position = new(-219.53f, 32.91f, 120.78f),
+            MoveTo = new(-225.55f, 31.00f, 117.44f),
+        },
+
+
+        #endregion
+
+        #region Living Memory
+
+        [213] = new()
+        {
+            ShardId = 213,
+            TerritoryId = 1192,
+            ValidTerritories = new() { 1192 },
+            Position = new(-0.23f, 57.18f, 796.96f),
+            MoveTo = new(-7.86f, 53.84f, 805.54f),
+        },
+
+        [214] = new()
+        {
+            ShardId = 214,
+            TerritoryId = 1192,
+            ValidTerritories = new() { 1192 },
+            Position = new(657.98f, 28.98f, -284.02f),
+            MoveTo = new(648.48f, 25.00f, -291.01f),
+        },
+
+        [215] = new()
+        {
+            ShardId = 215,
+            TerritoryId = 1192,
+            ValidTerritories = new() { 1192 },
+            Position = new(-255.27f, 59.43f, -397.67f),
+            MoveTo = new(-247.02f, 54.81f, -391.46f),
+        },
+
+
+        #endregion
 
         #endregion
     };

@@ -16,18 +16,31 @@ namespace ChilledLeves.Scheduler.Tasks
     {
         public static void Enqueue_Standard()
         {
+            string tag = "Task: Grab Leve";
+
             if (LeveInfo.Leve_SheetInfo.TryGetValue(Leve_Helper.LeveToGrab, out var sheetInfo))
             {
                 if (LeveInfo.LeveNpc_Info.TryGetValue(sheetInfo.Npc_Vendor, out var vendorInfo))
                 {
                     P.taskManager.EnqueueMulti
                     (
-                        new(() => OpenLeveWindow(vendorInfo, sheetInfo.Npc_Vendor)),
+                        new(() => Task_Travel.AethernetTask_Grab(vendorInfo), "Traveling to vendor NPC"),
+                        new(() => OpenLeveWindow(vendorInfo, sheetInfo.Npc_Vendor), "Opening Leve Menu"),
                         new(() => GrabLeve(), "Grabbing the leve from the vendor"),
                         new(() => CheckOtherLeves(), "Checking for multi leve grab"),
                         new(() => LeaveVendor(), "Leaving the leve Vendor")
                     );
                 }
+                else
+                {
+                    IceLogging.Error($"Missing NPC info on the following leve: {Leve_Helper.LeveToGrab}. Gave Id: {sheetInfo.Npc_Vendor}", tag);
+                    Leve_Helper.State = LeveState.Idle;
+                }
+            }
+            else
+            {
+                IceLogging.Error($"We seem to be missing a leve out of the sheets? {Leve_Helper.LeveToGrab}. Please report back to me on this", tag);
+                Leve_Helper.State = LeveState.Idle;
             }
         }
 
@@ -163,7 +176,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
                         if (selectedJob != goalJob)
                         {
-                            if (EzThrottler.Throttle("Selecting proper tab"))
+                            if (EzThrottler.Throttle("Selecting proper tab", 100))
                                 guildLeve.SelectJob(goalJob);
 
                             break;

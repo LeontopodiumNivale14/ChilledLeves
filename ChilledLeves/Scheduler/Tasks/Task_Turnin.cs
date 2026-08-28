@@ -20,8 +20,11 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 if (LeveInfo.LeveNpc_Info.TryGetValue(sheetInfo.Npc_Turnin, out var vendorInfo))
                 {
-
-                    P.taskManager.Enqueue(() => TryTurnin(vendorInfo, sheetInfo), tag);
+                    P.taskManager.EnqueueMulti
+                    (
+                        new(() => Task_Travel.AethernetTask_Turnin(vendorInfo), "Pathing to turnin Vendor"),
+                        new(() => TryTurnin(vendorInfo, sheetInfo), tag)
+                    );
                 }
                 else
                 {
@@ -49,6 +52,14 @@ namespace ChilledLeves.Scheduler.Tasks
                     {
                         selectString.Entries.Last().Select();
                     }
+
+                    return false;
+                }
+
+                if (Svc.Condition[ConditionFlag.OccupiedInQuestEvent])
+                {
+                    if (EzThrottler.Throttle("Occupido by quest to turnin"))
+                        IceLogging.Verbose("We're still interacting with the npc. Going to just wait", tag);
 
                     return false;
                 }

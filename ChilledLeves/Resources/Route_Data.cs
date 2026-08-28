@@ -8,6 +8,7 @@ namespace ChilledLeves.Resources
     {
         public uint LeveId { get; set; }
         public uint TerritoryId { get; set; }
+        public uint AetheryteId { get; set; }
         public string ZoneName { get; set; }
         public ExpansionIds ExpansionId { get; set; }
         public Job GatheringJob { get; set; }
@@ -20,6 +21,7 @@ namespace ChilledLeves.Resources
         public Vector3 Position { get; set; }
         public FanInfo Gathering_FanInfo { get; set; } = new();
         public FanInfo Flight_FanInfo { get; set; } = new();
+        public bool RequiresFlying { get; set; } = false;
     }
 
     public class FanInfo

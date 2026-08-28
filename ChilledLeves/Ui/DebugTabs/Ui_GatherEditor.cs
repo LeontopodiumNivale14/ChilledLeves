@@ -29,6 +29,8 @@ namespace ChilledLeves.Ui.DebugTabs
 
         private static string VfxPath = "k5d1_omen_o01pg";
 
+        private static List<uint> ValidShards = new();
+
         public static void Draw()
         {
             var AllRoutes = RouteLoader.Leve_Routes;
@@ -151,18 +153,18 @@ namespace ChilledLeves.Ui.DebugTabs
 
                         if (ImGuiEx.IconButton(FontAwesomeIcon.TrainTram, $"{leveName}_Teleport"))
                         {
-                            P.navmesh.PathToFlag();
+                            Svc.Commands.ProcessCommand("/vnav flyflag");
                         }
                         if (ImGui.IsItemHovered())
                         {
-                            ImGui.SetTooltip("SmartNav PathTo");
+                            ImGui.SetTooltip("Flag Fly To");
                         }
 
                         ImGui.SameLine();
                         if (ImGuiEx.IconButton(FontAwesomeIcon.Square, $"{leveName}_Stop"))
                         {
-                            if (P.navmesh.SmartIsRunning())
-                                P.navmesh.SmartNavStop();
+                            if (P.navmesh.IsRunning())
+                                P.navmesh.Stop();
                         }
                         if (ImGui.IsItemHovered())
                         {
@@ -194,6 +196,58 @@ namespace ChilledLeves.Ui.DebugTabs
                         {
                             var position = Player.Position;
                             routeInfo.NodeInfo = ReOrganizeNodes(routeInfo.NodeInfo, position);
+                        }
+
+
+                        ImGui.SameLine();
+                        if (ImGui.Button($"[{routeInfo.AetheryteId}]"))
+                        {
+                            ValidShards.Clear();
+                            var territory = routeInfo.TerritoryId;
+                            foreach (var shard in Utils.Aethernet.Where(x => x.Value.TerritoryId == territory))
+                            {
+                                ValidShards.Add(shard.Key);
+                            }
+
+                            ImGui.OpenPopup("Select Shard");
+                        }
+
+                        using (var shardPopup = ImRaii.Popup("Select Shard"))
+                        {
+                            if (shardPopup.Success)
+                            {
+                                if (ValidShards.Count > 0)
+                                {
+                                    foreach (var shard in ValidShards)
+                                    {
+                                        bool isSelected = routeInfo.AetheryteId == shard;
+                                        var position = Utils.Aethernet[shard].Position;
+                                        var territory = Utils.Aethernet[shard].TerritoryId;
+                                        var name = $"X:{position.X:N2}, Y:{position.Y:N2}, Z:{position.Z:N2}";
+
+                                        if (Player.Territory.RowId == territory)
+                                        {
+
+
+                                            name = $"{Player.DistanceTo(position):N2}";
+                                        }
+
+                                        if (ImGui.Selectable($"[{shard}] {name}", isSelected))
+                                        {
+                                            routeInfo.AetheryteId = shard;
+                                            ImGui.CloseCurrentPopup();
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    ImGui.Text("Hey! You don't have any shards here");
+                                    if (ImGui.Button("Close Popup"))
+                                    {
+                                        ImGui.CloseCurrentPopup();
+                                    }
+                                }
+                            }
                         }
 
                         #endregion
