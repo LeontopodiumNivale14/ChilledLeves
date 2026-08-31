@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Enums;
+using ChilledLeves.Gui;
 using ChilledLeves.Resources;
 using ChilledLeves.Scheduler.Handlers;
 using ChilledLeves.Utilities;
@@ -182,25 +183,21 @@ namespace ChilledLeves.Ui.DebugTabs
                         }
 
                         ImGui.SameLine();
-                        ImGuiEx.Icon(FontAwesomeIcon.QuestionCircle);
+                        ImGui_Ice.Icon(FontAwesomeIcon.QuestionCircle);
                         if (ImGui.IsItemHovered())
                         {
                             var nodeIds = sheetInfo.Gather_NodeInfo.NodeIds.OrderBy(x => x);
                             string gatherPointIds = string.Join(", ", nodeIds);
                             ImGui.SetTooltip($"[{nodeIds.Count()}] {gatherPointIds}");
                         }
-                        ImGui.Text("");
 
+                        ImGui.AlignTextToFramePadding();
+                        ImGui.Text("Aetheryte:");
                         ImGui.SameLine();
-                        if (ImGui.Button("Sort nodes by position"))
-                        {
-                            var position = Player.Position;
-                            routeInfo.NodeInfo = ReOrganizeNodes(routeInfo.NodeInfo, position);
-                        }
 
+                        var name = ExcelHelper.Sheet_Aetheryte.GetRow(routeInfo.AetheryteId).PlaceName.Value.Name.ToString();
 
-                        ImGui.SameLine();
-                        if (ImGui.Button($"[{routeInfo.AetheryteId}]"))
+                        if (ImGui.Button($"[{routeInfo.AetheryteId}] {name}"))
                         {
                             ValidShards.Clear();
                             var territory = routeInfo.TerritoryId;
@@ -223,16 +220,14 @@ namespace ChilledLeves.Ui.DebugTabs
                                         bool isSelected = routeInfo.AetheryteId == shard;
                                         var position = Utils.Aethernet[shard].Position;
                                         var territory = Utils.Aethernet[shard].TerritoryId;
-                                        var name = $"X:{position.X:N2}, Y:{position.Y:N2}, Z:{position.Z:N2}";
 
+                                        var aetheryteName = ExcelHelper.Sheet_Aetheryte.GetRow(shard).PlaceName.Value.Name.ToString();
                                         if (Player.Territory.RowId == territory)
                                         {
-
-
-                                            name = $"{Player.DistanceTo(position):N2}";
+                                            aetheryteName += $" {Player.DistanceTo(position):N2}";
                                         }
 
-                                        if (ImGui.Selectable($"[{shard}] {name}", isSelected))
+                                        if (ImGui.Selectable($"[{shard}] {aetheryteName}##{shard}_ID", isSelected))
                                         {
                                             routeInfo.AetheryteId = shard;
                                             ImGui.CloseCurrentPopup();
@@ -248,6 +243,12 @@ namespace ChilledLeves.Ui.DebugTabs
                                     }
                                 }
                             }
+                        }
+
+                        bool flyingRequired = routeInfo.FlyingNeeded;
+                        if (ImGui.Checkbox("Flying Required?", ref flyingRequired))
+                        {
+                            routeInfo.FlyingNeeded = flyingRequired;
                         }
 
                         #endregion
@@ -290,6 +291,11 @@ namespace ChilledLeves.Ui.DebugTabs
                                 ImGui.SameLine();
                                 ImGuiEx.Icon(FontAwesomeIcon.Check);
                                 ImGui.Text($"");
+                            }
+                            if (ImGui.Button("Sort nodes by position"))
+                            {
+                                var position = Player.Position;
+                                routeInfo.NodeInfo = ReOrganizeNodes(routeInfo.NodeInfo, position);
                             }
                             foreach (var node in routeInfo.NodeInfo)
                             {
@@ -449,10 +455,14 @@ namespace ChilledLeves.Ui.DebugTabs
                 ImGui.Text($"Node: {SelectedNodeId}");
                 if (ImGui.Button($"{nodeInfo.Position.X:N2}, {nodeInfo.Position.Y:N2}, {nodeInfo.Position.Z:N2}"))
                 {
-                    P.navmesh.Smart_PathToPoint(routeInfo.TerritoryId, nodeInfo.Position);
+                    P.navmesh.PathfindAndMoveTo(nodeInfo.Position, true);
                 }
 
-                ImGui.Separator();
+                bool flyingRequired = nodeInfo.RequiresFlying;
+                if (ImGui.Checkbox("Flying Required?", ref flyingRequired))
+                {
+                    nodeInfo.RequiresFlying = flyingRequired;
+                }
 
                 #region Gathering Fan Info
 
@@ -509,10 +519,16 @@ namespace ChilledLeves.Ui.DebugTabs
                 }
 
                 ImGui.SameLine();
-                if (ImGui.Button("Pathfind to fan"))
+                if (ImGui.Button("Pathfind: Fly"))
                 {
                     var randomPos = Utils.GetRandomGatherPosition(nodeInfo, Player.Position);
                     P.navmesh.PathfindAndMoveTo(randomPos, true);
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Pathfind: Ground"))
+                {
+                    var randomPos = Utils.GetRandomGatherPosition(nodeInfo, Player.Position);
+                    P.navmesh.PathfindAndMoveTo(randomPos, false);
                 }
 
                 ImGui.PopID();

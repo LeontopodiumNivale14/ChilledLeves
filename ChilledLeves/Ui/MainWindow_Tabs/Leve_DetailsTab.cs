@@ -1,9 +1,12 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Gui;
+using ChilledLeves.Resources;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
+using SharpDX.Direct3D11;
+using static ChilledLeves.Utilities.LeveData.LeveInfo;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs
 {
@@ -22,147 +25,16 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 ImGui.Image(jobImage.GetWrapOrEmpty().Handle, new Vector2(24, 24));
                 ImGui.SameLine();
                 ImGui.AlignTextToFramePadding();
-                Theme_Colors.BodyText($"[{leve.Level}] {leve.LeveName}");
+                Theme_Colors.BodyText($"{leve.LeveName}");
                 ImGui.SameLine();
                 ImGui.TextDisabled($"ID: {selectedLeve}");
 
-                ImGui.Separator();
-                Theme_Colors.HeaderText($"Leve Info/Rewards");
-                if (ImGui.BeginTable("Rewards Table", 2, ImGuiTableFlags.SizingFixedFit))
-                {
-                    ImGui.TableSetupColumn("Type");
-                    ImGui.TableSetupColumn("Reward");
+                LeveInfo_Table(leve);
 
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    Theme_Colors.BodyText($"Level");
-                    ImGui.TableNextColumn();
-                    Theme_Colors.BodyText($"{leve.Level}");
+                NpcDetails_Table(leve);
 
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    Theme_Colors.BodyText("Experience");
-                    ImGui.TableNextColumn();
-                    Theme_Colors.BodyText($"{leve.ExpReward:N0}");
-
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    Theme_Colors.BodyText("Gil");
-                    ImGui.TableNextColumn();
-                    Theme_Colors.BodyText($"{leve.GilReward:N0} ± 5%");
-
-                    ImGui.EndTable();
-                }
-
-                ImGui.Separator();
-                Theme_Colors.HeaderText("Npc Info");
-                if (ImGui.BeginTable("Leve_Npc Info", 2, ImGuiTableFlags.SizingFixedFit))
-                {
-                    ImGui.TableSetupColumn("Info Kind");
-                    ImGui.TableSetupColumn("Npc Name");
-
-                    foreach (var vendor in leve.Npc_Vendors)
-                    {
-                        if (LeveInfo.LeveNpc_Info.TryGetValue(vendor, out var vendorInfo))
-                        {
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(0);
-                            Theme_Colors.BodyText($"Start Location");
-
-                            ImGui.TableNextColumn();
-                            Theme_Colors.BodyText($"{ExcelHelper.Sheet_TerritoryType.GetRow(vendorInfo.TerritoryId).PlaceName.Value.Name}");
-
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(0);
-                            Theme_Colors.BodyText($"Leve Vendor");
-
-                            ImGui.TableNextColumn();
-                            if (ImGui.Button($"{vendorInfo.Name}"))
-                            {
-                                Utils.SetFlagForNPC(vendorInfo.TerritoryId, vendorInfo.Npc_Flag.X, vendorInfo.Npc_Flag.Y);
-                            }
-                        }
-                    }
-                   
-
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    Theme_Colors.BodyText($"Leve Turnin");
-                    if (LeveInfo.LeveNpc_Info.TryGetValue(leve.Npc_Turnin, out var turninNpc))
-                    {
-                        ImGui.TableNextColumn();
-                        if (ImGui.Button($"{turninNpc.Name}"))
-                        {
-                            Utils.SetFlagForNPC(turninNpc.TerritoryId, turninNpc.Npc_Flag.X, turninNpc.Npc_Flag.Y);
-                        }
-                    }
-
-                    ImGui.EndTable();
-                }
-
-                if (LeveInfo.LeveJobs_Material.Contains(leve.Job))
-                {
-                    var materialInfo = leve.MaterialInfo;
-                    var turninAmount = materialInfo.TurninAmount;
-                    var repeatAmount = materialInfo.RepeatAmount;
-
-                    if (repeatAmount > 1)
-                    {
-                        ImGui.Checkbox("Show for multiple turnins", ref ShowMultiTurnin);
-                        if (ShowMultiTurnin)
-                            turninAmount *= repeatAmount;
-                    }
-
-                    Vector2 imageSize = new(30 * globalScale, 30 * globalScale);
-                    ImGui.Image(materialInfo.Item_Icon.GetWrapOrEmpty().Handle, imageSize);
-                    ImGui.SameLine();
-                    ImGui.AlignTextToFramePadding();
-                    ImGui.Text($"{materialInfo.Item_Name} | Required: {turninAmount}");
-                }
-                else if (LeveInfo.LeveJobs_Gathering.Contains(leve.Job))
-                {
-                    string kind = leve.GatheringRule switch
-                    {
-                        GatheringRule.Search => "Search",
-                        GatheringRule.Procurance => "Procure",
-                        GatheringRule.Search_Procurance => "Search & Procure",
-                        GatheringRule.Execution => "Execution",
-                        _ => $"{leve.GatheringRule}"
-                    };
-                    ImGui.Text($"Mission Kind: {kind}");
-                    ImGui.SameLine();
-
-                    string ruleInfo = leve.GatheringRule switch
-                    {
-                        GatheringRule.Search => "Search 8 gathering nodes and gather them.\n" +
-                            "All nodes must be searched",
-                        GatheringRule.Procurance => "Gather at the 4 node locations",
-                        GatheringRule.Search_Procurance => "Search 8 gathering nodes, and gather the required items\n" +
-                            "All nodes must be searched, and the required items must be gathered",
-                        GatheringRule.Execution => "Gather at the 4 node locations\n" +
-                            "Bonus is gained by getting multiple gathering attempts?",
-                        _ => "????"
-                    };
-                    ImGui_Ice.IconWithTooltip(FontAwesomeIcon.QuestionCircle, ruleInfo);
-
-                    if (leve.Gather_NodeInfo.GatherItems.Count > 0)
-                    {
-                        foreach (var item in leve.Gather_NodeInfo.GatherItems)
-                        {
-                            var itemId = item.ItemId;
-                            var amount = item.Amount;
-
-                            if (ExcelHelper.Sheet_EventItem.TryGetRow(itemId, out var eventItem))
-                            {
-                                if (eventItem.Icon is { } iconId && Svc.Texture.TryGetFromGameIcon((int)iconId, out var icon))
-                                {
-                                    ImGui_Ice.ImageButtonWithText(icon.GetWrapOrEmpty(), $"{amount}", $"{itemId}_leveItem", new(24, 24));
-                                }
-                            }
-                        }
-                    }
-
-                }
+                CraftingDetails_Table(leve);
+                GatheringDetails_Table(leve);
 
                 float textLineHeight = ImGui.GetTextLineHeight();
                 Vector2 buttonSize = new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f);
@@ -214,6 +86,266 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 float hintWidth = ImGui.CalcTextSize(hintText).X;
                 ImGui.SetCursorPosX((ImGui.GetWindowWidth() - hintWidth) * 0.5f);
                 ImGui.TextDisabled(hintText);
+            }
+        }
+
+        private static void LeveInfo_Table(LeveInfo.Leve_SheetData leve)
+        {
+            ImGui.Separator();
+            Theme_Colors.HeaderText($"Leve Info/Rewards");
+
+            using (var leveInfo = ImRaii.Table("Rewards Table", 2, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
+            {
+                if (!leveInfo.Success)
+                    return;
+
+                ImGui.TableSetupColumn("Type");
+                ImGui.TableSetupColumn("Reward");
+
+                // Level Info
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.AlignTextToFramePadding();
+                Theme_Colors.BodyText("Lv.");
+
+                ImGui.TableNextColumn();
+                ImGui.AlignTextToFramePadding();
+                Theme_Colors.BodyText($"{leve.Level}");
+
+                // Experience 
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.AlignTextToFramePadding();
+                Theme_Colors.BodyText("EXP");
+                ImGui.TableNextColumn();
+                ImGui.AlignTextToFramePadding();
+                Theme_Colors.BodyText($"{leve.ExpReward:N0}");
+
+                // Gil Reward
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                GameIcons.DrawInlineOrIcon(65002, FontAwesomeIcon.Coins);
+                ImGui.SameLine();
+                ImGui.AlignTextToFramePadding();
+                ImGui.Text("Gil");
+
+                ImGui.TableNextColumn();
+                ImGui.AlignTextToFramePadding();
+                Theme_Colors.BodyText($"{leve.GilReward:N0} ± 5%");
+
+                // Completion Status
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                GameIcons.DrawInlineOrIcon(LeveInfo.LeveStatus[Leve_Status.NotGrabbed], FontAwesomeIcon.CheckSquare);
+                ImGui.SameLine();
+                ImGui.AlignTextToFramePadding();
+                Theme_Colors.BodyText($"Completed");
+
+                ImGui.TableNextColumn();
+                uint statusId = Utils.Leve_IsComplete(selectedLeve) ? LeveInfo.LeveStatus[Leve_Status.NotComplete] : LeveInfo.LeveStatus[Leve_Status.Complete];
+                GameIcons.DrawInline(statusId, false);
+
+                // TODO: Throw in potentional item rewards
+            }
+        }
+
+        private static void NpcDetails_Table(LeveInfo.Leve_SheetData leve)
+        {
+            ImGui.Separator();
+            Theme_Colors.HeaderText("Leve Vendors");
+
+            using (var npcTable = ImRaii.Table("Leve_Npc Info", 2, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
+            {
+                if (!npcTable.Success)
+                    return;
+
+                ImGui.TableSetupColumn("Location");
+                ImGui.TableSetupColumn("Npc");
+
+                ImGui.TableHeadersRow();
+;
+                foreach (var vendor in leve.Npc_Vendors)
+                {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+
+                    if (LeveInfo.LeveNpc_Info.TryGetValue(vendor, out var vendorInfo))
+                    {
+                        ImGui.AlignTextToFramePadding();
+                        Theme_Colors.BodyText($"{ExcelHelper.Sheet_TerritoryType.GetRow(vendorInfo.TerritoryId).PlaceName.Value.Name}");
+
+                        ImGui.TableNextColumn();
+                        if (ImGui.Button($"{vendorInfo.Name}"))
+                        {
+                            Utils.SetFlagForNPC(vendorInfo.TerritoryId, vendorInfo.Npc_Flag.X, vendorInfo.Npc_Flag.Y);
+                        }
+                    }
+                    else
+                    {
+                        ImGui.AlignTextToFramePadding();
+                        Theme_Colors.BodyText($"NpcId: ");
+
+                        ImGui.TableNextColumn();
+                        Theme_Colors.BodyText($"{vendor}");
+                    }
+                }
+            }
+
+            Theme_Colors.HeaderText("Turnin NPC");
+            using (var turninNpc_Table = ImRaii.Table("Turnin_Npc Info", 2, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
+            {
+                if (!turninNpc_Table.Success)
+                    return;
+
+                ImGui.TableSetupColumn("Location");
+                ImGui.TableSetupColumn("Npc");
+
+                ImGui.TableHeadersRow();
+
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                if (LeveInfo.LeveNpc_Info.TryGetValue(leve.Npc_Turnin, out var turninNpc))
+                {
+                    ImGui.AlignTextToFramePadding();
+                    Theme_Colors.BodyText($"{ExcelHelper.Sheet_TerritoryType.GetRow(turninNpc.TerritoryId).PlaceName.Value.Name}");
+
+                    ImGui.TableNextColumn();
+                    if (ImGui.Button($"{turninNpc.Name}"))
+                    {
+                        Utils.SetFlagForNPC(turninNpc.TerritoryId, turninNpc.Npc_Flag.X, turninNpc.Npc_Flag.Y);
+                    }
+                }
+            }
+        }
+
+        private static void CraftingDetails_Table(LeveInfo.Leve_SheetData leve)
+        {
+            if (LeveInfo.LeveJobs_Material.Contains(leve.Job))
+            {
+                ImGui.Separator();
+                Theme_Colors.HeaderText("Crafting Details");
+
+                var materialInfo = leve.MaterialInfo;
+                var turninAmount = materialInfo.TurninAmount;
+                var repeatAmount = materialInfo.RepeatAmount;
+
+                if (repeatAmount > 1)
+                {
+                    ImGui.Checkbox("Show for multiple turnins", ref ShowMultiTurnin);
+                    if (ShowMultiTurnin)
+                        turninAmount *= repeatAmount;
+                }
+
+                using (var craftTableInfo = ImRaii.Table("Craft: LeveInfo", 3, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
+                {
+                    if (!craftTableInfo.Success)
+                        return;
+
+                    ImGui.TableSetupColumn("##Icon");
+                    ImGui.TableSetupColumn("Name");
+                    ImGui.TableSetupColumn("Required");
+
+                    ImGui.TableHeadersRow();
+
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    GameIcons.DrawInline(materialInfo.IconId);
+
+                    ImGui.TableNextColumn();
+                    ImGui.AlignTextToFramePadding();
+                    Theme_Colors.BodyText($"{materialInfo.Item_Name}");
+
+                    ImGui.TableNextColumn();
+                    ImGui.AlignTextToFramePadding();
+                    Theme_Colors.BodyText($"{turninAmount:N0}");
+                }
+            }
+        }
+
+        private static void GatheringDetails_Table(LeveInfo.Leve_SheetData leve)
+        {
+            if (LeveInfo.LeveJobs_Gathering.Contains(leve.Job))
+            {
+                ImGui.Separator();
+                Theme_Colors.HeaderText("Gathering Info");
+
+                string kind = leve.GatheringRule switch
+                {
+                    GatheringRule.Search => "Search",
+                    GatheringRule.Procurance => "Procure",
+                    GatheringRule.Search_Procurance => "Search & Procure",
+                    GatheringRule.Execution => "Execution",
+                    _ => $"{leve.GatheringRule}"
+                };
+                string ruleInfo = leve.GatheringRule switch
+                {
+                    GatheringRule.Search => "Search 8 gathering nodes and gather them.\n" +
+                        "All nodes must be searched",
+                    GatheringRule.Procurance => "Gather at the 4 node locations",
+                    GatheringRule.Search_Procurance => "Search 8 gathering nodes, and gather the required items\n" +
+                        "All nodes must be searched, and the required items must be gathered",
+                    GatheringRule.Execution => "Gather at the 4 node locations\n" +
+                        "Bonus is gained by getting multiple gathering attempts?",
+                    _ => "????"
+                };
+
+                using (var gatherTable = ImRaii.Table("Gathering: Info Table", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
+                {
+                    if (!gatherTable.Success)
+                        return;
+
+                    ImGui.TableSetupColumn("Detail");
+                    ImGui.TableSetupColumn("Info");
+
+                    if (RouteLoader.Leve_Routes.TryGetValue(selectedLeve, out var routeInfo))
+                    {
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+
+                        bool flyingRequired = routeInfo.FlyingNeeded;
+                        GameIcons.DrawInline(60033, true);
+                        ImGui.AlignTextToFramePadding();
+                        Theme_Colors.BodyText($"Flying Required");
+
+                        ImGui.TableNextColumn();
+                        Theme_Colors.BodyText($"{flyingRequired}");
+                    }
+
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.AlignTextToFramePadding();
+                    Theme_Colors.BodyText("Kind");
+
+                    ImGui.TableNextColumn();
+                    ImGui.AlignTextToFramePadding();
+                    Theme_Colors.BodyText(kind);
+                    ImGui.SameLine();
+                    ImGui_Ice.IconWithTooltip(FontAwesomeIcon.QuestionCircle, ruleInfo);
+
+                    if (leve.Gather_NodeInfo.GatherItems.Count > 0)
+                    {
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        ImGui.AlignTextToFramePadding();
+                        Theme_Colors.BodyText("Mission Goal");
+
+                        ImGui.TableNextColumn();
+                        foreach (var item in leve.Gather_NodeInfo.GatherItems)
+                        {
+                            var itemId = item.ItemId;
+                            var amount = item.Amount;
+
+                            if (ExcelHelper.Sheet_EventItem.TryGetRow(itemId, out var eventItem))
+                            {
+                                if (eventItem.Icon is { } iconId)
+                                {
+                                    ImGui_Ice.ImageButtonWithText(iconId, $"{amount}", $"{itemId}_leveItem");
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }
     }

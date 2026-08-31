@@ -12,7 +12,8 @@ namespace ChilledLeves.Resources
         public string ZoneName { get; set; }
         public ExpansionIds ExpansionId { get; set; }
         public Job GatheringJob { get; set; }
-        public List<GatheringNode> NodeInfo { get; set; }
+        public List<GatheringNode> NodeInfo { get; set; } = new();
+        public bool FlyingNeeded { get; set; } = false;
     }
 
     public class GatheringNode

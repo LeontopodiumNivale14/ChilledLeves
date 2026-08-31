@@ -21,11 +21,19 @@ public static partial class LeveInfo
     public static readonly List<Job> LeveJobs_Material = new() { Job.CRP, Job.BSM, Job.ARM, Job.GSM, Job.WVR, Job.LTW, Job.ALC, Job.CUL, Job.FSH };
     public static readonly List<Job> LeveJobs_Gathering = new() { Job.MIN, Job.BTN };
 
-    public static HashSet<int> LeveStatus = new() { 71041, 71045, 71055 };
+    public static Dictionary<Leve_Status, uint> LeveStatus = new()
+    {
+        [Leve_Status.NotGrabbed] = 71041,
+        [Leve_Status.NotComplete] = 71045,
+        [Leve_Status.Complete] = 71055,
+    };
+
+    // public static HashSet<int> LeveStatus = new() { 71041, 71045, 71055 };
 
     public class Class_IconInfo
     {
         public ISharedImmediateTexture ColorIcon { get; set; } = null;
+        public uint IconId { get; set; } = 0;
     }
 
     public static Dictionary<Job, Class_IconInfo> Job_IconDict = new()
@@ -52,6 +60,7 @@ public static partial class LeveInfo
             var iconId = LeveAssignmentSheet.GetRow(i).Icon;
             if (Svc.Texture.TryGetFromGameIcon(iconId, out var iconTexture))
             {
+                Job_IconDict[jobId].IconId = (uint)iconId;
                 Job_IconDict[jobId].ColorIcon = iconTexture;
             }
         }
@@ -62,6 +71,7 @@ public static partial class LeveInfo
             var iconId = LeveAssignmentSheet.GetRow(i).Icon;
             if (Svc.Texture.TryGetFromGameIcon(iconId, out var iconTexture))
             {
+                Job_IconDict[jobId].IconId = (uint)iconId;
                 Job_IconDict[jobId].ColorIcon = iconTexture;
             }
         }

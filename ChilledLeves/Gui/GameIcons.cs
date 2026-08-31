@@ -1,6 +1,7 @@
 ﻿using Dalamud.Game;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
+using Dalamud.Interface.Utility.Raii;
 using ECommons.Logging;
 using Lumina.Data.Files;
 using SixLabors.ImageSharp;
@@ -32,7 +33,7 @@ public static class GameIcons
     public static void DrawInlineOrIcon(uint? iconId, FontAwesomeIcon fallback, Vector4? fallbackColor = null)
     {
         if (iconId is { } id && DrawInline(id)) return;
-        ImGuiEx.Icon(fallbackColor ?? ImGui.GetStyle().Colors[(int)ImGuiCol.Text], fallback);
+        ImGui_Ice.Icon(fallback, fallbackColor ?? ImGui.GetStyle().Colors[(int)ImGuiCol.Text]);
     }
 
     public static bool Draw(uint iconId, float size) => Draw(new GameIconLookup(iconId), new Vector2(size));
@@ -47,6 +48,32 @@ public static class GameIcons
         ImGui.SetCursorScreenPos(new Vector2(MathF.Round(position.X), MathF.Round(position.Y)));
         ImGui.Image(texture.Handle, new Vector2(width, height));
         return true;
+    }
+
+    public static bool DrawButton(uint iconId, string id, Vector2 buttonSize, Vector2? iconSize = null, Vector4? hoveredColor = null, Vector4? activeColor = null)
+    => DrawButton(new GameIconLookup(iconId), id, buttonSize, iconSize, hoveredColor, activeColor);
+
+    public static bool DrawButton(GameIconLookup lookup, string id, Vector2 buttonSize, Vector2? iconSize = null, Vector4? hoveredColor = null, Vector4? activeColor = null)
+    {
+        var cursorStart = ImGui.GetCursorScreenPos();
+
+        bool clicked;
+        using (ImRaii.PushColor(ImGuiCol.Button, Vector4.Zero))
+        using (ImRaii.PushColor(ImGuiCol.ButtonHovered, hoveredColor ?? new Vector4(1, 1, 1, 0.1f)))
+        using (ImRaii.PushColor(ImGuiCol.ButtonActive, activeColor ?? new Vector4(1, 1, 1, 0.2f)))
+        {
+            clicked = ImGui.Button($"##{id}", buttonSize);
+        }
+
+        var size = iconSize ?? buttonSize;
+        var iconPos = cursorStart + (buttonSize - size) * 0.5f;
+        ImGui.SetCursorScreenPos(iconPos);
+        Draw(lookup, size);
+
+        // restore cursor to below the button, since we manually repositioned to draw the icon
+        ImGui.SetCursorScreenPos(new Vector2(cursorStart.X, cursorStart.Y + buttonSize.Y));
+
+        return clicked;
     }
 
     public static bool TryGetScaledIcon(uint iconId, int size, out IDalamudTextureWrap texture) => TryGetScaledIcon(new GameIconLookup(iconId), size, size, out texture);

@@ -1,11 +1,8 @@
-﻿using ChilledLeves.Utilities;
+﻿using ChilledLeves.Gui;
+using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Utility;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Runtime.Intrinsics.Arm;
-using System.Text;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs
 {
@@ -32,55 +29,76 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 ImGui.TableSetupColumn("Complete");
                 ImGui.TableSetupColumn("Name");
 
+                var globalScale = ImGuiHelpers.GlobalScale;
+                Vector2 imageSize = new Vector2(18 * globalScale, 18 * globalScale);
+
                 foreach (var leveId in sortedLeves)
                 {
-                    if (LeveFilter(leveId.Key))
+                    if (!LeveFilter(leveId.Key))
+                        continue;
+
+                    ImGui.TableNextRow();
+
+                    bool isSelected = Leve_DetailsTab.selectedLeve == leveId.Key;
+
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.AlignTextToFramePadding();
+
+                    ImGui.PushStyleColor(ImGuiCol.HeaderHovered, new Vector4(0, 0, 0, 0));
+                    ImGui.PushStyleColor(ImGuiCol.HeaderActive, new Vector4(0, 0, 0, 0));
+                    ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(0, 0, 0, 0));
+                    bool clicked = ImGui.Selectable($"{leveId.Key}", isSelected, ImGuiSelectableFlags.SpanAllColumns);
+                    ImGui.PopStyleColor(3);
+
+                    bool isHovered = ImGui.IsItemHovered();
+
+                    if (clicked)
+                        Leve_DetailsTab.selectedLeve = leveId.Key;
+
+                    if (ImGui.IsItemHovered() && (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left) || (ImGui.IsItemClicked(ImGuiMouseButton.Left) && C.RapidImport)))
                     {
-                        ImGui.TableNextRow();
-                        ImGui.TableSetColumnIndex(0);
-                        if (ImGui.Selectable($"##{leveId.Key}", Leve_DetailsTab.selectedLeve == leveId.Key, ImGuiSelectableFlags.SpanAllColumns))
-                        {
-                            Leve_DetailsTab.selectedLeve = leveId.Key;
-                        }
-                        if (ImGui.IsItemHovered() && (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left) || (ImGui.IsItemClicked(ImGuiMouseButton.Left) && C.RapidImport)))
-                        {
-                            if (!C.LeveOrder.Contains(leveId.Key))
-                                C.LeveOrder.Add(leveId.Key);
+                        if (!C.LeveOrder.Contains(leveId.Key))
+                            C.LeveOrder.Add(leveId.Key);
 
-                            if (C.LeveList[leveId.Key] == 0)
-                                C.LeveList[leveId.Key] = 1;
+                        if (C.LeveList[leveId.Key] == 0)
+                            C.LeveList[leveId.Key] = 1;
 
-                            C.SaveDebounced();
-                        }
-                        ImGui.SameLine();
-                        Theme_Colors.BodyText($"{leveId.Key}");
-
-                        // JobIcon
-                        ImGui.TableNextColumn();
-                        var globalScale = ImGuiHelpers.GlobalScale;
-                        Vector2 imageSize = new Vector2(18 * globalScale, 18 * globalScale);
-                        ImGui.Image(LeveInfo.Job_IconDict[leveId.Value.Job].ColorIcon.GetWrapOrEmpty().Handle, imageSize);
-
-                        // Favorite icon
-                        ImGui.TableNextColumn();
-                        if (C.FavoriteLeves.Contains(leveId.Key))
-                        {
-                            var starTex = Svc.Texture.GetFromGame("ui/uld/linkshell_hr1.tex").GetWrapOrEmpty();
-                            Vector2 uvMin = new Vector2(0.027825013f, 0.04166667f);
-                            Vector2 uvMax = new Vector2(0.305575f, 0.4583333f);
-                            ImGui.Image(starTex.Handle, imageSize, uvMin, uvMax);
-                            ImGui.SameLine(0, 4);
-                        }
-
-                        ImGui.TableNextColumn();
-                        if (Utils.Leve_IsComplete(leveId.Key))
-                        {
-
-                        }
-
-                        ImGui.TableNextColumn();
-                        ImGui.Text($"{leveId.Value.LeveName}");
+                        C.SaveDebounced();
                     }
+
+                    // Manually paint the row background — this is what actually gives you the full-row highlight
+                    if (isSelected)
+                    {
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(ImGuiCol.HeaderActive));
+                    }
+                    else if (isHovered)
+                    {
+                        ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(ImGuiCol.HeaderHovered));
+                    }
+
+                    // JobIcon
+                    ImGui.TableNextColumn();
+                    GameIcons.DrawInlineOrIcon(LeveInfo.Job_IconDict[leveId.Value.Job].IconId, FontAwesomeIcon.Book);
+
+                    // ImGui.Image(LeveInfo.Job_IconDict[leveId.Value.Job].ColorIcon.GetWrapOrEmpty().Handle, imageSize);
+
+                    // Favorite icon
+                    ImGui.TableNextColumn();
+                    if (C.FavoriteLeves.Contains(leveId.Key))
+                    {
+                        GameIcons.DrawInlineOrIcon(61817, FontAwesomeIcon.Star, new Vector4(1f, 0.84f, 0f, 1f));
+                    }
+
+                    ImGui.TableNextColumn();
+                    if (Utils.Leve_IsComplete(leveId.Key))
+                    {
+                        ImGui.AlignTextToFramePadding();
+                        GameIcons.DrawInlineOrIcon(071045, FontAwesomeIcon.Check);
+                    }
+
+                    ImGui.TableNextColumn();
+                    ImGui.AlignTextToFramePadding();
+                    ImGui.Text($"{leveId.Value.LeveName}");
                 }
 
                 ImGui.EndTable();

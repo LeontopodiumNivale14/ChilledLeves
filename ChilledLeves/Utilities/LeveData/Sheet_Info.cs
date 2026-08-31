@@ -40,6 +40,7 @@ public static partial class LeveInfo
         public uint Item_Id { get; set; } = 0;
         public string Item_Name { get; set; } = "???";
         public ISharedImmediateTexture? Item_Icon { get; set; } = null;
+        public uint IconId { get; set; }
         public int TurninAmount { get; set; } = -1;
         public int RepeatAmount { get; set; } = -1;
     }
@@ -209,6 +210,7 @@ public static partial class LeveInfo
                         materialList.Item_Id = itemId;
                         materialList.Item_Name = itemName;
                         materialList.Item_Icon = iconImage;
+                        materialList.IconId = iconId;
                         materialList.RepeatAmount = repeatAmount;
                         materialList.TurninAmount = turninAmount;
                     }

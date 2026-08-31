@@ -1,4 +1,5 @@
 ﻿using Dalamud.Interface.Textures.TextureWraps;
+using Dalamud.Interface.Utility.Raii;
 
 namespace ChilledLeves.Gui;
 
@@ -12,6 +13,22 @@ public static class ImGui_Ice
         ImGui.TextUnformatted(icon.ToIconString());
         ImGui.PopFont();
         if (s != null) 
+        {
+            ImGui.SameLine();
+            ImGui.TextUnformatted(s);
+        }
+    }
+
+    public static void Icon(FontAwesomeIcon icon, Vector4 color, string? s = null)
+    {
+        using (ImRaii.PushColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(color)))
+        {
+            using (ImRaii.PushFont(UiBuilder.IconFont))
+            {
+                ImGui.TextUnformatted(icon.ToIconString());
+            }
+        }
+        if (s != null)
         {
             ImGui.SameLine();
             ImGui.TextUnformatted(s);
