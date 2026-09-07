@@ -18,8 +18,13 @@ namespace ChilledLeves.Scheduler.Tasks
             string tag = "Check Active Leves";
 
             Leve_Helper.LeveToGrab = 0;
+            uint turninLeve = 0;
 
             var currentLeves = Utils.Leve_ActiveIds();
+            List<uint> activeGatheringLeves = [];
+
+
+
             foreach (var leve in currentLeves)
             {
                 if (C.LeveOrder.Contains(leve))
@@ -33,10 +38,13 @@ namespace ChilledLeves.Scheduler.Tasks
 
                             if (Utils.GetItemCount(materialInfo.Item_Id) >= neededAmount)
                             {
-                                IceLogging.Debug($"Found a leve that we have enough for a turnin. Going to go do so {leve}", tag);
-                                Leve_Helper.LeveToGrab = leve;
-                                Leve_Helper.State = LeveState.Travel_Turnin;
-                                return true;
+                                if (turninLeve == 0)
+                                {
+                                    IceLogging.Debug($"Found a leve that we have enough for a turnin. Registering it now so it'll be stored. {leve}", tag);
+                                    IceLogging.Debug($"We may not turn this in immediately if we have gathering leves to still do though", tag);
+                                    turninLeve = leve;
+                                }
+                                continue;
                             }
                         }
                         else if (LeveInfo.LeveJobs_Gathering.Contains(sheetInfo.Job))
@@ -45,23 +53,44 @@ namespace ChilledLeves.Scheduler.Tasks
 
                             if (currentSeq is 1 or 3)
                             {
-                                IceLogging.Debug($"Leve [{leve}] still needs to be completed/redone. So going to go do so", tag);
-                                Leve_Helper.LeveToGrab = leve;
-                                Leve_Helper.State = LeveState.Start_GatheringLeve;
+                                IceLogging.Debug($"Leve [{leve}] still needs to be completed/redone. Adding it to the post checks", tag);
+                                activeGatheringLeves.Add(leve);
                             }
                             else if (currentSeq is 255)
                             {
-                                IceLogging.Debug($"Leve [{leve}] is completed/ready to be turned in. Going to do so", tag);
-                                Leve_Helper.LeveToGrab = leve;
-                                Leve_Helper.State = LeveState.Turnin_Leve;
-                                return true;
+                                if (turninLeve == 0)
+                                {
+                                    IceLogging.Debug($"Found a leve that we have completed for a turnin. Registering it now so it'll be stored. {leve}", tag);
+                                    IceLogging.Debug($"We may not turn this in immediately if we have gathering leves to still do though", tag);
+                                    turninLeve = leve;
+                                }
+                                continue;
                             }
                         }
                     }
                 }
             }
 
-            if (Leve_Helper.LeveToGrab == 0)
+            if (activeGatheringLeves.Count > 0)
+            {
+                var leve = activeGatheringLeves.First();
+                IceLogging.Debug($"We found a gathering leve that is in need of completion, going to go do so {leve}", tag);
+
+                Leve_Helper.LeveToGrab = leve;
+                Leve_Helper.State = LeveState.GatheringLeve_Start;
+
+                return true;
+            }
+
+            if (turninLeve != 0)
+            {
+                IceLogging.Debug("All checks have been completed. We don't have any gathering leves that we need to attemp so, we just going to turnin", tag);
+                IceLogging.Debug($"Setting turnin leve to: {turninLeve}, and proceeding to turnin", tag);
+                Leve_Helper.LeveToGrab = turninLeve;
+                Leve_Helper.State = LeveState.Turnin_Leve;
+                return true;
+            }
+            else
             {
                 IceLogging.Debug("No active leves were found that were in our list, so we're going to instead find one to complete", tag);
                 if (Leve_Helper.SelectedMode is ModeSelection.Standard)
@@ -84,8 +113,6 @@ namespace ChilledLeves.Scheduler.Tasks
                     return true;
                 }
             }
-
-            return false;
         }
         private static bool Check_StandardLeves()
         {

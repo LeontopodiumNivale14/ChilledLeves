@@ -38,5 +38,7 @@ namespace ChilledLeves.Enums
         Brazen = 105,
         Meticulous = 106,
         Collect = 107,
+
+        Unknown = 1000,
     }
 }

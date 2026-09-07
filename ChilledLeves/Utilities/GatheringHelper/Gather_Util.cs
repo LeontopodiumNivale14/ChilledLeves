@@ -4,6 +4,7 @@ using ECommons.ExcelServices;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static ChilledLeves.Config_Files.Config;
 
 namespace ChilledLeves.Utilities.GatheringHelper;
 
@@ -332,5 +333,131 @@ public static partial class Gather_Util
             StatusName = "",
             RequiredGp = 0,
         },
+    };
+
+    public static GatherProfile DefaultProfile = new()
+    {
+        ProfileId = 0,
+        Name = "Default",
+    };
+
+    public static GatherProfile Type_Search = new()
+    {
+        ProfileId = 1,
+        Name = "Type: Search",
+        GatheringBuffs = new()
+        {
+            [Gather_Enums.BonusIntegrity] = new() { Enabled = true },
+            [Gather_Enums.BonusIntegrity_Chance] = new() { Enabled = true },
+
+            [Gather_Enums.BoonIncrease_1] = new(),
+            [Gather_Enums.BoonIncrease_2] = new(),
+            [Gather_Enums.Tidings] = new(),
+            [Gather_Enums.YieldI] = new(),
+            [Gather_Enums.YieldII] = new(),
+            [Gather_Enums.BYII] = new(),
+            [Gather_Enums.FieldMasteryI] = new(),
+            [Gather_Enums.FieldMasteryII] = new(),
+            [Gather_Enums.FieldMasteryIII] = new(),
+            [Gather_Enums.FieldMasteryTemp] = new(),
+            [Gather_Enums.TwelveBounty] = new(),
+            [Gather_Enums.GivingLand] = new(),
+            [Gather_Enums.Scrutiny] = new(),
+            [Gather_Enums.Focus] = new(),
+            [Gather_Enums.Priming] = new(),
+            [Gather_Enums.Scour] = new(),
+            [Gather_Enums.Brazen] = new(),
+            [Gather_Enums.Meticulous] = new(),
+        }
+    };
+
+    public static GatherProfile Type_Procure = new()
+    {
+        ProfileId = 2,
+        Name = "Type: Procure",
+        GatheringBuffs = new()
+        {
+            [Gather_Enums.BoonIncrease_1] = new(),
+            [Gather_Enums.BoonIncrease_2] = new(),
+            [Gather_Enums.Tidings] = new(),
+            [Gather_Enums.BonusIntegrity] = new() { Enabled = true },
+            [Gather_Enums.BonusIntegrity_Chance] = new() { Enabled = true },
+            [Gather_Enums.FieldMasteryI] = new(),
+            [Gather_Enums.FieldMasteryII] = new(),
+            [Gather_Enums.FieldMasteryIII] = new(),
+            [Gather_Enums.FieldMasteryTemp] = new(),
+            [Gather_Enums.TwelveBounty] = new(),
+            [Gather_Enums.GivingLand] = new(),
+            [Gather_Enums.Scrutiny] = new(),
+            [Gather_Enums.Focus] = new(),
+            [Gather_Enums.Priming] = new(),
+            [Gather_Enums.Scour] = new(),
+            [Gather_Enums.Brazen] = new(),
+            [Gather_Enums.Meticulous] = new(),
+
+            [Gather_Enums.BYII] = new() { Enabled = true },
+            [Gather_Enums.YieldII] = new() { Enabled = true },
+            [Gather_Enums.YieldI] = new() { Enabled = true }
+        }
+    };
+
+    public static GatherProfile Type_Execute = new()
+    {
+        ProfileId = 4,
+        Name = "Type: Execute",
+        GatheringBuffs = new()
+        {
+            [Gather_Enums.BonusIntegrity] = new() { Enabled = true },
+            [Gather_Enums.BonusIntegrity_Chance] = new() { Enabled = true },
+
+            [Gather_Enums.BoonIncrease_1] = new(),
+            [Gather_Enums.BoonIncrease_2] = new(),
+            [Gather_Enums.Tidings] = new(),
+            [Gather_Enums.YieldI] = new(),
+            [Gather_Enums.YieldII] = new(),
+            [Gather_Enums.BYII] = new(),
+            [Gather_Enums.FieldMasteryI] = new(),
+            [Gather_Enums.FieldMasteryII] = new(),
+            [Gather_Enums.FieldMasteryIII] = new(),
+            [Gather_Enums.FieldMasteryTemp] = new(),
+            [Gather_Enums.TwelveBounty] = new(),
+            [Gather_Enums.GivingLand] = new(),
+            [Gather_Enums.Scrutiny] = new(),
+            [Gather_Enums.Focus] = new(),
+            [Gather_Enums.Priming] = new(),
+            [Gather_Enums.Scour] = new(),
+            [Gather_Enums.Brazen] = new(),
+            [Gather_Enums.Meticulous] = new(),
+        }
+    };
+
+    public static GatherProfile Type_Search_Procure = new()
+    {
+        ProfileId = 3,
+        Name = "Type: Search & Procure",
+        GatheringBuffs = new()
+        {
+            [Gather_Enums.BonusIntegrity] = new() { Enabled = true },
+            [Gather_Enums.BonusIntegrity_Chance] = new() { Enabled = true },
+
+            [Gather_Enums.BoonIncrease_1] = new(),
+            [Gather_Enums.BoonIncrease_2] = new(),
+            [Gather_Enums.Tidings] = new(),
+            [Gather_Enums.YieldI] = new(),
+            [Gather_Enums.YieldII] = new(),
+            [Gather_Enums.BYII] = new(),
+            [Gather_Enums.FieldMasteryI] = new(),
+            [Gather_Enums.FieldMasteryII] = new(),
+            [Gather_Enums.FieldMasteryIII] = new(),
+            [Gather_Enums.FieldMasteryTemp] = new(),
+            [Gather_Enums.TwelveBounty] = new(),
+            [Gather_Enums.GivingLand] = new(),
+            [Gather_Enums.Scrutiny] = new(),
+            [Gather_Enums.Focus] = new(),
+            [Gather_Enums.Priming] = new(),
+            [Gather_Enums.Scour] = new(),
+            [Gather_Enums.Brazen] = new(),
+            [Gather_Enums.Meticulous] = new(),
+        }
     };
 }

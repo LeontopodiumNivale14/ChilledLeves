@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Enums;
+using ChilledLeves.Resources;
 using ChilledLeves.Utilities.LeveData;
 using ChilledLeves.Utilities.LogInfo;
 using ECommons.GameHelpers;
@@ -37,7 +38,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 var count = navTask.Tasks.Count();
 
-                if (EzThrottler.Throttle("Navigation is running", 2000))
+                if (EzThrottler.Throttle("Navigation is running", 10000))
                     IceLogging.Verbose($"Navigation is currently running, current task count: [{count}]", tag);
             }
 
@@ -68,7 +69,7 @@ namespace ChilledLeves.Scheduler.Tasks
             {
                 var count = navTask.Tasks.Count();
 
-                if (EzThrottler.Throttle("Navigation is running", 2000))
+                if (EzThrottler.Throttle("Navigation is running", 10000))
                     IceLogging.Verbose($"Navigation is currently running, current task count: [{count}]", tag);
             }
 
@@ -78,6 +79,27 @@ namespace ChilledLeves.Scheduler.Tasks
         public static bool Aethernet_GatheringTravel()
         {
             const string tag = "Travel: Gathering Pathing";
+            var navTask = P.navTask;
+            if (!navTask.IsBusy)
+            {
+                var leveId = Leve_Helper.LeveToGrab;
+
+                if (RouteLoader.Leve_Routes.TryGetValue(leveId, out var routeInfo))
+                {
+
+                }
+                else
+                {
+
+                }
+            }
+            else
+            {
+                var count = navTask.Tasks.Count();
+
+                if (EzThrottler.Throttle("Navigation is running", 10000))
+                    IceLogging.Verbose($"Navigation is currently running, current task count: [{count}]", tag);
+            }
 
             return false;
         }

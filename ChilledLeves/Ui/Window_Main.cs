@@ -110,6 +110,7 @@ namespace ChilledLeves.Ui
 
                     if (ImGui.BeginTabItem("Settings"))
                     {
+                        Settings_Tab.Draw();
                         ImGui.EndTabItem();
                     }
 

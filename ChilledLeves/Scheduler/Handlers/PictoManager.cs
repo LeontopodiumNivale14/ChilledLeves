@@ -3,6 +3,7 @@ using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LogInfo;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using FFXIVClientStructs.FFXIV.Common.Component.BGCollision;
 using InteropGenerator.Runtime;
 using Pictomancy;
 using System;
@@ -126,6 +127,15 @@ internal static class PictoManager
         });
     }
 
+    public static void DrawNodeLocation(Vector3 position, bool isSelected)
+    {
+        Vector4 color = isSelected ? C.Picto_SelectedGatherBase : C.Picto_GatherBase;
+        AddDrawCommand(pictoDraw =>
+        {
+            pictoDraw.AddDot(position, 4, ImGui.ColorConvertFloat4ToU32(color));
+        });
+    }
+
     public static void DrawGatheringFan(GatheringNode location, bool isSelected)
     {
         var fanColor_Gather = isSelected ? C.Picto_SelectedFan : C.Picto_GatherFanColor;
@@ -212,6 +222,8 @@ internal static class PictoManager
                     Utils.ToUintABGR(fanColor_Flight));
             });
         }
+
+        DrawNodeLocation(location.Position, isSelected);
     }
 
     /// <summary>

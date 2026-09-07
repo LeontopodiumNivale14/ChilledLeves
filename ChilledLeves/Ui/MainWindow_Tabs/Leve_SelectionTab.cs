@@ -44,6 +44,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     ImGui.TableSetColumnIndex(0);
                     ImGui.AlignTextToFramePadding();
 
+                    // Selectable makes it to where 
                     ImGui.PushStyleColor(ImGuiCol.HeaderHovered, new Vector4(0, 0, 0, 0));
                     ImGui.PushStyleColor(ImGuiCol.HeaderActive, new Vector4(0, 0, 0, 0));
                     ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(0, 0, 0, 0));
@@ -79,8 +80,6 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     // JobIcon
                     ImGui.TableNextColumn();
                     GameIcons.DrawInlineOrIcon(LeveInfo.Job_IconDict[leveId.Value.Job].IconId, FontAwesomeIcon.Book);
-
-                    // ImGui.Image(LeveInfo.Job_IconDict[leveId.Value.Job].ColorIcon.GetWrapOrEmpty().Handle, imageSize);
 
                     // Favorite icon
                     ImGui.TableNextColumn();

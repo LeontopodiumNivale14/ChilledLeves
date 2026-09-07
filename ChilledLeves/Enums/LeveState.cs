@@ -6,13 +6,12 @@
 
         CheckLeves,
 
-        Travel_Grab,
-        Travel_Turnin,
-
         Grab_StandardLeve,
         Grab_ARRLeve,
 
-        Start_GatheringLeve,
+        GatheringLeve_Start,
+        GatherLeve_Execute,
+
         Turnin_Leve,
     }
 

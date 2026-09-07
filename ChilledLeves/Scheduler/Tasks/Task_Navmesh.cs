@@ -1,4 +1,6 @@
-﻿using ChilledLeves.Utilities;
+﻿using ChilledLeves.Enums;
+using ChilledLeves.Resources;
+using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using ChilledLeves.Utilities.LogInfo;
 using Dalamud.Game.ClientState.Conditions;
@@ -49,11 +51,147 @@ namespace ChilledLeves.Scheduler.Tasks
                 );
         }
 
+        public static bool Queue_WorldVendorTravel(LeveInfo.VendorInfo vendorInfo)
+        {
+            var position = vendorInfo.Npc_InteractZone;
+            bool shouldFly = Player.DistanceTo(position) > C.Fly_MinDistance && Utils.CanFly() && C.OptionalFly;
 
+            var minFlight = C.Fly_MinDistance;
+
+            IceLogging.Verbose($"Player Distance: {Player.DistanceTo(position)} | Fly MinDistance: {minFlight} | Can Fly? {Utils.CanFly()} | Optional Fly: {C.OptionalFly}", "Vendor: Openworld");
+
+            if (shouldFly)
+            {
+                P.navTask.Enqueue(() => Task_FlyTo(vendorInfo.Npc_InteractZone), "Flying to our NPC");
+            }
+            else
+            {
+                P.navTask.Enqueue(() => Task_GroundTo(vendorInfo.Npc_InteractZone), "Navigating to our NPC");
+            }
+
+            return true;
+        }
+
+        public static void Queue_GatherTravel(GatheringRoute routeInfo)
+        {
+            string tag = "Navmesh: Gather Travel";
+
+            IceLogging.Verbose("I HOPE... we have all the nodes. We're just going to pathfind our way to the closest one", tag);
+            bool correctTerritory = Player.Territory.RowId == routeInfo.TerritoryId;
+
+            void QueueGatherPath()
+            {
+                var node = routeInfo.NodeInfo[0];
+
+                bool optionalFly = C.OptionalFly;
+                bool minFlyDistance = C.Fly_MinDistance < Player.DistanceTo(node.Position);
+
+                if (Utils.CanFly(routeInfo.TerritoryId) && optionalFly && minFlyDistance)
+                {
+                    P.navTask.Enqueue(() => Task_FlyTo(Gather_RandomFanPosition(node, true)), "Flying to destination");
+                    P.navTask.Enqueue(() => Task_GroundTo(Gather_RandomFanPosition(node, false)), "Moving closer to the node");
+                }
+                else
+                {
+                    P.navTask.Enqueue(() => Task_GroundTo(Gather_RandomFanPosition(node, false)), "Moving closer to the node");
+                }
+
+            }
+
+            if (!correctTerritory)
+            {
+                P.navTask.Enqueue(() => TeleportToArea(routeInfo.AetheryteId), "Teleporting to aethernet");
+                QueueGatherPath();
+            }
+            if (correctTerritory)
+            {
+                bool travelNeeded = true;
+
+                foreach (var node in routeInfo.NodeInfo)
+                {
+                    if (Player.DistanceTo(node.Position) < 5)
+                    {
+                        IceLogging.Verbose("We're already close enough to a gathering node already! Going to start it next", tag);
+                        travelNeeded = false;
+                        break;
+                    }
+                }
+                if (travelNeeded)
+                    QueueGatherPath();
+            }
+        }
+
+        private static (uint baseId, bool flyingRequired) LastNode = (0, false);
+
+        private static bool LastNodeFly = false;
+
+        public static void Gathering_TravelToNode(GatheringNode node)
+        {
+            bool UpdateLastInfo(bool flying)
+            {
+                LastNode.baseId = node.BaseId;
+                LastNode.flyingRequired = flying;
+                return true;
+            }
+
+            bool flyingRequired = node.RequiresFlying;
+            bool optionalFly = C.OptionalFly;
+            bool minFlyDistance = C.Fly_MinDistance < Player.DistanceTo(node.Position);
+
+            if (flyingRequired)
+            {
+                P.navTask.EnqueueMulti
+                    (
+                        new(() => Task_FlyTo(Gather_RandomFanPosition(node, true)), "Flying to destination"),
+                        new(() => Task_GroundTo(Gather_RandomFanPosition(node, false)), "Moving closer to the node"),
+                        new(() => Task_MoveCloser(node.Position), "Last check to make sure we're close enough"),
+                        new(() => UpdateLastInfo(true), "Setting last Node Info")
+                    );
+            }
+            else if (LastNode.flyingRequired && LastNode.baseId != node.BaseId)
+            {
+                P.navTask.EnqueueMulti
+                (
+                    new(() => Task_FlyTo(Gather_RandomFanPosition(node, true)), "Flying to destination"),
+                    new(() => Task_GroundTo(Gather_RandomFanPosition(node, false)), "Moving closer to the node"),
+                    new(() => Task_MoveCloser(node.Position), "Last check to make sure we're close enough"),
+                    new(() => UpdateLastInfo(node.RequiresFlying), "Setting last Node Info")
+                );
+            }
+            else if (Svc.Condition[ConditionFlag.Diving])
+            {
+                P.navTask.EnqueueMulti
+                (
+                    new(() => Task_SwimTo(Gather_RandomFanPosition(node, false)), "Moving closer to the node"),
+                    new(() => Task_MoveCloser(node.Position), "Last check to make sure we're close enough"),
+                    new(() => UpdateLastInfo(node.RequiresFlying), "Setting last Node Info")
+                );
+            }
+            else if (optionalFly && minFlyDistance)
+            {
+                P.navTask.EnqueueMulti
+                (
+                    new(() => Task_FlyTo(Gather_RandomFanPosition(node, true)), "Flying to destination"),
+                    new(() => Task_GroundTo(Gather_RandomFanPosition(node, false)), "Moving closer to the node"),
+                    new(() => Task_MoveCloser(node.Position), "Last check to make sure we're close enough"),
+                    new(() => UpdateLastInfo(node.RequiresFlying), "Setting last Node Info")
+                );
+            }
+            else
+            {
+                P.navTask.EnqueueMulti
+                (
+                    new(() => Task_GroundTo(Gather_RandomFanPosition(node, false)), "Moving closer to the node"),
+                    new(() => Task_MoveCloser(node.Position), "Last check to make sure we're close enough"),
+                    new(() => UpdateLastInfo(node.RequiresFlying), "Setting last Node Info")
+                );
+            }
+        }
 
         // Trying to take what worked out of cosmic and make it more refined here. So if need to reference again, check cosmic navmesh task
 
-        // - - - Navmesh Info Storage - - - //
+        #region Path Info / Storage [Fun Jaz]
+
         public enum TravelTypes
         {
             Direct,
@@ -88,7 +226,17 @@ namespace ChilledLeves.Scheduler.Tasks
 
         private readonly record struct CandidatePathResult(Utils.AethershardInfo Candidate, List<Vector3> PathTo);
 
-        // - - - Navmesh Task Themselves... - - - //
+        private static readonly HashSet<uint>[] MultiZoneCities =
+        [
+            new() { 128, 129 },       // Limsa
+            new() { 130, 131 },       // Gridania
+            new() { 132, 133 },       // Ul'dah
+            new() { 418, 419 },       // Foundation
+        ];
+
+        #endregion
+
+        #region Pathfinding Task(s)
 
         public static bool TeleportCheck(VendorInfo vendorInfo)
         {
@@ -100,48 +248,47 @@ namespace ChilledLeves.Scheduler.Tasks
             IceLogging.Verbose("- - - Starting Teleport Check - - -", tag);
 
             var territoryId = Player.Territory.RowId;
-
-            if (vendorInfo.TerritoryId == territoryId)
-            {
-                IceLogging.Info("Nice and simple. We just need to check to see how to travel to our npc", tag);
-                QueueCityAethernet(vendorInfo);
-                return true;
-            }
-
-            if (InSameCity(territoryId, vendorInfo.TerritoryId))
-            {
-                IceLogging.Info("We're just in the wrong part of the city, so going to use the aethernet to get to the proper side", tag);
-                Queue_TeleportAethernet(vendorInfo);
-                return true;
-            }
-
-            IceLogging.Debug("We're not in the correct area... at all. So going to queue up a teleport task, then use the travel system post", tag);
             var vendorAetheryte = vendorInfo.Aetheryte;
-            IceLogging.Verbose($"Teleporting to: {vendorAetheryte}", tag);
 
-            P.navTask.Enqueue(() => TeleportToArea(vendorAetheryte), "Teleporting to aethernet");
-            if (Utils.Aethernet.Any(x => x.Value.TerritoryId == vendorInfo.TerritoryId))
+            if (vendorInfo.Fly)
             {
-                IceLogging.Info("Teleport has been queue'd up, and it seems like we're traveling to a city. So also queueing up the aethernet system", tag);
-                QueueCityAethernet(vendorInfo);
+                IceLogging.Verbose("We're heading to one of the outer city states, but can atleast check for mounting/flying", tag);
+                if (vendorInfo.TerritoryId != territoryId)
+                    P.navTask.Enqueue(() => TeleportToArea(vendorAetheryte), "Teleporting to aethernet");
+
+                IceLogging.Info($"Teleporting to a vendor outside the city, using normal navmesh travel system. Destination: [{vendorInfo.TerritoryId}]", tag);
+                P.navTask.Enqueue(() => Queue_WorldVendorTravel(vendorInfo), "Queueing up travel method");
+
                 return true;
             }
             else
             {
-                IceLogging.Info($"Teleporting to a vendor outside the city, using normal navmesh travel system. Destination: [{vendorInfo.TerritoryId}]", tag);
-                // TODO: Actually put navmesh navigation here... need to check for flying available vs not (and being able to set mount distance and the hoozah)
+                if (vendorInfo.TerritoryId == territoryId)
+                {
+                    IceLogging.Info("Nice and simple. We just need to check to see how to travel to our npc", tag);
+                    QueueCityAethernet(vendorInfo);
+                    return true;
+                }
+
+                if (InSameCity(territoryId, vendorInfo.TerritoryId))
+                {
+                    IceLogging.Info("We're just in the wrong part of the city, so going to use the aethernet to get to the proper side", tag);
+                    Queue_TeleportAethernet(vendorInfo);
+                    return true;
+                }
+
+                IceLogging.Debug("We're not in the correct area... at all. So going to queue up a teleport task, then use the travel system post", tag);
+                IceLogging.Verbose($"Teleporting to: {vendorAetheryte}", tag);
+
+                P.navTask.Enqueue(() => TeleportToArea(vendorAetheryte), "Teleporting to aethernet");
+                if (Utils.Aethernet.Any(x => x.Value.TerritoryId == vendorInfo.TerritoryId))
+                {
+                    IceLogging.Info("Teleport has been queue'd up, and it seems like we're traveling to a city. So also queueing up the aethernet system", tag);
+                    QueueCityAethernet(vendorInfo);
+                }
+                return true;
             }
-            return true;
         }
-
-        private static readonly HashSet<uint>[] MultiZoneCities =
-        {
-            new() { 128, 129 },       // Limsa
-            new() { 130, 131 },       // Gridania
-            new() { 132, 133 },       // Ul'dah
-            new() { 418, 419 },       // Foundation
-        };
-
         private static bool InSameCity(uint territoryId, uint vendorTerritoryId)
         {
             foreach (var city in MultiZoneCities)
@@ -222,6 +369,14 @@ namespace ChilledLeves.Scheduler.Tasks
             const string tag = "Navmesh: Aethernet Calculation";
             Vector3 destination = vendorInfo.Npc_InteractZone;
             uint destinationShardId = vendorInfo.ClosestShard;
+
+            if (!P.navmesh.IsReady())
+            {
+                if (EzThrottler.Throttle("Waiting for navmesh wee woo"))
+                    IceLogging.Verbose("We're waiting for navmesh to catch up with us, please hold", tag);
+
+                return false;
+            }
 
             if (!Utils.Aethernet.TryGetValue(destinationShardId, out var destinationShard))
             {
@@ -648,10 +803,145 @@ namespace ChilledLeves.Scheduler.Tasks
             return await P.navmesh.Pathfind(position, destination, false);
         }
 
-        // - - - Old code to sort through - - - //
+        #endregion
 
-        private static Vector3? _pointOnGround = null;
+        #region Actual TaskMove Codes [Blessed]
 
+        public static bool Task_GroundToAetheryte(Vector3 pos, Vector3 aetheryte, bool waitForBusy = true, float distance = 2.0f)
+        {
+            const string tag = "Navmesh: Ground Move";
+
+            if (!P.navmesh.Installed)
+            {
+                IceLogging.Info("We seem to be missing navmesh... so we're just going to exit here", tag);
+                return true;
+            }
+            else if (P.navmesh.IsRunning())
+            {
+                if (Player.IsMoving && waitForBusy)
+                {
+                    if (EzThrottler.Throttle("Throttle message tehe"))
+                        IceLogging.Verbose("We're currently moving, and we were told to wait for us to NOT be moving so... yeah, we waiting", tag);
+
+                    return false;
+                }
+                else if (!waitForBusy && (Player.DistanceTo(aetheryte) <= distance))
+                {
+                    if (EzThrottler.Throttle("Telling navmesh to stop"))
+                    {
+                        IceLogging.Verbose("We're within stopping distance, so stopping navmesh", tag);
+                        P.navmesh.PathStop();
+                    }
+                }
+            }
+            else if (!P.navmesh.IsReady())
+            {
+                if (EzThrottler.Throttle("Waiting on navmesh", 1000))
+                {
+                    var navProgress = P.navmesh.BuildProgress();
+                    IceLogging.Debug($"Waiting for navmesh to finish building. Currently at: {navProgress:N2}", tag);
+                }
+            }
+            else if (!P.navmesh.IsRunning())
+            {
+                if (Player.DistanceTo(aetheryte) <= distance)
+                {
+                    IceLogging.Verbose("We've met the distance threshold, continuing on", tag);
+                    ResetInfo();
+                    return true;
+                }
+                else
+                {
+                    if (EzThrottler.Throttle("Telling navmesh to start"))
+                    {
+                        P.navmesh.SetTolerance(0.25f);
+                        IceLogging.Verbose("We're setting the tolerance to 0.25f here", tag);
+                        P.navmesh.PathfindAndMoveTo(pos, false);
+                    }
+                }
+            }
+
+            return false;
+        }
+        public static bool Task_GroundTo(Vector3 pos, bool waitForBusy = true, float distance = 2.0f, bool stayMounted = false)
+        {
+            const string tag = "Navmesh: Ground -> Destination";
+            Vector2 v2Pos = new(pos.X, pos.Z); 
+
+            var currentDistance = Player.DistanceTo(v2Pos);
+
+            bool useMount = C.UseMount && Player.CanMount;
+            int mount_MinDistance = C.Mount_MinDistance;
+            int mount_DismountDist = C.Mount_DismountDistance;
+
+            if (!P.navmesh.Installed)
+            {
+                IceLogging.Info("We seem to be missing navmesh... so we're just going to exit here", tag);
+                return true;
+            }
+            else if (P.navmesh.IsRunning())
+            {
+                bool dismountRange = currentDistance < mount_DismountDist;
+                bool mountRange = currentDistance > mount_MinDistance;
+
+                if (dismountRange && Player.Mounted)
+                {
+                    if (EzThrottler.Throttle("Dismounting off the mount"))
+                        IceLogging.Verbose("We're withing dismount range, so going to stay off the mount", tag);
+
+                    Utils.Dismount();
+                }
+                else if (useMount && !Player.Mounted && mountRange && !dismountRange)
+                {
+                    Utils.MountAction();
+                }
+
+
+                if (Player.IsMoving && waitForBusy)
+                {
+                    if (EzThrottler.Throttle("Busy_MoveCheck"))
+                        IceLogging.Verbose("We're currently moving, and we were told to wait for us to not be busy. Waiting patiently.", tag);
+
+                    return false;
+                }
+                else if (!waitForBusy && currentDistance <= distance)
+                {
+                    if (EzThrottler.Throttle("Busy_CloseEnough"))
+                    {
+                        IceLogging.Verbose("We're within stopping distance, so stopping navmesh", tag);
+                        P.navmesh.PathStop();
+                    }
+                }
+            }
+            else if (!P.navmesh.IsReady())
+            {
+                if (EzThrottler.Throttle("Waiting on navmesh", 500))
+                {
+                    var navProgress = P.navmesh.BuildProgress();
+                    IceLogging.Debug($"Waiting for navmesh to finish building. Currently at: {navProgress:N2}", tag);
+                }
+            }
+            else if (!P.navmesh.IsRunning())
+            {
+                if (currentDistance < distance)
+                {
+                    IceLogging.Verbose("We've met the distance threshold to our destination, continuing on", tag);
+                    ResetInfo();
+                    return true;
+                }
+                else
+                {
+                    if (EzThrottler.Throttle("telling navmesh to start ground movement"))
+                    {
+                        P.navmesh.SetTolerance(0.25f);
+                        IceLogging.Verbose("We're setting the tolerance to 0.25f here", tag);
+                        P.navmesh.PathfindAndMoveTo(pos, false);
+                    }
+                }
+            }
+
+            return false;
+        }
         public static bool Task_FlyTo(Vector3 pos, bool waitForBusy = true, float distance = 2.0f, bool stayMounted = false)
         {
             bool isFlying = Svc.Condition[ConditionFlag.InFlight];
@@ -738,6 +1028,7 @@ namespace ChilledLeves.Scheduler.Tasks
                     if (EzThrottler.Throttle("Commence Navmesh Movement"))
                     {
                         P.navmesh.SetTolerance(0.25f);
+                        IceLogging.DestinationLogs.Log(pos);
                         P.navmesh.PathfindAndMoveTo(pos, true);
                     }
                 }
@@ -745,14 +1036,16 @@ namespace ChilledLeves.Scheduler.Tasks
 
             return false;
         }
-
-        public static bool Task_GroundTo(Vector3 pos, bool waitForBusy = true, float distance = 2.0f, bool stayMounted = false)
+        public static bool Task_SwimTo(Vector3 pos, bool waitForBusy = true, float distance = 2.0f, bool stayMounted = false)
         {
-            const string tag = "Navmesh: Ground Move";
+            const string tag = "Navmesh: Ground -> Destination";
+            Vector2 v2Pos = new(pos.X, pos.Z);
 
-            bool mounted = Player.Mounted;
-            float minMountDistance = 15;
-            float dismountDistance = 3;
+            var currentDistance = Player.DistanceTo(pos);
+
+            bool useMount = C.UseMount && Player.CanMount;
+            int mount_MinDistance = C.Mount_MinDistance;
+            int mount_DismountDist = C.Mount_DismountDistance;
 
             if (!P.navmesh.Installed)
             {
@@ -761,24 +1054,32 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (P.navmesh.IsRunning())
             {
-                if (Player.DistanceTo(pos) <= dismountDistance && !stayMounted)
+                bool dismountRange = currentDistance < mount_DismountDist;
+                bool mountRange = currentDistance > mount_MinDistance;
+
+                if (dismountRange && Player.Mounted)
                 {
-                    if (EzThrottler.Throttle("Dismounting the mount"))
-                    {
-                        Utils.Dismount();
-                    }
+                    if (EzThrottler.Throttle("Dismounting off the mount"))
+                        IceLogging.Verbose("We're withing dismount range, so going to stay off the mount", tag);
+
+                    Utils.Dismount();
                 }
+                else if (useMount && !Player.Mounted && mountRange && !dismountRange)
+                {
+                    Utils.MountAction();
+                }
+
 
                 if (Player.IsMoving && waitForBusy)
                 {
-                    if (EzThrottler.Throttle("Throttle message tehe"))
-                        IceLogging.Verbose("We're currently moving, and we were told to wait for us to NOT be moving so... yeah, we waiting", tag);
+                    if (EzThrottler.Throttle("Busy_MoveCheck"))
+                        IceLogging.Verbose("We're currently moving, and we were told to wait for us to not be busy. Waiting patiently.", tag);
 
                     return false;
                 }
-                else if (!waitForBusy && Player.DistanceTo(new Vector2(pos.X, pos.Z)) <= distance)
+                else if (!waitForBusy && currentDistance <= distance)
                 {
-                    if (EzThrottler.Throttle("Telling navmesh to stop"))
+                    if (EzThrottler.Throttle("Busy_CloseEnough"))
                     {
                         IceLogging.Verbose("We're within stopping distance, so stopping navmesh", tag);
                         P.navmesh.PathStop();
@@ -787,7 +1088,7 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (!P.navmesh.IsReady())
             {
-                if (EzThrottler.Throttle("Waiting on navmesh", 1000))
+                if (EzThrottler.Throttle("Waiting on navmesh", 500))
                 {
                     var navProgress = P.navmesh.BuildProgress();
                     IceLogging.Debug($"Waiting for navmesh to finish building. Currently at: {navProgress:N2}", tag);
@@ -795,96 +1096,237 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else if (!P.navmesh.IsRunning())
             {
-                if (Player.DistanceTo(new Vector2(pos.X, pos.Z)) < distance)
+                if (currentDistance < distance)
                 {
-                    if (mounted && !stayMounted)
-                    {
-                        if (EzThrottler.Throttle("Dismounting the mount"))
-                        {
-                            Utils.Dismount();
-                        }
-                        return false;
-                    }
-                    else if (Player.IsJumping)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        IceLogging.Verbose("We've met the distance threshold, continuing on", tag);
-                        ResetInfo();
-                        return true;
-                    }
-                }
-                else
-                {
-                    if (EzThrottler.Throttle("Telling navmesh to start"))
-                    {
-                        P.navmesh.SetTolerance(0.25f);
-                        IceLogging.Verbose("We're setting the tolerance to 0.25f here", tag);
-                        P.navmesh.PathfindAndMoveTo(pos, false);
-                    }
-                }
-            }
-
-            return false;
-        }
-        public static bool Task_GroundToAetheryte(Vector3 pos, Vector3 aetheryte, bool waitForBusy = true, float distance = 2.0f)
-        {
-            const string tag = "Navmesh: Ground Move";
-
-            if (!P.navmesh.Installed)
-            {
-                IceLogging.Info("We seem to be missing navmesh... so we're just going to exit here", tag);
-                return true;
-            }
-            else if (P.navmesh.IsRunning())
-            {
-                if (Player.IsMoving && waitForBusy)
-                {
-                    if (EzThrottler.Throttle("Throttle message tehe"))
-                        IceLogging.Verbose("We're currently moving, and we were told to wait for us to NOT be moving so... yeah, we waiting", tag);
-
-                    return false;
-                }
-                else if (!waitForBusy && (Player.DistanceTo(aetheryte) <= distance) )
-                {
-                    if (EzThrottler.Throttle("Telling navmesh to stop"))
-                    {
-                        IceLogging.Verbose("We're within stopping distance, so stopping navmesh", tag);
-                        P.navmesh.PathStop();
-                    }
-                }
-            }
-            else if (!P.navmesh.IsReady())
-            {
-                if (EzThrottler.Throttle("Waiting on navmesh", 1000))
-                {
-                    var navProgress = P.navmesh.BuildProgress();
-                    IceLogging.Debug($"Waiting for navmesh to finish building. Currently at: {navProgress:N2}", tag);
-                }
-            }
-            else if (!P.navmesh.IsRunning())
-            {
-                if (Player.DistanceTo(aetheryte) <= distance)
-                {
-                    IceLogging.Verbose("We've met the distance threshold, continuing on", tag);
+                    IceLogging.Verbose("We've met the distance threshold to our destination, continuing on", tag);
                     ResetInfo();
                     return true;
                 }
                 else
                 {
-                    if (EzThrottler.Throttle("Telling navmesh to start"))
+                    if (EzThrottler.Throttle("telling navmesh to start swim movement"))
                     {
                         P.navmesh.SetTolerance(0.25f);
                         IceLogging.Verbose("We're setting the tolerance to 0.25f here", tag);
-                        P.navmesh.PathfindAndMoveTo(pos, false);
+                        P.navmesh.PathfindAndMoveTo(pos, true);
                     }
                 }
             }
 
             return false;
         }
+        public static bool Task_MoveCloser(Vector3 pos)
+        {
+            string tag = "Task: Move Closer Check";
+            var currentDistance = Player.DistanceTo(pos);
+
+            if (P.navmesh.IsRunning())
+            {
+                if (EzThrottler.Throttle("Waiting for navmesh to finish..."))
+                    IceLogging.Verbose("Waiting for navmesh to finish currently, so we wait", tag);
+            }
+            else if (currentDistance < 3.7f)
+            {
+                IceLogging.Verbose("We don't need to move closer, so not gonna worry bout it", tag);
+                return true;
+            }
+            else
+            {
+                IceLogging.Verbose("We're not close enough to the node somehow??? Minimum interaction range is 3.7 (as far as we can tell...)", tag);
+                IceLogging.Verbose("Telling navmesh to move closer with a hard stop distance", tag);
+
+                P.navmesh.PathfindAndMoveCloseTo(pos, Svc.Condition[ConditionFlag.Diving], 3.5f);
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region Gathering Fan Randomizatino
+
+        private static readonly Random _random = new();
+
+        public static float CalculateAngleToPlayer(Vector3 nodePos, Vector3 playerPos)
+        {
+            Vector3 direction = playerPos - nodePos;
+            float angle = MathF.Atan2(direction.X, direction.Z) * (180f / MathF.PI);
+            angle = 180f - angle;
+
+            if (angle < 0f)
+                angle += 360f;
+            else if (angle >= 360f)
+                angle -= 360f;
+
+            return angle;
+        }
+
+        private static float NormalizeAngle(float angle)
+        {
+            angle = angle % 360f;
+            if (angle < 0f)
+                angle += 360f;
+            return angle;
+        }
+
+        private static float GetRangeSpan(float min, float max)
+        {
+            float diff = MathF.Abs(max - min);
+            if (MathF.Abs(diff - 360f) < 0.01f)
+                return 360f;
+
+            min = NormalizeAngle(min);
+            max = NormalizeAngle(max);
+
+            float span = max - min;
+            if (span < 0)
+                span += 360f;
+
+            return span;
+        }
+        private static bool IsAngleInRange(float angle, float min, float max)
+        {
+            angle = NormalizeAngle(angle);
+            min = NormalizeAngle(min);
+            max = NormalizeAngle(max);
+
+            float rangeSpan = max - min;
+            if (rangeSpan < 0)
+                rangeSpan += 360f;
+
+            if (rangeSpan >= 360f)
+                return true;
+
+            if (min <= max)
+                return angle >= min && angle <= max;
+            else
+                return angle >= min || angle <= max;
+        }
+        private static float GetAngularDistance(float angle1, float angle2)
+        {
+            angle1 = NormalizeAngle(angle1);
+            angle2 = NormalizeAngle(angle2);
+
+            float diff = angle2 - angle1;
+            while (diff > 180f) diff -= 360f;
+            while (diff < -180f) diff += 360f;
+
+            return MathF.Abs(diff);
+        }
+        private static float ClampAngleToRange(float angle, float allowedMin, float allowedMax, bool preferMin)
+        {
+            angle = NormalizeAngle(angle);
+
+            if (IsAngleInRange(angle, allowedMin, allowedMax))
+                return angle;
+
+            float distToMin = GetAngularDistance(angle, allowedMin);
+            float distToMax = GetAngularDistance(angle, allowedMax);
+
+            if (MathF.Abs(distToMin - distToMax) < 0.01f)
+                return preferMin ? allowedMin : allowedMax;
+
+            return distToMin < distToMax ? allowedMin : allowedMax;
+        }
+        private static (float sectionMin, float sectionMax) GetNearestSection(float allowedMin, float allowedMax, float targetAngle, float sectionSize)
+        {
+            float rangeSpan = GetRangeSpan(allowedMin, allowedMax);
+
+            if (rangeSpan >= 359.9f)
+            {
+                float halfSection = sectionSize / 2f;
+                return (NormalizeAngle(targetAngle - halfSection), NormalizeAngle(targetAngle + halfSection));
+            }
+
+            allowedMin = NormalizeAngle(allowedMin);
+            allowedMax = NormalizeAngle(allowedMax);
+            targetAngle = NormalizeAngle(targetAngle);
+
+            if (IsAngleInRange(targetAngle, allowedMin, allowedMax))
+            {
+                // Target is inside fan — center section on it as before
+                float half = sectionSize / 2f;
+                float secMin = ClampAngleToRange(NormalizeAngle(targetAngle - half), allowedMin, allowedMax, true);
+                float secMax = ClampAngleToRange(NormalizeAngle(targetAngle + half), allowedMin, allowedMax, false);
+                return (secMin, secMax);
+            }
+            else
+            {
+                // Target is outside fan — find nearest edge and carve inward
+                bool nearMax = GetAngularDistance(targetAngle, allowedMax) < GetAngularDistance(targetAngle, allowedMin);
+
+                if (nearMax)
+                {
+                    // Nearest edge is allowedMax, carve inward toward allowedMin
+                    float secMin = ClampAngleToRange(NormalizeAngle(allowedMax - sectionSize), allowedMin, allowedMax, true);
+                    return (secMin, allowedMax);
+                }
+                else
+                {
+                    // Nearest edge is allowedMin, carve inward toward allowedMax
+                    float secMax = ClampAngleToRange(NormalizeAngle(allowedMin + sectionSize), allowedMin, allowedMax, false);
+                    return (allowedMin, secMax);
+                }
+            }
+        }
+        private static float RandomAngleInRange(float min, float max)
+        {
+            min = NormalizeAngle(min);
+            max = NormalizeAngle(max);
+
+            if (min <= max)
+                return NextFloat(min, max);
+
+            float rangeSize = (360f - min) + max;
+            return NormalizeAngle(min + NextFloat(0, rangeSize));
+        }
+        private static float NextFloat(float min, float max)
+        {
+            return min + (float)_random.NextDouble() * (max - min);
+        }
+        private static Vector3 CalculateFanPosition(Vector3 center, float angleDegrees, float distance, float height)
+        {
+            float standardAngle = 180f - angleDegrees;
+            float angleRadians = standardAngle * (MathF.PI / 180f);
+
+            return new Vector3(
+                center.X + distance * MathF.Sin(angleRadians),
+                center.Y,
+                center.Z + distance * MathF.Cos(angleRadians)
+            );
+        }
+        public static Vector3 Gather_RandomFanPosition(GatheringNode nodeInfo, bool flight = false)
+        {
+            var fanMode = flight ? nodeInfo.Flight_FanInfo : nodeInfo.Gathering_FanInfo;
+
+            float node_MinAngle = fanMode.Fan_StartAngle;
+            float node_MaxAngle = fanMode.Fan_EndAngle;
+
+
+            float rangeSpan = GetRangeSpan(node_MinAngle, node_MaxAngle);
+            float sectionSize = C.GatherFanSectionSize;
+
+            float selectedAngle;
+            if (rangeSpan >= 359.9f)
+            {
+                // Full fan — pure random, no bias
+                selectedAngle = RandomAngleInRange(node_MinAngle, node_MaxAngle);
+            }
+            else
+            {
+                // Partial fan — find the section closest to where the player is approaching from
+                float angleToPlayer = CalculateAngleToPlayer(nodeInfo.Position, Player.Position);
+                var (sectionMin, sectionMax) = GetNearestSection(node_MinAngle, node_MaxAngle, angleToPlayer, sectionSize);
+                selectedAngle = RandomAngleInRange(sectionMin, sectionMax);
+            }
+
+            float selectedDistance = NextFloat(fanMode.Fan_DistanceMin, fanMode.Fan_DistanceMax);
+            return CalculateFanPosition(nodeInfo.Position, selectedAngle, selectedDistance, fanMode.Fan_Height);
+        }
+
+        #endregion
+
+        // - - - Old code to sort through - - - //
 
         private static Vector3 _lastPosition = Vector3.Zero;
         private static DateTime _lastPositionChange = DateTime.Now;

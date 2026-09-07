@@ -1,7 +1,6 @@
 ﻿using ChilledLeves.Enums;
-using System;
+using ChilledLeves.Utilities.GatheringHelper;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ChilledLeves.Config_Files;
 
@@ -35,7 +34,44 @@ public partial class Config
             [Gather_Enums.Brazen] = new(),
             [Gather_Enums.Meticulous] = new(),
         };
+
+        public List<Gather_Enums> BuffPriority { get; set; } = new()
+        {
+            Gather_Enums.BoonIncrease_1, Gather_Enums.BoonIncrease_2,
+            Gather_Enums.Tidings, Gather_Enums.YieldI, Gather_Enums.YieldII,
+            Gather_Enums.BonusIntegrity, Gather_Enums.BonusIntegrity_Chance,
+            Gather_Enums.BYII, Gather_Enums.FieldMasteryI, Gather_Enums.FieldMasteryII, Gather_Enums.FieldMasteryIII, Gather_Enums.FieldMasteryTemp,
+            Gather_Enums.TwelveBounty, Gather_Enums.Scrutiny,
+        };
+
+        public GatherProfile() { }
+
+        public GatherProfile(GatherProfile other)
+        {
+            ProfileId = other.ProfileId;
+            Name = other.Name;
+            GP_MinimumInteraction = other.GP_MinimumInteraction;
+            GatheringBuffs = other.GatheringBuffs.ToDictionary(
+                kv => kv.Key,
+                kv => new BuffSettings
+                {
+                    Enabled = kv.Value.Enabled,
+                    GP_Min = kv.Value.GP_Min,
+                    MaxUse = kv.Value.MaxUse,
+                    Durability_MinUse = kv.Value.Durability_MinUse,
+                    MinItems = kv.Value.MinItems,
+                });
+            BuffPriority = new List<Gather_Enums>(other.BuffPriority);
+        }
     }
+
+    public Dictionary<GatheringRule, int> RuleProfiles { get; set; } = new()
+    {
+        [GatheringRule.Search] = 1,
+        [GatheringRule.Procurance] = 2,
+        [GatheringRule.Search_Procurance] = 3,
+        [GatheringRule.Execution] = 4,
+    };
 
     public class BuffSettings
     {
@@ -48,11 +84,11 @@ public partial class Config
 
     public List<GatherProfile> GatherProfiles { get; set; } = new()
     {
-        new()
-        {
-            ProfileId = 0,
-            Name = "Default",
-        }
+        Gather_Util.DefaultProfile,
+        Gather_Util.Type_Search,
+        Gather_Util.Type_Procure,
+        Gather_Util.Type_Execute,
+        Gather_Util.Type_Search_Procure,
     };
 
     public void AddNewGatheringProfile()

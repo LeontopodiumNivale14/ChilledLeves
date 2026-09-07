@@ -1,6 +1,7 @@
 {
   "leveId": 1780,
   "territoryId": 1190,
+  "aetheryteId": 208,
   "zoneName": "Xak Tural",
   "expansionId": 5,
   "gatheringJob": 17,
@@ -25,7 +26,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0.21
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34604,
@@ -47,7 +49,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34605,
@@ -69,7 +72,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34606,
@@ -91,7 +95,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34607,
@@ -113,7 +118,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34608,
@@ -135,7 +141,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0.38
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34609,
@@ -157,7 +164,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34610,
@@ -179,7 +187,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0.95
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34611,
@@ -201,7 +210,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0.44
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34612,
@@ -223,29 +233,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0.59
-      }
-    },
-    {
-      "baseId": 34614,
-      "position": {
-        "x": -460.0471,
-        "y": 16.43956,
-        "z": -594.6234
       },
-      "gathering_FanInfo": {
-        "fan_StartAngle": 0,
-        "fan_EndAngle": 359,
-        "fan_DistanceMin": 1,
-        "fan_DistanceMax": 2,
-        "fan_Height": 0.46
-      },
-      "flight_FanInfo": {
-        "fan_StartAngle": 0,
-        "fan_EndAngle": 359,
-        "fan_DistanceMin": 2.5,
-        "fan_DistanceMax": 4,
-        "fan_Height": 0.97
-      }
+      "requiresFlying": false
     },
     {
       "baseId": 34613,
@@ -267,7 +256,32 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0.42
-      }
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 34614,
+      "position": {
+        "x": -460.0471,
+        "y": 16.43956,
+        "z": -594.6234
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 0,
+        "fan_EndAngle": 359,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0.46
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 0,
+        "fan_EndAngle": 359,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0.97
+      },
+      "requiresFlying": false
     }
-  ]
+  ],
+  "flyingNeeded": false
 }

@@ -879,7 +879,225 @@ public static partial class Utils
             MoveTo = new(38.60f, 20.30f, -675.33f),
         },
 
+        #region Lakeland
 
+        [132] = new()
+        {
+            ShardId = 132,
+            TerritoryId = 813,
+            ValidTerritories = new() { 813 },
+            Position = new(753.78f, 24.34f, -28.82f),
+            MoveTo = new(755.23f, 22.60f, -18.45f),
+        },
+        [136] = new()
+        {
+            ShardId = 136,
+            TerritoryId = 813,
+            ValidTerritories = new() { 813 },
+            Position = new(-735.01f, 53.39f, -230.03f),
+            MoveTo = new(-734.82f, 52.47f, -223.59f),
+        },
+
+
+        #endregion
+
+        #region Kholusia
+
+        [137] = new()
+        {
+            ShardId = 137,
+            TerritoryId = 814,
+            ValidTerritories = new() { 814 },
+            Position = new(668.33f, 29.47f, 289.17f),
+            MoveTo = new(671.99f, 28.66f, 289.84f),
+        },
+        [139] = new()
+        {
+            ShardId = 139,
+            TerritoryId = 814,
+            ValidTerritories = new() { 814 },
+            Position = new(-426.38f, 419.27f, -623.53f),
+            MoveTo = new(-422.58f, 417.26f, -618.05f),
+        },
+        [138] = new()
+        {
+            ShardId = 138,
+            TerritoryId = 814,
+            ValidTerritories = new() { 814 },
+            Position = new(-244.01f, 20.74f, 385.46f),
+            MoveTo = new(-242.53f, 18.60f, 391.13f),
+        },
+
+
+        #endregion
+
+        #region Ahm Arang
+
+        [161] = new()
+        {
+            ShardId = 161,
+            TerritoryId = 815,
+            ValidTerritories = new() { 815 },
+            Position = new(399.10f, -24.52f, 307.97f),
+            MoveTo = new(398.88f, -26.78f, 303.43f),
+        },
+        [140] = new()
+        {
+            ShardId = 140,
+            TerritoryId = 815,
+            ValidTerritories = new() { 815 },
+            Position = new(246.39f, 12.99f, -220.29f),
+            MoveTo = new(247.29f, 11.66f, -225.16f),
+        },
+        [141] = new()
+        {
+            ShardId = 141,
+            TerritoryId = 815,
+            ValidTerritories = new() { 815 },
+            Position = new(-511.35f, 47.99f, -212.60f),
+            MoveTo = new(-517.24f, 45.78f, -212.46f),
+        },
+
+        #endregion
+
+        #region Il'Mheg
+
+        [144] = new()
+        {
+            ShardId = 144,
+            TerritoryId = 816,
+            ValidTerritories = new() { 816 },
+            Position = new(-344.72f, 48.72f, 512.26f),
+            MoveTo = new(-347.14f, 48.44f, 509.37f),
+        },
+        [145] = new()
+        {
+            ShardId = 145,
+            TerritoryId = 816,
+            ValidTerritories = new() { 816 },
+            Position = new(-72.56f, 103.96f, -857.36f),
+            MoveTo = new(-69.80f, 103.28f, -857.13f),
+        },
+        [146] = new()
+        {
+            ShardId = 146,
+            TerritoryId = 816,
+            ValidTerritories = new() { 816 },
+            Position = new(380.51f, 87.21f, -687.25f),
+            MoveTo = new(384.52f, 86.80f, -686.30f),
+        },
+
+
+        #endregion
+
+        #region Ra'tika
+
+        [142] = new()
+        {
+            ShardId = 142,
+            TerritoryId = 817,
+            ValidTerritories = new() { 817 },
+            Position = new(-103.41f, -19.33f, 297.23f),
+            MoveTo = new(-107.48f, -19.92f, 295.60f),
+        },
+        [143] = new()
+        {
+            ShardId = 143,
+            TerritoryId = 817,
+            ValidTerritories = new() { 817 },
+            Position = new(382.77f, 21.04f, -194.11f),
+            MoveTo = new(383.11f, 20.71f, -198.19f),
+        },
+
+
+        #endregion
+
+        #region Labyrinthos
+
+        [166] = new()
+        {
+            ShardId = 166,
+            TerritoryId = 956,
+            ValidTerritories = new() { 956 },
+            Position = new(443.53f, 170.64f, -476.19f),
+            MoveTo = new(440.86f, 169.24f, -477.99f),
+        },
+
+        [167] = new()
+        {
+            ShardId = 167,
+            TerritoryId = 956,
+            ValidTerritories = new() { 956 },
+            Position = new(8.38f, -27.54f, -46.68f),
+            MoveTo = new(4.19f, -28.72f, -50.08f),
+        },
+
+        [168] = new()
+        {
+            ShardId = 168,
+            TerritoryId = 956,
+            ValidTerritories = new() { 956 },
+            Position = new(-729.18f, -27.63f, 302.14f),
+            MoveTo = new(-726.79f, -28.72f, 307.10f),
+        },
+
+
+        #endregion
+
+        #region Thavnair
+
+        [169] = new()
+        {
+            ShardId = 169,
+            TerritoryId = 957,
+            ValidTerritories = new() { 957 },
+            Position = new(193.50f, 6.97f, 629.24f),
+            MoveTo = new(187.70f, 5.80f, 626.51f),
+        },
+
+        [170] = new()
+        {
+            ShardId = 170,
+            TerritoryId = 957,
+            ValidTerritories = new() { 957 },
+            Position = new(-527.49f, 4.78f, 36.76f),
+            MoveTo = new(-527.62f, 2.59f, 42.84f),
+        },
+
+        [171] = new()
+        {
+            ShardId = 171,
+            TerritoryId = 957,
+            ValidTerritories = new() { 957 },
+            Position = new(405.14f, 5.26f, -244.50f),
+            MoveTo = new(401.47f, 3.81f, -244.41f),
+        },
+
+
+
+        #endregion
+
+        #region Garlemald
+
+        [172] = new()
+        {
+            ShardId = 172,
+            TerritoryId = 958,
+            ValidTerritories = new() { 958 },
+            Position = new(-408.10f, 24.16f, 479.97f),
+            MoveTo = new(-401.34f, 23.06f, 481.27f),
+        },
+
+        [173] = new()
+        {
+            ShardId = 173,
+            TerritoryId = 958,
+            ValidTerritories = new() { 958 },
+            Position = new(518.91f, -35.32f, -178.36f),
+            MoveTo = new(516.92f, -36.21f, -183.22f),
+        },
+
+        #endregion
 
         #region Urqopacha
 

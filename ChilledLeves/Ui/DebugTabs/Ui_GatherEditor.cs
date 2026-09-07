@@ -11,6 +11,7 @@ using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using ECommons.Logging;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.Marshalling;
 using System.Threading.Tasks;
 
 namespace ChilledLeves.Ui.DebugTabs
@@ -91,41 +92,7 @@ namespace ChilledLeves.Ui.DebugTabs
                 ImGui.TableSetColumnIndex(0);
                 var height = ImGui.GetContentRegionAvail().Y - 20;
 
-                if (ImGui.BeginChild("Debug: Route Selector", new(200, height), true))
-                {
-                    var gatherRoutes = RouteLoader.Leve_Routes.OrderBy(x => x.Value.ExpansionId)
-                                          .ThenBy(x => x.Value.TerritoryId)
-                                          .ThenBy(x => x.Value.GatheringJob);
-
-                    uint previousTer = 0;
-                    var expansion = ExpansionIds.Unk;
-
-                    foreach (var route in gatherRoutes)
-                    {
-                        if (expansion != route.Value.ExpansionId)
-                        {
-                            ImGui.Text($"- - {route.Value.ExpansionId} - - ");
-                            expansion = route.Value.ExpansionId;
-                        }
-
-                        var territoryId = route.Value.TerritoryId;
-                        if (territoryId != previousTer)
-                        {
-                            string territoryName = ExcelHelper.GetTerritoryName(territoryId);
-
-                            ImGui.Text($"{territoryName}");
-                            previousTer = territoryId;
-                        }
-                        bool isSelected = LeveSelected == route.Key;
-                        var label = isSelected ? $"→ [{route.Key}] {route.Value.GatheringJob}" : $"[{route.Key}] {route.Value.GatheringJob}";
-                        ;
-                        if (ImGui.Selectable(label, isSelected))
-                        {
-                            LeveSelected = route.Key;
-                        }
-                    }
-                }
-                ImGui.EndChild();
+                RouteSelector();
 
                 ImGui.TableNextColumn();
                 var remainingSpace = ImGui.GetContentRegionAvail().X;
@@ -332,6 +299,90 @@ namespace ChilledLeves.Ui.DebugTabs
             fileDialogManager.Draw();
         }
 
+        private static void RouteSelector()
+        {
+            var height = ImGui.GetContentRegionAvail().Y - 20;
+
+            using (var routeSelector = ImRaii.Child("Debug: Route Selector", new(300, height), true))
+            {
+                if (!routeSelector.Success)
+                    return;
+
+                using (var table = (ImRaii.Table("Route Selector", 2, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders)))
+                {
+                    if (!table.Success)
+                        return;
+
+                    ImGui.TableSetupColumn("ID");
+                    ImGui.TableSetupColumn("Class");
+
+                    var gatherRoutes = RouteLoader.Leve_Routes.OrderBy(x => x.Value.ExpansionId)
+                                          .ThenBy(x => x.Value.TerritoryId)
+                                          .ThenBy(x => x.Value.GatheringJob);
+
+                    uint previousTer = 0;
+                    var expansion = ExpansionIds.Unk;
+
+                    foreach (var route in gatherRoutes)
+                    {
+                        if (expansion != route.Value.ExpansionId)
+                        {
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.Text($"- - {route.Value.ExpansionId} - - ");
+
+                            expansion = route.Value.ExpansionId;
+                        }
+
+                        var territoryId = route.Value.TerritoryId;
+                        if (territoryId != previousTer)
+                        {
+                            string territoryName = ExcelHelper.GetTerritoryName(territoryId);
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.Text($"{territoryName}");
+
+                            previousTer = territoryId;
+                        }
+
+                        bool isSelected = LeveSelected == route.Key;
+
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        ImGui.PushStyleColor(ImGuiCol.HeaderHovered, new Vector4(0, 0, 0, 0));
+                        ImGui.PushStyleColor(ImGuiCol.HeaderActive, new Vector4(0, 0, 0, 0));
+                        ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(0, 0, 0, 0));
+                        bool clicked = ImGui.Selectable($"{route.Key}", isSelected, ImGuiSelectableFlags.SpanAllColumns);
+                        ImGui.PopStyleColor(3);
+
+                        if (clicked)
+                            LeveSelected = route.Key;
+
+                        if (isSelected)
+                        {
+                            ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(ImGuiCol.HeaderActive));
+                        }
+                        else if (ImGui.IsItemHovered())
+                        {
+                            ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(ImGuiCol.HeaderHovered));
+                        }
+
+                        ImGui.TableNextColumn();
+                        if (route.Value.AetheryteId == 0)
+                        {
+                            ImGui_Ice.IconWithTooltip(FontAwesomeIcon.Feather, "Missing Aetheryte", false);
+                        }
+                        if (LeveInfo.Leve_SheetInfo.TryGetValue(route.Key, out var sheetInfo) && sheetInfo.Gather_NodeInfo.NodeIds.Count() != route.Value.NodeInfo.Count())
+                        {
+                            ImGui_Ice.IconWithTooltip(FontAwesomeIcon.Leaf, "Missing Node Information?", true);
+                        }
+                        ImGui.SameLine();
+                        ImGui.Text($"{route.Value.GatheringJob}");
+                    }
+                }
+            }
+        }
+
         public static void PictoEditor()
         {
             if (ImGui.CollapsingHeader("Picto"))
@@ -458,6 +509,12 @@ namespace ChilledLeves.Ui.DebugTabs
                     P.navmesh.PathfindAndMoveTo(nodeInfo.Position, true);
                 }
 
+                if (Player.Available)
+                {
+                    ImGui.SameLine();
+                    ImGui.Text($"Distance to: {Player.DistanceTo(nodeInfo.Position)}");
+                }
+
                 bool flyingRequired = nodeInfo.RequiresFlying;
                 if (ImGui.Checkbox("Flying Required?", ref flyingRequired))
                 {
@@ -529,6 +586,11 @@ namespace ChilledLeves.Ui.DebugTabs
                 {
                     var randomPos = Utils.GetRandomGatherPosition(nodeInfo, Player.Position);
                     P.navmesh.PathfindAndMoveTo(randomPos, false);
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Pathfind: Close to"))
+                {
+                    P.navmesh.PathfindAndMoveCloseTo(nodeInfo.Position, false, 3.7f);
                 }
 
                 ImGui.PopID();

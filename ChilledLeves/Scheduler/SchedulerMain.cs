@@ -33,6 +33,9 @@ namespace ChilledLeves.Scheduler
 
                     case LeveState.Grab_StandardLeve: Task_GrabLeve.Enqueue_Standard(); break;
 
+                    case LeveState.GatheringLeve_Start: Task_GatherLeve.Travel_Enqueue(); break;
+                    case LeveState.GatherLeve_Execute: Task_GatherLeve.Gather_Check(); break;
+
                     case LeveState.Turnin_Leve: Task_Turnin.Enqueue(); break;
                     default: DisablePlugin(); break;
                 }

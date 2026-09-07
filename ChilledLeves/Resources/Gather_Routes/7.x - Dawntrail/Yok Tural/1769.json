@@ -1,6 +1,7 @@
 {
   "leveId": 1769,
   "territoryId": 1188,
+  "aetheryteId": 202,
   "zoneName": "Yok Tural",
   "expansionId": 5,
   "gatheringJob": 17,
@@ -25,7 +26,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34513,
@@ -47,7 +49,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34516,
@@ -69,7 +72,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34515,
@@ -91,7 +95,9 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     }
-  ]
+  ],
+  "flyingNeeded": false
 }

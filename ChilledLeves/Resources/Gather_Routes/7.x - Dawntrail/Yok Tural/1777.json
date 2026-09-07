@@ -1,6 +1,7 @@
 {
   "leveId": 1777,
   "territoryId": 1189,
+  "aetheryteId": 206,
   "zoneName": "Yok Tural",
   "expansionId": 5,
   "gatheringJob": 17,
@@ -25,7 +26,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0.68
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34582,
@@ -47,7 +49,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0.29
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34583,
@@ -69,7 +72,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 1.02
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34584,
@@ -91,7 +95,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34586,
@@ -113,7 +118,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34585,
@@ -135,7 +141,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34589,
@@ -157,7 +164,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34588,
@@ -179,7 +187,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34587,
@@ -201,7 +210,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34590,
@@ -223,7 +233,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0.5
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34592,
@@ -245,7 +256,8 @@
         "fan_DistanceMin": 2.2,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": true
     },
     {
       "baseId": 34591,
@@ -267,7 +279,9 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     }
-  ]
+  ],
+  "flyingNeeded": true
 }

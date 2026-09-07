@@ -6,12 +6,15 @@ using Dalamud.Game.ClientState.Conditions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
+using System.Collections.Generic;
 using static ECommons.UIHelpers.AddonMasterImplementations.AddonMaster;
 
 namespace ChilledLeves.Scheduler.Tasks
 {
     internal class Task_Turnin
     {
+        private static List<uint> ActiveLeves = [];
+
         public static void Enqueue()
         {
             string tag = "Task: Turnin Leve";
@@ -44,119 +47,115 @@ namespace ChilledLeves.Scheduler.Tasks
             const string tag = "Turnin: Trying Turnin";
             var leveId = Leve_Helper.LeveToGrab;
 
-            if (!Utils.Leve_IsAccepted(leveId))
+            if (Svc.Condition[ConditionFlag.OccupiedInQuestEvent])
             {
                 if (GenericHelpers.TryGetAddonMaster<SelectString>(out var selectString) && selectString.IsAddonReady)
                 {
-                    if (EzThrottler.Throttle("Leaving post turnin"))
+                    var job = sheetInfo.Job;
+                    if (Utils.Leve_IsAccepted(Leve_Helper.LeveToGrab))
                     {
+                        if (LeveInfo.LeveJobs_Gathering.Contains(job))
+                        {
+                            SelectTurnin(selectString);
+                        }
+                        else
+                        {
+                            if (C.AllowMultiTurnin)
+                                SelectMultiYes(selectString);
+                            else
+                                SelectMultiNo(selectString);
+                        }
+
+                        return false;
+                    }
+                    else if (EzThrottler.Throttle("Leaving post turnin"))
+                    {
+                        IceLogging.Verbose("Leaving the select string window", tag);
                         selectString.Entries.Last().Select();
                     }
 
                     return false;
                 }
-
-                if (Svc.Condition[ConditionFlag.OccupiedInQuestEvent])
+                else if (GenericHelpers.TryGetAddonMaster<SelectIconString>(out var selectIconString) && selectIconString.IsAddonReady)
                 {
-                    if (EzThrottler.Throttle("Occupido by quest to turnin"))
-                        IceLogging.Verbose("We're still interacting with the npc. Going to just wait", tag);
-
-                    return false;
-                }
-
-                IceLogging.Verbose("We have completed our turnin. Going to start fresh to see what state we need to be in", tag);
-                Leve_Helper.State = LeveState.CheckLeves;
-                return true;
-            }
-            else if (GenericHelpers.TryGetAddonMaster<SelectIconString>(out var selectIconString) && selectIconString.IsAddonReady)
-            {
-                var match = selectIconString.Entries.Where(x => x.Text.Trim() == sheetInfo.LeveName.Trim()).ToArray();
-                if (match.Length == 0)
-                {
-                    if (EzThrottler.Throttle("Error Log woops"))
+                    var match = selectIconString.Entries.Where(x => x.Text.Trim() == sheetInfo.LeveName.Trim()).ToArray();
+                    if (match.Length == 0)
                     {
-                        IceLogging.Error("We seem to be missing the leve from this listing? (Atleast with multiple existing", tag);
-                        IceLogging.Error("If you're running in a different language, please let me know", tag);
-                        IceLogging.Error($"LeveID it failed to find: {leveId}. Name: {sheetInfo.LeveName}", tag);
+                        if (EzThrottler.Throttle("Error Log woops"))
+                        {
+                            IceLogging.Error("We seem to be missing the leve from this listing? (Atleast with multiple existing", tag);
+                            IceLogging.Error("If you're running in a different language, please let me know", tag);
+                            IceLogging.Error($"LeveID it failed to find: {leveId}. Name: {sheetInfo.LeveName}", tag);
+                        }
+                        Leve_Helper.State = LeveState.Idle;
+                        return true;
                     }
-                    Leve_Helper.State = LeveState.Idle;
-                    return true;
+                    else
+                    {
+                        if (EzThrottler.Throttle("Selecting leve"))
+                        {
+                            IceLogging.Verbose("We were prompted to turnin multiple leves, so we're choosing the correct one (hopefully)", tag);
+                            match[0].Select();
+                        }
+                    }
+                }
+                else if (GenericHelpers.TryGetAddonMaster<Talk>(out var talk) && talk.IsAddonReady)
+                {
+                    if (EzThrottler.Throttle("Talk throttle", 10))
+                    {
+                        IceLogging.Verbose("Skipping through talking dialog", tag);
+                        talk.Click();
+                    }
+                }
+                else if (GenericHelpers.TryGetAddonMaster<SelectYesno>(out var selectYesNo) && selectYesNo.IsAddonReady)
+                {
+                    if (EzThrottler.Throttle("Selecting yes to HQ"))
+                    {
+                        IceLogging.Verbose("Selecting yes to the HQ prompt, or to denying multi turnin", tag);
+                        selectYesNo.Yes();
+                    }
+                }
+                else if (GenericHelpers.TryGetAddonMaster<JournalResult>(out var journalResult) && journalResult.IsAddonReady)
+                {
+                    if (EzThrottler.Throttle("Selecting yes to journal", 100))
+                    {
+                        IceLogging.Verbose("Selecting yes to the journal", tag);
+                        journalResult.Complete();
+                    }
+                }
+            }
+            else if (Utils.Leve_IsAccepted(Leve_Helper.LeveToGrab))
+            {
+                var npcId = sheetInfo.Npc_Turnin;
+
+                if (Utils.TryGetObjectByDataId(npcId, out var gameObject))
+                {
+                    if (EzThrottler.Throttle("Interact/Target NPC"))
+                    {
+                        Utils.TargetgameObject(gameObject);
+                        Utils.InteractWithObject(gameObject);
+                    }
                 }
                 else
                 {
-                    if (EzThrottler.Throttle("Selecting leve"))
-                    {
-                        IceLogging.Verbose("We were prompted to turnin multiple leves, so we're choosing the correct one (hopefully)", tag);
-                        match[0].Select();
-                    }
-                }
-            }
-            else if (GenericHelpers.TryGetAddonMaster<Talk>(out var talk) && talk.IsAddonReady)
-            {
-                if (EzThrottler.Throttle("Talk throttle", 10))
-                {
-                    IceLogging.Verbose("Skipping through talking dialog", tag);
-                    talk.Click();
-                }
-            }
-            else if (GenericHelpers.TryGetAddonMaster<SelectYesno>(out var selectYesNo) && selectYesNo.IsAddonReady)
-            {
-                if (EzThrottler.Throttle("Selecting yes to HQ"))
-                {
-                    IceLogging.Verbose("Selecting yes to the HQ prompt", tag);
-                    selectYesNo.Yes();
-                }
-            }
-            else if (GenericHelpers.TryGetAddonMaster<JournalResult>(out var journalResult) && journalResult.IsAddonReady)
-            {
-                if (EzThrottler.Throttle("Selecting yes to journal", 500))
-                {
-                    IceLogging.Verbose("Selecting yes to the journal", tag);
-                    journalResult.Complete();
-                }
-            }
-            else if (GenericHelpers.TryGetAddonMaster<SelectString>(out var selectString) && selectString.IsAddonReady)
-            {
-                if (SelectTurnin(selectString))
-                {
-                    return false;
-                }
-                else
-                {
-                    if (EzThrottler.Throttle("Multi turnin option"))
-                    {
-                        if (C.AllowMultiTurnin)
-                        {
-                            // selectString.
-                        }
-                        else
-                        {
-
-                        }
-                    }
+                    if (EzThrottler.Throttle("Npc doesn't exist log", 2000))
+                        IceLogging.Error($"NPC: {npcId} doesn't seem to exist in [{Player.Territory.RowId}]. " +
+                                         $"Player Position: {Player.Position:N2}", tag);
                 }
             }
             else
             {
-                var npcId = sheetInfo.Npc_Turnin;
-
-                if (!Svc.Condition[ConditionFlag.OccupiedInQuestEvent])
+                foreach (var leve in C.LeveOrder)
                 {
-                    if (Utils.TryGetObjectByDataId(npcId, out var gameObject))
+                    if (!Utils.Leve_IsAccepted(leve))
                     {
-                        if (EzThrottler.Throttle("Interact/Target NPC"))
-                        {
-                            Utils.TargetgameObject(gameObject);
-                            Utils.InteractWithObject(gameObject);
-                        }
-                    }
-                    else
-                    {
-                        if (EzThrottler.Throttle("Npc doesn't exist log", 2000))
-                            IceLogging.Error($"NPC: {npcId} doesn't seem to exist in [{Player.Territory.RowId}].\n" +
-                                             $"Player Position: {Player.Position:N2}", tag);
+                        C.LeveList[leve] -= 1;
+                        C.SaveDebounced();
                     }
                 }
+                IceLogging.Verbose("We've completed our leve turnins for this round, going to see what state we need to be in next", tag);
+                Leve_Helper.State = LeveState.CheckLeves;
+                return true;
             }
 
             return false;
@@ -194,6 +193,21 @@ namespace ChilledLeves.Scheduler.Tasks
                 IceLogging.Verbose($"We managed to find a kind to match up! Selecting it now [{match.Value.Text}] {kind}", tag);
                 match.Value.Select();
             }
+            return true;
+        }
+
+        private static bool SelectMultiYes(SelectString addon)
+        {
+            if (EzThrottler.Throttle("Selecting yes: SelectString"))
+                addon.Entries[0].Select();
+            return true;
+        }
+
+        private static bool SelectMultiNo(SelectString addon)
+        {
+            if (EzThrottler.Throttle("Selecting no: SelectString"))
+                addon.Entries[1].Select();
+
             return true;
         }
     }

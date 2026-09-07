@@ -1,6 +1,7 @@
 {
   "leveId": 1776,
   "territoryId": 1187,
+  "aetheryteId": 201,
   "zoneName": "Yok Tural",
   "expansionId": 5,
   "gatheringJob": 17,
@@ -13,19 +14,20 @@
         "z": 474.6699
       },
       "gathering_FanInfo": {
-        "fan_StartAngle": 0,
-        "fan_EndAngle": 359,
+        "fan_StartAngle": 134,
+        "fan_EndAngle": 133,
         "fan_DistanceMin": 1,
         "fan_DistanceMax": 2,
         "fan_Height": 0
       },
       "flight_FanInfo": {
-        "fan_StartAngle": 223,
-        "fan_EndAngle": 352,
+        "fan_StartAngle": 232,
+        "fan_EndAngle": 20,
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34580,
@@ -47,7 +49,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 1.19
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34579,
@@ -57,19 +60,20 @@
         "z": 421.1546
       },
       "gathering_FanInfo": {
-        "fan_StartAngle": 0,
-        "fan_EndAngle": 359,
+        "fan_StartAngle": 215,
+        "fan_EndAngle": 213,
         "fan_DistanceMin": 1,
         "fan_DistanceMax": 2,
         "fan_Height": 0.77
       },
       "flight_FanInfo": {
-        "fan_StartAngle": 8,
-        "fan_EndAngle": 139,
+        "fan_StartAngle": 268,
+        "fan_EndAngle": 125,
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 1.81
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34578,
@@ -91,7 +95,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 1.58
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34577,
@@ -113,7 +118,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 1.77
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34576,
@@ -135,7 +141,9 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 1.45
-      }
+      },
+      "requiresFlying": false
     }
-  ]
+  ],
+  "flyingNeeded": false
 }

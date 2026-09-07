@@ -41,18 +41,18 @@ public unsafe class GuildLeve : AddonMasterBase<AddonGuildLeve>
     public AtkComponentRadioButton* TradeCraftButton => Addon->GetComponentNodeById(13)->GetAsAtkComponentRadioButton();
     public bool SelectJob(Job job)
     {
-        if (JobAmount == 3 && (uint)job < 16)
+        var isCrafter = (uint)job < 16;
+        var targetCategoryButton = isCrafter ? TradeCraftButton : FieldCraftButton;
+        var otherCategoryButton = isCrafter ? FieldCraftButton : TradeCraftButton;
+
+        // If we're not currently on the right category tab, switch first.
+        if (!IsCategoryActive(targetCategoryButton) && IsCategoryActive(otherCategoryButton))
         {
-            ClickButtonIfEnabled(TradeCraftButton);
-            return false;
-        }
-        else if (JobAmount == 8 && (uint)job > 15)
-        {
-            ClickButtonIfEnabled(FieldCraftButton);
+            ClickButtonIfEnabled(targetCategoryButton);
             return false;
         }
 
-        if ((uint)job < 16)
+        if (isCrafter)
         {
             ClickButtonIfEnabled(Addon->GetComponentNodeById((uint)job + 7)->GetAsAtkComponentRadioButton());
             return true;
@@ -66,6 +66,12 @@ public unsafe class GuildLeve : AddonMasterBase<AddonGuildLeve>
         {
             throw new ArgumentOutOfRangeException(nameof(job));
         }
+    }
+
+    private static bool IsCategoryActive(AtkComponentRadioButton* button)
+    {
+        if (button == null) return false;
+        return button->IsEnabled && button->AtkResNode->IsVisible();
     }
 
     public Levequest[] Levequests

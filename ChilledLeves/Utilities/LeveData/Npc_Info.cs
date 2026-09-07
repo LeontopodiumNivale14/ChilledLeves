@@ -94,6 +94,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(499.6f, 79.72f, -74.57f),
             Npc_Flag = new(499.60f, -74.57f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 144, 145, 146, 150, 151, 152, 204, 205, 206, 210, 211, 212, 264, 265, 266,
@@ -156,6 +157,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(120.13f, -6.78f, -97.18f),
             Npc_Flag = new(120.13f, -97.18f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 24, 25, 26, 30, 31, 32, 84, 85, 86, 90, 91, 92, 501, 502, 503, 504, 505,
@@ -171,6 +173,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(229.88f, 52.04f, 153.98f),
             Npc_Flag = new(229.88f, 153.98f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 324, 325, 326, 330, 331, 332, 384, 385, 386, 390, 391, 392, 444, 445, 446,
@@ -187,6 +190,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(85.16f, 46f, -245.84f),
             Npc_Flag = new(85.16f, -245.84f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 336, 337, 338, 396, 397, 398, 456, 457, 458, 557, 558, 559, 560, 561, 563,
@@ -202,6 +206,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(669.18f, 9.2f, 512.99f),
             Npc_Flag = new(669.18f, 512.99f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 156, 157, 158, 216, 217, 218, 276, 277, 278, 547, 548, 549, 550, 551, 553,
@@ -217,6 +222,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(312.58f, -31.9f, 283.96f),
             Npc_Flag = new(312.58f, 283.96f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 162, 163, 164, 222, 223, 224, 282, 283, 284, 574, 575, 576, 577, 578, 579,
@@ -232,6 +238,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-212.7f, 1.04f, 285.6f),
             Npc_Flag = new(-212.70f, 285.60f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 572, 569, 567, 570, 568, 571, 573, 44, 42, 43, 104, 102, 103, 689, 687,
@@ -247,6 +254,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-257.68f, 1.63f, 305.81f),
             Npc_Flag = new(-257.68f, 305.81f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 798, 799, 800, 801, 810, 811, 812, 813,
@@ -261,6 +269,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-378.19f, -57.33f, 129.26f),
             Npc_Flag = new(-378.19f, 129.26f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 583, 584, 586, 585, 581, 588, 587, 344, 343, 342, 463, 464, 462, 404, 402,
@@ -276,6 +285,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-364.13f, -56.13f, 120.68f),
             Npc_Flag = new(-364.13f, 120.68f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 802, 803, 804, 805, 814, 815, 816, 817,
@@ -290,6 +300,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(201.53f, 9.74f, -61.45f),
             Npc_Flag = new(201.53f, -61.45f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 48, 49, 50, 54, 55, 56, 108, 109, 110, 114, 115, 116, 168, 169, 170, 174,
@@ -309,6 +320,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-238.97f, 22.02f, 344.38f),
             Npc_Flag = new(-238.97f, 344.38f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 617, 618, 619, 620, 621, 622,
@@ -338,6 +350,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-167.28f, 27.44f, -395.44f),
             Npc_Flag = new(-167.28f, -395.44f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 611, 612, 614, 613, 616, 615,
@@ -352,6 +365,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-137.9f, 27.64f, -417.93f),
             Npc_Flag = new(-137.90f, -417.93f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 828, 829, 830, 831,
@@ -366,6 +380,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(450.22f, 17.75f, 470.3f),
             Npc_Flag = new(450.22f, 470.30f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 60, 61, 62, 120, 121, 122, 180, 181, 182, 240, 241, 242, 300, 301, 302,
@@ -382,6 +397,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(605.58f, 23.94f, 458.21f),
             Npc_Flag = new(605.58f, 458.21f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 818, 819, 820, 821,
@@ -396,6 +412,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(5.75f, 71.19f, 0.69f),
             Npc_Flag = new(5.75f, 0.69f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 630, 631, 632, 633, 634, 635,
@@ -410,6 +427,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(227.59f, 222f, 341.66f),
             Npc_Flag = new(227.59f, 341.66f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 66, 67, 68, 126, 127, 128, 186, 187, 188, 246, 247, 248, 306, 307, 308,
@@ -426,6 +444,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(179.8f, 223.02f, 359f),
             Npc_Flag = new(179.80f, 359.00f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 833, 834, 835, 838, 839, 840, 843, 844, 845,
@@ -440,6 +459,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-441.12f, 211f, -235.52f),
             Npc_Flag = new(-441.12f, -235.52f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 72, 73, 74, 132, 133, 134, 192, 193, 194, 252, 253, 254, 312, 313, 314,
@@ -456,6 +476,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-476.22f, 211f, -233.42f),
             Npc_Flag = new(-476.22f, -233.42f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 848, 849, 850, 853, 854, 855, 858, 859, 860,
@@ -470,6 +491,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(34.9f, 4.94f, 396.72f),
             Npc_Flag = new(34.90f, 396.72f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 643, 644, 645, 646, 647, 648,
@@ -501,6 +523,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(464.59f, -4.06f, -467.43f),
             Npc_Flag = new(464.59f, -467.43f),
             Mount = true,
+            Fly = true,
             Leves = new()
             {
                 869, 863, 864, 865, 868, 870, 873, 874, 875,
@@ -520,6 +543,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(49.24f, -6f, 1.14f),
             Npc_Flag = new(49.24f, 1.14f),
             Mount = true,
+            Fly = true,
         },
         [1001220] = new()
         { // Juliembert
@@ -530,6 +554,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(167.71f, 9.21f, -45.94f),
             Npc_Flag = new(167.71f, -45.94f),
             Mount = true,
+            Fly = true,
         },
         [1001868] = new()
         { // Lanverlais
@@ -540,6 +565,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(142.41f, -7f, -86.23f),
             Npc_Flag = new(142.41f, -86.23f),
             Mount = true,
+            Fly = true,
         },
         [1001219] = new()
         { // Ayled
@@ -550,6 +576,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-206.44f, 2.56f, 307.79f),
             Npc_Flag = new(-206.44f, 307.79f),
             Mount = true,
+            Fly = true,
         },
         [1001276] = new()
         { // Maisenta
@@ -571,6 +598,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(452.41f, 17.75f, 464.84f),
             Npc_Flag = new(452.41f, 464.84f),
             Mount = true,
+            Fly = true,
         },
         [1001787] = new()
         { // Bango Zango
@@ -592,6 +620,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(547.63f, 88.89f, -50.61f),
             Npc_Flag = new(547.63f, -50.61f),
             Mount = true,
+            Fly = true,
         },
         [1001790] = new()
         { // Fewon Bulion
@@ -602,6 +631,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(649.5f, 9.55f, 503.62f),
             Npc_Flag = new(649.50f, 503.62f),
             Mount = true,
+            Fly = true,
         },
         [1001793] = new()
         { // H'rhanbolo
@@ -612,6 +642,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(292.1f, -25f, 235.34f),
             Npc_Flag = new(292.10f, 235.34f),
             Mount = true,
+            Fly = true,
         },
         [1004417] = new()
         { // Roarich
@@ -633,6 +664,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(213.46f, 52.04f, 151.45f),
             Npc_Flag = new(213.46f, 151.45f),
             Mount = true,
+            Fly = true,
         },
         [1001798] = new()
         { // Mimina
@@ -643,6 +675,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(69.35f, 46f, -251.94f),
             Npc_Flag = new(69.35f, -251.94f),
             Mount = true,
+            Fly = true,
         },
         [1001801] = new()
         { // Frediswitha
@@ -653,6 +686,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-394.28f, -57.33f, 128.92f),
             Npc_Flag = new(-394.28f, 128.92f),
             Mount = true,
+            Fly = true,
         },
         [1002385] = new()
         { // Vivenne
@@ -663,6 +697,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(239.06f, 222.21f, 327.87f),
             Npc_Flag = new(239.06f, 327.87f),
             Mount = true,
+            Fly = true,
         },
         [1002402] = new()
         { // Lanquairt
@@ -673,6 +708,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(-405.75f, 210.79f, -267.75f),
             Npc_Flag = new(-405.75f, -267.75f),
             Mount = true,
+            Fly = true,
         },
         [1004349] = new()
         { // Syele
@@ -683,6 +719,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(445f, -4.49f, -453.03f),
             Npc_Flag = new(445f, -453.03f),
             Mount = true,
+            Fly = true,
         },
         [1007060] = new()
         { // Unsynwilf
@@ -703,6 +740,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(649.81f, 9.51f, 505f),
             Npc_Flag = new(649.80f, 505f),
             Mount = true,
+            Fly = true,
         },
         [1007062] = new()
         { // Fupepe
@@ -713,6 +751,7 @@ public static partial class LeveInfo
             Npc_Location = new Vector3(290.97f, -24.99f, 235.61f),
             Npc_Flag = new(291.06f, 237.48f),
             Mount = true,
+            Fly = true,
         },
         [1007063] = new()
         { // Daca Jinjahl
@@ -722,7 +761,8 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(168.63585f, 8.649968f, -48.859486f),
             Npc_Location = new Vector3(168.99f, 9.09f, -46.01f),
             Npc_Flag = new(168.99365f, -46.00598f),
-            Mount = false,
+            Mount = true,
+            Fly = true,
         },
         [1007064] = new()
         { // F'abodji
@@ -732,7 +772,8 @@ public static partial class LeveInfo
             Npc_InteractZone = new Vector3(454.03705f, 17.493235f, 475.09576f),
             Npc_Location = new Vector3(454.98f, 17.25f, 479.97f),
             Npc_Flag = new(489.15845f, 468.80298f),
-            Mount = false,
+            Mount = true,
+            Fly = true,
         },
         [1007065] = new()
         { // F'abobji

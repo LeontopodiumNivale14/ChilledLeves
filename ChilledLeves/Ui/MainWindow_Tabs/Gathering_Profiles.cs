@@ -1,14 +1,10 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Gui;
-using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.GatheringHelper;
 using Dalamud.Interface.Utility.Raii;
 using ECommons.ExcelServices;
-using ECommons.Hooks;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using System;
 using System.Collections.Generic;
-using System.Text;
+using static ChilledLeves.Config_Files.Config;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs
 {
@@ -16,12 +12,12 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
     {
         public static void Draw()
         {
-            using (var table = ImRaii.Table("Gathering Profile Editor", 2, ImGuiTableFlags.SizingFixedFit))
+            using (var table = ImRaii.Table("Gathering Profile Editor", 2, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Resizable))
             {
                 if (!table.Success)
                     return;
 
-                ImGui.TableSetupColumn("Profile Names");
+                ImGui.TableSetupColumn("Profile Names", ImGuiTableColumnFlags.WidthFixed, 200);
                 ImGui.TableSetupColumn("Profile Editor", ImGuiTableColumnFlags.WidthStretch);
 
                 ImGui.TableNextColumn();
@@ -46,7 +42,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     C.AddNewGatheringProfile();
                 }
                 ImGui.SameLine();
-                using (ImRaii.Disabled(SelectedProfile == 0))
+                using (ImRaii.Disabled(SelectedProfile < 5))
                 {
                     if (ImGuiEx.IconButton(FontAwesomeIcon.Trash, "Remove Current Profile"))
                     {
@@ -57,19 +53,46 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         }
                     }
                 }
-                foreach (var profile in C.GatherProfiles)
-                {
-                    using (var pushId = ImRaii.PushId($"{profile.ProfileId}_{profile.Name}"))
-                    {
-                        string name = $"[{profile.ProfileId}] - {profile.Name}";
-                        bool isSlected = profile.ProfileId == SelectedProfile;
+                bool shiftHeld = ImGui.IsKeyDown(ImGuiKey.LeftShift) || ImGui.IsKeyDown(ImGuiKey.RightShift);
+                bool cntrlHeld = ImGui.IsKeyDown(ImGuiKey.LeftCtrl) || ImGui.IsKeyDown(ImGuiKey.RightCtrl);
 
-                        if (ImGui.Selectable(name, isSlected))
+                ImGui.SameLine();
+                using (ImRaii.Disabled(!(shiftHeld && cntrlHeld)))
+                {
+                    if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.GroupArrowsRotate, "Restore"))
+                    {
+                        for (int i = 0; i < 5; i++)
                         {
-                            SelectedProfile = profile.ProfileId;
+                            var profile = C.FindGatherProfile(i);
+                            if (profile != null)
+                            {
+                                C.GatherProfiles.Remove(profile);
+                            }
                         }
+
+                        C.GatherProfiles.InsertRange(0, new List<GatherProfile>
+                        {
+                            new(Gather_Util.DefaultProfile),
+                            new(Gather_Util.Type_Search),
+                            new(Gather_Util.Type_Procure),
+                            new(Gather_Util.Type_Search_Procure),
+                            new(Gather_Util.Type_Execute),
+                        });
                     }
                 }
+                foreach (var profile in C.GatherProfiles)
+                    {
+                        using (var pushId = ImRaii.PushId($"{profile.ProfileId}_{profile.Name}"))
+                        {
+                            string name = $"[{profile.ProfileId}] - {profile.Name}";
+                            bool isSlected = profile.ProfileId == SelectedProfile;
+
+                            if (ImGui.Selectable(name, isSlected))
+                            {
+                                SelectedProfile = profile.ProfileId;
+                            }
+                        }
+                    }
             }
 
         }
@@ -81,7 +104,9 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
         private static Job selectedJob = Job.MIN;
         private static Gather_Enums selectedBuff = Gather_Enums.BoonIncrease_1;
 
-        private static void ProfileEditor()
+        private static int? DraggedBuffIndex = null;
+
+        private static unsafe void ProfileEditor()
         {
             using (var child = ImRaii.Child("Gather: Profile Editor", default, true))
             {
@@ -135,6 +160,39 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         selectedJob = Job.BTN;
                     }
 
+                    string ruleName(GatheringRule rule)
+                    {
+                        return rule switch
+                        {
+                            GatheringRule.Search => "Search",
+                            GatheringRule.Procurance => "Procurance",
+                            GatheringRule.Search_Procurance => "Search & Procurance",
+                            GatheringRule.Execution => "Execution",
+                            _ => "???"
+                        };
+                    }
+
+                    ImGui.Text("Apply to these gathering mission types...");
+
+                    var ruleCount = 0;
+                    foreach (var rule in C.RuleProfiles)
+                    {
+                        if (ruleCount > 0)
+                            ImGui.SameLine();
+
+                        bool isSelected = rule.Value == SelectedProfile;
+                        if (ImGui.Checkbox($"{ruleName(rule.Key)}", ref isSelected))
+                        {
+                            if (isSelected)
+                                C.RuleProfiles[rule.Key] = SelectedProfile;
+                            else
+                                C.RuleProfiles[rule.Key] = 0;
+
+                            C.SaveDebounced();
+                        }
+                        ruleCount += 1;
+                    }
+
                     float maxButtonWidth = 0f;
                     foreach (var setting in gatherProfile.GatheringBuffs)
                     {
@@ -143,29 +201,78 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         if (actionInfo.ClassAction.TryGetValue(selectedJob, out var jobInfo))
                         {
                             var textSize = ImGui.CalcTextSize(jobInfo.Name);
-                            var iconHeight = ImGui.GetFrameHeight() - 4; // match your button's sizing logic
+                            var iconHeight = ImGui.GetFrameHeight() - 4;
                             var estimatedWidth = 4 + iconHeight + 4 + textSize.X + 4;
                             maxButtonWidth = MathF.Max(maxButtonWidth, estimatedWidth);
                         }
                     }
 
-                    using (var buffChild = ImRaii.Child("Buff Selection Child", new(maxButtonWidth + 20, default), true))
+                    using (var buffChild = ImRaii.Child("Buff Selection Child", new(maxButtonWidth + 50, default), true))
                     {
                         if (buffChild.Success)
                         {
-                            foreach (var setting in gatherProfile.GatheringBuffs)
+                            var priority = gatherProfile.BuffPriority;
+
+                            ImGui.Text("Highest Priority");
+                            ImGui.SameLine();
+                            ImGui_Ice.Icon(FontAwesomeIcon.QuestionCircle);
+                            if (ImGui.IsItemHovered())
                             {
-                                var key = setting.Key;
-                                var enabled = setting.Value.Enabled;
+                                ImGui.SetTooltip("Drag->Drop the buttons in the preferred order you would like them to be\n" +
+                                    "Buffs here will be applied before others if possible");
+                            }
+                            ImGui.Separator();
+
+                            for (int i = 0; i < priority.Count; i++)
+                            {
+                                var key = priority[i];
+
+                                if (!gatherProfile.GatheringBuffs.TryGetValue(key, out var buffSetting))
+                                    continue;
 
                                 var actionInfo = Gather_Util.gathActionDict[key];
-                                if (actionInfo.ClassAction.TryGetValue(selectedJob, out var jobInfo))
+                                if (!actionInfo.ClassAction.TryGetValue(selectedJob, out var jobInfo))
+                                    continue;
+
+                                var enabled = buffSetting.Enabled;
+                                var label = $"{jobInfo.Name}_{jobInfo.ActionId}";
+
+                                if (ImGui_Ice.ImageButtonWithText(jobInfo.IconId, $"{jobInfo.Name}", label, enabled))
                                 {
-                                    if (ImGui_Ice.ImageButtonWithText(jobInfo.IconId, $"{jobInfo.Name}", $"{jobInfo.Name}_{jobInfo.ActionId}", enabled))
-                                    {
-                                        selectedBuff = key;
-                                    }
+                                    selectedBuff = key;
                                 }
+
+                                if (ImGui.BeginDragDropSource())
+                                {
+                                    DraggedBuffIndex = i;
+                                    ImGui.SetDragDropPayload("BUFF_PRIORITY_REORDER", ReadOnlySpan<byte>.Empty, ImGuiCond.Once);
+                                    ImGui.Text(jobInfo.Name);
+                                    ImGui.EndDragDropSource();
+                                }
+
+                                if (ImGui.BeginDragDropTarget())
+                                {
+                                    var payload = ImGui.AcceptDragDropPayload("BUFF_PRIORITY_REORDER");
+                                    if (payload.Handle != null && DraggedBuffIndex is int sourceIndex && sourceIndex != i)
+                                    {
+                                        var moved = priority[sourceIndex];
+                                        priority.RemoveAt(sourceIndex);
+                                        priority.Insert(i, moved);
+                                        C.SaveDebounced();
+                                        DraggedBuffIndex = null;
+                                    }
+                                    ImGui.EndDragDropTarget();
+                                }
+                            }
+
+                            ImGui.Separator();
+                            ImGui.Text("Lowest Priority");
+                            ImGui.SameLine();
+                            ImGui_Ice.Icon(FontAwesomeIcon.QuestionCircle);
+                            if (ImGui.IsItemHovered())
+                            {
+                                ImGui.SetTooltip("Drag->Drop the buttons in the preferred order you would like them to be\n" +
+                                    "Buffs toward here will be used last if possible");
                             }
                         }
                     }

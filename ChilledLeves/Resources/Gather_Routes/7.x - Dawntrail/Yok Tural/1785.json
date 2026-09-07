@@ -1,6 +1,7 @@
 {
   "leveId": 1785,
   "territoryId": 1187,
+  "aetheryteId": 200,
   "zoneName": "Yok Tural",
   "expansionId": 5,
   "gatheringJob": 16,
@@ -13,8 +14,8 @@
         "z": -174.6859
       },
       "gathering_FanInfo": {
-        "fan_StartAngle": 305,
-        "fan_EndAngle": 64,
+        "fan_StartAngle": 330,
+        "fan_EndAngle": 48,
         "fan_DistanceMin": 1,
         "fan_DistanceMax": 2,
         "fan_Height": 0
@@ -25,7 +26,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34644,
@@ -47,7 +49,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34643,
@@ -69,7 +72,8 @@
         "fan_DistanceMin": 1.8000001,
         "fan_DistanceMax": 2.8,
         "fan_Height": -0.5
-      }
+      },
+      "requiresFlying": true
     },
     {
       "baseId": 34642,
@@ -91,7 +95,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34641,
@@ -101,8 +106,8 @@
         "z": -217.3474
       },
       "gathering_FanInfo": {
-        "fan_StartAngle": 292,
-        "fan_EndAngle": 54,
+        "fan_StartAngle": 319,
+        "fan_EndAngle": 51,
         "fan_DistanceMin": 1,
         "fan_DistanceMax": 2,
         "fan_Height": 0.24
@@ -113,7 +118,8 @@
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     },
     {
       "baseId": 34646,
@@ -123,19 +129,21 @@
         "z": -225.4792
       },
       "gathering_FanInfo": {
-        "fan_StartAngle": 342,
-        "fan_EndAngle": 109,
+        "fan_StartAngle": 345,
+        "fan_EndAngle": 90,
         "fan_DistanceMin": 1,
         "fan_DistanceMax": 2,
         "fan_Height": 0
       },
       "flight_FanInfo": {
-        "fan_StartAngle": 342,
+        "fan_StartAngle": 345,
         "fan_EndAngle": 88,
         "fan_DistanceMin": 2.5,
         "fan_DistanceMax": 4,
         "fan_Height": 0
-      }
+      },
+      "requiresFlying": false
     }
-  ]
+  ],
+  "flyingNeeded": true
 }

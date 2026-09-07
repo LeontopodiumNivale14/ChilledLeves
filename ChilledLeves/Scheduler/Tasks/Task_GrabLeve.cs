@@ -143,11 +143,6 @@ namespace ChilledLeves.Scheduler.Tasks
             if (Utils.Leve_IsAccepted(Leve_Helper.LeveToGrab))
             {
                 IceLogging.Debug("We've accepted the leve, continuing onto checking for multi leves", tag);
-                if (C.LeveList.ContainsKey(Leve_Helper.LeveToGrab))
-                {
-                    C.LeveList[Leve_Helper.LeveToGrab] -= 1;
-                    C.Save();
-                }
 
                 Update_PotentionalMulti();
 
@@ -164,24 +159,28 @@ namespace ChilledLeves.Scheduler.Tasks
                     return false;
                 }
 
+                var goalLeve = LeveInfo.Leve_SheetInfo[Leve_Helper.LeveToGrab];
+                var goalJob = goalLeve.Job;
+
+                if (EzThrottler.Throttle("Current Status of Primary Leve", 1000))
+                    IceLogging.Verbose($"Currently attempting to grab leve. Goal Leve: {Leve_Helper.LeveToGrab} | Job: {goalJob}", tag);
+
+                if (!guildLeve.SelectJob(goalJob))
+                {
+                    IceLogging.Verbose("We're on the wrong job tab, so going to fix that", tag);
+                    return false;
+                }
+
                 foreach (var leve in guildLeve.Levequests)
                 {
                     var selectedLeve = LeveInfo.Leve_SheetInfo.Where(x => x.Value.LeveName == leve.Name).FirstOrNull();
+
                     if (selectedLeve != null)
                     {
                         var selectedJob = selectedLeve.Value.Value.Job;
-                        var goalLeve = LeveInfo.Leve_SheetInfo[Leve_Helper.LeveToGrab];
-                        var goalJob = goalLeve.Job;
                         var goalName = goalLeve.LeveName;
 
-                        if (selectedJob != goalJob)
-                        {
-                            if (EzThrottler.Throttle("Selecting proper tab", 100))
-                                guildLeve.SelectJob(goalJob);
-
-                            break;
-                        }
-                        else if (leve.Name == goalName)
+                        if (leve.Name == goalName)
                         {
                             if (EzThrottler.Throttle("Leve_CorrectJob", 1000))
                             {
@@ -209,62 +208,82 @@ namespace ChilledLeves.Scheduler.Tasks
             var lastLeveInfo = LeveInfo.Leve_SheetInfo[Leve_Helper.LeveToGrab];
 
             var currentNpcId = lastLeveInfo.Npc_Vendor;
-            var leveList = C.LeveList;
+            var leveList = C.LeveOrder;
 
-            ValidLeves.Clear();
+            ValidLeves = null;
+            ValidLeves = new();
             ValidAmount = Utils.Allowances;
             LastCost = lastLeveInfo.AllowanceCost;
 
-            foreach (var leve in leveList.Where(x => x.Value != 0))
+            foreach (var leve in leveList)
             {
-                if (LeveInfo.Leve_SheetInfo.TryGetValue(leve.Key, out var sheetInfo) && (sheetInfo.Npc_Vendor == currentNpcId) && (sheetInfo.AllowanceCost == LastCost))
+                if (LeveInfo.Leve_SheetInfo.TryGetValue(leve, out var sheetInfo))
                 {
-                    bool enoughLeves = sheetInfo.AllowanceCost >= ValidAmount;
-
-                    if (Utils.PotentionalLeve(leve.Key, tag) && enoughLeves)
+                    if (sheetInfo.Npc_Vendor != currentNpcId)
                     {
-                        ValidLeves.Add(leve.Key);
+                        IceLogging.Verbose($"Leve: {leve} | Not the same npc", tag);
+                        continue;
+                    }
+
+                    if (sheetInfo.AllowanceCost != LastCost)
+                    {
+                        IceLogging.Verbose($"Leve: {leve} | Not the same cost", tag);
+                        continue;
+                    }
+
+                    bool enoughLeves = ValidAmount >= sheetInfo.AllowanceCost;
+
+                    if (Utils.PotentionalLeve(leve, tag) && enoughLeves)
+                    {
+                        ValidLeves.Add(leve);
                         ValidAmount -= sheetInfo.AllowanceCost;
                     }
                 }
             }
+            IceLogging.Verbose($"Exiting the update multi with the following potentional leves: {ValidLeves.Count()}", tag);
         }
         private static bool CheckOtherLeves()
         {
-            string tag = "Task: Check Multi Leves";
+            string tag = "Debug: Check Multi Leves";
 
             if (C.GrabMulti)
             {
-                if (ValidLeves.FirstOrDefault(x => !Utils.Leve_IsAccepted(x)) is var goalLeve && goalLeve != 0)
+                if (ValidLeves.FirstOrDefault(x => !Utils.Leve_IsAccepted(x)) is var multiLeve && multiLeve != 0)
                 {
                     if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
                     {
-                        if (goalLeve == guildLeve.SelectedLeveId)
+                        if (multiLeve == guildLeve.SelectedLeveId)
                         {
-                            if (EzThrottler.Throttle("Accepting Leve", 1000))
-                                GenericHandlers.FireCallback("JournalDetail", true, 3, (int)Leve_Helper.LeveToGrab);
+                            if (EzThrottler.Throttle("Grabbing Multi-Leve"))
+                            {
+                                GenericHandlers.FireCallback("JournalDetail", true, 3, (int)multiLeve);
+                            }
 
+                            return false;
+                        }
+
+                        var goalLeve = LeveInfo.Leve_SheetInfo[multiLeve];
+                        var goalJob = goalLeve.Job;
+
+                        if (EzThrottler.Throttle("Current Status of Multi Leve", 1000))
+                            IceLogging.Verbose($"Currently attempting to grab leve. Goal Leve: {multiLeve} | Job: {goalJob}", tag);
+
+                        if (!guildLeve.SelectJob(goalJob))
+                        {
+                            IceLogging.Verbose("We're on the wrong job tab, so going to fix that", tag);
                             return false;
                         }
 
                         foreach (var leve in guildLeve.Levequests)
                         {
                             var selectedLeve = LeveInfo.Leve_SheetInfo.Where(x => x.Value.LeveName == leve.Name).FirstOrNull();
+
                             if (selectedLeve != null)
                             {
                                 var selectedJob = selectedLeve.Value.Value.Job;
-                                var leveInfo = LeveInfo.Leve_SheetInfo[Leve_Helper.LeveToGrab];
-                                var goalJob = leveInfo.Job;
-                                var goalName = leveInfo.LeveName;
+                                var goalName = goalLeve.LeveName;
 
-                                if (selectedJob != goalJob)
-                                {
-                                    if (EzThrottler.Throttle("Selecting proper tab"))
-                                        guildLeve.SelectJob(goalJob);
-
-                                    break;
-                                }
-                                else if (leve.Name == goalName)
+                                if (leve.Name == goalName)
                                 {
                                     if (EzThrottler.Throttle("Leve_CorrectJob", 1000))
                                     {
@@ -281,14 +300,6 @@ namespace ChilledLeves.Scheduler.Tasks
                 else
                 {
                     IceLogging.Verbose("We have grabbed all potentional leves from this vendor, continuing on", tag);
-                    foreach (var leve in ValidLeves)
-                    {
-                        if (Utils.Leve_IsAccepted(leve) && C.LeveList.TryGetValue(leve, out var config))
-                        {
-                            config -= 1;
-                            C.SaveDebounced();
-                        }
-                    }
                     return true;
                 }
             }

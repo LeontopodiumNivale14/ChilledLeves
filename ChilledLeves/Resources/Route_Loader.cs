@@ -141,8 +141,8 @@ namespace ChilledLeves.Resources
                 SaveRoute(route, outputDirectory);
         }
 
-        public static GatheringRoute? GetRoute(uint leveId)
-            => Leve_Routes.TryGetValue(leveId, out var route) ? route : null;
+        public static GatheringRoute GetRoute(uint leveId)
+            => Leve_Routes.TryGetValue(leveId, out var route) ? route : new();
 
         public static List<GatheringRoute> GetRoutesForTerritory(uint territoryId)
             => Leve_Routes.Values.Where(r => r.TerritoryId == territoryId).ToList();

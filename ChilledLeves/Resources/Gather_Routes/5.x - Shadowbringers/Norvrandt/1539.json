@@ -1,8 +1,103 @@
 {
   "leveId": 1539,
   "territoryId": 814,
+  "aetheryteId": 138,
   "zoneName": "Norvrandt",
   "expansionId": 3,
   "gatheringJob": 16,
-  "nodeInfo": []
+  "nodeInfo": [
+    {
+      "baseId": 32508,
+      "position": {
+        "x": -625.0557,
+        "y": 38.65368,
+        "z": 268.6209
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 91,
+        "fan_EndAngle": 174,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 91,
+        "fan_EndAngle": 174,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0.73
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 32511,
+      "position": {
+        "x": -629.6222,
+        "y": 38.14502,
+        "z": 270.7932
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 143,
+        "fan_EndAngle": 212,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 143,
+        "fan_EndAngle": 212,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 32510,
+      "position": {
+        "x": -638.9834,
+        "y": 43.42352,
+        "z": 246.3935
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 348,
+        "fan_EndAngle": 108,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0.4
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 348,
+        "fan_EndAngle": 108,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0.66
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 32509,
+      "position": {
+        "x": -582.3185,
+        "y": 36.43855,
+        "z": 284.2516
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 124,
+        "fan_EndAngle": 225,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0.16
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 129,
+        "fan_EndAngle": 225,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    }
+  ],
+  "flyingNeeded": false
 }

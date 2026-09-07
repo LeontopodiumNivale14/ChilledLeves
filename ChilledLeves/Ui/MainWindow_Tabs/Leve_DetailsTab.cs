@@ -303,12 +303,33 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         ImGui.TableSetColumnIndex(0);
 
                         bool flyingRequired = routeInfo.FlyingNeeded;
+
+                        if (!Utils.CanFly(routeInfo.TerritoryId) && flyingRequired)
+                        {
+                            ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(EColor.Red));
+                        }
+
                         GameIcons.DrawInline(60033, true);
                         ImGui.AlignTextToFramePadding();
                         Theme_Colors.BodyText($"Flying Required");
 
                         ImGui.TableNextColumn();
                         Theme_Colors.BodyText($"{flyingRequired}");
+                    }
+
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.AlignTextToFramePadding();
+                    Theme_Colors.BodyText("Area");
+
+                    ImGui.TableNextColumn();
+                    var mapInfo = leve.Gather_MapInfo;
+                    if (ExcelHelper.Sheet_TerritoryType.TryGetRow(mapInfo.TerritoryId, out var territoryName))
+                    {
+                        if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Flag, $"{territoryName.PlaceName.Value.Name}"))
+                        {
+                            Utils.SetGatheringRingFromWorld(mapInfo.TerritoryId, mapInfo.Location, mapInfo.Radius, $"Leve: {leve.LeveName}");
+                        }
                     }
 
                     ImGui.TableNextRow();

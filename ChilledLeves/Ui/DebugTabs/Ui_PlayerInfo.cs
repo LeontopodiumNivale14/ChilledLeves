@@ -1,5 +1,7 @@
-﻿using ChilledLeves.Utilities.LeveData;
+﻿using ChilledLeves.Utilities;
+using ChilledLeves.Utilities.LeveData;
 using ECommons.GameHelpers;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -67,6 +69,13 @@ namespace ChilledLeves.Ui.DebugTabs
 
                     ImGui.TableNextColumn();
                     ImGui.Text($"[{Player.Territory.RowId}] {Player.Territory.Value.PlaceName.Value.Name}");
+
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.Text("Can Fly");
+
+                    ImGui.TableNextColumn();
+                    ImGui.Text($"{Player.CanFly} | {Utils.CanFly()}");
                 }
 
                 if (LastTarget != null)

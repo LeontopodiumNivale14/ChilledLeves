@@ -1,8 +1,149 @@
 {
   "leveId": 1659,
   "territoryId": 957,
+  "aetheryteId": 171,
   "zoneName": "Thavnair",
   "expansionId": 4,
   "gatheringJob": 17,
-  "nodeInfo": []
+  "nodeInfo": [
+    {
+      "baseId": 34152,
+      "position": {
+        "x": 309.0217,
+        "y": 6.642426,
+        "z": -185.9424
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 100,
+        "fan_EndAngle": 241,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 100,
+        "fan_EndAngle": 241,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 34153,
+      "position": {
+        "x": 301.4209,
+        "y": 9.132394,
+        "z": -205.8873
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 153,
+        "fan_EndAngle": 297,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 153,
+        "fan_EndAngle": 297,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 34154,
+      "position": {
+        "x": 311.7365,
+        "y": 5.905574,
+        "z": -144.9886
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 81,
+        "fan_EndAngle": 210,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 81,
+        "fan_EndAngle": 210,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 34151,
+      "position": {
+        "x": 263.0924,
+        "y": 6.313227,
+        "z": -155.3414
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 360,
+        "fan_EndAngle": 119,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 0,
+        "fan_EndAngle": 119,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 34155,
+      "position": {
+        "x": 254.7248,
+        "y": 5.929573,
+        "z": -166.1791
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 113,
+        "fan_EndAngle": 256,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 113,
+        "fan_EndAngle": 256,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0.28
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 34150,
+      "position": {
+        "x": 265.7016,
+        "y": 7.21118,
+        "z": -136.7207
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 273,
+        "fan_EndAngle": 33,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 273,
+        "fan_EndAngle": 33,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    }
+  ],
+  "flyingNeeded": false
 }

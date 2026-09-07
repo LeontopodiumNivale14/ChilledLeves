@@ -6,8 +6,8 @@ namespace ChilledLeves.Utilities;
 
 internal static class ExcelHelper
 {
-    internal static ExcelSheet<TerritoryType>? Sheet_TerritoryType;
-    internal static ExcelSheet<Leve>? Sheet_Leve;
+    internal static ExcelSheet<TerritoryType> Sheet_TerritoryType;
+    internal static ExcelSheet<Leve> Sheet_Leve;
     internal static ExcelSheet<Recipe> Sheet_Recipe;
     internal static ExcelSheet<Omen> Sheet_Omen;
     internal static ExcelSheet<Map> Sheet_Map;
@@ -20,6 +20,7 @@ internal static class ExcelHelper
     internal static ExcelSheet<Lumina.Excel.Sheets.Action> Sheet_Action;
     internal static ExcelSheet<Level> Sheet_Level;
     internal static ExcelSheet<GatheringExp> Sheet_GatheringExp;
+    internal static ExcelSheet<Mount> Sheet_Mount;
 
     public static void Init()
     {
@@ -38,6 +39,7 @@ internal static class ExcelHelper
         Sheet_Action = Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.Action>();
         Sheet_Level = Svc.Data.GetExcelSheet<Level>();
         Sheet_GatheringExp = Svc.Data.GetExcelSheet<GatheringExp>();
+        Sheet_Mount = Svc.Data.GetExcelSheet<Mount>();
     }
 
     public static string GetTerritoryName(uint territoryid)

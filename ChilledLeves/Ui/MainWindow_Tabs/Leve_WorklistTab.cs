@@ -36,6 +36,21 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 }
             }
 
+            ImGui.SameLine();
+            if (ImGui.Button("Gathering Test"))
+            {
+                Leve_Helper.LeveToGrab = 1797;
+                Leve_Helper.SelectedMode = ModeSelection.Standard;
+                Leve_Helper.State = LeveState.GatherLeve_Execute;
+            }
+
+            bool allowGrabMulti = C.GrabMulti;
+            if (ImGui.Checkbox("Allow grabbing multiple leves", ref allowGrabMulti))
+            {
+                C.GrabMulti = allowGrabMulti;
+                C.Save();
+            }
+
             bool allowMultiTurnin = C.AllowMultiTurnin;
             if (ImGui.Checkbox("Allow Multi-Turnin Leves", ref allowMultiTurnin))
             {
