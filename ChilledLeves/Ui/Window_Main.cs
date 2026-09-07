@@ -8,8 +8,9 @@ namespace ChilledLeves.Ui
 {
     internal class Window_Main : Window
     {
-        public Window_Main() : base($"Chilled Leves [{P.GetType().Assembly.GetName().Version}] ##ChilledLevesMainWindowV2")
+        public Window_Main() : base($"Chilled Leves [{P.GetType().Assembly.GetName().Version}] ### ChilledLevesMainWindowV2")
         {
+            Namespace = "ChilledLevesV2";
             Flags = ImGuiWindowFlags.None;
             SizeConstraints = new()
             {

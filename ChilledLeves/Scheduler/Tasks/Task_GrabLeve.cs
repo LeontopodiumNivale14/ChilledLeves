@@ -248,7 +248,11 @@ namespace ChilledLeves.Scheduler.Tasks
 
             if (C.GrabMulti)
             {
-                if (ValidLeves.FirstOrDefault(x => !Utils.Leve_IsAccepted(x)) is var multiLeve && multiLeve != 0)
+                if (Utils.Leve_MaxAccepted())
+                {
+                    IceLogging.Verbose("We've reached the cap on accepted leves, going to stop here and continue on with the process", tag);
+                }
+                else if (ValidLeves.FirstOrDefault(x => !Utils.Leve_IsAccepted(x)) is var multiLeve && multiLeve != 0)
                 {
                     if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
                     {

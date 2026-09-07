@@ -40,7 +40,8 @@ namespace ChilledLeves.Scheduler.Tasks
                             {
                                 IceLogging.Verbose("We're already close enough to a gathering node already! Going to start it next", tag);
                                 P.taskManager.Enqueue(() => Initiate_GatheringLeve(), "Initiating Gathering Leve");
-                                SchedulerMain.DisablePlugin();
+
+                                break;
                             }
                         }
 
@@ -93,6 +94,8 @@ namespace ChilledLeves.Scheduler.Tasks
             P.taskManager.Enqueue(() => CheckRules(leveInfo, routeInfo), "Checking rules for node filtering");
         }
 
+        private static GatheringNode goalPosition = null;
+
         private static bool Initial_GatherTravel(GatheringRoute routeInfo)
         {
             string tag = "Gather: Start Travel";
@@ -100,28 +103,39 @@ namespace ChilledLeves.Scheduler.Tasks
             var navtask = P.navTask;
             bool correctTerritory = Player.Territory.RowId == routeInfo.TerritoryId;
 
-            if (correctTerritory && !navtask.IsBusy)
-            {
-                bool closeToNode = routeInfo.NodeInfo.Where(x => Player.DistanceTo(x.Position) < 3.7f).Any();
-                if (closeToNode)
+            if (!navtask.IsBusy)
+            { 
+                if (correctTerritory)
                 {
-                    IceLogging.Verbose("We're close to the gathering node to start the leve woo! Doing so now", tag);
-                    return true;
+                    var closestNode = routeInfo.NodeInfo.OrderBy(x => Player.DistanceTo(x.Position)).FirstOrDefault();
+                    if (Player.DistanceTo(closestNode.Position) < 5)
+                    {
+                        IceLogging.Verbose($"We're close to the gathering node. So we're going to continue on", tag);
+                        IceLogging.Verbose($"Distance to node: {Player.DistanceTo(closestNode.Position):N2}", tag);
+                        return true;
+                    }
+                    else
+                    {
+                        IceLogging.Verbose($"We need to move closer to a node. Currently... our closest node is {Player.DistanceTo(closestNode.Position):N2}", tag);
+                        Task_Navmesh.Queue_GatherTravel(routeInfo);
+                    }
                 }
                 else
                 {
-                    IceLogging.Verbose("We aren't close enough to a node, so we need to start traveling to", tag);
+                    IceLogging.Verbose("We're not in the area, but we still need to travel. So gonna queue up navmesh", tag);
                     Task_Navmesh.Queue_GatherTravel(routeInfo);
                 }
             }
-            else if (!navtask.IsBusy)
-            {
-                Task_Navmesh.Queue_GatherTravel(routeInfo);
-            }
             else
             {
-                if (EzThrottler.Throttle("Travel: Gather", 3000))
+                if (EzThrottler.Throttle("Travel: Gather", 1000))
                     IceLogging.Verbose("We are currently busy nav-tasking. Waiting for us to be done. . . ", tag);
+
+                if (correctTerritory)
+                {
+                    var closestNode = routeInfo.NodeInfo.OrderBy(x => Player.DistanceTo(x.Position)).FirstOrDefault();
+                    
+                }
             }
 
             return false;

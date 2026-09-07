@@ -57,6 +57,15 @@ public sealed class ChilledLeves : IDalamudPlugin
         PictoService = PctService.Initialize(pi);
     }
 
+    public static TaskManagerConfiguration taskConfig = new()
+    {
+        TimeLimitMS = 1200000,
+        AbortOnTimeout = true,
+        AbortOnError = true,
+        TimeoutSilently = false,
+        ShowDebug = true,
+    };
+
     public void Load()
     {
         EzConfig.Migrate<Config>();
@@ -80,7 +89,11 @@ public sealed class ChilledLeves : IDalamudPlugin
         window_Main = new();
         window_Overlay = new();
 
-        taskManager = new(new(abortOnTimeout: true, timeLimitMS: 20000, showDebug: true));
+
+
+        taskManager = new(taskConfig);
+        navTask = new(taskConfig);
+
         Svc.PluginInterface.UiBuilder.Draw += windowSystem.Draw;
         Svc.PluginInterface.UiBuilder.Draw += OnDraw;
         Svc.PluginInterface.UiBuilder.OpenMainUi += () =>

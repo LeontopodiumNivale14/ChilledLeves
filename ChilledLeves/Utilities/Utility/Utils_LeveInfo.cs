@@ -5,6 +5,7 @@ using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.Interop;
 using System.Collections.Generic;
+using System.Data;
 
 namespace ChilledLeves.Utilities;
 
@@ -74,6 +75,16 @@ public static partial class Utils
         }
 
         return leveIds;
+    }
+
+    public static unsafe int NumAcceptedQuest()
+    {
+        return QuestManager.Instance()->NumAcceptedLeveQuests;
+    }
+
+    public static unsafe bool Leve_MaxAccepted()
+    {
+        return QuestManager.Instance()->NumAcceptedLeveQuests == 16;
     }
 
     public static bool PotentionalLeve(uint leveId, string tag)

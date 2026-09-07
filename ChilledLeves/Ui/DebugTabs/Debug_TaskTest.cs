@@ -1,5 +1,6 @@
 ﻿using ChilledLeves.Scheduler;
 using ChilledLeves.Scheduler.Tasks;
+using ChilledLeves.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,6 +18,8 @@ namespace ChilledLeves.Ui.DebugTabs
             ImGui.Text($"Current task running: {currentTask}");
             ImGui.Text($"Current State: {Leve_Helper.State}");
             ImGui.Text($"Task Count: {P.taskManager.Tasks.Count}");
+            ImGui.Text($"Leve Accepted Count: {Utils.NumAcceptedQuest()}");
+            ImGui.Text($"Capped out on leves: {Utils.Leve_MaxAccepted()}");
 
             ImGui.Separator();
 
