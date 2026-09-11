@@ -37,16 +37,16 @@
         "z": -108.8396
       },
       "gathering_FanInfo": {
-        "fan_StartAngle": 80,
-        "fan_EndAngle": 169,
-        "fan_DistanceMin": 1.4,
-        "fan_DistanceMax": 2,
+        "fan_StartAngle": 96,
+        "fan_EndAngle": 154,
+        "fan_DistanceMin": 2.2,
+        "fan_DistanceMax": 2.8,
         "fan_Height": 0
       },
       "flight_FanInfo": {
-        "fan_StartAngle": 80,
-        "fan_EndAngle": 169,
-        "fan_DistanceMin": 2.5,
+        "fan_StartAngle": 96,
+        "fan_EndAngle": 154,
+        "fan_DistanceMin": 3,
         "fan_DistanceMax": 4,
         "fan_Height": 0
       },
@@ -269,8 +269,8 @@
       "gathering_FanInfo": {
         "fan_StartAngle": 304,
         "fan_EndAngle": 41,
-        "fan_DistanceMin": 1,
-        "fan_DistanceMax": 2,
+        "fan_DistanceMin": 1.4,
+        "fan_DistanceMax": 2.4,
         "fan_Height": 0
       },
       "flight_FanInfo": {

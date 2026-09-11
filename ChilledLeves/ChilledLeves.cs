@@ -14,6 +14,7 @@ using ChilledLeves.Utilities.LogInfo;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.Configuration;
 using ECommons.GameHelpers;
+using ECommons.Throttlers;
 using Pictomancy;
 
 namespace ChilledLeves;
@@ -129,6 +130,9 @@ public sealed class ChilledLeves : IDalamudPlugin
     {
         if (Svc.Objects.LocalPlayer != null)
         {
+            if (EzThrottler.Throttle("Updating Character Info", 2000))
+                Utils.OnLeveDataReady(Player.CID);
+
             SchedulerMain.Tick();
         }
         GenericManager.Tick();

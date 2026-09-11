@@ -1,16 +1,10 @@
-﻿using ChilledLeves.Enums;
-using ChilledLeves.Ui.Old_Ui;
-using ChilledLeves.Utilities.LeveData;
+﻿using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using ECommons.ExcelServices;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using static FFXIVClientStructs.FFXIV.Client.Game.CurrencyManager;
 
-namespace ChilledLeves.Ui.MainWindow_Tabs;
+namespace ChilledLeves.Ui.MainWindow_Tabs.Leve_Info;
 
 internal class Leve_MainTab
 {
@@ -52,7 +46,7 @@ internal class Leve_MainTab
 
         if(ImGui.Button("Alert Settings", buttonSize))
         {
-
+            P.alertSettings.IsOpen = true;
         }
         ImGui.Dummy(new Vector2(0, 5));
 
@@ -104,7 +98,7 @@ internal class Leve_MainTab
 
         // Crafters section
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + iconSpacing);
-        Theme_Colors.BodyText("Crafters");
+        ImGui.Text("Crafters");
         var currentItem = 0;
 
         foreach (var job in Crafters)
@@ -121,7 +115,7 @@ internal class Leve_MainTab
 
         // Gatherers section
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + iconSpacing);
-        Theme_Colors.BodyText("Gatherers");
+        ImGui.Text("Gatherers");
         currentItem = 0;
 
         foreach (var job in Gatherers)
@@ -152,7 +146,7 @@ internal class Leve_MainTab
 
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
-            Theme_Colors.BodyText($"Min Level");
+            ImGui.Text($"Min Level");
 
             ImGui.TableNextColumn();
             if (ImGui.SliderInt("##Min Lv.", ref minLv, 1, maxLv))
@@ -164,7 +158,7 @@ internal class Leve_MainTab
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
             ImGui.AlignTextToFramePadding();
-            Theme_Colors.BodyText($"Max Lv.");
+            ImGui.Text($"Max Lv.");
 
             ImGui.TableNextColumn();
             ImGui.AlignTextToFramePadding();
@@ -177,7 +171,7 @@ internal class Leve_MainTab
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
             ImGui.AlignTextToFramePadding();
-            Theme_Colors.BodyText("Leve Name");
+            ImGui.Text("Leve Name");
 
             ImGui.TableNextColumn();
             ImGui.InputText("##Name Search", ref Leve_SelectionTab.Leve_Name, 1000);

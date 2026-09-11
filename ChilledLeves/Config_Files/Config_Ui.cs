@@ -36,4 +36,5 @@ public partial class Config
     public string NameSearch { get; set; } = "";
     public bool UseIceTheme { get; set; } = true;
     public bool ShowActiveOverlay { get; set; } = true;
+    public WindowSelection SelectedTab { get; set; } = WindowSelection.LeveInfo;
 }

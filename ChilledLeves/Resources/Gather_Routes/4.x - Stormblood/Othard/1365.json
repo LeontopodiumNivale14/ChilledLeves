@@ -1,8 +1,103 @@
 {
   "leveId": 1365,
   "territoryId": 614,
+  "aetheryteId": 0,
   "zoneName": "Othard",
   "expansionId": 2,
   "gatheringJob": 17,
-  "nodeInfo": []
+  "nodeInfo": [
+    {
+      "baseId": 31885,
+      "position": {
+        "x": 500.9349,
+        "y": 45.18798,
+        "z": -105.046
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 348,
+        "fan_EndAngle": 83,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0.46
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 348,
+        "fan_EndAngle": 83,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 31886,
+      "position": {
+        "x": 547.1951,
+        "y": 43.6815,
+        "z": -126.986
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 269,
+        "fan_EndAngle": 8,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 269,
+        "fan_EndAngle": 8,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 31888,
+      "position": {
+        "x": 526.0352,
+        "y": 43.80564,
+        "z": -149.3852
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 248,
+        "fan_EndAngle": 11,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 248,
+        "fan_EndAngle": 11,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 31887,
+      "position": {
+        "x": 512.3878,
+        "y": 40.14708,
+        "z": -167.5004
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 194,
+        "fan_EndAngle": 327,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 194,
+        "fan_EndAngle": 327,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0.43
+      },
+      "requiresFlying": false
+    }
+  ],
+  "flyingNeeded": false
 }

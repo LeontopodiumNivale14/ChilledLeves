@@ -7,7 +7,7 @@ namespace ChilledLeves.Ui
 {
     internal static class Theme_Colors
     {
-        // Color definitions for the ice theme - updated with user values
+        // ---- Base palette ----
         public static readonly Vector4 IceBlue = new Vector4(0.7f, 0.85f, 1.0f, 1.0f);
         public static readonly Vector4 DarkIceBlue = new Vector4(0.3f, 0.5f, 0.7f, 1.0f);
         public static readonly Vector4 DeepIceBlue = new Vector4(0.15f, 0.25f, 0.4f, 1.0f);
@@ -16,19 +16,48 @@ namespace ChilledLeves.Ui
         public static readonly Vector4 DarkSlate = new Vector4(0.12f, 0.14f, 0.18f, 0.9f);
         public static readonly Vector4 LightSlate = new Vector4(0.22f, 0.26f, 0.33f, 0.9f);
 
-        // Style colors - derived from the color definitions
-        public static readonly Vector4 ButtonHovered = new Vector4(DarkIceBlue.X + 0.1f, DarkIceBlue.Y + 0.1f, DarkIceBlue.Z + 0.1f, 1.0f);
-        public static readonly Vector4 ButtonActive = new Vector4(DarkIceBlue.X + 0.15f, DarkIceBlue.Y + 0.15f, DarkIceBlue.Z + 0.15f, 1.0f);
+        // Helpers to make the colors fit in with the rest of the base colors from above ^
 
-        public static readonly Vector4 HeaderBg = new Vector4(0.23f, 0.35f, 0.48f, 0.55f);
-        public static readonly Vector4 HeaderHovered = new Vector4(0.26f, 0.38f, 0.52f, 0.7f);
-        public static readonly Vector4 HeaderActive = new Vector4(0.28f, 0.42f, 0.58f, 0.9f);
+        private static Vector4 WithAlpha(Vector4 c, float alpha)
+            => new Vector4(c.X, c.Y, c.Z, alpha);
 
-        public static readonly Vector4 FrameBg = new Vector4(0.18f, 0.22f, 0.28f, 1.0f);
-        public static readonly Vector4 FrameBgHovered = new Vector4(0.23f, 0.27f, 0.33f, 1.0f);
-        public static readonly Vector4 FrameBgActive = new Vector4(0.25f, 0.3f, 0.35f, 1.0f);
+        // Relative lighten (percentage of remaining headroom to white) —
+        // scales sanely whether the base is dark or already fairly light
+        private static Vector4 LightenRel(Vector4 c, float t)
+            => new Vector4(
+                c.X + (1.0f - c.X) * t,
+                c.Y + (1.0f - c.Y) * t,
+                c.Z + (1.0f - c.Z) * t,
+                c.W);
 
-        public static readonly Vector4 ChildBg = new Vector4(0.15f, 0.18f, 0.22f, 0.7f);
+        // Standard interaction ramp: same t-values everywhere, so any
+        // base color hovers/actives with the same *relative* punch
+        private const float HoverT = 0.15f;
+        private const float ActiveT = 0.28f;
+
+        private const float HeaderHoverT = 0.08f;
+        private const float HeaderActiveT = 0.15f;
+
+        // Sidebar Accent (specifically for the table cell)
+        public static readonly Vector4 SidebarAccent = IceBlue;
+
+        // Buttons
+        public static readonly Vector4 ButtonBg = DarkIceBlue;
+        public static readonly Vector4 ButtonHovered = LightenRel(DarkIceBlue, HoverT);
+        public static readonly Vector4 ButtonActive = LightenRel(DarkIceBlue, ActiveT);
+
+        // Header
+        public static readonly Vector4 HeaderBg = WithAlpha(DarkIceBlue, 0.55f);
+        public static readonly Vector4 HeaderHovered = WithAlpha(LightenRel(DarkIceBlue, HeaderHoverT), 0.6f);
+        public static readonly Vector4 HeaderActive = WithAlpha(LightenRel(DarkIceBlue, HeaderActiveT), 0.65f);
+
+        // Frame
+        public static readonly Vector4 FrameBg = WithAlpha(LightSlate, 1.0f);
+        public static readonly Vector4 FrameBgHovered = LightenRel(FrameBg, HoverT * 0.6f);
+        public static readonly Vector4 FrameBgActive = LightenRel(FrameBg, ActiveT * 0.6f);
+
+        // Child
+        public static readonly Vector4 ChildBg = WithAlpha(DarkSlate, 0.7f);
 
         public static void CustomHeader(string text, float width, float height = 30f)
         {
@@ -63,20 +92,6 @@ namespace ChilledLeves.Ui
             bool themeUsage = C.UseIceTheme;
             var color = C.UseIceTheme ? IceBlue : ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
             ImGuiEx.Text(color, text);
-        }
-
-        public static void BodyText(string text)
-        {
-            using var textColor = ImRaii.PushColor(ImGuiCol.Text, FrostWhite);
-            var color = C.UseIceTheme ? FrostWhite : ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
-            ImGuiEx.Text(color, text);
-        }
-
-        public static void HeaderSpacing()
-        {
-            ImGui.Dummy(new Vector2(0, 5));
-            ImGui.Separator();
-            ImGui.Dummy(new Vector2(0, 5));
         }
     }
 }

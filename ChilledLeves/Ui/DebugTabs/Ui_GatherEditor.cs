@@ -107,7 +107,7 @@ namespace ChilledLeves.Ui.DebugTabs
 
                         #region Name + Buttons
 
-                        Theme_Colors.BodyText($"[{LeveSelected}] → {leveName}");
+                        ImGui.Text($"[{LeveSelected}] → {leveName}");
                         if (ImGuiEx.IconButton(FontAwesomeIcon.Flag, $"{leveName}_Location"))
                         {
                             Utils.SetGatheringRingFromWorld(mapInfo.TerritoryId, mapInfo.Location, mapInfo.Radius, $"{leveName}");

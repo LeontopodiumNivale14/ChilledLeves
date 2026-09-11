@@ -4,7 +4,7 @@ using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Utility;
 using System.Globalization;
 
-namespace ChilledLeves.Ui.MainWindow_Tabs
+namespace ChilledLeves.Ui.MainWindow_Tabs.Leve_Info
 {
     internal class Leve_SelectionTab
     {

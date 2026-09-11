@@ -63,14 +63,14 @@ namespace ChilledLeves.Ui
             {
                 colors.Push(ImGuiCol.HeaderHovered, Theme_Colors.HeaderHovered);
                 colors.Push(ImGuiCol.HeaderActive, Theme_Colors.HeaderActive);
-                colors.Push(ImGuiCol.Button, ThemeHelper.ButtonBg);
-                colors.Push(ImGuiCol.ButtonHovered, ThemeHelper.ButtonHovered);
-                colors.Push(ImGuiCol.ButtonActive, ThemeHelper.ButtonActive);
-                colors.Push(ImGuiCol.WindowBg, ThemeHelper.DarkSlate);
-                colors.Push(ImGuiCol.FrameBg, ThemeHelper.FrameBg);
-                colors.Push(ImGuiCol.FrameBgHovered, ThemeHelper.FrameBgHovered);
-                colors.Push(ImGuiCol.FrameBgActive, ThemeHelper.FrameBgActive);
-                colors.Push(ImGuiCol.CheckMark, ThemeHelper.IceBlue);
+                colors.Push(ImGuiCol.Button, Theme_Colors.ButtonBg);
+                colors.Push(ImGuiCol.ButtonHovered, Theme_Colors.ButtonHovered);
+                colors.Push(ImGuiCol.ButtonActive, Theme_Colors.ButtonActive);
+                colors.Push(ImGuiCol.WindowBg, Theme_Colors.DarkSlate);
+                colors.Push(ImGuiCol.FrameBg, Theme_Colors.FrameBg);
+                colors.Push(ImGuiCol.FrameBgHovered, Theme_Colors.FrameBgHovered);
+                colors.Push(ImGuiCol.FrameBgActive, Theme_Colors.FrameBgActive);
+                colors.Push(ImGuiCol.CheckMark, Theme_Colors.IceBlue);
             }
 
             using var style = C.UseIceTheme ? ImRaii.PushStyle(ImGuiStyleVar.FrameRounding, 4.0f) : default;
@@ -87,7 +87,7 @@ namespace ChilledLeves.Ui
 
                 ImGui.TableNextRow();
                 ImGui.TableSetColumnIndex(0);
-                using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, ThemeHelper.ChildBg) : default;
+                using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
                 if (ImGui.BeginChild("Debug Selector##DebugSelector_ChilledLeves", ImGui.GetContentRegionAvail(), true))
                 {
                     foreach (var viewName in DebugTabs.Keys)

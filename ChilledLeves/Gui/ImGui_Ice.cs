@@ -167,4 +167,71 @@ public static class ImGui_Ice
 
         return clicked;
     }
+
+    // Borrowed from cosmic plugin... 
+    public static void Draw_XPBar(float current, float needed, string label = null, Vector2? size = null)
+    {
+        // If we want it to have a standard label above the bar. Not required but for small things it's nice to just have the option
+        if (label != null)
+        {
+            ImGui.TextWrapped(label);
+        }
+
+        // Setting the dimensions of the custom bar/drawing it.
+        // Usual stuff of drawlist being OP
+        var pos = ImGui.GetCursorScreenPos();
+        var drawList = ImGui.GetWindowDrawList();
+
+        // Calculating the size of the bar and everything here.
+        // If size is null, then it just defaults to the norm. Otherwise it uses whatever size we set (nice in case I want to use this for other things besides XP/Modify it a bit easier)
+        var barStart = pos;
+        var actualSize = size ?? new Vector2(ImGui.GetContentRegionAvail().X, 10);
+        var barEnd = new Vector2(pos.X + actualSize.X, pos.Y + actualSize.Y);
+
+        // Draw background (dark gray)
+        drawList.AddRectFilled(barStart, barEnd, ImGui.GetColorU32(new Vector4(0.15f, 0.15f, 0.15f, 1f)));
+
+        // Now comes the fun part, actually creating the filling (that sounds bad)
+
+        // Defining the colors globaly here just cause they're used across the board
+        var blueColor = new Vector4(0.2f, 0.6f, 1f, 1f);      // Blue #3399ff  - Fill Bar Part #1 (Left Side)
+        var greenColor = new Vector4(0.6f, 1f, 0.8f, 1f);      // Green #99ffcc - Fill Bar Part #2 (Right Side)
+        var brassColor = new Vector4(0.71f, 0.55f, 0.18f, 1f);  // Brass #b58d2e - Fill Bar Part #1 (Left Side)
+        var goldColor = new Vector4(1f, 0.84f, 0f, 1f);        // Gold #ffd600  - Fill Bar Part #2 (Right Side)
+
+        // Case 1: At or above cap when needed == max (show full gold) [Really only used when at max stage for that planet when a new one comes out)
+        if (needed > 0 && current >= needed)
+        {
+            drawList.AddRectFilledMultiColor(
+                barStart, barEnd,
+                    ImGui.GetColorU32(brassColor),  // top-left
+                    ImGui.GetColorU32(goldColor),   // top-right
+                    ImGui.GetColorU32(goldColor),   // bottom-right
+                    ImGui.GetColorU32(brassColor)   // bottom-left
+                );
+        }
+        // Case 2: Normal progression (not overcapped)
+        else if (current <= needed && needed > 0)
+        {
+            float fraction = Math.Clamp((float)current / needed, 0f, 1f);
+            float filledWidth = actualSize.X * fraction;
+
+            if (filledWidth > 0f)
+            {
+                var filledEnd = new Vector2(pos.X + filledWidth, pos.Y + actualSize.Y);
+                drawList.AddRectFilledMultiColor(
+                    barStart, filledEnd,
+                    ImGui.GetColorU32(blueColor),  // top-left
+                    ImGui.GetColorU32(greenColor), // top-right
+                    ImGui.GetColorU32(greenColor), // bottom-right
+                    ImGui.GetColorU32(blueColor)   // bottom-left
+                );
+            }
+        }
+
+        // Reset to captured pos before Dummy so manual cursor shifts (e.g. vertical centering)
+        // don't cause the Dummy to double-advance. No-op for normal usage.
+        ImGui.SetCursorScreenPos(pos);
+        ImGui.Dummy(actualSize);
+    }
 }

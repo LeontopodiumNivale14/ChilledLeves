@@ -879,6 +879,59 @@ public static partial class Utils
             MoveTo = new(38.60f, 20.30f, -675.33f),
         },
 
+        #region The Peaks
+
+        [101] = new()
+        {
+            ShardId = 101,
+            TerritoryId = 620,
+            ValidTerritories = new() { 620 },
+            Position = new(-271.38f, 259.88f, 748.87f),
+            MoveTo = new(-257.55f, 269.37f, 741.63f),
+        },
+
+        [100] = new()
+        {
+            ShardId = 100,
+            TerritoryId = 620,
+            ValidTerritories = new() { 620 },
+            Position = new(114.58f, 120.10f, -747.07f),
+            MoveTo = new(110.80f, 118.22f, -740.97f),
+        },
+
+
+        #endregion
+
+        #region Azim Steepe
+
+        [110] = new()
+        {
+            ShardId = 110,
+            TerritoryId = 622,
+            ValidTerritories = new() { 622 },
+            Position = new(78.26f, 119.37f, 36.30f),
+            MoveTo = new(85.65f, 114.90f, 36.36f),
+        },
+        [109] = new()
+        {
+            ShardId = 109,
+            TerritoryId = 622,
+            ValidTerritories = new() { 622 },
+            Position = new(556.15f, -16.80f, 340.11f),
+            MoveTo = new(552.82f, -19.51f, 332.34f),
+        },
+        [128] = new()
+        {
+            ShardId = 128,
+            TerritoryId = 622,
+            ValidTerritories = new() { 622 },
+            Position = new(-754.63f, 131.24f, 116.56f),
+            MoveTo = new(-760.27f, 127.92f, 123.32f),
+        },
+
+
+        #endregion
+
         #region Lakeland
 
         [132] = new()

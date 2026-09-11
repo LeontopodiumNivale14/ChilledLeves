@@ -1,8 +1,11 @@
-﻿using ChilledLeves.Utilities.LeveData;
+﻿using ChilledLeves.Config_Files;
+using ChilledLeves.Utilities.LeveData;
 using ChilledLeves.Utilities.LogInfo;
 using ECommons.GameHelpers;
+using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.Interop;
 using System.Collections.Generic;
 using System.Data;
@@ -130,5 +133,75 @@ public static partial class Utils
             return sheetInfo.AllowanceCost >= Utils.Allowances;
         else
             return false;
+    }
+
+    public static int EstimateCurrentAllowance(Config.ClassInformation info)
+    {
+        const int cap = 100;
+        const int allowancesPerTick = 3;
+        const int regenIntervalHours = 12;
+
+        if (info.Time_LastObserved == DateTime.MinValue)
+            return 0;
+
+        if (info.LastKnownAllowance >= cap)
+            return cap;
+
+        DateTime serverTime = Svc.Framework.LastUpdateUTC;
+
+        if (serverTime <= info.Time_LastObserved)
+            return info.LastKnownAllowance;
+
+        if (serverTime < info.Time_NextTickAt)
+            return info.LastKnownAllowance; // hasn't hit the next tick yet
+
+        var hoursSinceNextTick = (serverTime - info.Time_NextTickAt).TotalHours;
+        var ticks = (int)(hoursSinceNextTick / regenIntervalHours) + 1;
+
+        return Math.Min(cap, info.LastKnownAllowance + ticks * allowancesPerTick);
+    }
+
+    public static void OnLeveDataReady(ulong characterId)
+    {
+        const string tag = "User Info: Update Leve";
+
+        int currentAllowance = Allowances;
+        var nextTick = DateTimeOffset
+            .FromUnixTimeSeconds(QuestManager.GetNextLeveAllowancesUnixTimestamp())
+            .UtcDateTime;
+
+        if (C.CharacterInfo.TryGetValue(characterId, out var info))
+        {
+            bool changed = info.LastKnownAllowance != currentAllowance;
+
+            info.LastKnownAllowance = currentAllowance;
+            info.Time_LastObserved = Svc.Framework.LastUpdateUTC;
+            info.Time_NextTickAt = nextTick;
+
+            if (changed)
+            {
+                IceLogging.Info($"Updated Character Info for: {info.Name}", tag);
+                C.SaveDebounced();
+            }
+            else if (EzThrottler.Throttle($"Updating last seen {characterId}", 300000))
+            {
+                IceLogging.Verbose("Updating the last seen so it's atleast known", tag);
+                C.SaveDebounced();
+            }
+        }
+        else
+        {
+            C.CharacterInfo[characterId] = new()
+            {
+                Name = Player.Name,
+                World = Player.HomeWorld.Value.Name.ToString(),
+                AllowNotification = false,
+                LastKnownAllowance = currentAllowance,
+                Time_LastObserved = Svc.Framework.LastUpdateUTC,
+                Time_NextTickAt = nextTick
+            };
+
+            C.SaveDebounced();
+        }
     }
 }

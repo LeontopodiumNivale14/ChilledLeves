@@ -8,7 +8,7 @@ using Dalamud.Interface.Utility.Raii;
 using SharpDX.Direct3D11;
 using static ChilledLeves.Utilities.LeveData.LeveInfo;
 
-namespace ChilledLeves.Ui.MainWindow_Tabs
+namespace ChilledLeves.Ui.MainWindow_Tabs.Leve_Info
 {
     internal class Leve_DetailsTab
     {
@@ -25,7 +25,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 ImGui.Image(jobImage.GetWrapOrEmpty().Handle, new Vector2(24, 24));
                 ImGui.SameLine();
                 ImGui.AlignTextToFramePadding();
-                Theme_Colors.BodyText($"{leve.LeveName}");
+                ImGui.Text($"{leve.LeveName}");
                 ImGui.SameLine();
                 ImGui.TextDisabled($"ID: {selectedLeve}");
 
@@ -106,20 +106,20 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 ImGui.TableNextRow();
                 ImGui.TableSetColumnIndex(0);
                 ImGui.AlignTextToFramePadding();
-                Theme_Colors.BodyText("Lv.");
+                ImGui.Text("Lv.");
 
                 ImGui.TableNextColumn();
                 ImGui.AlignTextToFramePadding();
-                Theme_Colors.BodyText($"{leve.Level}");
+                ImGui.Text($"{leve.Level}");
 
                 // Experience 
                 ImGui.TableNextRow();
                 ImGui.TableSetColumnIndex(0);
                 ImGui.AlignTextToFramePadding();
-                Theme_Colors.BodyText("EXP");
+                ImGui.Text("EXP");
                 ImGui.TableNextColumn();
                 ImGui.AlignTextToFramePadding();
-                Theme_Colors.BodyText($"{leve.ExpReward:N0}");
+                ImGui.Text($"{leve.ExpReward:N0}");
 
                 // Gil Reward
                 ImGui.TableNextRow();
@@ -131,7 +131,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
 
                 ImGui.TableNextColumn();
                 ImGui.AlignTextToFramePadding();
-                Theme_Colors.BodyText($"{leve.GilReward:N0} ± 5%");
+                ImGui.Text($"{leve.GilReward:N0} ± 5%");
 
                 // Completion Status
                 ImGui.TableNextRow();
@@ -139,7 +139,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 GameIcons.DrawInlineOrIcon(LeveInfo.LeveStatus[Leve_Status.NotGrabbed], FontAwesomeIcon.CheckSquare);
                 ImGui.SameLine();
                 ImGui.AlignTextToFramePadding();
-                Theme_Colors.BodyText($"Completed");
+                ImGui.Text($"Completed");
 
                 ImGui.TableNextColumn();
                 uint statusId = Utils.Leve_IsComplete(selectedLeve) ? LeveInfo.LeveStatus[Leve_Status.NotComplete] : LeveInfo.LeveStatus[Leve_Status.Complete];
@@ -172,7 +172,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     if (LeveInfo.LeveNpc_Info.TryGetValue(vendor, out var vendorInfo))
                     {
                         ImGui.AlignTextToFramePadding();
-                        Theme_Colors.BodyText($"{ExcelHelper.Sheet_TerritoryType.GetRow(vendorInfo.TerritoryId).PlaceName.Value.Name}");
+                        ImGui.Text($"{ExcelHelper.Sheet_TerritoryType.GetRow(vendorInfo.TerritoryId).PlaceName.Value.Name}");
 
                         ImGui.TableNextColumn();
                         if (ImGui.Button($"{vendorInfo.Name}"))
@@ -183,10 +183,10 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     else
                     {
                         ImGui.AlignTextToFramePadding();
-                        Theme_Colors.BodyText($"NpcId: ");
+                        ImGui.Text($"NpcId: ");
 
                         ImGui.TableNextColumn();
-                        Theme_Colors.BodyText($"{vendor}");
+                        ImGui.Text($"{vendor}");
                     }
                 }
             }
@@ -207,7 +207,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 if (LeveInfo.LeveNpc_Info.TryGetValue(leve.Npc_Turnin, out var turninNpc))
                 {
                     ImGui.AlignTextToFramePadding();
-                    Theme_Colors.BodyText($"{ExcelHelper.Sheet_TerritoryType.GetRow(turninNpc.TerritoryId).PlaceName.Value.Name}");
+                    ImGui.Text($"{ExcelHelper.Sheet_TerritoryType.GetRow(turninNpc.TerritoryId).PlaceName.Value.Name}");
 
                     ImGui.TableNextColumn();
                     if (ImGui.Button($"{turninNpc.Name}"))
@@ -253,11 +253,11 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
 
                     ImGui.TableNextColumn();
                     ImGui.AlignTextToFramePadding();
-                    Theme_Colors.BodyText($"{materialInfo.Item_Name}");
+                    ImGui.Text($"{materialInfo.Item_Name}");
 
                     ImGui.TableNextColumn();
                     ImGui.AlignTextToFramePadding();
-                    Theme_Colors.BodyText($"{turninAmount:N0}");
+                    ImGui.Text($"{turninAmount:N0}");
                 }
             }
         }
@@ -311,16 +311,16 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
 
                         GameIcons.DrawInline(60033, true);
                         ImGui.AlignTextToFramePadding();
-                        Theme_Colors.BodyText($"Flying Required");
+                        ImGui.Text($"Flying Required");
 
                         ImGui.TableNextColumn();
-                        Theme_Colors.BodyText($"{flyingRequired}");
+                        ImGui.Text($"{flyingRequired}");
                     }
 
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
                     ImGui.AlignTextToFramePadding();
-                    Theme_Colors.BodyText("Area");
+                    ImGui.Text("Area");
 
                     ImGui.TableNextColumn();
                     var mapInfo = leve.Gather_MapInfo;
@@ -335,11 +335,11 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
                     ImGui.AlignTextToFramePadding();
-                    Theme_Colors.BodyText("Kind");
+                    ImGui.Text("Kind");
 
                     ImGui.TableNextColumn();
                     ImGui.AlignTextToFramePadding();
-                    Theme_Colors.BodyText(kind);
+                    ImGui.Text(kind);
                     ImGui.SameLine();
                     ImGui_Ice.IconWithTooltip(FontAwesomeIcon.QuestionCircle, ruleInfo);
 
@@ -348,7 +348,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         ImGui.TableNextRow();
                         ImGui.TableSetColumnIndex(0);
                         ImGui.AlignTextToFramePadding();
-                        Theme_Colors.BodyText("Mission Goal");
+                        ImGui.Text("Mission Goal");
 
                         ImGui.TableNextColumn();
                         foreach (var item in leve.Gather_NodeInfo.GatherItems)

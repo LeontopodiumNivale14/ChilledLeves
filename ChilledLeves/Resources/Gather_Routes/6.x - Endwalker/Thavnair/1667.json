@@ -267,17 +267,17 @@
         "z": 411.0853
       },
       "gathering_FanInfo": {
-        "fan_StartAngle": 0,
-        "fan_EndAngle": 0,
+        "fan_StartAngle": 145,
+        "fan_EndAngle": 269,
         "fan_DistanceMin": 1,
-        "fan_DistanceMax": 3,
+        "fan_DistanceMax": 2,
         "fan_Height": 0
       },
       "flight_FanInfo": {
-        "fan_StartAngle": 0,
-        "fan_EndAngle": 0,
-        "fan_DistanceMin": 1,
-        "fan_DistanceMax": 3,
+        "fan_StartAngle": 145,
+        "fan_EndAngle": 269,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
         "fan_Height": 0
       },
       "requiresFlying": false
