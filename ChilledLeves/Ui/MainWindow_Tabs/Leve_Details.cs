@@ -1,5 +1,4 @@
 ﻿using ChilledLeves.Ui.MainWindow_Tabs.Leve_Info;
-using ChilledLeves.Ui.Old_Ui;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 

@@ -44,12 +44,6 @@ internal class Leve_MainTab
         }
         ImGui.NewLine();
 
-        if(ImGui.Button("Alert Settings", buttonSize))
-        {
-            P.alertSettings.IsOpen = true;
-        }
-        ImGui.Dummy(new Vector2(0, 5));
-
         Theme_Colors.HeaderText("Filter Options");
         ImGui.Separator();
 

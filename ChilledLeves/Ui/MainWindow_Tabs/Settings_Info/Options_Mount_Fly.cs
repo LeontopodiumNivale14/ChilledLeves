@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using ChilledLeves.Gui;
 using ChilledLeves.Utilities;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
@@ -98,6 +99,28 @@ public static partial class SettingsUi
         Category = MountOption,
         Keywords = new[] { "Mount", "Select", "Picker", "Choose" },
         Draw = DrawMountSelector
+    };
+
+    private static SettingEntry FanSelection = new()
+    {
+        Label = "Fan Selection",
+        Category = MountOption,
+        Keywords = new[] { "Gathering", "Fan", "Random" },
+        Draw = () =>
+        {
+            var v = C.GatherFanSectionSize;
+            ImGui.SetNextItemWidth(200);
+            if (ImGui.SliderFloat("Selection of Fan", ref v, 1, 359))
+            {
+                C.GatherFanSectionSize = v;
+                C.SaveDebounced();
+            }
+            ImGui.SameLine();
+            ImGui_Ice.IconWithTooltip(FontAwesomeIcon.QuestionCircle, "How much of the fan do you want to be potentionally be randomized.\n" +
+                "If set to 1, it'll choose the closest part and travel to a point in that slice as an example\n" +
+                "Default is 45, it's a pretty decent pie slice, but if you want more random/less resonable can go up to 359", false);
+
+        }
     };
 
     private static Dictionary<uint, string> _availableMounts = new();

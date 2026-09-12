@@ -1,10 +1,6 @@
 ﻿using ChilledLeves.Ui.DebugTabs;
-using ChilledLeves.Ui.Old_Ui;
 using Dalamud.Interface.Utility.Raii;
-using InteropGenerator.Runtime.Attributes;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ChilledLeves.Ui
 {

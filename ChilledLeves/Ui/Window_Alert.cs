@@ -1,10 +1,10 @@
 ﻿using ChilledLeves.Utilities;
 
-namespace ChilledLeves.Ui.Old_Ui
+namespace ChilledLeves.Ui
 {
-    internal class AlertWindow : Window
+    internal class Window_Alert : Window
     {
-        public AlertWindow() : base("Notification Alert | Chilled Leves ###ChilledLevesNotifPopup", ImGuiWindowFlags.AlwaysAutoResize)
+        public Window_Alert() : base("Notification Alert | Chilled Leves ###ChilledLevesNotifPopup", ImGuiWindowFlags.AlwaysAutoResize)
         {
             P.windowSystem.AddWindow(this);
         }

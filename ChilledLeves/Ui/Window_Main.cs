@@ -1,14 +1,11 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Gui;
-using ChilledLeves.Ui.DebugTabs;
 using ChilledLeves.Ui.MainWindow_Tabs;
 using ChilledLeves.Ui.MainWindow_Tabs.Settings_Info;
-using ChilledLeves.Ui.Old_Ui;
 using ChilledLeves.Utilities;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -76,7 +73,7 @@ namespace ChilledLeves.Ui
             {
                 Icon = FontAwesomeIcon.PersonChalkboard,
                 Label = "Leve Playlist",
-                Draw = () => Leve_WorklistTab.Draw(),
+                Draw = () => Leve_Playlist.Draw(),
             },
             [WindowSelection.ARR_Grind] = new()
             {

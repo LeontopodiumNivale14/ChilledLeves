@@ -1,6 +1,5 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Gui;
-using ChilledLeves.Ui.Old_Ui;
 using ChilledLeves.Utilities.GatheringHelper;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;

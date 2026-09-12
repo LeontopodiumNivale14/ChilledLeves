@@ -6,7 +6,6 @@ using ChilledLeves.Scheduler;
 using ChilledLeves.Scheduler.Handlers;
 using ChilledLeves.Ui;
 using ChilledLeves.Ui.DebugTabs;
-using ChilledLeves.Ui.Old_Ui;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.GatheringHelper;
 using ChilledLeves.Utilities.LeveData;
@@ -29,9 +28,7 @@ public sealed class ChilledLeves : IDalamudPlugin
     // Window's that I use, base window to the settings... need these to actually show shit 
     internal WindowSystem windowSystem;
     internal Window_Debug debugWindow;
-    internal AlertWindow alertUi; 
-    internal AlertSettings alertSettings;
-
+    internal Window_Alert alertUi; 
     internal Window_Main window_Main;
     internal Window_Overlay window_Overlay;
 
@@ -85,7 +82,6 @@ public sealed class ChilledLeves : IDalamudPlugin
         windowSystem = new();
         debugWindow = new();
         alertUi = new();
-        alertSettings = new();
 
         window_Main = new();
         window_Overlay = new();

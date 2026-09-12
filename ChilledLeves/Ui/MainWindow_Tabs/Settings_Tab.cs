@@ -1,9 +1,7 @@
 ﻿using ChilledLeves.Utilities;
 using Dalamud.Interface.Utility.Raii;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs
 {
@@ -11,6 +9,8 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
     {
         public static void Draw()
         {
+            var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+
             using (var child = ImRaii.Child("Settings: ChilledLeves", ImGui.GetContentRegionAvail(), true))
             {
                 bool useMount = C.UseMount;

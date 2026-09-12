@@ -33,7 +33,6 @@ public partial class Config
     public bool RapidImport { get; set; } = false;
     public int MinLevel { get; set; } = 0;
     public int MaxLevel { get; set; } = 100;
-    public string NameSearch { get; set; } = "";
     public bool UseIceTheme { get; set; } = true;
     public bool ShowActiveOverlay { get; set; } = true;
     public WindowSelection SelectedTab { get; set; } = WindowSelection.LeveInfo;

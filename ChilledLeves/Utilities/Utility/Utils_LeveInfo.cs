@@ -172,6 +172,9 @@ public static partial class Utils
 
         if (C.CharacterInfo.TryGetValue(characterId, out var info))
         {
+            if (info.Blacklisted)
+                return;
+
             bool changed = info.LastKnownAllowance != currentAllowance;
 
             info.LastKnownAllowance = currentAllowance;
@@ -198,8 +201,14 @@ public static partial class Utils
                 AllowNotification = false,
                 LastKnownAllowance = currentAllowance,
                 Time_LastObserved = Svc.Framework.LastUpdateUTC,
-                Time_NextTickAt = nextTick
+                Time_NextTickAt = nextTick,
+                Blacklisted = false
             };
+
+            if (!C.Character_Order.Contains(characterId))
+            {
+                C.Character_Order.Add(characterId);
+            }
 
             C.SaveDebounced();
         }

@@ -11,10 +11,6 @@ public partial class Config
     public bool PlaySound { get; set; } = false;
     public Sounds Sounds { get; set; } = Sounds.Sound01;
     public bool ShowOverlayAlert { get; set; } = true;
-    public Dictionary<ulong, string> whitelistCharacters { get; set; } = new Dictionary<ulong, string>();
-    public Dictionary<ulong, string> blacklistCharacters { get; set; } = new Dictionary<ulong, string>();
-    public bool whitelistFeature { get; set; } = false;
-    public bool blacklistFeature { get; set; } = true;
 
     public class ClassInformation
     {
@@ -24,7 +20,9 @@ public partial class Config
         public int LastKnownAllowance { get; set; }
         public DateTime Time_LastObserved { get; set; } = DateTime.MinValue;
         public DateTime Time_NextTickAt { get; set; } = DateTime.MinValue;
+        public bool Blacklisted { get; set; } = false;
     }
 
     public Dictionary<ulong, ClassInformation> CharacterInfo { get; set; } = new();
+    public List<ulong> Character_Order { get; set; } = new();
 }

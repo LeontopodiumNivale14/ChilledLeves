@@ -27,6 +27,18 @@ public static partial class SettingsUi
         MountDismountDistance,
         FlyMinDistance,
         MountSelection,
+        FanSelection,
+
+        // Sound Options
+        EnableSound,
+        SelectedSound,
+        GetChatNotification,
+        ShowAlertWindow,
+        LeveAlertAmount,
+
+        // Misc
+        ColorTheme,
+        ShowActiveOverlay,
     };
 
     // Built once and cached — BuildRegistry() constructs fresh SettingEntry wrappers,
@@ -40,6 +52,8 @@ public static partial class SettingsUi
 
     public static void Draw()
     {
+        var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+
         using (ImRaii.Child("Settings Ui: Window", ImGui.GetContentRegionAvail(), true))
         {
             DrawSearchBar();

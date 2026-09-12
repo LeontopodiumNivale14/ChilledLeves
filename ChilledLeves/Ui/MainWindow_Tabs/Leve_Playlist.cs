@@ -4,49 +4,34 @@ using ChilledLeves.Scheduler;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Utility.Raii;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs
 {
-    internal class Leve_WorklistTab
+    internal class Leve_Playlist
     {
         private static readonly ImGuiEx.RealtimeDragDrop<uint> _leveDragDrop = new("LeveOrder", id => id.ToString());
 
         public static void Draw()
         {
+            var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+
             using (var child = ImRaii.Child("Worklist: Leve Playlist", new(-1, -1), true))
             {
                 if (!child.Success)
                     return;
 
                 List<uint> levesToRemove = new();
-                _leveDragDrop.Begin();
 
-                using (ImRaii.Disabled(Leve_Helper.State != LeveState.Idle))
+                if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Start Playlist", Leve_Helper.State == LeveState.Idle))
                 {
-                    if (ImGui.Button("Start Leves"))
-                    {
-                        Leve_Helper.SelectedMode = ModeSelection.Standard;
-                        Leve_Helper.State = LeveState.CheckLeves;
-                    }
-                }
-
-                using (ImRaii.Disabled(Leve_Helper.State == LeveState.Idle))
-                {
-                    if (ImGui.Button("Stop Leves"))
-                    {
-                        SchedulerMain.DisablePlugin();
-                    }
-                }
-
-                ImGui.SameLine();
-                if (ImGui.Button("Gathering Test"))
-                {
-                    Leve_Helper.LeveToGrab = 1797;
                     Leve_Helper.SelectedMode = ModeSelection.Standard;
-                    Leve_Helper.State = LeveState.GatherLeve_Execute;
+                    Leve_Helper.State = LeveState.CheckLeves;
+                }
+                ImGui.SameLine();
+                if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Square, "Stop", Leve_Helper.State != LeveState.Idle))
+                {
+                    SchedulerMain.DisablePlugin();
                 }
 
                 bool allowGrabMulti = C.GrabMulti;
@@ -66,6 +51,8 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     "If a leve has multiple turnin, this will allow you to do said multiple turnins of the leve.\n" +
                     "This really only applies for specific leves below Lv. 80, as post that they stopped doing this.\n" +
                     "Enabling this will update the counts of leves that allow it");
+
+                _leveDragDrop.Begin();
 
                 if (C.LeveOrder.Count != 0)
                 {

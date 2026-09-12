@@ -1,5 +1,4 @@
-﻿using ChilledLeves.Ui.Old_Ui;
-using ECommons.GameHelpers;
+﻿using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 
@@ -64,46 +63,53 @@ internal static class SoundAlert
     public static void Tick()
     {
         bool IsLeveThresholdMet = false;
-        if (Player.Interactable)
+        bool playerInteractable = Player.Interactable;
+        if (playerInteractable)
         {
             IsLeveThresholdMet = Utils.Allowances >= C.LeveAlertAmount;
             // Svc.Log.Information($"Allowance: {Utils.Allowances} | Alert Amount: {C.LeveAlertAmount}");
         }
 
-        if ((CID != CurrentId || CID == DefaultCID) 
-            && C.ShowOverlayAlert 
-            && IsLeveThresholdMet
-            && ((C.whitelistFeature && C.whitelistCharacters.ContainsKey(CID)) 
-               || (C.blacklistFeature && !C.blacklistCharacters.ContainsKey(CID)))
-            && Player.Interactable)
+        if (C.CharacterInfo.TryGetValue(CID, out var characterInfo))
         {
-            CurrentId = DefaultCID;
-            refreshOverlay = true;
-        }
+            if (characterInfo.Blacklisted)
+                return;
 
-        if (CID != DefaultCID
-        && CurrentId != CID
-        && !Player.IsInDuty
-        && IsLeveThresholdMet
-        && ((C.whitelistFeature && C.whitelistCharacters.ContainsKey(CID)) || C.blacklistFeature && !C.blacklistCharacters.ContainsKey(CID)) )
-        {
-            CurrentId = CID;
-            if (EzThrottler.Throttle("PlaySoundEffect", 100))
+            bool notMatch = CID != CurrentId || CID == DefaultCID;
+            bool showOverlay = C.ShowOverlayAlert;
+            if (notMatch && showOverlay && playerInteractable && characterInfo.AllowNotification)
             {
-                if (refreshOverlay && C.ShowOverlayAlert)
-                {
-                    P.alertUi.IsOpen = true;
-                }
+                CurrentId = DefaultCID;
+                refreshOverlay = true;
+            }
 
-                if (C.SendChat)
+            bool characterMatch = CID != DefaultCID && CurrentId != CID;
+            bool freeFromDuty = !Player.IsInDuty;
+            if (characterMatch && freeFromDuty && IsLeveThresholdMet && characterInfo.AllowNotification)
+            {
+                CurrentId = CID;
+                if (EzThrottler.Throttle("PlaySoundEffect", 100))
                 {
-                    ECommons.ChatMethods.ChatPrinter.Orange($"[Chilled Leves] Leve's are at: {Utils.Allowances}");
-                }
-                if (C.PlaySound)
-                {
-                    AlertSettings.PlaySoundEffect(SoundEffect);
+                    if (refreshOverlay && C.ShowOverlayAlert)
+                    {
+                        P.alertUi.IsOpen = true;
+                    }
+
+                    if (C.SendChat)
+                    {
+                        ECommons.ChatMethods.ChatPrinter.Orange($"[Chilled Leves] Leve's are at: {Utils.Allowances}");
+                    }
+                    if (C.PlaySound)
+                    {
+                        PlaySoundEffect(SoundEffect);
+                    }
                 }
             }
         }
+    }
+
+    public static unsafe void PlaySoundEffect(Sounds efx)
+    {
+        UIGlobals.PlaySoundEffect((uint)efx);
     }
 }

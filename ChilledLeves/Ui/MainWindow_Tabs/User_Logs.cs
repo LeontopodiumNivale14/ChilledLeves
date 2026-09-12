@@ -1,9 +1,5 @@
-﻿using ChilledLeves.Ui.Old_Ui;
-using ChilledLeves.Utilities.LogInfo;
+﻿using ChilledLeves.Utilities.LogInfo;
 using Dalamud.Interface.Utility.Raii;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs
 {
@@ -13,6 +9,8 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
 
         public static void Draw()
         {
+            var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+
             using (var child = ImRaii.Child("Main Window: User Logs", new(-1, -1), true))
             {
                 if (!child.Success)
