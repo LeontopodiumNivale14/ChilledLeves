@@ -1,5 +1,6 @@
 ﻿using ChilledLeves.Ui;
 using Dalamud.Interface.Colors;
+using Dalamud.Interface.Components;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Utility.Raii;
 
@@ -228,6 +229,31 @@ public static class ImGui_Ice
         drawList.AddImage(texture.Handle, imagePos, imagePos + scaledImage, Vector2.Zero, Vector2.One, imageTint);
 
         return clicked;
+    }
+
+    public static bool IconToggle(FontAwesomeIcon icon, string id, ref bool value, string tooltip = null)
+    {
+        var onBorder = C.UseIceTheme
+            ? ImGui.GetColorU32(Theme_Colors.OnAccentSubtle)
+            : ImGui.GetColorU32(ImGuiColors.ParsedGold);
+
+        bool clicked;
+        using (ImRaii.PushColor(ImGuiCol.Border, value ? onBorder : ImGui.GetColorU32(ImGuiCol.Border)))
+        using (ImRaii.PushColor(ImGuiCol.Button, ImGui.GetColorU32(ImGuiCol.Button, 0.5f), !value))
+        using (ImRaii.PushColor(ImGuiCol.Text, new Vector4(0.6f, 0.6f, 0.6f, 0.7f), !value))
+        using (ImRaii.PushStyle(ImGuiStyleVar.FrameBorderSize, value ? 1.5f : 1f))
+        {
+            clicked = ImGuiComponents.IconButton(id, icon);
+        }
+
+        if (ImGui.IsItemHovered() && !string.IsNullOrEmpty(tooltip))
+            ImGui.SetTooltip(tooltip);
+
+        if (!clicked)
+            return false;
+
+        value = !value;
+        return true;
     }
 
     // Borrowed from cosmic plugin... 

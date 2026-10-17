@@ -1,5 +1,6 @@
 ﻿using ChilledLeves.Gui;
 using ChilledLeves.Utilities;
+using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility.Raii;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace ChilledLeves.Ui
 
         private static bool IncludeCrystals = false;
         private static bool SubtractInventory = false;
+        private static bool HighlightComplete = false;
 
         public override void Draw()
         {
@@ -47,18 +49,11 @@ namespace ChilledLeves.Ui
 
             using var style = C.UseIceTheme ? ImRaii.PushStyle(ImGuiStyleVar.FrameRounding, 4.0f) : default;
 
-            if (ImGui_Ice.ImageButton(20007, "Show Crystals", IncludeCrystals, 2))
-            {
-                IncludeCrystals = !IncludeCrystals;
-            }
+            ImGui_Ice.IconToggle(FontAwesomeIcon.Gem, "Include Gems", ref IncludeCrystals, "Show Crystals");
             ImGui.SameLine();
-            if (ImGuiEx.IconButton(FontAwesomeIcon.Minus, "Subtract Inventory", enabled: SubtractInventory))
-            {
-                SubtractInventory = !SubtractInventory;
-            }
-
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Subtract what you already own from the totals. Affects the Need column, pre-crafts, ingredients and exports. Press Calculate to apply.");
+            ImGui_Ice.IconToggle(FontAwesomeIcon.Calculator, "Calculate Inventory", ref SubtractInventory, "Subtract what you already own from the totals. Affects the Need column, pre-crafts, ingredients and exports. Press Calculate to apply.");
+            ImGui.SameLine();
+            ImGui_Ice.IconToggle(FontAwesomeIcon.Highlighter, "Highlight Complete", ref HighlightComplete, "Highlight Inventory");
 
             if (ImGui.Button("Calculate Items"))
             {
@@ -165,7 +160,6 @@ namespace ChilledLeves.Ui
 
         private static void DrawItemTable(string id, IEnumerable<KeyValuePair<uint, int>> items, bool showCrafts)
         {
-            // Read once so the header and every row agree, even mid-frame.
             var showInventory = Utils.UsedInventory;
 
             var columnCount = 3;
@@ -190,12 +184,22 @@ namespace ChilledLeves.Ui
                 ImGui.TableSetupColumn("Crafts");
             ImGui.TableHeadersRow();
 
+            var completeColor = ImGui.GetColorU32(new Vector4(0.2f, 0.7f, 0.3f, 0.35f));
+
             foreach (var item in items)
             {
                 if (!ExcelHelper.Sheet_Item.TryGetRow(item.Key, out var itemInfo))
                     continue;
 
+                var owned = Utils.GetItemCount(item.Key);
+                var isComplete = HighlightComplete && owned >= item.Value;
+
                 ImGui.TableNextRow();
+
+                // Must come after TableNextRow so it applies to this row.
+                if (isComplete)
+                    ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, completeColor);
+
                 ImGui.TableSetColumnIndex(0);
                 GameIcons.DrawInline(itemInfo.Icon, false);
 
@@ -214,7 +218,7 @@ namespace ChilledLeves.Ui
                 if (showInventory)
                 {
                     ImGui.TableNextColumn();
-                    ImGui.Text($"{Utils.GetOwned(item.Key):N0}");
+                    ImGui.Text($"{owned:N0}");
 
                     ImGui.TableNextColumn();
                     ImGui.Text($"{Utils.GetNeeded(item.Key, item.Value):N0}");

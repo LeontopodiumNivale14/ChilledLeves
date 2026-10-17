@@ -145,10 +145,10 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                                 ImGui.TableNextColumn();
                                 var runAmount = C.LeveList[leve];
                                 ImGui.SetNextItemWidth(150 * ImGuiHelpers.GlobalScale);
-                                if (ImGui.InputInt("##RunAmount", ref runAmount, 1, 100))
+                                if (ImGui.InputInt("##RunAmount", ref runAmount, 1, 10))
                                 {
-                                    if (runAmount > 100)
-                                        runAmount = 100;
+                                    if (runAmount < 0)
+                                        runAmount = 0;
 
                                     C.LeveList[leve] = runAmount;
                                     C.SaveDebounced();
