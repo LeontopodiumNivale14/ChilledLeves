@@ -194,7 +194,7 @@ namespace ChilledLeves.Ui.DebugTabs
                                             aetheryteName += $" {Player.DistanceTo(position):N2}";
                                         }
 
-                                        if (ImGui.Selectable($"[{shard}] {aetheryteName}##{shard}_ID", isSelected))
+                                        if (ImGui.Selectable($"[{shard}] {aetheryteName}###{shard}_ID", isSelected))
                                         {
                                             routeInfo.AetheryteId = shard;
                                             ImGui.CloseCurrentPopup();

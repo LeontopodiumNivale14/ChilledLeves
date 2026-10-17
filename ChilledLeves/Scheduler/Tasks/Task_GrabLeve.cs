@@ -59,7 +59,7 @@ namespace ChilledLeves.Scheduler.Tasks
                 (
                     new(() => Task_Travel.AethernetTask_Grab(vendorInfo), "Traveling to vendor NPC"),
                     new(() => OpenLeveWindow(vendorInfo, arrVendor), "Opening Leve Menu"),
-                    new(() => GrabLeve(), "Grabbing the leve from the vendor"),
+                    new(() => Grab_ARRLeve(), "Grabbing the leve from the vendor"),
                     new(() => LeaveVendor(), "Leaving the leve Vendor")
                 );
             }
@@ -192,7 +192,7 @@ namespace ChilledLeves.Scheduler.Tasks
                 if (EzThrottler.Throttle("Current Status of Primary Leve", 1000))
                     IceLogging.Verbose($"Currently attempting to grab leve. Goal Leve: {Leve_Helper.LeveToGrab} | Job: {goalJob}", tag);
 
-                if (!guildLeve.SelectJob(goalJob))
+                if (!guildLeve.SelectJob(goalJob, goalLeve.Level))
                 {
                     IceLogging.Verbose("We're on the wrong job tab, so going to fix that", tag);
                     return false;
@@ -210,64 +210,110 @@ namespace ChilledLeves.Scheduler.Tasks
 
             return false;
         }
-        private static List<uint> ValidARRLeves = new();
         public static bool Grab_ARRLeve()
         {
-            string tag = "Task: Grab Leve";
+            string tag = "Task: Grab ARR Leve";
 
-            bool anyAccepted = ValidARRLeves.Where(x => Utils.Leve_IsAccepted(x)).Any();
+            var arrList = Leve_Helper.ValidARRLeves;
+            bool anyAccepted = arrList.Where(x => Utils.Leve_IsAccepted(x)).Any();
 
             if (anyAccepted)
             {
-                IceLogging.Debug("We've accepted the leve for multi mode, continuing to do said leve", tag);
+                IceLogging.Debug("We've accepted the leve for ARR Grind Mode, continuing to do said leve", tag);
                 return true;
             }
 
             if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
             {
-                foreach (var leve in ValidARRLeves)
-                {
-
-                }
-
-                if (Leve_Helper.LeveToGrab == guildLeve.SelectedLeveId)
-                {
-                    if (EzThrottler.Throttle("Accepting Leve", 1000))
-                        GenericHandlers.FireCallback("JournalDetail", true, 3, (int)Leve_Helper.LeveToGrab);
-
-                    return false;
-                }
-
                 var goalLeve = LeveInfo.Leve_SheetInfo[Leve_Helper.LeveToGrab];
                 var goalJob = goalLeve.Job;
 
-                if (EzThrottler.Throttle("Current Status of Primary Leve", 1000))
-                    IceLogging.Verbose($"Currently attempting to grab leve. Goal Leve: {Leve_Helper.LeveToGrab} | Job: {goalJob}", tag);
-
-                if (!guildLeve.SelectJob(goalJob))
+                if (!guildLeve.SelectJob(goalJob, goalLeve.Level))
                 {
-                    IceLogging.Verbose("We're on the wrong job tab, so going to fix that", tag);
+                    IceLogging.Verbose($"We're on the wrong job tab, so going to fix that. Job tab: {goalJob}", tag);
                     return false;
                 }
+                var loadedList = LeveInfo.LoadedList();
 
-                foreach (var leve in guildLeve.Levequests)
+                // this kinda gets messy, so in case I need to review this later...
+                // If we don't have a leve that we were told to grab (will happen on first passthrough intentionally
+                if (Leve_Helper.ARRLeveToGrab == 0)
                 {
-                    var selectedLeve = LeveInfo.Leve_SheetInfo.Where(x => x.Value.LeveName == leve.Name).FirstOrNull();
-
-                    if (selectedLeve != null)
+                    // Checking the priority list to see if we have a leve that we can grab
+                    // Checks for the top most prio (user table / first in list) -> the bottom of the listing
+                    if (!loadedList.Any(x => LeveInfo.Leve_SheetInfo[x].Job == goalJob))
                     {
-                        var selectedJob = selectedLeve.Value.Value.Job;
-                        var goalName = goalLeve.LeveName;
+                        IceLogging.Verbose("We haven't... loaded the list with the job. Be patient you dev >.>", tag);
+                        return false;
+                    }
 
-                        if (leve.Name == goalName)
+                    foreach (var leve in arrList)
+                    {
+                        if (!loadedList.Contains(leve))
+                            continue;
+
+                        IceLogging.Verbose("Found a leve that was highest on the priority list, so we're going for that", tag);
+                        Leve_Helper.ARRLeveToGrab = leve;
+                        break;
+                    }
+
+                    // If somehow we don't have a leve to grab (f for respects) we need to see if we're in the complete condition
+                    // Otherwise, we can't do shit lol
+                    if (Leve_Helper.ARRLeveToGrab == 0)
+                    {
+                        // If we're not in completion mode
+                        if (C.ARR_StopCondition != StopConditions.Complete)
                         {
-                            if (EzThrottler.Throttle("Leve_CorrectJob", 1000))
-                            {
-                                IceLogging.Verbose($"Selecting leve: {leve.Name}", tag);
-                                leve.Select();
-                            }
+                            IceLogging.Error("We seem to have run out of leves to do, so we're going to stop the process", tag);
+                            SchedulerMain.DisablePlugin();
+                            return true;
+                        }
 
-                            break;
+                        IceLogging.Verbose("We need to refresh the listing to get a leve for us to complete, so we're going to find one", tag);
+
+                        // We set the first leve that we could potentionally do in the beginning
+                        // SO IDEALLY, this should refresh the list based on that...
+                        var refreshLeve = loadedList
+                            .Where(x =>
+                            {
+                                var info = LeveInfo.Leve_SheetInfo[x];
+                                return info.JobAssignmentType == goalLeve.JobAssignmentType
+                                    && info.Level == goalLeve.Level;
+                            })
+                            .Where(x => Utils.PotentionalLeve(x, tag))
+                            .FirstOrDefault();
+
+                        if (refreshLeve == 0)
+                        {
+                            IceLogging.Error("No visible leve matches the level of our goal leve, so we're going to stop the process", tag);
+                            SchedulerMain.DisablePlugin();
+                            return true;
+                        }
+
+                        IceLogging.Verbose($"Found leve {refreshLeve} at the goal level to refresh the listing", tag);
+                        Leve_Helper.ARRLeveToGrab = refreshLeve;
+                    }
+                }
+                else
+                {
+                    // We're in a point where we can grab a leve, so going to do so
+                    if (Leve_Helper.ARRLeveToGrab == guildLeve.SelectedLeveId)
+                    {
+                        if (EzThrottler.Throttle("Accepting Leve", 1000))
+                            GenericHandlers.FireCallback("JournalDetail", true, 3, (int)Leve_Helper.ARRLeveToGrab);
+
+                        return false;
+                    }
+
+                    if (EzThrottler.Throttle("Current Status of Primary Leve", 1000))
+                        IceLogging.Verbose($"Currently attempting to grab leve. Goal Leve: {Leve_Helper.ARRLeveToGrab} | Job: {goalJob}", tag);
+
+                    if (LeveInfo.LoadedList().Contains(Leve_Helper.ARRLeveToGrab))
+                    {
+                        if (EzThrottler.Throttle("Selecting leve", 1000))
+                        {
+                            IceLogging.Verbose($"Selecting leve: {Leve_Helper.ARRLeveToGrab}", tag);
+                            guildLeve.SelectProperLeve(guildLeve, Leve_Helper.ARRLeveToGrab);
                         }
                     }
                 }
@@ -351,7 +397,7 @@ namespace ChilledLeves.Scheduler.Tasks
                         if (EzThrottler.Throttle("Current Status of Multi Leve", 1000))
                             IceLogging.Verbose($"Currently attempting to grab leve. Goal Leve: {multiLeve} | Job: {goalJob}", tag);
 
-                        if (!guildLeve.SelectJob(goalJob))
+                        if (!guildLeve.SelectJob(goalJob, goalLeve.Level))
                         {
                             IceLogging.Verbose("We're on the wrong job tab, so going to fix that", tag);
                             return false;

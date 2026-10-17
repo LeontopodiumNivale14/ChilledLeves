@@ -2,6 +2,7 @@
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using ChilledLeves.Utilities.LogInfo;
+using ECommons.GameHelpers;
 using System.Collections.Generic;
 
 namespace ChilledLeves.Scheduler.Tasks
@@ -23,11 +24,13 @@ namespace ChilledLeves.Scheduler.Tasks
             var currentLeves = Utils.Leve_ActiveIds();
             List<uint> activeGatheringLeves = [];
 
+            var npcInfo = C.ARR_LevemetPriority[C.ARR_NpcId];
+            var npcList = npcInfo.Where(x => LeveInfo.Leve_SheetInfo[x].JobAssignmentType == C.ARR_SelectedAssignment);
 
 
             foreach (var leve in currentLeves)
             {
-                if (C.LeveOrder.Contains(leve))
+                if (C.LeveOrder.Contains(leve) || (Leve_Helper.SelectedMode == ModeSelection.ARR_Grind && npcList.Contains(leve)))
                 {
                     if (LeveInfo.Leve_SheetInfo.TryGetValue(leve, out var sheetInfo))
                     {
@@ -102,7 +105,7 @@ namespace ChilledLeves.Scheduler.Tasks
                 else if (Leve_Helper.SelectedMode is ModeSelection.ARR_Grind)
                 {
                     IceLogging.Debug("Mode is in the ARR Grind mode [Priority Leves], going to check to see if we have those items atleast", tag);
-                    P.taskManager.Enqueue(() => Check_PriorityLeves(), "Checking Priority Leves");
+                    P.taskManager.Enqueue(() => Check_ARRLeves(), "Checking Priority Leves");
                     return true;
                 }
                 else
@@ -178,9 +181,63 @@ namespace ChilledLeves.Scheduler.Tasks
                 return true;
             }
         }
-        private static bool Check_PriorityLeves()
+
+        private static bool Check_ARRLeves()
         {
-            return false;
+            string tag = "Check Leves: ARR Grind";
+
+            var arrList = Leve_Helper.ValidARRLeves;
+
+            arrList.Clear();
+            var selectedNpc = C.ARR_NpcId;
+            var job = C.ARR_SelectedAssignment;
+            var condition = C.ARR_StopCondition;
+
+            if (C.ARR_LevemetPriority.TryGetValue(selectedNpc, out var npcList))
+            {
+                int cost = 0;
+                foreach (var leve in npcList.Where(x => LeveInfo.Leve_SheetInfo[x].JobAssignmentType == job))
+                {
+                    var sheetInfo = LeveInfo.Leve_SheetInfo[leve];
+                    if (cost == 0)
+                        cost = sheetInfo.AllowanceCost;
+
+                    if (cost != sheetInfo.AllowanceCost)
+                        continue;
+
+                    if (condition == StopConditions.Complete && Utils.Leve_IsComplete(leve))
+                        continue;
+
+                    if (Player.GetLevel(sheetInfo.Job) < sheetInfo.Level)
+                        continue;
+
+                    if (Utils.PotentionalLeve(leve, "ARR Grind"))
+                        arrList.Add(leve);
+                }
+
+                if (arrList.Count != 0)
+                {
+                    IceLogging.Debug($"We have potentional leves that we can grab for ARR grind. Current count: {arrList.Count}", tag);
+                    IceLogging.Debug($"Setting the goal leve to #{arrList[0]} just so we know which npc to go to, and also so we can select the right tab", tag);
+                    Leve_Helper.LeveToGrab = arrList[0];
+                    Leve_Helper.ARRLeveToGrab = 0;
+                    Leve_Helper.State = LeveState.Grab_ARRLeve;
+
+                }
+                else
+                {
+                    IceLogging.Error("We seem to have no valid leves that we can grind... make sure that if you're on fisher, you actually have the fish on you", tag);
+                    IceLogging.Error("Otherwise, make sure you've selected an npc that is within your class's level", tag);
+                    SchedulerMain.DisablePlugin();
+                }
+            }
+            else
+            {
+                IceLogging.Error($"We somehow found... a npc that isn't in the current config? {selectedNpc}. Please make sure one is selected in ARR grind", tag);
+                SchedulerMain.DisablePlugin();
+            }
+
+            return true;
         }
     }
 }

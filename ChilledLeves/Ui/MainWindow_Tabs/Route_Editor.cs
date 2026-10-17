@@ -260,7 +260,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     ImGui.SameLine();
                     if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Leaf, "Move to 1st node"))
                     {
-                        Task_Navmesh.Queue_GatherTravel(routeInfo);
+                        Task_Travel.Aethernet_GatheringTravel(routeInfo);
                     }
 
                     ImGui.AlignTextToFramePadding();
@@ -273,6 +273,9 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     {
                         ValidShards.Clear();
                         var territory = routeInfo.TerritoryId;
+                        if (territory == 399)
+                            territory = 478;
+
                         foreach (var shard in Utils.Aethernet.Where(x => x.Value.TerritoryId == territory))
                         {
                             ValidShards.Add(shard.Key);

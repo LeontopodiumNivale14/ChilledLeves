@@ -1,4 +1,5 @@
 ﻿using ChilledLeves.Gui;
+using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Utility.Raii;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
@@ -48,7 +49,6 @@ internal static unsafe class Ui_LeveInfo
 
         if (leves.Count() != 0)
         {
-
             var target = Svc.Targets.Target;
             if (target != null)
             {
@@ -71,7 +71,7 @@ internal static unsafe class Ui_LeveInfo
             }
         }
 
-        using (var table = ImRaii.Table("LeveTable", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY))
+        using (var table = ImRaii.Table("LeveTable", 5, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY))
         {
             if (!table.Success)
                 return;
@@ -80,6 +80,7 @@ internal static unsafe class Ui_LeveInfo
             ImGui.TableSetupColumn("Name");
             ImGui.TableSetupColumn("Level");
             ImGui.TableSetupColumn("Genre Icon");
+            ImGui.TableSetupColumn("Select");
 
             ImGui.TableSetupScrollFreeze(0, 1);
             ImGui.TableHeadersRow();
@@ -99,6 +100,15 @@ internal static unsafe class Ui_LeveInfo
 
                 ImGui.TableNextColumn();
                 GameIcons.DrawInlineOrIcon(leve.GenreIcon, FontAwesomeIcon.Book);
+
+                ImGui.TableNextColumn();
+                if (ImGui.Button($"Select##{leve.LeveId}"))
+                {
+                    if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
+                    {
+                        guildLeve.SelectProperLeve(guildLeve, leve.LeveId);
+                    }
+                }
             }
         }
     }

@@ -41,13 +41,23 @@ public unsafe class GuildLeve : AddonMasterBase<AddonGuildLeve>
     public AtkComponentRadioButton* CulinarianButton => Addon->GetComponentNodeById(22)->GetAsAtkComponentRadioButton();
     public AtkComponentRadioButton* FieldCraftButton => Addon->GetComponentNodeById(12)->GetAsAtkComponentRadioButton();
     public AtkComponentRadioButton* TradeCraftButton => Addon->GetComponentNodeById(13)->GetAsAtkComponentRadioButton();
-    public bool SelectJob(Job job)
+
+    // These 3 only exist IF it's a battle craft one. Otherwise it uses the above 2
+    public AtkComponentRadioButton* TradeCraft_Button => Addon->GetComponentNodeById(11)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* FieldCraft_Button => Addon->GetComponentNodeById(10)->GetAsAtkComponentRadioButton();
+    public AtkComponentRadioButton* Battlecraft_Button => Addon->GetComponentNodeById(9)->GetAsAtkComponentRadioButton();
+    public bool SelectJob(Job job, uint level)
     {
         if ((uint)job >= 19)
             throw new ArgumentOutOfRangeException(nameof(job));
 
         var isCrafter = (uint)job < 16;
-        var targetCategoryButton = isCrafter ? TradeCraftButton : FieldCraftButton;
+        AtkComponentRadioButton* targetCategoryButton;
+
+        if (level < 70)
+            targetCategoryButton = isCrafter ? TradeCraft_Button : FieldCraft_Button;
+        else
+            targetCategoryButton = isCrafter ? TradeCraftButton : FieldCraftButton;
 
         var jobButtonNodeId = isCrafter ? (uint)job + 7 : (uint)job - 1;
         var jobButton = Addon->GetComponentNodeById(jobButtonNodeId)->GetAsAtkComponentRadioButton();
@@ -85,35 +95,6 @@ public unsafe class GuildLeve : AddonMasterBase<AddonGuildLeve>
     {
         if (button == null) return false;
         return button->IsSelected;
-    }
-    public Job? CurrentJob
-    {
-        get
-        {
-            var isCrafter = IsCategoryActive(TradeCraftButton);
-            var isGatherer = IsCategoryActive(FieldCraftButton);
-
-            if (isCrafter)
-            {
-                for (var job = 0u; job < 8; job++)
-                {
-                    var button = Addon->GetComponentNodeById(job + 15)->GetAsAtkComponentRadioButton();
-                    if (button->IsSelected)
-                        return (Job)job + 8;
-                }
-            }
-            else if (isGatherer)
-            {
-                for (var job = 16u; job < 19; job++)
-                {
-                    var button = Addon->GetComponentNodeById(job - 1)->GetAsAtkComponentRadioButton();
-                    if (button->IsSelected)
-                        return (Job)job;
-                }
-            }
-
-            return null;
-        }
     }
     public Levequest[] Levequests
     {

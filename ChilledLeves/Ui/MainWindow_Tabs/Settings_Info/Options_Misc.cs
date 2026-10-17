@@ -38,4 +38,20 @@ public static partial class SettingsUi
             }
         }
     };
+
+    private static SettingEntry CompactOverlay = new()
+    {
+        Label = "Compact Sidebar",
+        Category = MiscOption,
+        Keywords = new[] { "Main Window", "Main", "Window", "Compact" },
+        Draw = () =>
+        {
+            var v = C.Compact_Ui;
+            if (ImGui.Checkbox("Compact Tabs on Sidebar", ref v))
+            {
+                C.Compact_Ui = v;
+                C.Save();
+            }
+        }
+    };
 }

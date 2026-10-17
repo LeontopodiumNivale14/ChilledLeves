@@ -1,5 +1,6 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Resources;
+using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using ChilledLeves.Utilities.LogInfo;
 using ECommons.GameHelpers;
@@ -76,21 +77,68 @@ namespace ChilledLeves.Scheduler.Tasks
             return false;
         }
 
-        public static bool Aethernet_GatheringTravel()
+        public static bool Aethernet_GatheringTravel(GatheringRoute routeInfo)
         {
             const string tag = "Travel: Gathering Pathing";
-            var navTask = P.navTask;
-            if (!navTask.IsBusy)
+
+            void QueueGatherPath()
             {
-                var leveId = Leve_Helper.LeveToGrab;
+                var node = routeInfo.NodeInfo[0];
 
-                if (RouteLoader.Leve_Routes.TryGetValue(leveId, out var routeInfo))
+                bool optionalFly = C.OptionalFly;
+                bool minFlyDistance = C.Fly_MinDistance < Player.DistanceTo(node.Position);
+
+                if (Utils.CanFly(routeInfo.TerritoryId) && optionalFly && minFlyDistance)
                 {
-
+                    P.navTask.Enqueue(() => Task_Navmesh.Task_FlyTo(Task_Navmesh.Gather_RandomFanPosition(node, true)), "Flying to destination");
+                    P.navTask.Enqueue(() => Task_Navmesh.Task_GroundTo(Task_Navmesh.Gather_RandomFanPosition(node, false)), "Moving closer to the node");
                 }
                 else
                 {
+                    P.navTask.Enqueue(() => Task_Navmesh.Task_GroundTo(Task_Navmesh.Gather_RandomFanPosition(node, false)), "Moving closer to the node");
+                }
+            }
 
+            var navTask = P.navTask;
+            if (!navTask.IsBusy)
+            {
+                bool correctTerritory = Player.Territory.RowId == routeInfo.TerritoryId;
+                if (correctTerritory)
+                {
+                    var closestNode = routeInfo.NodeInfo.OrderBy(x => Player.DistanceTo(x.Position)).FirstOrDefault();
+                    if (Player.DistanceTo(closestNode.Position) < 5)
+                    {
+                        IceLogging.Verbose($"We're close to the gathering node. So we're going to continue on", tag);
+                        IceLogging.Verbose($"Distance to node: {Player.DistanceTo(closestNode.Position):N2}", tag);
+                        return true;
+                    }
+                    else
+                    {
+                        IceLogging.Verbose("We need to travel to a node still, queueing that up", tag);
+                        QueueGatherPath();
+                    }
+                }
+                else
+                {
+                    const uint IdyllshireAetheryteId = 75; // Idyllshire -> Drivanian AetheryteId
+
+                    // We need to queue up a travel for both, so might as well do it prior to both of these
+                    P.navTask.Enqueue(() => Task_Navmesh.TeleportToArea(routeInfo.AetheryteId), "Teleporting to aethernet");
+
+                    if (routeInfo.AetheryteId == IdyllshireAetheryteId)
+                    {
+                        // The one route where we need to use special routing for handing getting there 
+                        var shardInfo = Utils.Aethernet[IdyllshireAetheryteId];
+
+                        P.navTask.Enqueue(() => Task_Navmesh.Task_GroundToAetheryte(shardInfo.Position, shardInfo.Position, false, 11), "Moving to Idyllshire Shard");
+                        P.navTask.Enqueue(() => Task_Navmesh.LeaveIdyllshire(IdyllshireAetheryteId), "leaving Idllshire");
+                        QueueGatherPath();
+                    }
+                    else
+                    {
+                        // Just need to queue up the gather path for this
+                        QueueGatherPath();
+                    }
                 }
             }
             else

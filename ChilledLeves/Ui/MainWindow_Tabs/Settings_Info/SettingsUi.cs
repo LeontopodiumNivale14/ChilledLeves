@@ -35,10 +35,12 @@ public static partial class SettingsUi
         GetChatNotification,
         ShowAlertWindow,
         LeveAlertAmount,
+        Leve_AutoAlert,
 
         // Misc
         ColorTheme,
         ShowActiveOverlay,
+        CompactOverlay,
     };
 
     // Built once and cached — BuildRegistry() constructs fresh SettingEntry wrappers,

@@ -1,4 +1,6 @@
-﻿using Dalamud.Interface.Textures.TextureWraps;
+﻿using ChilledLeves.Ui;
+using Dalamud.Interface.Colors;
+using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Utility.Raii;
 
 namespace ChilledLeves.Gui;
@@ -164,6 +166,66 @@ public static class ImGui_Ice
             pos.Y + (frameHeight - textSize.Y) / 2f
         );
         drawList.AddText(textPos, ImGui.GetColorU32(ImGuiCol.Text), label);
+
+        return clicked;
+    }
+
+    public static bool ImageButton(uint iconId, string id, bool? isOn = null, float sidePadding = 4f)
+    {
+        var iconHeight = (int)MathF.Round(ImGui.GetFrameHeight() - sidePadding);
+        if (GameIcons.TryGetScaledIcon(iconId, iconHeight, out var texture))
+            return ImageButton(texture, id, new Vector2(iconHeight, iconHeight), isOn, sidePadding);
+
+        return ImGui.Button($"##{id}");
+    }
+
+    private static bool ImageButton(IDalamudTextureWrap texture, string id, Vector2 imageSize, bool? isOn, float sidePadding = 4f)
+    {
+        var frameHeight = ImGui.GetFrameHeight();
+        var aspect = imageSize.X / imageSize.Y;
+        var scaledImage = new Vector2(frameHeight - sidePadding, frameHeight - sidePadding) with { X = (frameHeight - sidePadding) * aspect };
+
+        var buttonSize = new Vector2(sidePadding + scaledImage.X + sidePadding, frameHeight);
+
+        var pos = ImGui.GetCursorScreenPos();
+        bool clicked = ImGui.InvisibleButton($"##{id}", buttonSize);
+
+        bool hovered = ImGui.IsItemHovered();
+        bool active = ImGui.IsItemActive();
+
+        var drawList = ImGui.GetWindowDrawList();
+        var rounding = ImGui.GetStyle().FrameRounding;
+
+        uint bgColor = isOn == false
+            ? ImGui.GetColorU32(ImGuiCol.Button, 0.5f) // dimmed, disabled-looking
+            : active ? ImGui.GetColorU32(ImGuiCol.ButtonActive) :
+              hovered ? ImGui.GetColorU32(ImGuiCol.ButtonHovered) :
+                        ImGui.GetColorU32(ImGuiCol.Button);
+        drawList.AddRectFilled(pos, pos + buttonSize, bgColor, rounding);
+
+        uint borderColor = isOn switch
+        {
+            true => C.UseIceTheme
+                ? ImGui.GetColorU32(Theme_Colors.OnAccentSubtle)
+                : ImGui.GetColorU32(ImGuiColors.ParsedGold),
+            false => ImGui.GetColorU32(ImGuiCol.Border),
+            null => ImGui.GetColorU32(ImGuiCol.Border)
+        };
+        float borderThickness = isOn == true ? 1.5f : 1f;
+        drawList.AddRect(pos, pos + buttonSize, borderColor, rounding, ImDrawFlags.None, borderThickness);
+
+        uint imageTint = isOn switch
+        {
+            true => ImGui.GetColorU32(Vector4.One),
+            false => ImGui.GetColorU32(new Vector4(0.6f, 0.6f, 0.6f, 0.7f)),
+            null => ImGui.GetColorU32(Vector4.One)
+        };
+
+        var imagePos = new Vector2(
+            pos.X + sidePadding,
+            pos.Y + (frameHeight - scaledImage.Y) / 2f
+        );
+        drawList.AddImage(texture.Handle, imagePos, imagePos + scaledImage, Vector2.Zero, Vector2.One, imageTint);
 
         return clicked;
     }

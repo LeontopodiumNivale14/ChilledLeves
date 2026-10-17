@@ -79,6 +79,11 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         _listDescription = string.Empty;
                         ImGui.OpenPopup("Save New Playlist");
                     }
+                    ImGui.SameLine();
+                    if (ImGui.Button("Show Recipe Info"))
+                    {
+                        P.window_CraftDetails.IsOpen = true;
+                    }
 
                     Popup_LeveSearch();
                     SavePopup();
@@ -158,7 +163,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                                     var itemId = materialInfo.Item_Id;
 
                                     currentAmount = Utils.GetItemCount(itemId);
-                                    neededAmount = Utils.Leve_RequiredAmount(materialInfo);
+                                    neededAmount = Utils.Leve_RequiredAmount(materialInfo) * runAmount;
 
                                     ImGui.TableNextColumn();
                                     ImGui_Ice.ImageButtonWithText(materialInfo.IconId, $"{neededAmount}", "NeedAmount");

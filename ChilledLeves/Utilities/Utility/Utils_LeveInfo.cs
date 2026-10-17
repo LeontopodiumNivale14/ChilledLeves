@@ -196,15 +196,18 @@ public static partial class Utils
         }
         else
         {
+            bool allow_Notif = C.Auto_EnableNotif;
+
             C.CharacterInfo[characterId] = new()
             {
                 Name = Player.Name,
                 World = Player.HomeWorld.Value.Name.ToString(),
-                AllowNotification = false,
+                AllowNotification = allow_Notif,
                 LastKnownAllowance = currentAllowance,
                 Time_LastObserved = Svc.Framework.LastUpdateUTC,
                 Time_NextTickAt = nextTick,
-                Blacklisted = false
+                Blacklisted = false,
+                
             };
 
             if (!C.Character_Order.Contains(characterId))

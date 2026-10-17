@@ -1,8 +1,103 @@
 {
   "leveId": 1167,
   "territoryId": 401,
+  "aetheryteId": 72,
   "zoneName": "Abalathia\u0027s Spine",
   "expansionId": 1,
   "gatheringJob": 17,
-  "nodeInfo": []
+  "nodeInfo": [
+    {
+      "baseId": 31145,
+      "position": {
+        "x": -440.6669,
+        "y": -181.328,
+        "z": 450.7984
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 38,
+        "fan_EndAngle": 133,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0.53
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 38,
+        "fan_EndAngle": 133,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 31148,
+      "position": {
+        "x": -445.6656,
+        "y": -177.0947,
+        "z": 451.5005
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 159,
+        "fan_EndAngle": 238,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0.44
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 159,
+        "fan_EndAngle": 238,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 1.29
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 31147,
+      "position": {
+        "x": -526.4877,
+        "y": -175.8652,
+        "z": 381.6872
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 211,
+        "fan_EndAngle": 331,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 211,
+        "fan_EndAngle": 331,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0.44
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 31146,
+      "position": {
+        "x": -558.2007,
+        "y": -177.4727,
+        "z": 452.9206
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 303,
+        "fan_EndAngle": 22,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 307,
+        "fan_EndAngle": 22,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0.39
+      },
+      "requiresFlying": false
+    }
+  ],
+  "flyingNeeded": false
 }

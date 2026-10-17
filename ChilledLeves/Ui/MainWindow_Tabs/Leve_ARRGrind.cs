@@ -7,6 +7,7 @@ using Dalamud.Interface.Colors;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -40,9 +41,12 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
             1002384, // Cimeaurant
             1002401, // Voilinaut
             1004348, // K'leytai
+            1011208, // Eloin 50-58
         };
 
         private static List<AssignmentType> validAssignments = new() { AssignmentType.Miner, AssignmentType.Botanist, AssignmentType.Fisher };
+        private static int selectedOption = 0;
+        private static List<string> SortOptions = new() { "Level [High -> Low]", "Level [Low -> High]", "Not Completed", "Completed", "ID" };
         private static float _npcInfoHeight = 100f;
         private static readonly ImGuiEx.RealtimeDragDrop<uint> _leveDragDrop = new("LeveOrder", id => id.ToString());
 
@@ -61,13 +65,13 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 var rightColumnAvail = ImGui.GetContentRegionAvail();
                 float availWidth = rightColumnAvail.X;
 
-                using (var ARR_NpcWindow = ImRaii.Child("ARR: Npc Info", new(availWidth, _npcInfoHeight), true, ImGuiWindowFlags.AlwaysAutoResize))
+                using (var ARR_NpcWindow = ImRaii.Child("ARR: Npc Info", new(availWidth, _npcInfoHeight), true))
                 {
                     if (!ARR_NpcWindow.Success)
                         return;
 
                     // TODO: actually wire this back up when i fix this whole mode
-                    if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Start ARR Grind", true))
+                    if (ImGuiEx.IconButtonWithText(FontAwesomeIcon.Play, "Start ARR Grind", Leve_Helper.IsIdle))
                     {
                         Leve_Helper.SelectedMode = ModeSelection.ARR_Grind;
                         Leve_Helper.State = LeveState.CheckLeves;
@@ -151,6 +155,39 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                                     C.SaveDebounced();
                                 }
                             }
+
+                            // Sort list buttons
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            if (ImGui.Button("Sort List"))
+                            {
+                                var fullList = C.ARR_LevemetPriority[selectedNpc];
+
+                                SortInPlace(fullList, x => LeveInfo.Leve_SheetInfo[x].JobAssignmentType == selectedJob, selectedOption);
+                                C.Save();
+                            }
+
+                            ImGui.TableNextColumn();
+                            ImGui.AlignTextToFramePadding();
+                            ImGui.Text("Sort list by...");
+
+                            ImGui.TableNextColumn();
+                            ImGui.SetNextItemWidth(CalcComboWidth(SortOptions));
+                            using (var combo = ImRaii.Combo("##SorterOption", SortOptions[selectedOption]))
+                            {
+                                if (combo.Success)
+                                {
+                                    for (int i = 0; i < SortOptions.Count; i++)
+                                    {
+                                        var isSelected = i == selectedOption;
+                                        var option = SortOptions[i];
+                                        if (ImGui.Selectable(option, isSelected))
+                                        {
+                                            selectedOption = i;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     _npcInfoHeight = ImGui.GetCursorPosY() + ImGui.GetStyle().WindowPadding.Y;
@@ -170,7 +207,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         {
 
                             _leveDragDrop.Begin();
-                            using (var table = ImRaii.Table("Levemete: Table Info", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
+                            using (var table = ImRaii.Table("Levemete: Table Info", 8, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg))
                             {
                                 if (!table.Success)
                                     return;
@@ -178,6 +215,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                                 ImGui.TableSetupColumn("##Reorder");
                                 ImGui.TableSetupColumn("ID");
                                 ImGui.TableSetupColumn("Job");
+                                ImGui.TableSetupColumn("Status");
                                 ImGui.TableSetupColumn("Lv.");
                                 ImGui.TableSetupColumn("Name");
                                 ImGui.TableSetupColumn("Need");
@@ -208,6 +246,10 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
 
                                     ImGui.TableNextColumn();
                                     GameIcons.DrawInlineOrIcon(LeveInfo.Assignment_IconDict[sheetInfo.JobAssignmentType].IconId, FontAwesomeIcon.Book);
+
+                                    ImGui.TableNextColumn();
+                                    uint statusId = Utils.Leve_IsComplete(leve) ? LeveInfo.Leve_State[Leve_Status.NotComplete] : LeveInfo.Leve_State[Leve_Status.Complete];
+                                    ImGui_Ice.ImageButtonWithText(statusId, $"{sheetInfo.AllowanceCost}", sheetInfo.LeveName, sidePadding: 4);
 
                                     ImGui.TableNextColumn();
                                     ImGui.AlignTextToFramePadding();
@@ -518,5 +560,74 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 _ => "???",
             };
         }
+        private static float CalcComboWidth(IEnumerable<string> options)
+        {
+            var style = ImGui.GetStyle();
+            var maxTextWidth = 0f;
+
+            foreach (var option in options)
+            {
+                var width = ImGui.CalcTextSize(option).X;
+                if (width > maxTextWidth)
+                    maxTextWidth = width;
+            }
+
+            // text + left/right frame padding + the arrow button (which is a square of frame height)
+            return maxTextWidth + (style.FramePadding.X * 2f) + ImGui.GetFrameHeight();
+        }
+        private static void SortInPlace(List<uint> fullList, Func<uint, bool> belongsToGroup, int option)
+        {
+            var slots = new List<int>();
+            var group = new List<uint>();
+
+            for (int i = 0; i < fullList.Count; i++)
+            {
+                if (!belongsToGroup(fullList[i]))
+                    continue;
+
+                slots.Add(i);
+                group.Add(fullList[i]);
+            }
+
+            if (group.Count < 2)
+                return;
+
+            var sorted = SortLeves(group, option);
+
+            for (int i = 0; i < slots.Count; i++)
+                fullList[slots[i]] = sorted[i];
+        }
+        private static List<uint> SortLeves(List<uint> leves, int option)
+        {
+            if (leves.Count == 0)
+                return leves;
+
+            return option switch
+            {
+                // Level [High -> Low]
+                0 => leves.OrderBy(GetAllowance).ThenByDescending(GetLevel).ThenBy(x => x).ToList(),
+
+                // Level [Low -> High]
+                1 => leves.OrderBy(GetAllowance).ThenBy(GetLevel).ThenBy(x => x).ToList(),
+
+                // Not Completed first (false sorts before true)
+                2 => leves.OrderBy(GetAllowance).ThenBy(Utils.Leve_IsComplete).ThenByDescending(GetLevel).ThenBy(x => x).ToList(),
+
+                // Completed first (true sorts first when descending)
+                3 => leves.OrderBy(GetAllowance).ThenByDescending(Utils.Leve_IsComplete).ThenByDescending(GetLevel).ThenBy(x => x).ToList(),
+
+                // ID
+                4 => leves.OrderBy(GetAllowance).ThenBy(x => x).ToList(),
+
+                _ => leves,
+            };
+        }
+
+
+        private static uint GetLevel(uint leveId)
+            => LeveInfo.Leve_SheetInfo[leveId].Level; // swap in whatever your sheet info calls the level
+
+        private static int GetAllowance(uint leveId)
+            => LeveInfo.Leve_SheetInfo[leveId].AllowanceCost;
     }
 }

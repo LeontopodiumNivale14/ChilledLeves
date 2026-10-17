@@ -14,9 +14,8 @@ namespace ChilledLeves.Ui
 {
     internal class Window_Main : Window
     {
-        public Window_Main() : base($"Chilled Leves [{P.GetType().Assembly.GetName().Version}] ### ChilledLevesMainWindowV2")
+        public Window_Main() : base($"Chilled Leves [{P.GetType().Assembly.GetName().Version}] ###ChilledLeves_MainWindow")
         {
-            Namespace = "ChilledLevesV2";
             Flags = ImGuiWindowFlags.None;
             SizeConstraints = new()
             {
@@ -85,7 +84,7 @@ namespace ChilledLeves.Ui
             [WindowSelection.ARR_Grind] = new()
             {
                 Icon = FontAwesomeIcon.PersonThroughWindow,
-                Label = "ARR Grind",
+                Label = "ARR/HW Grind",
                 Draw = () => Leve_ARRGrind.Draw(),
             },
             [WindowSelection.UserInfo] = new()

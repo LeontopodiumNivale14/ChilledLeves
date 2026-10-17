@@ -49,7 +49,7 @@ namespace ChilledLeves.Scheduler.Tasks
                     }
 
                     IceLogging.Verbose("Queueing up travel system now", tag);
-                    P.taskManager.Enqueue(() => Initial_GatherTravel(routeInfo), "Traveling for gathering leve");
+                    P.taskManager.Enqueue(() => Task_Travel.Aethernet_GatheringTravel(routeInfo), "Traveling for gathering leve");
                     P.taskManager.Enqueue(() => Initiate_GatheringLeve(), "Initiating Gathering Leve");
                 }
                 else

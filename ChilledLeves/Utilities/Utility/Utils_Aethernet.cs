@@ -270,6 +270,20 @@ public static partial class Utils
 
         #endregion
 
+        #region Idyllshire
+
+        [75] = new()
+        {
+            ShardId = 75,
+            TerritoryId = 478,
+            ValidTerritories = new() { 478 },
+            Position = new(74.84f, 209.25f, -16.63f),
+            MoveTo = new(66.19f, 207.46f, -14.87f),
+            InteractDistance = 11,
+        },
+
+        #endregion
+
         #region The Pillars
 
         [83] = new()
@@ -878,6 +892,86 @@ public static partial class Utils
             Position = new(40.02f, 24.00f, -668.02f),
             MoveTo = new(38.60f, 20.30f, -675.33f),
         },
+
+        #region Coerthas Western Highlands
+
+        [71] = new()
+        {
+            ShardId = 71,
+            TerritoryId = 397,
+            ValidTerritories = new() { 397 },
+            Position = new(474.88f, 217.94f, 708.52f),
+            MoveTo = new(468.24f, 212.54f, 703.90f),
+        },
+
+
+        #endregion
+
+        #region Dravanian Forelands
+
+        [76] = new()
+        {
+            ShardId = 76,
+            TerritoryId = 398,
+            ValidTerritories = new() { 398 },
+            Position = new(532.68f, -48.72f, 30.17f),
+            MoveTo = new(530.33f, -50.12f, 35.79f),
+        },
+        [77] = new()
+        {
+            ShardId = 77,
+            TerritoryId = 398,
+            ValidTerritories = new() { 398 },
+            Position = new(-304.13f, -16.71f, 32.06f),
+            MoveTo = new(-301.79f, -21.13f, 36.37f),
+        },
+
+
+        #endregion
+
+        #region Churning Mist
+
+        [78] = new()
+        {
+            ShardId = 78,
+            TerritoryId = 400,
+            ValidTerritories = new() { 400 },
+            Position = new(259.20f, -37.71f, 596.86f),
+            MoveTo = new(253.32f, -42.18f, 591.16f),
+        },
+        [79] = new()
+        {
+            ShardId = 79,
+            TerritoryId = 400,
+            ValidTerritories = new() { 400 },
+            Position = new(-584.95f, 52.84f, 313.44f),
+            MoveTo = new(-567.48f, 63.28f, 316.08f),
+        },
+
+
+        #endregion
+
+        #region The Sea of Clouds
+
+        [72] = new()
+        {
+            ShardId = 72,
+            TerritoryId = 401,
+            ValidTerritories = new() { 401 },
+            Position = new(-615.75f, -118.36f, 546.59f),
+            MoveTo = new(-618.82f, -122.47f, 540.14f),
+        },
+        [73] = new()
+        {
+            ShardId = 73,
+            TerritoryId = 401,
+            ValidTerritories = new() { 401 },
+            Position = new(-613.15f, -49.49f, -415.03f),
+            MoveTo = new(-619.31f, -51.05f, -422.28f),
+        },
+
+
+        #endregion
 
         #region Fringes
 

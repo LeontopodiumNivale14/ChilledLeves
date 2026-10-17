@@ -174,7 +174,7 @@ namespace ChilledLeves.Ui.DebugTabs
                         if (EzThrottler.Throttle("Current Status of Multi Leve", 1000))
                             IceLogging.Verbose($"Currently attempting to grab leve. Goal Leve: {multiLeve} | Job: {goalJob}", tag);
 
-                        if (!guildLeve.SelectJob(goalJob))
+                        if (!guildLeve.SelectJob(goalJob, goalLeve.Level))
                         {
                             IceLogging.Verbose("We're on the wrong job tab, so going to fix that", tag);
                             return false;

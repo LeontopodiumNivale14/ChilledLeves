@@ -123,8 +123,6 @@ namespace ChilledLeves.Scheduler.Tasks
 
         private static (uint baseId, bool flyingRequired) LastNode = (0, false);
 
-        private static bool LastNodeFly = false;
-
         public static void Gathering_TravelToNode(GatheringNode node)
         {
             bool UpdateLastInfo(bool flying)
@@ -650,7 +648,7 @@ namespace ChilledLeves.Scheduler.Tasks
 
             return true;
         }
-        private static bool TeleportToArea(uint aetheryteId)
+        public static bool TeleportToArea(uint aetheryteId)
         {
             const string tag = "Navmesh: Teleporting";
 
@@ -774,6 +772,99 @@ namespace ChilledLeves.Scheduler.Tasks
 
                 if (EzThrottler.Throttle("Error Aethernet", 1000))
                     IceLogging.Error($"We... seem to be missing aethernet info. Destination [Vendor] = {destinationValid} | Goal Shard [MoveTo] = {goalValid}", tag);
+            }
+
+            return false;
+        }
+        public static unsafe bool LeaveIdyllshire(uint aetherShard)
+        {
+            const string tag = "Navmesh: Using Aethernet";
+
+            var DrivanianHinterlands = 399;
+            var destinationShard = 92;
+            var interactDistance = 11;
+
+            if (Utils.Aethernet.TryGetValue(aetherShard, out var goalShard))
+            {
+                var agent = AgentTelepotTown.Instance();
+                if (Player.Territory.RowId == DrivanianHinterlands)
+                {
+                    IceLogging.Debug("We've reached our destination", tag);
+                    return true;
+                }
+                if (agent != null && agent->Data != null)
+                {
+                    if (EzThrottler.Throttle("Finding proper aethernet", 1000))
+                    {
+                        var data = agent->Data;
+
+                        for (byte i = 0; i < data->AetheryteCount; i++)
+                        {
+                            var entry = data->Entries[i];
+                            if (entry.AetheryteId == destinationShard)
+                            {
+                                IceLogging.Verbose($"We found the destination we were looking for: [{aetherShard}]. Initializing teleport", tag);
+                                agent->TeleportToAetheryte(i);
+                            }
+                        }
+                    }
+                }
+                else if (GenericHelpers.TryGetAddonMaster<SelectString>(out var selectString) && selectString.IsAddonReady)
+                {
+                    // This is always going to be the top entry for aethernet travel, so can just hardcode this (can't wait for evercold to bite me in the ass for this)
+                    var menu = selectString.Entries[0];
+                    if (EzThrottler.Throttle("Selecting entry"))
+                    {
+                        IceLogging.Verbose("Selecting the aethernet selection from the select string", tag);
+                        menu.Select();
+                    }
+
+                }
+                else
+                {
+                    var aethernet = Svc.Objects.Where(x => x.BaseId == aetherShard).FirstOrDefault();
+                    bool validShard = aethernet != null;
+                    bool interactable = validShard && Player.DistanceTo(aethernet.Position) <= interactDistance;
+
+                    if (aethernet != null && Player.DistanceTo(aethernet) <= 11)
+                    {
+                        if (Player.Mounted || Player.IsJumping)
+                        {
+                            Utils.Dismount();
+                            return false;
+                        }
+                        else if (!Player.IsBusy)
+                        {
+                            if (EzThrottler.Throttle("Selecting aetheryte"))
+                                IceLogging.Verbose("Selecting the aetheryte for travel", tag);
+
+                            Utils.TargetgameObject(aethernet);
+                            Utils.InteractWithObject(aethernet);
+                        }
+                    }
+                    else
+                    {
+                        if (EzThrottler.Throttle("Targeting aethershard"))
+                        {
+                            IceLogging.Debug($"Waiting... Shard Valid? {validShard} | Interact Distance? {interactable}", tag);
+                            if (aethernet != null)
+                            {
+                                IceLogging.Debug($"{Player.DistanceTo(aethernet)} <= {interactDistance}", tag);
+                            }
+                        }
+                        if (!P.navmesh.IsRunning() && !Player.IsBusy)
+                        {
+                            P.navmesh.PathfindAndMoveCloseTo(aethernet.Position, false, interactDistance);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                bool goalValid = Utils.Aethernet.ContainsKey(aetherShard);
+
+                if (EzThrottler.Throttle("Error Aethernet", 1000))
+                    IceLogging.Error($"We... seem to be missing aethernet info. Goal Shard [MoveTo] = {goalValid}", tag);
             }
 
             return false;

@@ -8,7 +8,7 @@ namespace ChilledLeves.Scheduler
     {
         internal static bool AreWeTicking => !Leve_Helper.IsIdle;
 
-        internal static bool DisablePlugin()
+        internal static void DisablePlugin()
         {
             IceLogging.Verbose($"We were told to stop. So we stopping. Previous state: {Leve_Helper.State}", "Schedular: Disable Plugin");
 
@@ -19,26 +19,27 @@ namespace ChilledLeves.Scheduler
             P.navTask.Tasks.Clear();
             P.taskManager.Abort();
             P.navTask.Abort();
-           
-            return true;
         }
 
         internal static void Tick()
         {
             if (P.taskManager.NumQueuedTasks == 0 && !Leve_Helper.IsIdle)
             {
-                switch (Leve_Helper.State)
+                Action enqueue = Leve_Helper.State switch
                 {
-                    case LeveState.CheckLeves: Task_CheckLeves.Enqueue(); break;
+                    LeveState.CheckLeves => Task_CheckLeves.Enqueue,
 
-                    case LeveState.Grab_StandardLeve: Task_GrabLeve.Enqueue_Standard(); break;
+                    LeveState.Grab_StandardLeve => Task_GrabLeve.Enqueue_Standard,
+                    LeveState.Grab_ARRLeve => Task_GrabLeve.Enqueue_ARR,
 
-                    case LeveState.GatheringLeve_Start: Task_GatherLeve.Travel_Enqueue(); break;
-                    case LeveState.GatherLeve_Execute: Task_GatherLeve.Gather_Check(); break;
+                    LeveState.GatheringLeve_Start => Task_GatherLeve.Travel_Enqueue,
+                    LeveState.GatherLeve_Execute => Task_GatherLeve.Gather_Check,
 
-                    case LeveState.Turnin_Leve: Task_Turnin.Enqueue(); break;
-                    default: DisablePlugin(); break;
-                }
+                    LeveState.Turnin_Leve => Task_Turnin.Enqueue,
+                    _ => DisablePlugin,
+                };
+
+                enqueue();
             }
         }
     }

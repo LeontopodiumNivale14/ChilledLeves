@@ -106,4 +106,28 @@ public static partial class SettingsUi
         }
     };
 
+    private static SettingEntry Leve_AutoAlert = new()
+    {
+        Category = AlertOption,
+        Label = "Leve: Auto Alert",
+        Keywords = new[] { "Auto", "Alert", "Auto Alert", "Notifications", "Auto Notification", "Character", "On" },
+        Draw = () =>
+        {
+            var v = C.Auto_EnableNotif;
+
+            if (ImGui.Checkbox("Auto-Enable Notifications", ref v))
+            {
+                C.Auto_EnableNotif = v;
+                C.Save();
+            }
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text("Auto enable/disable getting notifications for new characters that get added");
+                ImGui.Text("Will only setup upon first login ever of the character. If you would like to enable/disable per character after, please visit the user info tab");
+                ImGui.EndTooltip();
+            }
+        }
+    };
+
 }

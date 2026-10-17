@@ -25,4 +25,5 @@ public partial class Config
 
     public Dictionary<ulong, ClassInformation> CharacterInfo { get; set; } = new();
     public List<ulong> Character_Order { get; set; } = new();
+    public bool Auto_EnableNotif { get; set; } = true;
 }

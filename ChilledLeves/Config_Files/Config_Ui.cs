@@ -41,4 +41,5 @@ public partial class Config
     public bool UseIceTheme { get; set; } = true;
     public bool ShowActiveOverlay { get; set; } = true;
     public WindowSelection SelectedTab { get; set; } = WindowSelection.LeveInfo;
+    public bool Compact_Ui { get; set; } = false;
 }

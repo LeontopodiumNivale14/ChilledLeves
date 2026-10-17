@@ -6,7 +6,7 @@ namespace ChilledLeves.Ui
 {
     internal class Window_Debug : Window
     {
-        public Window_Debug() : base($"Chilled Leves: Debug [{P.GetType().Assembly.GetName().Version}] ##ChilledLevesDebugWindow")
+        public Window_Debug() : base($"Chilled Leves: Debug [{P.GetType().Assembly.GetName().Version}]###ChilledLeves_Debug")
         {
             Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
             SizeConstraints = new()

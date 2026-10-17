@@ -31,6 +31,7 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal Window_Alert alertUi; 
     internal Window_Main window_Main;
     internal Window_Overlay window_Overlay;
+    internal Window_CraftDetails window_CraftDetails;
 
     // Taskmanager from Ecommons
     internal TaskManager taskManager;
@@ -41,6 +42,7 @@ public sealed class ChilledLeves : IDalamudPlugin
     internal NavmeshIPC navmesh;
     internal PandoraIPC pandora;
     internal ArtisanIPC artisan;
+    internal GatherChill gatherChill;
 
     // Pictoservice dependency
     public static PctContext PictoService;
@@ -77,6 +79,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         navmesh = new();
         pandora = new();
         artisan = new();
+        gatherChill = new();
 
         // all the windows
         windowSystem = new();
@@ -85,6 +88,7 @@ public sealed class ChilledLeves : IDalamudPlugin
 
         window_Main = new();
         window_Overlay = new();
+        window_CraftDetails = new();
 
 
 
