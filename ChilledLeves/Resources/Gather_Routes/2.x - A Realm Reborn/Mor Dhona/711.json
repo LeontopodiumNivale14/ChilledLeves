@@ -1,8 +1,103 @@
 {
   "leveId": 711,
   "territoryId": 156,
+  "aetheryteId": 24,
   "zoneName": "Mor Dhona",
   "expansionId": 0,
   "gatheringJob": 17,
-  "nodeInfo": []
+  "nodeInfo": [
+    {
+      "baseId": 30665,
+      "position": {
+        "x": 181.822,
+        "y": 14.72045,
+        "z": -598.2559
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 205,
+        "fan_EndAngle": 261,
+        "fan_DistanceMin": 1.4,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 205,
+        "fan_EndAngle": 261,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 30666,
+      "position": {
+        "x": 205.8241,
+        "y": -1.723106,
+        "z": -542.5244
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 148,
+        "fan_EndAngle": 195,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 148,
+        "fan_EndAngle": 195,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 30664,
+      "position": {
+        "x": 153.8839,
+        "y": -3.967519,
+        "z": -539.2711
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 37,
+        "fan_EndAngle": 140,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 37,
+        "fan_EndAngle": 140,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 30667,
+      "position": {
+        "x": 246.3479,
+        "y": -4.719213,
+        "z": -534.5649
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 334,
+        "fan_EndAngle": 95,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 334,
+        "fan_EndAngle": 95,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0.37
+      },
+      "requiresFlying": false
+    }
+  ],
+  "flyingNeeded": false
 }

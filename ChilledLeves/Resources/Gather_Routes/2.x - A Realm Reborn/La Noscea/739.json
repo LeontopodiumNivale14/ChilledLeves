@@ -1,8 +1,103 @@
 {
   "leveId": 739,
   "territoryId": 137,
+  "aetheryteId": 11,
   "zoneName": "La Noscea",
   "expansionId": 0,
   "gatheringJob": 16,
-  "nodeInfo": []
+  "nodeInfo": [
+    {
+      "baseId": 30876,
+      "position": {
+        "x": 334.762,
+        "y": 42.8163,
+        "z": 299.545
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 85,
+        "fan_EndAngle": 139,
+        "fan_DistanceMin": 2,
+        "fan_DistanceMax": 3,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 85,
+        "fan_EndAngle": 139,
+        "fan_DistanceMin": 2,
+        "fan_DistanceMax": 3,
+        "fan_Height": 0
+      },
+      "requiresFlying": true
+    },
+    {
+      "baseId": 30877,
+      "position": {
+        "x": 331.6767,
+        "y": 41.85051,
+        "z": 293.8158
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 21,
+        "fan_EndAngle": 93,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 21,
+        "fan_EndAngle": 93,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 30875,
+      "position": {
+        "x": 323.188,
+        "y": 42.9174,
+        "z": 281.2468
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 360,
+        "fan_EndAngle": 86,
+        "fan_DistanceMin": 1,
+        "fan_DistanceMax": 2,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 7,
+        "fan_EndAngle": 86,
+        "fan_DistanceMin": 2.5,
+        "fan_DistanceMax": 4,
+        "fan_Height": 0
+      },
+      "requiresFlying": false
+    },
+    {
+      "baseId": 30874,
+      "position": {
+        "x": 323.0878,
+        "y": 43.05151,
+        "z": 266.539
+      },
+      "gathering_FanInfo": {
+        "fan_StartAngle": 57,
+        "fan_EndAngle": 89,
+        "fan_DistanceMin": 2,
+        "fan_DistanceMax": 3,
+        "fan_Height": 0
+      },
+      "flight_FanInfo": {
+        "fan_StartAngle": 57,
+        "fan_EndAngle": 89,
+        "fan_DistanceMin": 2,
+        "fan_DistanceMax": 3,
+        "fan_Height": 0
+      },
+      "requiresFlying": true
+    }
+  ],
+  "flyingNeeded": true
 }

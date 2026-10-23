@@ -180,12 +180,13 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                         if (route.Value.AetheryteId == 0)
                         {
                             ImGui_Ice.IconWithTooltip(FontAwesomeIcon.Feather, "Missing Aetheryte", false);
+                            ImGui.SameLine();
                         }
                         if (LeveInfo.Leve_SheetInfo.TryGetValue(route.Key, out var sheetInfo) && sheetInfo.Gather_NodeInfo.NodeIds.Count() != route.Value.NodeInfo.Count())
                         {
-                            ImGui_Ice.IconWithTooltip(FontAwesomeIcon.Leaf, "Missing Node Information?", true);
+                            ImGui_Ice.IconWithTooltip(FontAwesomeIcon.Leaf, "Missing Node Information?", false);
+                            ImGui.SameLine();
                         }
-                        ImGui.SameLine();
                         ImGui.Text($"{route.Value.GatheringJob}");
                     }
                 }

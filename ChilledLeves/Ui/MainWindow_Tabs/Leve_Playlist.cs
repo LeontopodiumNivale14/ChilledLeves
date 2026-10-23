@@ -228,7 +228,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 return;
 
             ImGui.SetNextItemWidth(300f);
-            ImGui.InputTextWithHint("##LeveNameSearch", "Search leve name...", ref _leveNameSearch, 128);
+            ImGui.InputTextWithHint("##LeveNameSearch", "Search leve name/item...", ref _leveNameSearch, 128);
 
             RefreshLeveSearchIfNeeded();
 
@@ -254,7 +254,9 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
             }
 
             _leveSearchFiltered = Leve_SheetInfo
-                .Where(kv => kv.Value.LeveName.Contains(_leveNameSearch, StringComparison.OrdinalIgnoreCase))
+                .Where(kv =>
+                    kv.Value.LeveName.Contains(_leveNameSearch, StringComparison.OrdinalIgnoreCase) ||
+                    kv.Value.MaterialInfo?.Item_Name?.Contains(_leveNameSearch, StringComparison.OrdinalIgnoreCase) == true)
                 .ToList();
         }
 
