@@ -24,7 +24,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     if (!tabBar.Success)
                         return;
 
-                    var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+                    using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
 
                     PersonalList();
                     LevePacks();

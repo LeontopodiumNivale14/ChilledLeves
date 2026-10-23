@@ -106,7 +106,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
 
         private static unsafe void ProfileEditor()
         {
-            var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+            using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
 
             if (NameEditId != -1 && SelectedProfile != NameEditId)
             {

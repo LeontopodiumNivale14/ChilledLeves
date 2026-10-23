@@ -60,7 +60,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 var selectedNpc = C.ARR_NpcId;
                 var selectedJob = C.ARR_SelectedAssignment;
 
-                var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+                using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
 
                 var rightColumnAvail = ImGui.GetContentRegionAvail();
                 float availWidth = rightColumnAvail.X;

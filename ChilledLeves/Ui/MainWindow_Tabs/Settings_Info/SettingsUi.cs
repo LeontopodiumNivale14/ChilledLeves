@@ -54,7 +54,7 @@ public static partial class SettingsUi
 
     public static void Draw()
     {
-        var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+        using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
 
         using (ImRaii.Child("Settings Ui: Window", ImGui.GetContentRegionAvail(), true))
         {

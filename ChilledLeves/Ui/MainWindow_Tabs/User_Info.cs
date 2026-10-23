@@ -14,7 +14,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
 
         public static void Draw()
         {
-            var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+            using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
 
             using (var child = ImRaii.Child("Child: User Info", default, true))
             {

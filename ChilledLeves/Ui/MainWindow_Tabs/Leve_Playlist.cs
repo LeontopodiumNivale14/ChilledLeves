@@ -24,7 +24,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 if (!child.Success)
                     return;
 
-                var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+                using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
 
                 // Top block: name + job select + mission type checkboxes
                 // It's currently set to be 4.4 because that fits it + scales really nicely

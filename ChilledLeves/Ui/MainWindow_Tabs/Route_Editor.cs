@@ -42,7 +42,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                 if (!child_container.Success)
                     return;
 
-                var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
+                using var childColors = C.UseIceTheme ? ImRaii.PushColor(ImGuiCol.ChildBg, Theme_Colors.ChildBg) : default;
                 GatherSettings();
 
                 Gather_PathSelector();
