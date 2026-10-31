@@ -1,11 +1,13 @@
 ﻿using ChilledLeves.Scheduler.Handlers;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
+using Dalamud.Interface.Utility.Raii;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -37,23 +39,70 @@ namespace ChilledLeves.Ui.DebugTabs
 
         public static void Draw()
         {
-            ImGui.InputText("Vfx", ref vxf);
-            PictoManager.TestCustomVfx("Trap?", vxf, Player.Position, new(3, 7, 3));
+            using (var tabBar = ImRaii.TabBar("DD Tab Bar"))
+            {
+                if (!tabBar.Success)
+                    return;
 
-            Test();
-            UpdateTimer();
+                using (var mainTab = ImRaii.TabItem("Main DD Test"))
+                {
+                    if (mainTab.Success)
+                    {
 
-            ImGui.Text($"Floor ID: {floorId}");
-            ImGui.Text($"Hoard Count {hoardCount}");
-            ImGui.Text($"Time Remaining: {timeRemaining:N2}]");
-            ImGui.Text($"Progress: {progress}");
+                        ImGui.InputText("Vfx", ref vxf);
+                        PictoManager.TestCustomVfx("Trap?", vxf, Player.Position, new(3, 7, 3));
 
-            ImGui.Checkbox("Show Active Only", ref ShowOnlyActive);
-            ImGui.Checkbox("Hide Non-Valid Squares", ref ShowNoneTiles);
+                        Test();
+                        UpdateTimer();
 
-            DDMapGrid();
+                        ImGui.Text($"Floor ID: {floorId}");
+                        ImGui.Text($"Hoard Count {hoardCount}");
+                        ImGui.Text($"Time Remaining: {timeRemaining:N2}]");
+                        ImGui.Text($"Progress: {progress}");
 
-            DDMap();
+                        ImGui.Checkbox("Show Active Only", ref ShowOnlyActive);
+                        ImGui.Checkbox("Hide Non-Valid Squares", ref ShowNoneTiles);
+
+                        DDMapGrid();
+
+                        DDMap();
+                    }
+                }
+
+                using (var sideTab = ImRaii.TabItem("DD Status"))
+                {
+                    if (sideTab.Success)
+                    {
+                        using (var pomanderItems = ImRaii.Table("##activePomanders", 3, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollY | ImGuiTableFlags.ScrollX | ImGuiTableFlags.Borders))
+                        {
+                            if (!pomanderItems.Success)
+                                return;
+
+                            ImGui.TableSetupColumn("Slot");
+                            ImGui.TableSetupColumn("ItemId");
+                            ImGui.TableSetupColumn("Name");
+                            ImGui.TableHeadersRow();
+
+                            foreach (var o in GetActivePomanders())
+                            {
+                                ImGui.TableNextRow();
+                                ImGui.TableSetColumnIndex(0); ImGui.TextUnformatted(o.Slot.ToString());
+                                ImGui.TableNextColumn(); ImGui.TextUnformatted(o.ItemId.ToString());
+                                ImGui.TableNextColumn(); ImGui.TextUnformatted(o.Name);
+                            }
+
+                        }
+                    }
+                }
+
+                using (var itemTab = ImRaii.TabItem("DD Items"))
+                {
+                    if (itemTab.Success)
+                    {
+                        DDItems();
+                    }
+                }
+            }
         }
 
         private static unsafe void Test()
@@ -78,37 +127,81 @@ namespace ChilledLeves.Ui.DebugTabs
             }
         }
 
+        public readonly record struct DdItemEntry(int Slot, byte ItemId, byte Count, bool IsUsable, bool IsActive, string Name);
+
+        private static unsafe List<DdItemEntry> GetDdItems(bool activeOnly)
+        {
+            var result = new List<DdItemEntry>();
+
+            var ef = EventFramework.Instance();
+            if (ef == null)
+                return result;
+
+            var dd = ef->GetInstanceContentDeepDungeon();
+            if (dd == null)
+                return result;
+
+            var sheet = Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.DeepDungeonItem>();
+            var items = dd->Items;
+
+            for (var i = 0; i < items.Length; i++)
+            {
+                var item = items[i];
+                if (item.ItemId == 0)
+                    continue;
+
+                if (activeOnly && !item.IsActive)
+                    continue;
+
+                var name = sheet.TryGetRow(item.ItemId, out var row)
+                    ? row.Name.ToString()
+                    : $"Unknown ({item.ItemId})";
+
+                result.Add(new DdItemEntry(i, item.ItemId, item.Count, item.IsUsable, item.IsActive, name));
+            }
+
+            return result;
+        }
+
+        private static bool ShowActiveItemsOnly = false;
+
         private static unsafe void DDItems()
         {
             var ef = EventFramework.Instance();
-            if (ef == null) return;
+            if (ef == null)
+                return;
 
             var dd = ef->GetInstanceContentDeepDungeon();
-            if (dd == null) return;
+            if (dd == null)
+                return;
 
-            if (ImGui.BeginTable("Deep Dungeon Items", 4, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders))
+            ImGui.Checkbox("Active pomanders only", ref ShowActiveItemsOnly);
+
+            ImGui.Text($"Gimmick current {dd->DeepDungeonGimmickEffectIdCurrent} · next {dd->DeepDungeonGimmickEffectIdNext}");
+            ImGui.Text($"Status {dd->DeepDungeonStatusId} · Ban {dd->DeepDungeonBanId} · Danger {dd->DeepDungeonDangerId}");
+
+            using var table = ImRaii.Table("Deep Dungeon Items", 6,
+                ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders);
+            if (!table.Success)
+                return;
+
+            ImGui.TableSetupColumn("Slot");
+            ImGui.TableSetupColumn("ItemId");
+            ImGui.TableSetupColumn("Name");
+            ImGui.TableSetupColumn("Count");
+            ImGui.TableSetupColumn("Usable");
+            ImGui.TableSetupColumn("Active");
+            ImGui.TableHeadersRow();
+
+            foreach (var item in GetDdItems(ShowActiveItemsOnly))
             {
-                ImGui.TableSetupColumn("ID");
-                ImGui.TableSetupColumn("");
-                ImGui.TableSetupColumn("");
-
-                foreach (var item in dd->Items)
-                {
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    ImGui.Text($"{item.ItemId}");
-
-                    ImGui.TableNextColumn();
-                    ImGui.Text($"{item.Count}");
-
-                    ImGui.TableNextColumn();
-                    ImGui.Text($"{item.IsUsable}");
-
-                    ImGui.TableNextColumn();
-                    ImGui.Text($"{item.IsActive}");
-                }
-
-                ImGui.EndTable();
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0); ImGui.TextUnformatted(item.Slot.ToString());
+                ImGui.TableNextColumn(); ImGui.TextUnformatted(item.ItemId.ToString());
+                ImGui.TableNextColumn(); ImGui.TextUnformatted(item.Name);
+                ImGui.TableNextColumn(); ImGui.TextUnformatted(item.Count.ToString());
+                ImGui.TableNextColumn(); ImGui.TextUnformatted(item.IsUsable ? "yes" : "");
+                ImGui.TableNextColumn(); ImGui.TextUnformatted(item.IsActive ? "yes" : "");
             }
         }
 
@@ -385,6 +478,39 @@ namespace ChilledLeves.Ui.DebugTabs
                     }
                 }
             }
+        }
+
+        public readonly record struct ActivePomander(int Slot, uint ItemId, uint Icon, string Name);
+
+        private static unsafe List<ActivePomander> GetActivePomanders()
+        {
+            var result = new List<ActivePomander>();
+
+            var agent = AgentDeepDungeonStatus.Instance();
+            if (agent == null)
+                return result;
+
+            var data = agent->Data;
+            if (data == null)
+                return result;
+
+            var sheet = Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.DeepDungeonItem>();
+            var pomanders = data->Pomander;
+
+            for (var i = 0; i < pomanders.Length; i++)
+            {
+                ref var item = ref pomanders[i];
+                if (item.ItemId == 0)
+                    continue;
+
+                var name = sheet.TryGetRow(item.ItemId, out var row)
+                    ? row.Name.ToString()
+                    : $"Unknown ({item.ItemId})";
+
+                result.Add(new ActivePomander(i, item.ItemId, item.Icon, name));
+            }
+
+            return result;
         }
     }
 }
