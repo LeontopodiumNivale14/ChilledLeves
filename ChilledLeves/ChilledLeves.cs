@@ -1,4 +1,5 @@
 using ChilledLeves.Config_Files;
+using ChilledLeves.Enums;
 using ChilledLeves.Gui;
 using ChilledLeves.IPC;
 using ChilledLeves.Resources;
@@ -107,8 +108,6 @@ public sealed class ChilledLeves : IDalamudPlugin
         };
         EzCmd.Add("/chilledleves", OnCommand, """
             Open plugin interface
-            /chilledleves add [leveID] [amount] - adds the leveID/amount to worklist
-            /chilledleves clear - clears the worklist 
             /chilledleves start | stop - starts/stops the turnin process
             /chilledleves s|settings - Opens the worklist menu
             /leveitalone - alias
@@ -183,30 +182,23 @@ public sealed class ChilledLeves : IDalamudPlugin
         }
         else if (firstArg.ToLower() == "s" || firstArg.ToLower() == "settings")
         {
-
+            window_Main.IsOpen = true;
+            C.SelectedTab = Enums.WindowSelection.Settings;
             return;
         }
         else if (firstArg.ToLower() == "overlay")
         {
             window_Overlay.Toggle();
         }
-        else if (firstArg.ToLower() == "add")
-        {
-
-        }
-        else if (firstArg.ToLower() == "clear")
-        {
-
-            return;
-        }
         else if (firstArg.ToLower() == "start")
         {
-
+            Leve_Helper.SelectedMode = ModeSelection.Standard;
+            Leve_Helper.State = LeveState.CheckLeves;
             return;
         }
         else if (firstArg.ToLower() == "stop")
         {
-
+            SchedulerMain.DisablePlugin();
             return;
         }
         else if (firstArg.ToLower() == "test")

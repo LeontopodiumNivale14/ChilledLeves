@@ -41,6 +41,7 @@ public static partial class SettingsUi
         ColorTheme,
         ShowActiveOverlay,
         CompactOverlay,
+        SafetyGrabLeveDelay
     };
 
     // Built once and cached — BuildRegistry() constructs fresh SettingEntry wrappers,

@@ -1,9 +1,7 @@
 ﻿using ChilledLeves.Utilities.LeveData;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -15,7 +13,7 @@ public partial class Config
 
     public List<LeveInfo.SavedList> Leve_SavedPlaylist { get; set; } = new();
     public List<LeveInfo.SavedFolder> Leve_SavedFolders { get; set; } = new();
-    public LeveInfo.ListSortMode SortMode { get; set; } = LeveInfo.ListSortMode.Name;
+    public LeveInfo.ListSortMode SortMode { get; set; } = LeveInfo.ListSortMode.Manual;
 
     #endregion
 

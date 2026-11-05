@@ -56,7 +56,7 @@ public static partial class SettingsUi
         }
     };
 
-    private static SettingEntry SafetyGatherDelay = new()
+    private static SettingEntry SafetyGrabLeveDelay = new()
     {
         Label = "Safety Delay [Gather]",
         Category = MiscOption,

@@ -40,7 +40,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs.Leve_Info
 
                 float textLineHeight = ImGui.GetTextLineHeight();
                 Vector2 buttonSize = new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f);
-                string worklist = C.LeveOrder.Contains(selectedLeve) ? "Remove Leve from Manifest" : "Add Leve to Manifest";
+                string worklist = C.LeveOrder.Contains(selectedLeve) ? "Remove Leve from Playlist" : "Add Leve to Playlist";
 
                 List<Job> PriorityGrindJobs = new() { Job.MIN, Job.BTN, Job.FSH };
                 List<AssignmentType> BattleTypes = new() { AssignmentType.Battlecraft, AssignmentType.ImmortalFlames, AssignmentType.Maelstorm, AssignmentType.TwinAdder };

@@ -95,6 +95,14 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else
             {
+                if (Utils.Allowances == 0)
+                {
+                    IceLogging.Verbose("We're out of leves! WHICH MEANS WE DEF SHOULDN'T BE RUNNING ANY. Stopping", tag);
+                    Leve_Helper.State = LeveState.Idle;
+                    P.taskManager.Tasks.Clear();
+                    return true;
+                }
+
                 IceLogging.Debug("No active leves were found that were in our list, so we're going to instead find one to complete", tag);
                 if (Leve_Helper.SelectedMode is ModeSelection.Standard)
                 {

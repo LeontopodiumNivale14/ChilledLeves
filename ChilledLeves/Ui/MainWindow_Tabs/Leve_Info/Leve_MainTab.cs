@@ -151,7 +151,7 @@ internal class Leve_MainTab
 
             ImGui.TableNextRow();
             ImGui.TableSetColumnIndex(0);
-            ImGui.Text($"Min Level");
+            ImGui.Text($"Min Lv.");
 
             ImGui.TableNextColumn();
             if (ImGui.SliderInt("##Min Lv.", ref minLv, 1, maxLv))
@@ -167,7 +167,7 @@ internal class Leve_MainTab
 
             ImGui.TableNextColumn();
             ImGui.AlignTextToFramePadding();
-            if (ImGui.SliderInt("##Max Level", ref maxLv, minLv, 100))
+            if (ImGui.SliderInt("##Max Lv", ref maxLv, minLv, 100))
             {
                 C.MaxLevel = maxLv;
                 C.SaveDebounced();
@@ -179,7 +179,7 @@ internal class Leve_MainTab
             ImGui.Text("Leve Name");
 
             ImGui.TableNextColumn();
-            ImGui.InputText("##Name Search", ref Leve_SelectionTab.Leve_Name, 1000);
+            ImGui.InputTextWithHint("##Name Search", "Leve name", ref Leve_SelectionTab.Leve_Name, 1000);
 
             ImGui.EndTable();
         }
