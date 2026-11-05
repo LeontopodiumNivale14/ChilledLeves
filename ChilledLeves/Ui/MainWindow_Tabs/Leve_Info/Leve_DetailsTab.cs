@@ -5,7 +5,9 @@ using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
+using ECommons.ExcelServices;
 using SharpDX.Direct3D11;
+using System.Collections.Generic;
 using static ChilledLeves.Utilities.LeveData.LeveInfo;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs.Leve_Info
@@ -40,19 +42,31 @@ namespace ChilledLeves.Ui.MainWindow_Tabs.Leve_Info
                 Vector2 buttonSize = new Vector2(ImGui.GetContentRegionAvail().X, textLineHeight * 1.5f);
                 string worklist = C.LeveOrder.Contains(selectedLeve) ? "Remove Leve from Manifest" : "Add Leve to Manifest";
 
-                if (ImGui.Button(worklist, buttonSize))
+                List<Job> PriorityGrindJobs = new() { Job.MIN, Job.BTN, Job.FSH };
+                List<AssignmentType> BattleTypes = new() { AssignmentType.Battlecraft, AssignmentType.ImmortalFlames, AssignmentType.Maelstorm, AssignmentType.TwinAdder };
+
+                bool allowWorklist = (BattleTypes.Contains(leve.JobAssignmentType) || (PriorityGrindJobs.Contains(leve.Job) && leve.Level < 60));
+
+                using (var disable = ImRaii.Disabled(allowWorklist))
                 {
-                    if (C.LeveOrder.Contains(selectedLeve))
-                        C.LeveOrder.Remove(selectedLeve);
-                    else
+                    if (ImGui.Button(worklist, buttonSize))
                     {
-                        C.LeveOrder.Add(selectedLeve);
+                        if (C.LeveOrder.Contains(selectedLeve))
+                            C.LeveOrder.Remove(selectedLeve);
+                        else
+                        {
+                            C.LeveOrder.Add(selectedLeve);
 
-                        if (C.LeveList[selectedLeve] == 0)
-                            C.LeveList[selectedLeve] = 1;
+                            if (C.LeveList[selectedLeve] == 0)
+                                C.LeveList[selectedLeve] = 1;
+                        }
+
+                        C.Save();
                     }
-
-                    C.Save();
+                }
+                if (PriorityGrindJobs.Contains(leve.Job) && leve.Level < 60 && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                {
+                    ImGui.SetTooltip("This is only supported in the ARR/HW Grind");
                 }
 
                 string favorite = C.FavoriteLeves.Contains(selectedLeve) ? "Remove Leve from Favorites" : "Add Leve to Favorites";

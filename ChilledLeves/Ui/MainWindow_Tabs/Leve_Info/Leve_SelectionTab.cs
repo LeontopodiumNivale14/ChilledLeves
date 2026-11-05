@@ -1,8 +1,11 @@
-﻿using ChilledLeves.Gui;
+﻿using ChilledLeves.Enums;
+using ChilledLeves.Gui;
 using ChilledLeves.Resources;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Utility;
+using ECommons.ExcelServices;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs.Leve_Info
@@ -60,13 +63,20 @@ namespace ChilledLeves.Ui.MainWindow_Tabs.Leve_Info
 
                     if (ImGui.IsItemHovered() && (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left) || (ImGui.IsItemClicked(ImGuiMouseButton.Left) && C.RapidImport)))
                     {
-                        if (!C.LeveOrder.Contains(leveId.Key))
-                            C.LeveOrder.Add(leveId.Key);
+                        List<Job> PriorityGrindJobs = new() { Job.MIN, Job.BTN, Job.FSH };
+                        List<AssignmentType> BattleTypes = new() { AssignmentType.Battlecraft, AssignmentType.ImmortalFlames, AssignmentType.Maelstorm, AssignmentType.TwinAdder };
 
-                        if (C.LeveList[leveId.Key] == 0)
-                            C.LeveList[leveId.Key] = 1;
+                        bool blockedLeves = BattleTypes.Contains(leveId.Value.JobAssignmentType) || (PriorityGrindJobs.Contains(leveId.Value.Job) && leveId.Value.Level < 60);
+                        if (!blockedLeves)
+                        {
+                            if (!C.LeveOrder.Contains(leveId.Key))
+                                C.LeveOrder.Add(leveId.Key);
 
-                        C.SaveDebounced();
+                            if (C.LeveList[leveId.Key] == 0)
+                                C.LeveList[leveId.Key] = 1;
+
+                            C.SaveDebounced();
+                        }
                     }
 
                     // Manually paint the row background — this is what actually gives you the full-row highlight

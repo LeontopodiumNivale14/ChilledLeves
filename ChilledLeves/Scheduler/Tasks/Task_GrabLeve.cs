@@ -166,6 +166,9 @@ namespace ChilledLeves.Scheduler.Tasks
         public static bool GrabLeve()
         {
             string tag = "Task: Grab Leve";
+
+            if (C.SafetyDelay_LeveGrab && !EzThrottler.Throttle("Delay Grabbing Leve", C.LeveGrab_DelayTimer))
+                return false;
             
             if (Utils.Leve_IsAccepted(Leve_Helper.LeveToGrab))
             {

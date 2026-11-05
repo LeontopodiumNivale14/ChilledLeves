@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dalamud.Interface.Utility;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -51,6 +52,33 @@ public static partial class SettingsUi
             {
                 C.Compact_Ui = v;
                 C.Save();
+            }
+        }
+    };
+
+    private static SettingEntry SafetyGatherDelay = new()
+    {
+        Label = "Safety Delay [Gather]",
+        Category = MiscOption,
+        Keywords = new[] { "Safety", "Delay", "Leve", "Grab" },
+        Draw = () =>
+        {
+            var v = C.SafetyDelay_LeveGrab;
+            if (ImGui.Checkbox("Add a delay between grabbing leves", ref v))
+            {
+                C.SafetyDelay_LeveGrab = v;
+                C.Save();
+            }
+
+            if (v)
+            {
+                var d = C.LeveGrab_DelayTimer;
+                ImGui.SetNextItemWidth(150 * ImGuiHelpers.GlobalScale);
+                if (ImGui.SliderInt("Leve Grab Delay", ref d, 250, 2500))
+                {
+                    C.LeveGrab_DelayTimer = d;
+                    C.SaveDebounced();
+                }
             }
         }
     };

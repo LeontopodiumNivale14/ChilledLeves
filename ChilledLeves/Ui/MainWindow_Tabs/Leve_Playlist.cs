@@ -6,6 +6,7 @@ using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
+using ECommons.ExcelServices;
 using SharpDX.Direct2D1.Effects;
 using System.Collections.Generic;
 using static ChilledLeves.Utilities.LeveData.LeveInfo;
@@ -247,13 +248,22 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
             _leveNameSearchLast = _leveNameSearch;
             _leveSearchPage = 0;
 
+            List<Job> PriorityGrindJobs = new() { Job.MIN, Job.BTN, Job.FSH };
+            List<AssignmentType> BattleTypes = new() { AssignmentType.Battlecraft, AssignmentType.ImmortalFlames, AssignmentType.Maelstorm, AssignmentType.TwinAdder };
+
+            var leveList = Leve_SheetInfo
+                .Where(x => !BattleTypes.Contains(x.Value.JobAssignmentType))
+                .Where(x => !(PriorityGrindJobs.Contains(x.Value.Job) && x.Value.Level < 60))
+                .ToList();
+
+
             if (string.IsNullOrWhiteSpace(_leveNameSearch))
             {
-                _leveSearchFiltered = Leve_SheetInfo.ToList();
+                _leveSearchFiltered = leveList;
                 return;
             }
 
-            _leveSearchFiltered = Leve_SheetInfo
+            _leveSearchFiltered = leveList
                 .Where(kv =>
                     kv.Value.LeveName.Contains(_leveNameSearch, StringComparison.OrdinalIgnoreCase) ||
                     kv.Value.MaterialInfo?.Item_Name?.Contains(_leveNameSearch, StringComparison.OrdinalIgnoreCase) == true)

@@ -44,6 +44,7 @@ namespace ChilledLeves.Ui
             ["Debug: Task Check"] = () => Debug_TaskTest.Draw(),
             ["Debug: Callbacks"] = () => AddonDebugTab.Draw(),
             ["Debug: Teleport"] = () => Debug_Teleport.Draw(),
+            ["Debug: Curated List"] = () => Ui_CuratedList.Draw(),
         };
 
         public override void Draw()

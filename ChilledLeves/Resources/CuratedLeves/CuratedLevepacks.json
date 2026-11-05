@@ -1,0 +1,1058 @@
+[
+  {
+    "Id": 1001,
+    "Name": "CRP Leve Pack - 15-50",
+    "Description": "ARR Levepack",
+    "Playlist": [
+      {
+        "Id": 42,
+        "Amount": 2
+      },
+      {
+        "Id": 46,
+        "Amount": 5
+      },
+      {
+        "Id": 62,
+        "Amount": 4
+      },
+      {
+        "Id": 74,
+        "Amount": 3
+      },
+      {
+        "Id": 80,
+        "Amount": 2
+      }
+    ]
+  },
+  {
+    "Id": 1002,
+    "Name": "CRP Leve Pack - 50-60",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 910,
+        "Amount": 2
+      },
+      {
+        "Id": 916,
+        "Amount": 1
+      },
+      {
+        "Id": 921,
+        "Amount": 2
+      },
+      {
+        "Id": 928,
+        "Amount": 2
+      }
+    ]
+  },
+  {
+    "Id": 1003,
+    "Name": "CRP Leve Pack - 60-70",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1238,
+        "Amount": 2
+      },
+      {
+        "Id": 1243,
+        "Amount": 2
+      },
+      {
+        "Id": 1246,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1004,
+    "Name": "CRP Leve Pack - 70-80",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1405,
+        "Amount": 3
+      },
+      {
+        "Id": 1408,
+        "Amount": 3
+      },
+      {
+        "Id": 1411,
+        "Amount": 3
+      },
+      {
+        "Id": 1414,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1005,
+    "Name": "CRP Leve Pack - 80-90",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1569,
+        "Amount": 15
+      },
+      {
+        "Id": 1573,
+        "Amount": 6
+      },
+      {
+        "Id": 1574,
+        "Amount": 10
+      }
+    ]
+  },
+  {
+    "Id": 1006,
+    "Name": "CRP Leve Pack - 90-100",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1688,
+        "Amount": 10
+      },
+      {
+        "Id": 1691,
+        "Amount": 11
+      },
+      {
+        "Id": 1694,
+        "Amount": 5
+      },
+      {
+        "Id": 1696,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1007,
+    "Name": "BSM Leve Pack - 15-50",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 160,
+        "Amount": 3
+      },
+      {
+        "Id": 166,
+        "Amount": 2
+      },
+      {
+        "Id": 173,
+        "Amount": 2
+      },
+      {
+        "Id": 179,
+        "Amount": 5
+      },
+      {
+        "Id": 191,
+        "Amount": 3
+      },
+      {
+        "Id": 197,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1008,
+    "Name": "BSM Leve Pack - 50-60",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 968,
+        "Amount": 1
+      },
+      {
+        "Id": 976,
+        "Amount": 1
+      },
+      {
+        "Id": 982,
+        "Amount": 2
+      }
+    ]
+  },
+  {
+    "Id": 1009,
+    "Name": "BSM Leve Pack - 60-70",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1268,
+        "Amount": 2
+      },
+      {
+        "Id": 1273,
+        "Amount": 3
+      },
+      {
+        "Id": 1276,
+        "Amount": 2
+      },
+      {
+        "Id": 1279,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1010,
+    "Name": "BSM Leve Pack - 70-80",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1435,
+        "Amount": 4
+      },
+      {
+        "Id": 1438,
+        "Amount": 3
+      },
+      {
+        "Id": 1441,
+        "Amount": 3
+      },
+      {
+        "Id": 1444,
+        "Amount": 7
+      }
+    ]
+  },
+  {
+    "Id": 1011,
+    "Name": "BSM Leve Pack - 80-90",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1578,
+        "Amount": 5
+      },
+      {
+        "Id": 1581,
+        "Amount": 5
+      },
+      {
+        "Id": 1582,
+        "Amount": 10
+      },
+      {
+        "Id": 1586,
+        "Amount": 4
+      }
+    ]
+  },
+  {
+    "Id": 1012,
+    "Name": "BSM Leve Pack - 90-100",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1698,
+        "Amount": 5
+      },
+      {
+        "Id": 1701,
+        "Amount": 6
+      },
+      {
+        "Id": 1703,
+        "Amount": 5
+      },
+      {
+        "Id": 1704,
+        "Amount": 5
+      },
+      {
+        "Id": 1706,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1013,
+    "Name": "ARM Leve Pack - 15-50",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 220,
+        "Amount": 3
+      },
+      {
+        "Id": 226,
+        "Amount": 2
+      },
+      {
+        "Id": 236,
+        "Amount": 2
+      },
+      {
+        "Id": 242,
+        "Amount": 2
+      },
+      {
+        "Id": 245,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1014,
+    "Name": "ARM Leve Pack - 50-60",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1000,
+        "Amount": 3
+      },
+      {
+        "Id": 1018,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1015,
+    "Name": "ARM Leve Pack - 60-70",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1285,
+        "Amount": 4
+      },
+      {
+        "Id": 1294,
+        "Amount": 4
+      }
+    ]
+  },
+  {
+    "Id": 1016,
+    "Name": "ARM Leve Pack - 70-80",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1450,
+        "Amount": 7
+      },
+      {
+        "Id": 1456,
+        "Amount": 3
+      },
+      {
+        "Id": 1459,
+        "Amount": 3
+      },
+      {
+        "Id": 1462,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1017,
+    "Name": "ARM Leve Pack - 80-90",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1589,
+        "Amount": 7
+      },
+      {
+        "Id": 1591,
+        "Amount": 16
+      },
+      {
+        "Id": 1597,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1018,
+    "Name": "ARM Leve Pack - 90-100",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1708,
+        "Amount": 10
+      },
+      {
+        "Id": 1711,
+        "Amount": 7
+      },
+      {
+        "Id": 1713,
+        "Amount": 8
+      },
+      {
+        "Id": 1715,
+        "Amount": 10
+      }
+    ]
+  },
+  {
+    "Id": 1019,
+    "Name": "GSM Leve Pack - 15-50",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 461,
+        "Amount": 2
+      },
+      {
+        "Id": 466,
+        "Amount": 2
+      },
+      {
+        "Id": 473,
+        "Amount": 2
+      },
+      {
+        "Id": 479,
+        "Amount": 3
+      },
+      {
+        "Id": 485,
+        "Amount": 3
+      },
+      {
+        "Id": 494,
+        "Amount": 3
+      },
+      {
+        "Id": 500,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1020,
+    "Name": "GSM Leve Pack - 50-60",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1120,
+        "Amount": 3
+      },
+      {
+        "Id": 1138,
+        "Amount": 2
+      }
+    ]
+  },
+  {
+    "Id": 1021,
+    "Name": "GSM Leve Pack - 60-70",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1345,
+        "Amount": 5
+      },
+      {
+        "Id": 1351,
+        "Amount": 6
+      }
+    ]
+  },
+  {
+    "Id": 1022,
+    "Name": "GSM Leve Pack - 70-80",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1510,
+        "Amount": 7
+      },
+      {
+        "Id": 1516,
+        "Amount": 3
+      },
+      {
+        "Id": 1519,
+        "Amount": 3
+      },
+      {
+        "Id": 1522,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1023,
+    "Name": "GSM Leve Pack - 80-90",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1598,
+        "Amount": 9
+      },
+      {
+        "Id": 1600,
+        "Amount": 10
+      },
+      {
+        "Id": 1604,
+        "Amount": 10
+      }
+    ]
+  },
+  {
+    "Id": 1024,
+    "Name": "GSM Leve Pack - 90-100",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1719,
+        "Amount": 5
+      },
+      {
+        "Id": 1721,
+        "Amount": 18
+      },
+      {
+        "Id": 1726,
+        "Amount": 6
+      }
+    ]
+  },
+  {
+    "Id": 1025,
+    "Name": "LTW Leve Pack - 15-50",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 100,
+        "Amount": 3
+      },
+      {
+        "Id": 109,
+        "Amount": 2
+      },
+      {
+        "Id": 116,
+        "Amount": 6
+      },
+      {
+        "Id": 128,
+        "Amount": 4
+      },
+      {
+        "Id": 131,
+        "Amount": 6
+      }
+    ]
+  },
+  {
+    "Id": 1026,
+    "Name": "LTW Leve Pack - 50-60",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 940,
+        "Amount": 2
+      },
+      {
+        "Id": 952,
+        "Amount": 4
+      }
+    ]
+  },
+  {
+    "Id": 1027,
+    "Name": "LTW Leve Pack - 60-70",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1255,
+        "Amount": 1
+      },
+      {
+        "Id": 1258,
+        "Amount": 4
+      },
+      {
+        "Id": 1264,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1028,
+    "Name": "LTW Leve Pack - 70-80",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1420,
+        "Amount": 3
+      },
+      {
+        "Id": 1423,
+        "Amount": 5
+      },
+      {
+        "Id": 1429,
+        "Amount": 3
+      },
+      {
+        "Id": 1432,
+        "Amount": 2
+      }
+    ]
+  },
+  {
+    "Id": 1029,
+    "Name": "LTW Leve Pack - 80-90",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1609,
+        "Amount": 7
+      },
+      {
+        "Id": 1611,
+        "Amount": 5
+      },
+      {
+        "Id": 1613,
+        "Amount": 16
+      }
+    ]
+  },
+  {
+    "Id": 1030,
+    "Name": "LTW Leve Pack - 90-100",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1728,
+        "Amount": 10
+      },
+      {
+        "Id": 1731,
+        "Amount": 8
+      },
+      {
+        "Id": 1733,
+        "Amount": 7
+      },
+      {
+        "Id": 1735,
+        "Amount": 5
+      },
+      {
+        "Id": 1737,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1031,
+    "Name": "WVR Leve Pack - 15-50",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 399,
+        "Amount": 2
+      },
+      {
+        "Id": 406,
+        "Amount": 2
+      },
+      {
+        "Id": 413,
+        "Amount": 2
+      },
+      {
+        "Id": 422,
+        "Amount": 2
+      },
+      {
+        "Id": 425,
+        "Amount": 2
+      },
+      {
+        "Id": 431,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1032,
+    "Name": "WVR Leve Pack - 50-60",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1090,
+        "Amount": 3
+      },
+      {
+        "Id": 1102,
+        "Amount": 1
+      },
+      {
+        "Id": 1108,
+        "Amount": 2
+      }
+    ]
+  },
+  {
+    "Id": 1033,
+    "Name": "WVR Leve Pack - 60-70",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1330,
+        "Amount": 1
+      },
+      {
+        "Id": 1333,
+        "Amount": 3
+      },
+      {
+        "Id": 1339,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1034,
+    "Name": "WVR Leve Pack - 70-80",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1495,
+        "Amount": 7
+      },
+      {
+        "Id": 1501,
+        "Amount": 3
+      },
+      {
+        "Id": 1504,
+        "Amount": 6
+      }
+    ]
+  },
+  {
+    "Id": 1035,
+    "Name": "WVR Leve Pack - 80-90",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1619,
+        "Amount": 7
+      },
+      {
+        "Id": 1621,
+        "Amount": 10
+      },
+      {
+        "Id": 1624,
+        "Amount": 10
+      }
+    ]
+  },
+  {
+    "Id": 1036,
+    "Name": "WVR Leve Pack - 90-100",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1739,
+        "Amount": 5
+      },
+      {
+        "Id": 1741,
+        "Amount": 6
+      },
+      {
+        "Id": 1743,
+        "Amount": 4
+      },
+      {
+        "Id": 1745,
+        "Amount": 5
+      },
+      {
+        "Id": 1747,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1037,
+    "Name": "ALC Leve Pack - 15-50",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 340,
+        "Amount": 2
+      },
+      {
+        "Id": 346,
+        "Amount": 3
+      },
+      {
+        "Id": 353,
+        "Amount": 4
+      },
+      {
+        "Id": 365,
+        "Amount": 6
+      },
+      {
+        "Id": 377,
+        "Amount": 4
+      }
+    ]
+  },
+  {
+    "Id": 1038,
+    "Name": "ALC Leve Pack - 50-60",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1060,
+        "Amount": 2
+      },
+      {
+        "Id": 1072,
+        "Amount": 2
+      },
+      {
+        "Id": 1078,
+        "Amount": 1
+      }
+    ]
+  },
+  {
+    "Id": 1039,
+    "Name": "ALC Leve Pack - 60-70",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1315,
+        "Amount": 2
+      },
+      {
+        "Id": 1318,
+        "Amount": 2
+      },
+      {
+        "Id": 1321,
+        "Amount": 8
+      }
+    ]
+  },
+  {
+    "Id": 1040,
+    "Name": "ALC Leve Pack - 70-80",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1480,
+        "Amount": 8
+      },
+      {
+        "Id": 1489,
+        "Amount": 3
+      },
+      {
+        "Id": 1492,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1041,
+    "Name": "ALC Leve Pack - 80-90",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1629,
+        "Amount": 5
+      },
+      {
+        "Id": 1630,
+        "Amount": 5
+      },
+      {
+        "Id": 1632,
+        "Amount": 4
+      },
+      {
+        "Id": 1634,
+        "Amount": 10
+      }
+    ]
+  },
+  {
+    "Id": 1042,
+    "Name": "ALC Leve Pack - 90-100",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1749,
+        "Amount": 5
+      },
+      {
+        "Id": 1750,
+        "Amount": 6
+      },
+      {
+        "Id": 1752,
+        "Amount": 5
+      },
+      {
+        "Id": 1755,
+        "Amount": 5
+      },
+      {
+        "Id": 1756,
+        "Amount": 5
+      }
+    ]
+  },
+  {
+    "Id": 1043,
+    "Name": "CUL Leve Pack - 15-50",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 281,
+        "Amount": 3
+      },
+      {
+        "Id": 286,
+        "Amount": 2
+      },
+      {
+        "Id": 296,
+        "Amount": 6
+      },
+      {
+        "Id": 308,
+        "Amount": 3
+      },
+      {
+        "Id": 311,
+        "Amount": 3
+      },
+      {
+        "Id": 317,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1044,
+    "Name": "CUL Leve Pack - 50-60",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1030,
+        "Amount": 1
+      },
+      {
+        "Id": 1036,
+        "Amount": 2
+      },
+      {
+        "Id": 1048,
+        "Amount": 4
+      }
+    ]
+  },
+  {
+    "Id": 1045,
+    "Name": "CUL Leve Pack - 60-70",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1300,
+        "Amount": 7
+      },
+      {
+        "Id": 1309,
+        "Amount": 3
+      },
+      {
+        "Id": 1312,
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "Id": 1046,
+    "Name": "CUL Leve Pack - 70-80",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1465,
+        "Amount": 4
+      },
+      {
+        "Id": 1468,
+        "Amount": 14
+      }
+    ]
+  },
+  {
+    "Id": 1047,
+    "Name": "CUL Leve Pack - 80-90",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1638,
+        "Amount": 9
+      },
+      {
+        "Id": 1641,
+        "Amount": 7
+      },
+      {
+        "Id": 1643,
+        "Amount": 7
+      },
+      {
+        "Id": 1644,
+        "Amount": 6
+      },
+      {
+        "Id": 1646,
+        "Amount": 7
+      }
+    ]
+  },
+  {
+    "Id": 1048,
+    "Name": "CUL Leve Pack - 90-100",
+    "Description": "",
+    "Playlist": [
+      {
+        "Id": 1759,
+        "Amount": 8
+      },
+      {
+        "Id": 1760,
+        "Amount": 15
+      },
+      {
+        "Id": 1765,
+        "Amount": 15
+      }
+    ]
+  }
+]

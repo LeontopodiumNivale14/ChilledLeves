@@ -125,6 +125,7 @@ public sealed class ChilledLeves : IDalamudPlugin
         RouteLoader.LoadExternalRoutes();
         LeveInfo.UpdateSelectString();
         Gather_Util.Update_GatheringDetails();
+        LeveInfo.LoadCuratedLevepacks();
     }
 
     private void Tick(object _)
