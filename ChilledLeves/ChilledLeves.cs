@@ -136,7 +136,7 @@ public sealed class ChilledLeves : IDalamudPlugin
 
             SchedulerMain.Tick();
         }
-        GenericManager.Tick();
+        Pandora_Handler.Tick();
         TextAdvancedManager.Tick();
         YesAlreadyManager.Tick();
         SoundAlert.Tick();

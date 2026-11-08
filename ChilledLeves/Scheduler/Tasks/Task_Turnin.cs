@@ -47,6 +47,9 @@ namespace ChilledLeves.Scheduler.Tasks
             const string tag = "Turnin: Trying Turnin";
             var leveId = Leve_Helper.LeveToGrab;
 
+            if (C.InteractionDelay())
+                return false;
+
             if (Svc.Condition[ConditionFlag.OccupiedInQuestEvent])
             {
                 if (GenericHelpers.TryGetAddonMaster<SelectString>(out var selectString) && selectString.IsAddonReady)

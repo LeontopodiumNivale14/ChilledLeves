@@ -7,7 +7,6 @@ using Dalamud.Game.ClientState.Conditions;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
-using SharpDX.DirectWrite;
 using System.Collections.Generic;
 using static ECommons.UIHelpers.AddonMasterImplementations.AddonMaster;
 
@@ -75,6 +74,9 @@ namespace ChilledLeves.Scheduler.Tasks
         private static bool OpenLeveWindow(LeveInfo.Info_Vendor npcInfo, uint npcId)
         {
             string tag = "Open Leve Window";
+
+            if (C.InteractionDelay())
+                return false;
 
             if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
             {
@@ -216,6 +218,9 @@ namespace ChilledLeves.Scheduler.Tasks
         public static bool Grab_ARRLeve()
         {
             string tag = "Task: Grab ARR Leve";
+
+            if (C.SafetyDelay_LeveGrab && !EzThrottler.Throttle("Delay Grabbing Leve", C.LeveGrab_DelayTimer))
+                return false;
 
             var arrList = Leve_Helper.ValidARRLeves;
             bool anyAccepted = arrList.Where(x => Utils.Leve_IsAccepted(x)).Any();
@@ -374,6 +379,9 @@ namespace ChilledLeves.Scheduler.Tasks
         {
             string tag = "Debug: Check Multi Leves";
 
+            if (C.InteractionDelay())
+                return false;
+
             if (C.GrabMulti)
             {
                 if (Utils.Leve_MaxAccepted())
@@ -433,6 +441,9 @@ namespace ChilledLeves.Scheduler.Tasks
         private static bool LeaveVendor()
         {
             const string tag = "Grab Leve: Leave Vendor";
+
+            if (C.InteractionDelay())
+                return false;
 
             if (!Svc.Condition[ConditionFlag.OccupiedInQuestEvent])
             {

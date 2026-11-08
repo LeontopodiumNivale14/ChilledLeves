@@ -1,7 +1,4 @@
 ﻿using Dalamud.Interface.Utility;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs.Settings_Info;
 
@@ -77,6 +74,33 @@ public static partial class SettingsUi
                 if (ImGui.SliderInt("Leve Grab Delay", ref d, 250, 2500))
                 {
                     C.LeveGrab_DelayTimer = d;
+                    C.SaveDebounced();
+                }
+            }
+        }
+    };
+
+    private static SettingEntry Safety_InteractingDelay = new()
+    {
+        Label = "Safety Delay [Gather]",
+        Category = MiscOption,
+        Keywords = new[] { "Safety", "Delay", "Leve", "Grab" },
+        Draw = () =>
+        {
+            var v = C.Delay_Interaction;
+            if (ImGui.Checkbox("Add a delay between interactions", ref v))
+            {
+                C.Delay_Interaction = v;
+                C.Save();
+            }
+
+            if (v)
+            {
+                var d = C.Interaction_DelayTimer;
+                ImGui.SetNextItemWidth(150 * ImGuiHelpers.GlobalScale);
+                if (ImGui.SliderInt("Interaction Delay", ref d, 250, 2500))
+                {
+                    C.Interaction_DelayTimer = d;
                     C.SaveDebounced();
                 }
             }
