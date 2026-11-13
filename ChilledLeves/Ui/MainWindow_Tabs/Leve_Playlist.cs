@@ -51,22 +51,36 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
                     }
 
                     bool allowGrabMulti = C.GrabMulti;
-                    if (ImGui.Checkbox("Allow grabbing multiple leves", ref allowGrabMulti))
+                    if (ImGui_Ice.IconToggle(FontAwesomeIcon.LayerGroup, "##GrabMulti", ref allowGrabMulti, "Allow grabbing multiple leves"))
                     {
                         C.GrabMulti = allowGrabMulti;
                         C.Save();
                     }
 
+                    ImGui.SameLine();
+
                     bool allowMultiTurnin = C.AllowMultiTurnin;
-                    if (ImGui.Checkbox("Allow Multi-Turnin Leves", ref allowMultiTurnin))
+                    if (ImGui_Ice.IconToggle(FontAwesomeIcon.CheckDouble, "##MultiTurnin", ref allowMultiTurnin,
+                            "Allow Multi-Turnin Leves\n\n" +
+                            "If a leve has multiple turnins, this will allow you to do said multiple turnins of the leve.\n" +
+                            "This really only applies for specific leves below Lv. 80, as post that they stopped doing this.\n" +
+                            "Enabling this will update the counts of leves that allow it"))
                     {
                         C.AllowMultiTurnin = allowMultiTurnin;
                         C.Save();
                     }
-                    ImGui_Ice.IconWithTooltip(FontAwesomeIcon.QuestionCircle,
-                        "If a leve has multiple turnin, this will allow you to do said multiple turnins of the leve.\n" +
-                        "This really only applies for specific leves below Lv. 80, as post that they stopped doing this.\n" +
-                        "Enabling this will update the counts of leves that allow it");
+
+                    ImGui.SameLine();
+
+                    bool repeatLastLeve = C.RepeatLastLeve;
+                    if (ImGui_Ice.IconToggle(FontAwesomeIcon.Repeat, "##RepeatLastLeve", ref repeatLastLeve,
+                            "Repeat Last Leve\n\n" +
+                            "Will repeat the last leve you have once it's the only one left.\n" +
+                            $"Useful if you don't want to set the last leve to like... {9999:N0}"))
+                    {
+                        C.RepeatLastLeve = repeatLastLeve;
+                        C.Save();
+                    }
 
                     if (ImGui.Button("Add Other Leves"))
                     {

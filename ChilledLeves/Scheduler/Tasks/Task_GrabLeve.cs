@@ -78,7 +78,7 @@ namespace ChilledLeves.Scheduler.Tasks
             if (C.InteractionDelay())
                 return false;
 
-            if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
+            if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady && GenericHelpers.TryGetAddonMaster<JournalDetail>(out var journal) && journal.IsAddonReady)
             {
                 IceLogging.Debug("We should be in the journal tab now! So we're going to collect our leve", tag);
                 return true;
@@ -165,13 +165,23 @@ namespace ChilledLeves.Scheduler.Tasks
                     IceLogging.Error($"Hey! We've somehow gotten an invalid leve that doesn't exist in the sheets... {Leve_Helper.LeveToGrab}", tag);
             }
         }
+        public static int GrabLeveThrottle()
+        {
+            const int MinimumThrottle = 100;
+
+            // Only let dev builds go below the minimum
+            int floor = Svc.PluginInterface.IsDev ? 0 : MinimumThrottle;
+            int userDelay = C.SafetyDelay_LeveGrab ? C.LeveGrab_DelayTimer : 0;
+
+            return Math.Max(floor, userDelay);
+        }
         public static bool GrabLeve()
         {
             string tag = "Task: Grab Leve";
 
-            if (C.SafetyDelay_LeveGrab && !EzThrottler.Throttle("Delay Grabbing Leve", C.LeveGrab_DelayTimer))
+            if (!EzThrottler.Throttle("Grab Leve Throttle", GrabLeveThrottle()))
                 return false;
-            
+
             if (Utils.Leve_IsAccepted(Leve_Helper.LeveToGrab))
             {
                 IceLogging.Debug("We've accepted the leve, continuing onto checking for multi leves", tag);
@@ -181,12 +191,22 @@ namespace ChilledLeves.Scheduler.Tasks
                 return true;
             }
 
-            if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
+            if (GenericHelpers.TryGetAddonMaster<SelectYesno>(out var yesNo) && yesNo.IsAddonReady)
+            {
+                if (EzThrottler.Throttle("Selecting yes", 1000))
+                    yesNo.Yes();
+
+                return false;
+            }
+            else if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
             {
                 if (Leve_Helper.LeveToGrab == guildLeve.SelectedLeveId)
                 {
-                    if (EzThrottler.Throttle("Accepting Leve", 1000))
-                        GenericHandlers.FireCallback("JournalDetail", true, 3, (int)Leve_Helper.LeveToGrab);
+                    if (GenericHelpers.TryGetAddonMaster<JournalDetail>(out var journal) && journal.IsAddonReady)
+                    {
+                        if (EzThrottler.Throttle("Selecting Journal"))
+                            GenericHandlers.FireCallback("JournalDetail", true, 3, (int)Leve_Helper.LeveToGrab);
+                    }
 
                     return false;
                 }
@@ -215,11 +235,12 @@ namespace ChilledLeves.Scheduler.Tasks
 
             return false;
         }
+
         public static bool Grab_ARRLeve()
         {
             string tag = "Task: Grab ARR Leve";
 
-            if (C.SafetyDelay_LeveGrab && !EzThrottler.Throttle("Delay Grabbing Leve", C.LeveGrab_DelayTimer))
+            if (!EzThrottler.Throttle("Grab Leve Throttle", GrabLeveThrottle()))
                 return false;
 
             var arrList = Leve_Helper.ValidARRLeves;
@@ -231,7 +252,14 @@ namespace ChilledLeves.Scheduler.Tasks
                 return true;
             }
 
-            if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
+            if (GenericHelpers.TryGetAddonMaster<SelectYesno>(out var yesNo) && yesNo.IsAddonReady)
+            {
+                if (EzThrottler.Throttle("Selecting yes", 1000))
+                    yesNo.Yes();
+
+                return false;
+            }
+            else if (GenericHelpers.TryGetAddonMaster<GuildLeve>(out var guildLeve) && guildLeve.IsAddonReady)
             {
                 var goalLeve = LeveInfo.Leve_SheetInfo[Leve_Helper.LeveToGrab];
                 var goalJob = goalLeve.Job;

@@ -12,7 +12,6 @@ public partial class Config
     public bool GrabMulti { get; set; } = true;
     public List<uint> FavoriteLeves { get; set; } = new();
     public bool AllowMultiTurnin { get; set; } = true;
-    public bool IncreaseDelay { get; set; } = false;
     public bool RepeatLastLeve { get; set; } = false;
 
     // ARR Leve Grind Settings

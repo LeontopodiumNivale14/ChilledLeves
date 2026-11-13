@@ -127,7 +127,7 @@ namespace ChilledLeves.Scheduler.Tasks
                     }
                 }
             }
-            else if (Utils.Leve_IsAccepted(Leve_Helper.LeveToGrab))
+            else if (Utils.Leve_IsAccepted(leveId))
             {
                 var npcId = sheetInfo.Npc_Turnin;
 
@@ -148,14 +148,14 @@ namespace ChilledLeves.Scheduler.Tasks
             }
             else
             {
-                foreach (var leve in C.LeveOrder)
+                var lastLeve = C.LeveOrder.Where(x => C.LeveList[x] != 0).Count() == 1 && C.RepeatLastLeve;
+
+                if (!lastLeve)
                 {
-                    if (!Utils.Leve_IsAccepted(leve))
-                    {
-                        C.LeveList[leve] -= 1;
-                        C.SaveDebounced();
-                    }
+                    C.LeveList[leveId] -= 1;
+                    C.SaveDebounced();
                 }
+
                 IceLogging.Verbose("We've completed our leve turnins for this round, going to see what state we need to be in next", tag);
                 Leve_Helper.State = LeveState.CheckLeves;
                 return true;

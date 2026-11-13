@@ -782,7 +782,7 @@ public static partial class LeveInfo
             Name = NPCName(1007064),
             TerritoryId = 137,
             Aetheryte = 11,
-            Npc_InteractZone = new Vector3(454.03705f, 17.493235f, 475.09576f),
+            Npc_InteractZone = new Vector3(455.22f, 17.42f, 474.89f),
             Npc_Location = new Vector3(454.98f, 17.25f, 479.97f),
             Npc_Flag = new(489.15845f, 468.80298f),
             Mount = true,

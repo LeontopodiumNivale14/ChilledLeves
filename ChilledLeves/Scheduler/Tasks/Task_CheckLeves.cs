@@ -195,56 +195,69 @@ namespace ChilledLeves.Scheduler.Tasks
             string tag = "Check Leves: ARR Grind";
 
             var arrList = Leve_Helper.ValidARRLeves;
-
             arrList.Clear();
+
             var selectedNpc = C.ARR_NpcId;
             var job = C.ARR_SelectedAssignment;
             var condition = C.ARR_StopCondition;
 
-            if (C.ARR_LevemetPriority.TryGetValue(selectedNpc, out var npcList))
-            {
-                int cost = 0;
-                foreach (var leve in npcList.Where(x => LeveInfo.Leve_SheetInfo[x].JobAssignmentType == job))
-                {
-                    var sheetInfo = LeveInfo.Leve_SheetInfo[leve];
-                    if (cost == 0)
-                        cost = sheetInfo.AllowanceCost;
-
-                    if (cost != sheetInfo.AllowanceCost)
-                        continue;
-
-                    if (condition == StopConditions.Complete && Utils.Leve_IsComplete(leve))
-                        continue;
-
-                    if (Player.GetLevel(sheetInfo.Job) < sheetInfo.Level)
-                        continue;
-
-                    if (Utils.PotentionalLeve(leve, "ARR Grind"))
-                        arrList.Add(leve);
-                }
-
-                if (arrList.Count != 0)
-                {
-                    IceLogging.Debug($"We have potentional leves that we can grab for ARR grind. Current count: {arrList.Count}", tag);
-                    IceLogging.Debug($"Setting the goal leve to #{arrList[0]} just so we know which npc to go to, and also so we can select the right tab", tag);
-                    Leve_Helper.LeveToGrab = arrList[0];
-                    Leve_Helper.ARRLeveToGrab = 0;
-                    Leve_Helper.State = LeveState.Grab_ARRLeve;
-
-                }
-                else
-                {
-                    IceLogging.Error("We seem to have no valid leves that we can grind... make sure that if you're on fisher, you actually have the fish on you", tag);
-                    IceLogging.Error("Otherwise, make sure you've selected an npc that is within your class's level", tag);
-                    SchedulerMain.DisablePlugin();
-                }
-            }
-            else
+            if (!C.ARR_LevemetPriority.TryGetValue(selectedNpc, out var npcList))
             {
                 IceLogging.Error($"We somehow found... a npc that isn't in the current config? {selectedNpc}. Please make sure one is selected in ARR grind", tag);
                 SchedulerMain.DisablePlugin();
+                return true;
             }
 
+            bool reachedLevel = false;
+            bool skippedForAllowance = false;
+
+            foreach (var leve in npcList.Where(x => LeveInfo.Leve_SheetInfo[x].JobAssignmentType == job))
+            {
+                var sheetInfo = LeveInfo.Leve_SheetInfo[leve];
+
+                if (condition is StopConditions.Level && Player.GetLevel(sheetInfo.Job) >= C.ARR_StopLevel)
+                {
+                    reachedLevel = true;
+                    break;
+                }
+
+                if (condition == StopConditions.Complete && Utils.Leve_IsComplete(leve))
+                    continue;
+
+                if (Player.GetLevel(sheetInfo.Job) < sheetInfo.Level)
+                    continue;
+
+                if (!Utils.EnoughAllowance(leve))
+                {
+                    skippedForAllowance = true;
+                    continue;
+                }
+
+                if (Utils.PotentionalLeve(leve, "ARR Grind"))
+                    arrList.Add(leve);
+            }
+
+            if (arrList.Count != 0)
+            {
+                IceLogging.Debug($"We have potentional leves that we can grab for ARR grind. Current count: {arrList.Count}", tag);
+                IceLogging.Debug($"Setting the goal leve to #{arrList[0]} just so we know which npc to go to, and also so we can select the right tab", tag);
+                Leve_Helper.LeveToGrab = arrList[0];
+                Leve_Helper.ARRLeveToGrab = 0;
+                Leve_Helper.State = LeveState.Grab_ARRLeve;
+                return true;
+            }
+
+            if (reachedLevel)
+                IceLogging.Debug("We've reached the point of our desired level, so we gonna just stop here", tag);
+            else if (skippedForAllowance)
+                IceLogging.Debug("Remaining leves cost more allowances than we currently have, so we're stopping here", tag);
+            else
+            {
+                IceLogging.Error("We seem to have no valid leves that we can grind... make sure that if you're on fisher, you actually have the fish on you", tag);
+                IceLogging.Error("Otherwise, make sure you've selected an npc that is within your class's level", tag);
+            }
+
+            SchedulerMain.DisablePlugin();
             return true;
         }
     }

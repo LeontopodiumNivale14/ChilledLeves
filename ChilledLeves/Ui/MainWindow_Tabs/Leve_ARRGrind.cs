@@ -1,16 +1,13 @@
 ﻿using ChilledLeves.Enums;
 using ChilledLeves.Gui;
 using ChilledLeves.Scheduler;
+using ChilledLeves.Ui.Tables;
 using ChilledLeves.Utilities;
 using ChilledLeves.Utilities.LeveData;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Textures.TextureWraps;
-using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
-using FFXIVClientStructs.FFXIV.Client.Game;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ChilledLeves.Ui.MainWindow_Tabs
 {
@@ -23,28 +20,10 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
         // Or would allow for leveling till X at vendor A, then leveling till Y at vendor B
         // Still need to curate a list of npcs for this though that this will work with. . . 
 
-        private static readonly List<uint> ValidNpcs = new()
-        {
-            1000970, // T'mookri
-            1000101, // Gontrant
-            1004342, // Wyrkholsk
-            1004344, // Nahctahr
-            1001788, // Swygskyf
-            1001791, // Orwen
-            1003888, // Graceful Song
-            1001796, // Totonowa
-            1001799, // Poponagu
-            1000105, // Tierney
-            1001866, // Muriaule
-            1000821, // Qina Lyehga
-            1000823, // Nyell
-            1002384, // Cimeaurant
-            1002401, // Voilinaut
-            1004348, // K'leytai
-            1011208, // Eloin 50-58
-        };
+        public static List<uint> ARR_HWNPcs = new();
 
-        private static List<AssignmentType> validAssignments = new() { AssignmentType.Miner, AssignmentType.Botanist, AssignmentType.Fisher };
+        private static readonly List<AssignmentType> validAssignments = new() { AssignmentType.Miner, AssignmentType.Botanist, AssignmentType.Fisher };
+        private static readonly GatherGrind_Table.VendorTable _vendorTable = new(validAssignments, DrawIcon);
         private static int selectedOption = 0;
         private static List<string> SortOptions = new() { "Level [High -> Low]", "Level [Low -> High]", "Not Completed", "Completed", "ID" };
         private static float _npcInfoHeight = 100f;
@@ -322,86 +301,7 @@ namespace ChilledLeves.Ui.MainWindow_Tabs
 
                 ImGui.Dummy(new(0, 5));
 
-                using (var table = ImRaii.Table("Npc Selection Info", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
-                {
-                    if (!table.Success)
-                        return;
-
-                    var iconSize = new Vector2(ImGui.GetTextLineHeight());
-                    var iconColumnWidth = iconSize.X + ImGui.GetStyle().CellPadding.X * 2f;
-                    var scale = ImGuiHelpers.GlobalScale;
-
-                    ImGui.TableSetupColumn("##Selected", ImGuiTableColumnFlags.WidthFixed, 5 * scale);
-                    ImGui.TableSetupColumn("Npc");
-                    ImGui.TableSetupColumn("Location");
-                    ImGui.TableSetupColumn("Jobs", ImGuiTableColumnFlags.WidthStretch);
-
-                    ImGui.TableHeadersRow();
-
-                    var selectedNpc = C.ARR_NpcId;
-
-                    foreach (var npc in ValidNpcs)
-                    {
-                        if (LeveInfo.Levemete_Info.TryGetValue(npc, out var npcInfo))
-                        {
-                            bool isSelected = selectedNpc == npc;
-
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(0);
-                            if (isSelected)
-                            {
-                                var color = C.UseIceTheme ? Theme_Colors.SidebarAccent : ImGuiColors.ParsedGold;
-
-                                ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.GetColorU32(color));
-                            }
-
-                            ImGui.TableNextColumn();
-                            ImGui.AlignTextToFramePadding();
-                            bool clicked = RowSelectable($"{npcInfo.Name}", isSelected);
-
-                            if (clicked)
-                            {
-                                C.ARR_NpcId = npc;
-                                C.Save();
-                                ImGui.CloseCurrentPopup();
-                            }
-
-                            ImGui.TableNextColumn();
-                            var territory = ExcelHelper.Sheet_TerritoryType.GetRow(npcInfo.TerritoryId).PlaceName.Value.Name.ToString();
-                            ImGui.AlignTextToFramePadding();
-                            ImGui.Text($"{territory}");
-
-                            ImGui.TableNextColumn();
-                            bool useSameLine = false;
-                            for (int i = 0; i < validAssignments.Count(); i++)
-                            {
-                                var assignment = validAssignments[i];
-                                var leveList = npcInfo.Leves.Where(x => LeveInfo.Leve_SheetInfo[x].JobAssignmentType == assignment).ToList();
-                                if (leveList.Count > 0)
-                                {
-                                    if (useSameLine)
-                                        ImGui.SameLine();
-
-                                    DrawIcon(assignment, iconSize);
-                                    if (!useSameLine)
-                                        useSameLine = true;
-
-                                    if (ImGui.IsItemHovered())
-                                    {
-                                        var levelsText = leveList
-                                            .Select(leve => LeveInfo.Leve_SheetInfo[leve].Level)
-                                            .Distinct()
-                                            .OrderBy(level => level)
-                                            .Select(level => level.ToString())
-                                            .Aggregate((a, b) => $"{a}, {b}");
-
-                                        ImGui.SetTooltip($"Leve Levels: {levelsText}");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                _vendorTable.Draw();
             }
         }
 

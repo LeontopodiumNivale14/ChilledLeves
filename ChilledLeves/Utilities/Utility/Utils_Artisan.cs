@@ -15,7 +15,7 @@ public static partial class Utils
         string baseUrl = "https://ffxivteamcraft.com/import/";
         string exportItems = "";
 
-        foreach (var leveEntry in C.LeveList)
+        foreach (var leveEntry in C.LeveList.Where(x => C.LeveOrder.Contains(x.Key)))
         {
             var LeveId = leveEntry.Key;
             if (leveEntry.Value == 0)

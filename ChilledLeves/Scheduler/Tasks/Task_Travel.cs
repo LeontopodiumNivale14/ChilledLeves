@@ -17,7 +17,7 @@ namespace ChilledLeves.Scheduler.Tasks
             var navTask = P.navTask;
             if (!navTask.IsBusy)
             {
-                if (Player.DistanceTo(vendorInfo.Npc_InteractZone) < 2)
+                if (Player.DistanceTo(vendorInfo.Npc_Location) < 7)
                 {
                     IceLogging.Verbose("We're close enough to the interact zone we don't need to queue up anything. Continuing to grab leve", tag);
                     Leve_Helper.State = Leve_Helper.SelectedMode switch
@@ -53,7 +53,7 @@ namespace ChilledLeves.Scheduler.Tasks
             var navTask = P.navTask;
             if (!navTask.IsBusy)
             {
-                if (Player.DistanceTo(vendorInfo.Npc_InteractZone) < 2)
+                if (Player.DistanceTo(vendorInfo.Npc_Location) < 7)
                 {
                     IceLogging.Verbose("We're close enough to the interact zone we don't need to queue up anything. Continuing to grab leve", tag);
                     Leve_Helper.State = LeveState.Turnin_Leve;

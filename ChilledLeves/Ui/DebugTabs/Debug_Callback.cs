@@ -1,31 +1,12 @@
-﻿using ChilledLeves.Utilities;
-using Dalamud.Bindings.ImGui;
-using Dalamud.Memory;
-using ECommons.EzHookManager;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc;
+﻿using ECommons.EzHookManager;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace ChilledLeves.Ui.DebugTabs;
 
-// Cleanup vs original:
-//  - AtkValue -> object parsing was duplicated (SetupDetour + CallbackDetour); pulled into one static helper.
-//  - `callbacksSearch.Length < 0` search filter was dead code (always false) -> fixed to `== 0`.
-//  - String parsing was inconsistent (a->String.ToString() vs Marshal.PtrToStringUTF8) -> unified on a->String.ToString().
-//  - setupHooks.Add -> TryAdd so re-hooking an already-hooked addon name doesn't throw.
-//  - DebugManager.ClickToCopyText replaced with a small local ImGui helper (no SimpleTweaks dependency).
-//  - SimpleTweaks' HookWrapper<T>/IHookWrapper removed entirely; uses ECommons.EzHookManager.EzHook<T>.
-//    EzHook auto-registers with EzHookCommon so it's disposed on plugin unload without us tracking every
-//    field by hand, and its Disable() fully disposes the underlying hook (not just pauses it) while
-//    Enable() lazily recreates -- which matches the "off means off" behavior the checkboxes here want,
-//    instead of us manually doing hook?.Disable() + conditional recreate against raw Dalamud Hook<T>.
-//  - Because EzHook.Disable() already disposes, DrawInstance's checkboxes no longer need the
-//    `fireCallbackHook?.Disable()` guard before conditionally re-enabling -- Enable() handles both
-//    "first creation" and "re-creation after a full dispose" itself.
+// Modified from here: https://github.com/Caraxi/SimpleTweaksPlugin/blob/c039932e40b0c752c09005cc4fdc362b6b786da4/Debugging/AddonDebug.cs#L34
+// Wanted a good way of just keeping track of them without them spamming the window with the x100 instances of some things...
+
 public unsafe class AddonDebugTab
 {
     public string Name => "Addon Logging";

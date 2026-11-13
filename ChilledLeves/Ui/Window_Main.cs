@@ -60,6 +60,7 @@ namespace ChilledLeves.Ui
             public FontAwesomeIcon Icon { get; set; }
             public string Label { get; set; }
             public Action Draw { get; set; }
+            public string HoverHint { get; set; } = string.Empty;
         }
 
         public Dictionary<WindowSelection, WindowInfo> TabItems = new()
@@ -68,55 +69,68 @@ namespace ChilledLeves.Ui
             {
                 Icon = FontAwesomeIcon.BookBookmark,
                 Label = "Leve Info",
-                Draw = () => Leve_Details.Draw()
+                Draw = () => Leve_Details.Draw(),
+                HoverHint = "See what all leves you have / what you need to complete"
             },
             [WindowSelection.LeveManifest] = new()
             {
                 Icon = FontAwesomeIcon.PersonChalkboard,
                 Label = "Leve Playlist",
                 Draw = () => Leve_Playlist.Draw(),
+                HoverHint = "Formally named worklist\n" +
+                            "Run all the leves you have queue'd up in a row"
             },
             [WindowSelection.SavedList] = new()
             {
                 Icon = FontAwesomeIcon.Save,
                 Label = "Saved Playlist",
-                Draw = () => Leve_List.Draw()
+                Draw = () => Leve_List.Draw(),
+                HoverHint = "View all your saved playlist, and also curated ones as well"
             },
             [WindowSelection.ARR_Grind] = new()
             {
                 Icon = FontAwesomeIcon.PersonThroughWindow,
-                Label = "ARR/HW Grind",
+                Label = "Gathering Grind",
                 Draw = () => Leve_ARRGrind.Draw(),
+                HoverHint = "Also known as ARR/HW Grind\n" +
+                            "Used to grind gatherer's up since you need to reroll\n" +
+                            "everything from ARR->HW for BTN/MIN/FSH"
             },
             [WindowSelection.UserInfo] = new()
             {
                 Icon = FontAwesomeIcon.Users,
                 Label = "User Info",
-                Draw = () => User_Info.Draw()
+                Draw = () => User_Info.Draw(),
+                HoverHint = "Keep track of your characters and how many leves they have"
             },
             [WindowSelection.Settings] = new()
             {
                 Icon = FontAwesomeIcon.Cogs,
                 Label = "Settings",
-                Draw = () => SettingsUi.Draw()
+                Draw = () => SettingsUi.Draw(),
+                HoverHint = "Plugin settings... nothing else here"
             },
             [WindowSelection.GatherProfiles] = new()
             {
                 Icon = FontAwesomeIcon.Leaf,
                 Label = "Gather Profiles",
-                Draw = () => Gathering_Profiles.Draw()
+                Draw = () => Gathering_Profiles.Draw(),
+                HoverHint = "Set what gathering buffs you want to use on BTN/MIN mission kinds"
             },
             [WindowSelection.NpcInfo] = new()
             {
                 Icon = FontAwesomeIcon.PersonWalkingLuggage,
                 Label = "Levemetes",
-                Draw = () => Levemetes_Info.Draw()
+                Draw = () => Levemetes_Info.Draw(),
+                HoverHint = "See what levemete has what leve",
             },
             [WindowSelection.Logs] = new()
             {
                 Icon = FontAwesomeIcon.Clipboard,
                 Label = "Logs",
                 Draw = () => User_Logs.Draw(),
+                HoverHint = "You know how I ask you to see logs if you have a bug report?\n" +
+                            "Yeah, it's this tab"
             },
             [WindowSelection.RouteEditor] = new()
             {
@@ -162,7 +176,10 @@ namespace ChilledLeves.Ui
 
                     foreach (var item in TabItems)
                     {
-                        DrawSelectable_Icon(item.Value.Icon, item.Value.Label, item.Key, compact);
+                        if (C.Compact_Ui)
+                            DrawSelectable_Icon_Small(item.Value, item.Key, compact);
+                        else
+                            DrawSelectable_Icon(item.Value, item.Key, compact);
                     }
                 }
             }
@@ -229,8 +246,13 @@ namespace ChilledLeves.Ui
 
             return clicked;
         }
-        public static void DrawSelectable_Icon(FontAwesomeIcon icon, string label, WindowSelection tab, bool compact)
+        public static void DrawSelectable_Icon(WindowInfo info, WindowSelection selection, bool compact)
         {
+            FontAwesomeIcon icon = info.Icon;
+            string label = info.Label;
+            WindowSelection tab = selection;
+
+
             bool isSelected = C.SelectedTab == tab;
             float scale = ImGuiHelpers.GlobalScale;
             float rowHeight = 25 * scale;
@@ -259,6 +281,86 @@ namespace ChilledLeves.Ui
 
             string selectableLabel = compact ? $"##{tab}" : $"{label}##{tab}";
             bool clicked = RowSelectable(selectableLabel, isSelected, rowHeight);
+            if (ImGui.IsItemHovered() && info.HoverHint != string.Empty)
+            {
+                ImGui.SetTooltip(info.HoverHint);
+            }
+
+            if (clicked)
+            {
+                C.SelectedTab = tab;
+                C.SaveDebounced();
+            }
+
+            if (compact && ImGui.IsItemHovered())
+                ImGui.SetTooltip(label);
+        }
+        public static void DrawSelectable_Icon_Small(WindowInfo info, WindowSelection selection, bool compact)
+        {
+            FontAwesomeIcon icon = info.Icon;
+            string label = info.Label;
+            WindowSelection tab = selection;
+
+            bool SmallRowSelectable(string id, bool isSelected, float height = 0f)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(0, 0, 0, 0));
+                ImGui.PushStyleColor(ImGuiCol.HeaderHovered, new Vector4(0, 0, 0, 0));
+                ImGui.PushStyleColor(ImGuiCol.HeaderActive, new Vector4(0, 0, 0, 0));
+
+                // Center the label vertically within the given height
+                ImGui.PushStyleVar(ImGuiStyleVar.SelectableTextAlign, new Vector2(0f, 0.5f));
+
+                bool clicked = ImGui.Selectable(id, isSelected,
+                    ImGuiSelectableFlags.SpanAllColumns, new Vector2(0, height));
+
+                ImGui.PopStyleVar();
+                ImGui.PopStyleColor(3);
+
+                if (isSelected)
+                    ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(ImGuiCol.HeaderActive));
+                else if (ImGui.IsItemHovered())
+                    ImGui.TableSetBgColor(ImGuiTableBgTarget.RowBg0, ImGui.GetColorU32(ImGuiCol.HeaderHovered));
+
+                return clicked;
+            }
+
+            bool isSelected = C.SelectedTab == tab;
+            float scale = ImGuiHelpers.GlobalScale;
+
+            float textHeight = ImGui.GetTextLineHeight();
+            float rowHeight = textHeight + 4 * scale;
+
+            // Measure the icon with the icon font so centering is accurate
+            ImGui.PushFont(UiBuilder.IconFont);
+            float iconHeight = ImGui.GetTextLineHeight();
+            ImGui.PopFont();
+            float iconOffsetY = (rowHeight - iconHeight) * 0.5f;
+
+            ImGui.TableNextRow(ImGuiTableRowFlags.None, rowHeight);
+
+            // --- Column 0: accent bar (paints just this cell when selected) ---
+            ImGui.TableNextColumn();
+            if (isSelected)
+            {
+                var color = C.UseIceTheme ? Theme_Colors.SidebarAccent : ImGuiColors.ParsedGold;
+                ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.GetColorU32(color));
+            }
+
+            // --- Column 1: icon, centered within the row ---
+            ImGui.TableNextColumn();
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + iconOffsetY);
+            ImGui.Dummy(new(0.1f));
+            ImGui.SameLine();
+            ImGui_Ice.Icon(icon);
+
+            // --- Column 2: label + row-spanning selectable (label is centered) ---
+            ImGui.TableNextColumn();
+
+            string selectableLabel = compact ? $"##{tab}" : $"{label}##{tab}";
+            bool clicked = SmallRowSelectable(selectableLabel, isSelected, rowHeight);
+
+            if (ImGui.IsItemHovered() && info.HoverHint != string.Empty)
+                ImGui.SetTooltip(info.HoverHint);
 
             if (clicked)
             {

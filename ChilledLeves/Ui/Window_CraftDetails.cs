@@ -130,6 +130,17 @@ namespace ChilledLeves.Ui
             {
                 Utils.ExportFinalCrafts();
             }
+            ImGui.SameLine();
+            if (ImGui.Button("TC"))
+            {
+                Utils.ExportSelectedListToTC();
+            }
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip(
+                    "Export to teamcraft\n" +
+                    "Will copy a link to your clipboard that contains a listing for teamcraft");
+            }
 
             DrawItemTable("Main Craft Items", Utils.ArtisanFinalCrafts, showCrafts: true);
         }

@@ -26,6 +26,14 @@ namespace ChilledLeves.Scheduler.Handlers
             }
             return false;
         }
+
+        internal static unsafe bool AddonReady(string addonName)
+        {
+            if (TryGetAddonByName<AtkUnitBase>(addonName, out var addon) && IsAddonReady(addon))
+                return true;
+            else
+                return false;
+        }
     }
 }
 

@@ -83,6 +83,8 @@ public static partial class LeveInfo
         }
     }
 
+    public static List<uint> GatherGrind_Npcs = new();
+
     /// <summary>
     /// Leves that are just garbage data... these shouldn't exist but do? But they also don't have any actual leve info. Might be relics of a time...
     /// </summary>
@@ -316,6 +318,17 @@ public static partial class LeveInfo
 
     public static void Update_ARRGrind()
     {
+        var gatherGrindNpcs = Levemete_Info
+            .Where(x => x.Value.Leves.Count > 0)
+            .Where(x => x.Value.Leves.Any(y => Leve_SheetInfo[y].Job is Job.MIN or Job.BTN or Job.FSH))
+            // .Where(x => x.Value.Leves.Any(y => Leve_SheetInfo[y].Level <= 60))
+            .ToList();
+
+        foreach (var npc in gatherGrindNpcs)
+        {
+            GatherGrind_Npcs.Add(npc.Key);
+        }
+
         var arrList = C.ARR_LevemetPriority;
 
         foreach (var (id, list) in arrList)

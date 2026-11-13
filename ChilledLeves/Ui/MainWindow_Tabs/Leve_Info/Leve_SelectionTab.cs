@@ -77,6 +77,16 @@ namespace ChilledLeves.Ui.MainWindow_Tabs.Leve_Info
 
                             C.SaveDebounced();
                         }
+                        else
+                        {
+                            Svc.Chat.Print(new()
+                            {
+                                Silent = true,
+                                Message = "[Chilled Leves] Hey! This kind of leve can only be run in Gathering Grind Mode. " +
+                                          $"If you would like to run \"{leveId.Value.LeveName}\", please use that mode instead.",
+                                Name = "Chilled Leves",
+                            });
+                        }
                     }
 
                     // Manually paint the row background — this is what actually gives you the full-row highlight

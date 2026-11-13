@@ -131,10 +131,10 @@ public static partial class Utils
 
     public static bool EnoughAllowance(uint leveId)
     {
-        if (LeveInfo.Leve_SheetInfo.TryGetValue(leveId, out var sheetInfo))
-            return sheetInfo.AllowanceCost >= Utils.Allowances;
-        else
+        if (!LeveInfo.Leve_SheetInfo.TryGetValue(leveId, out var sheetInfo))
             return false;
+
+        return Utils.Allowances >= sheetInfo.AllowanceCost;
     }
 
     public static int EstimateCurrentAllowance(Config.ClassInformation info)

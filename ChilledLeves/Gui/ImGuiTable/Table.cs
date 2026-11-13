@@ -41,6 +41,7 @@ public partial class Table<T> : IDisposable
         set => Flags = value ? Flags | ImGuiTableFlags.Sortable : Flags & ~ImGuiTableFlags.Sortable;
     }
     public bool ClosePopup { get; set; }
+    protected virtual Vector2? GetCellPadding() => null;
 
     public ImGuiTableFlags Flags = ImGuiTableFlags.RowBg
       | ImGuiTableFlags.Sortable
@@ -87,6 +88,10 @@ public partial class Table<T> : IDisposable
         return ImGui.GetTextLineHeightWithSpacing();
     }
 
+    // Override to give a table a fixed outer size (e.g. inside an auto-sizing popup).
+    protected virtual Vector2 GetOuterSize()
+        => ImGui.GetContentRegionAvail();
+
     public virtual void LoadRows()
     {
     }
@@ -127,7 +132,10 @@ public partial class Table<T> : IDisposable
         if (Columns.Count == 0)
             return;
 
-        using var table = ImRaii.Table("Table", Columns.Count, Flags, ImGui.GetContentRegionAvail());
+        var cellPadding = GetCellPadding();
+        using var padding = ImRaii.PushStyle(ImGuiStyleVar.CellPadding, cellPadding ?? Vector2.Zero, cellPadding.HasValue);
+
+        using var table = ImRaii.Table("Table", Columns.Count, Flags, GetOuterSize());
         if (!table)
             return;
 
