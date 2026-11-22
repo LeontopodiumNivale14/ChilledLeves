@@ -19,7 +19,7 @@ namespace ChilledLeves.Scheduler.Tasks
             string tag = "Check Active Leves";
 
             Leve_Helper.LeveToGrab = 0;
-            uint turninLeve = 0;
+            List<uint> readyLeves = [];
 
             var currentLeves = Utils.Leve_ActiveIds();
             List<uint> activeGatheringLeves = [];
@@ -41,12 +41,8 @@ namespace ChilledLeves.Scheduler.Tasks
 
                             if (Utils.GetItemCount(materialInfo.Item_Id) >= neededAmount)
                             {
-                                if (turninLeve == 0)
-                                {
-                                    IceLogging.Debug($"Found a leve that we have enough for a turnin. Registering it now so it'll be stored. {leve}", tag);
-                                    IceLogging.Debug($"We may not turn this in immediately if we have gathering leves to still do though", tag);
-                                    turninLeve = leve;
-                                }
+                                IceLogging.Debug($"Found a leve that we have enough for a turnin: {leve}", tag);
+                                readyLeves.Add(leve);
                                 continue;
                             }
                         }
@@ -61,12 +57,8 @@ namespace ChilledLeves.Scheduler.Tasks
                             }
                             else if (currentSeq is 255)
                             {
-                                if (turninLeve == 0)
-                                {
-                                    IceLogging.Debug($"Found a leve that we have completed for a turnin. Registering it now so it'll be stored. {leve}", tag);
-                                    IceLogging.Debug($"We may not turn this in immediately if we have gathering leves to still do though", tag);
-                                    turninLeve = leve;
-                                }
+                                IceLogging.Debug($"Found a leve that we have completed for a turnin: {leve}", tag);
+                                readyLeves.Add(leve);
                                 continue;
                             }
                         }
@@ -85,6 +77,7 @@ namespace ChilledLeves.Scheduler.Tasks
                 return true;
             }
 
+            var turninLeve = PickTurninLeve(readyLeves);
             if (turninLeve != 0)
             {
                 IceLogging.Debug("All checks have been completed. We don't have any gathering leves that we need to attemp so, we just going to turnin", tag);
@@ -125,6 +118,40 @@ namespace ChilledLeves.Scheduler.Tasks
                 }
             }
         }
+        /// <summary>
+        /// Picks the ready leve whose turn-in NPC is closest in the current zone, so every
+        /// turn-in at one NPC (and in one zone) is done before travelling somewhere else.
+        /// Falls back to journal order when none of the turn-in NPCs are in this zone.
+        /// </summary>
+        private static uint PickTurninLeve(List<uint> readyLeves)
+        {
+            if (readyLeves.Count == 0)
+                return 0;
+
+            var territory = Player.Territory.RowId;
+            uint closestLeve = 0;
+            float closestDistance = float.MaxValue;
+
+            foreach (var leve in readyLeves)
+            {
+                if (!LeveInfo.Leve_SheetInfo.TryGetValue(leve, out var sheetInfo))
+                    continue;
+                if (!LeveInfo.Levemete_Info.TryGetValue(sheetInfo.Npc_Turnin, out var vendorInfo))
+                    continue;
+                if (vendorInfo.TerritoryId != territory)
+                    continue;
+
+                var distance = Player.DistanceTo(vendorInfo.Npc_Location);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestLeve = leve;
+                }
+            }
+
+            return closestLeve != 0 ? closestLeve : readyLeves[0];
+        }
+
         private static bool Check_StandardLeves()
         {
             string tag = "Check_StandardLeves";
